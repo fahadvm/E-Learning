@@ -1,5 +1,3 @@
-import mongoose, { Document, ObjectId, Types } from "mongoose";
-import { Request } from "express";
 
 export interface GooglePayLoad {
   // googleUser: boolean;
@@ -9,3 +7,4 @@ export interface GooglePayLoad {
   image: string;
   // role: string;
 }
+

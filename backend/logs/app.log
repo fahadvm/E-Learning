@@ -1,0 +1,5 @@
+2025-08-16T17:48:16.088Z [INFO]: GET /student/profile 401 47 - 18.840 ms
+2025-08-16T17:48:16.242Z [INFO]: GET /favicon.ico 404 150 - 3.690 ms
+2025-08-16T19:18:08.480Z [INFO]: GET /student/profile 401 47 - 18.652 ms
+2025-08-16T19:18:09.586Z [INFO]: GET /student/profile 401 47 - 6.188 ms
+2025-08-17T05:09:05.152Z [INFO]: GET /student/profile 401 47 - 20.761 ms

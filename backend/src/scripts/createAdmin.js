@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
-const { AdminModel } = require("../models/Admin"); 
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
+import { AdminModel } from "../models/Admin";
 
 
 

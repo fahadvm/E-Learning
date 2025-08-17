@@ -1,9 +1,8 @@
 // infrastructure/database/repositories/company/EmployeeRepository.ts
 
-import { ICompanyEmployeeRepository } from "../../core/interfaces/repositories/company/ICompanyEmployeeRepository";
-import Employee, { IEmployee } from "../../models/Employee";
-import { injectable, inject } from "inversify";
-import { TYPES } from "../../core/types";
+import { ICompanyEmployeeRepository } from '../../core/interfaces/repositories/employee/ICompanyEmployeeRepository';
+import  { IEmployee ,Employee} from '../../models/Employee';
+import { injectable } from 'inversify';
 
 @injectable()
 export class CompanyEmployeeRepository implements ICompanyEmployeeRepository {
@@ -39,9 +38,35 @@ export class CompanyEmployeeRepository implements ICompanyEmployeeRepository {
         await Employee.findByIdAndUpdate(id, { blocked: status });
     }
 
-    async findByCompanyId(companyId: string, skip: number, limit: number): Promise<IEmployee[]> {
-        return Employee.find({ companyId })
+    async findByCompanyId(
+        companyId: string,
+        skip: number,
+        limit: number,
+        search: string,
+        sortField: string,
+        sortOrder: string
+    ): Promise<IEmployee[]> {
+        const query: any = {
+            companyId,
+            $or: [
+                { name: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } },
+            ],
+        };
+
+        const sort: any = {};
+        sort[sortField] = sortOrder === 'asc' ? 1 : -1;
+
+        return Employee.find(query)
+            .sort(sort)
             .skip(skip)
             .limit(limit);
     }
+
+    async updateEmployeeById(employeeId: string, data: Partial<IEmployee>): Promise<IEmployee | null> {
+        return await Employee.findByIdAndUpdate(employeeId, data, { new: true });
+    }
+
+
+
 }

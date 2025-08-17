@@ -26,10 +26,14 @@ export interface IOtpRepository {
 
   deleteByEmail(email: string, purpose?: string): Promise<void>;
 
-  updateOtp(
+   updateOtp(
     email: string,
     otp: string,
     expiresAt: Date,
-    purpose?: string
+    purpose?: 'signup' | 'forgot-password',
+    tempUserData?: {
+      name: string;
+      password: string;
+    }
   ): Promise<void>;
 }

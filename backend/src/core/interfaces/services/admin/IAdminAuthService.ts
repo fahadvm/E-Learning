@@ -1,6 +1,3 @@
-import { IAdmin } from "../../../../models/Admin";
-import { IStudent } from "../../../../models/Student"; 
-import { ICompany } from "../../../../models/Company";
 
 export interface IAdminAuthService {
   login(email: string, password: string): Promise<{
@@ -13,6 +10,5 @@ export interface IAdminAuthService {
     };
   }>;
 
-  getAllUsers(): Promise<IStudent[]>;
-  getAllCompanies(): Promise<ICompany[]>;
+
 }

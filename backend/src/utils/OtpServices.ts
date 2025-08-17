@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import nodemailer from 'nodemailer';
 const otpStore = new Map();
 
 export function generateOtp(length: number = 6): string {
@@ -12,7 +12,7 @@ export function generateOtp(length: number = 6): string {
 
 export const sendOtpEmail = async (toEmail: string, otp: string): Promise<void> => {
   const transporter = nodemailer.createTransport({
-    service: "gmail", 
+    service: 'gmail', 
     auth: {
       user: process.env.MAIL_USER,
       pass: process.env.MAIL_PASS,
@@ -22,11 +22,11 @@ export const sendOtpEmail = async (toEmail: string, otp: string): Promise<void> 
   const mailOptions = {
     from: `"DevNext" <${process.env.MAIL_USER}>`,
     to: toEmail,
-    subject: "Your DevNext OTP Code",
+    subject: 'Your DevNext OTP Code',
     html: `<h3>Your OTP code is: <b>${otp}</b></h3><p>It is valid for 1 minutes.</p>`,
   };
 
-  console.log("otp is :",otp)
+  console.log('otp is :',otp);
 
   await transporter.sendMail(mailOptions);
 };

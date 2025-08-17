@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 const SECRET_KEY = process.env.JWT_SECRET || 'yourAccessSecret';
 const REFRESH_KEY = process.env.REFRESH_SECRET || 'yourRefreshSecret';
@@ -50,17 +50,17 @@ export const refreshAccessToken = (refreshToken: string) => {
   return { accessToken: newAccessToken, refreshToken: newRefreshToken };
 };
 export const setTokensInCookies = (res: Response, accessToken: string, refreshToken: string) => {
-  console.log("setTokensInCookies:",accessToken)
-  res.cookie("token", accessToken, {
+  console.log('setTokensInCookies:',accessToken);
+  res.cookie('token', accessToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax", 
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax', 
     maxAge: 15 * 60 * 1000,
   });
-  res.cookie("refreshToken", refreshToken, {
+  res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production", 
-    sameSite: "lax",
+    secure: process.env.NODE_ENV === 'production', 
+    sameSite: 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000, 
   });
 };

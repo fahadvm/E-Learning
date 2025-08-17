@@ -1,0 +1,9 @@
+
+import { Request } from 'express';
+import { ICourse } from '../../../../models/course';
+
+export interface ITeacherCourseService {
+  createCourse(req: Request): Promise<ICourse>;
+  getCoursesByTeacherId(teacherId: string): Promise<ICourse[]>;
+  getCourseByIdWithTeacherId(courseId: string, teacherId: string): Promise<ICourse | null>;
+}

@@ -1,0 +1,15 @@
+import { Router } from 'express';
+import container from '../../core/DI/container';
+import { authMiddleware } from '../../middleware/authMiddleware';
+import { StudentCourseController } from '../../controllers/student/student.course.controller';
+import { asyncHandler } from '../../middleware/asyncHandler';
+import { TYPES } from '../../core/DI/types';
+
+
+const router = Router();
+const studentCourseCtrl = container.get<StudentCourseController>(TYPES.StudentCourseController);
+
+router.get('/', authMiddleware('student'), asyncHandler(studentCourseCtrl.getAllCourses.bind(studentCourseCtrl)));
+router.get('/:courseId', authMiddleware('student'), asyncHandler(studentCourseCtrl.getCourseDetailById.bind(studentCourseCtrl)));
+
+export default router;

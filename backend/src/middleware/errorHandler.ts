@@ -1,5 +1,5 @@
 // middlewares/errorHandler.ts
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
 
 export function errorHandler(
   err: any,
@@ -8,12 +8,11 @@ export function errorHandler(
   next: NextFunction
 ) {
 
-    console.log("middleware is working")
   const status = err.statusCode || 500;
-  const message = err.message || "Internal Server Error";
-  console.log("this error message from errorHandler",message)
+  const message = err.message || 'Internal Server Error';
+  console.log('this error message from errorHandler',message);
 
-  console.error("Error caught:", message);
+  console.error('Error caught:', message);
 
-  res.status(status).json({ message });
+  res.status(status).json({ success: false, message });
 }

@@ -1,0 +1,22 @@
+import { Router } from 'express';
+
+// Admin Route Modules
+import authRoutes from './adminRoute/admin.auth.route';
+import courseRoutes from './adminRoute/admin.course.route';
+import studentRoutes from './adminRoute/admin.student.route';
+import teacherRoutes from './adminRoute/admin.teacher.route';
+import companyRoutes from './adminRoute/admin.company.route';
+// import employeeRoutes from './adminRoute/admin.employee.route';
+// import subscriptionRoutes from './adminRoute/admin.subscription.route';
+
+const  adminRouter = Router();
+
+adminRouter.use('/auth', authRoutes);
+adminRouter.use('/courses', courseRoutes);
+adminRouter.use('/students', studentRoutes);
+adminRouter.use('/teachers', teacherRoutes);
+adminRouter.use('/companies', companyRoutes);
+// adminRouter.use('/employees', employeeRoutes);
+// adminRouter.use('/subscriptions', subscriptionRoutes);
+
+export default adminRouter;
