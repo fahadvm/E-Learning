@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { TYPES } from '../../core/DI/types';
+import { TYPES } from '../../core/di/types';
 import { IAdminEmployeeService } from '../../core/interfaces/services/admin/IAdminEmployeeService';
 import { Request, Response } from 'express';
 import { sendResponse } from '../../utils/ResANDError';

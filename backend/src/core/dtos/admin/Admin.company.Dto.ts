@@ -1,5 +1,6 @@
 import { ICompany } from "../../../models/Company";
 
+
 export interface IAdminCompanyDto {
   _id: string;
   name: string;
