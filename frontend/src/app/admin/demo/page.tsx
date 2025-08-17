@@ -191,7 +191,7 @@ const CompanyProfile: React.FC = () => {
           <p className="text-gray-500">Innovative Solutions Provider</p>
           <div className="flex justify-center gap-10 mt-4">
             <div>
-              <p className="font-bold text-gray-800">354</p>
+              <p className="font-bold text-gray-800">3545</p>
               <p className="text-gray-500 text-sm">courses</p>
             </div>
             <div>
