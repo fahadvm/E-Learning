@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { ObjectId } from "mongodb";
 
-interface Education {
+export interface Education {
   degree: string;
   description: string;
   from: string;
@@ -9,7 +9,7 @@ interface Education {
   institution: string;
 }
 
-interface Experience {
+export interface Experience {
   company: string;
   title: string;
   type: string;
@@ -20,7 +20,7 @@ interface Experience {
   description: string;
 }
 
-interface SocialLinks {
+export interface SocialLinks {
   linkedin: string;
   twitter: string;
   instagram: string;
@@ -52,6 +52,8 @@ export interface ITeacher extends Document {
   comment?: string;
   rating?: number;
   userId: string;
+  createdAt: Date,
+  updatedAt: Date
 }
 
 const EducationSchema = new Schema<Education>(
@@ -119,6 +121,8 @@ const TeacherSchema = new Schema<ITeacher>(
     comment: { type: String },
     rating: { type: Number },
     userId: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
 
   },
   {

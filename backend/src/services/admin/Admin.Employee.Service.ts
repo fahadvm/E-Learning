@@ -1,31 +1,40 @@
 import { inject, injectable } from 'inversify';
-import { TYPES } from '../../core/DI/types';
+import { TYPES } from '../../core/di/types';
 import { IAdminEmployeeService } from '../../core/interfaces/services/admin/IAdminEmployeeService';
 import { IEmployeeRepository } from '../../core/interfaces/repositories/employee/IEmployeeRepository';
-import { IEmployee } from '../../models/Employee';
+import { IAdminEmployeeDTO, PaginatedEmployeeDTO, adminEmployeeDto } from '../../core/dtos/admin/Admin.employee.Dto';
 
 @injectable()
 export class AdminEmployeeService implements IAdminEmployeeService {
-    constructor(
-        @inject(TYPES.EmployeeRepository)
-        private readonly _employeeRepo: IEmployeeRepository
-    ) {}
+  constructor(
+    @inject(TYPES.EmployeeRepository)
+    private readonly _employeeRepo: IEmployeeRepository
+  ) {}
 
-    async getEmployeesByCompany(companyId: string, page: number, limit: number, search: string): Promise<{ employees: IEmployee[], total: number }> {
-        const employees = await this._employeeRepo.getEmployeesByCompany(companyId, page, limit, search);
-        const total = await this._employeeRepo.countEmployeesByCompany(companyId, search);
-        return { employees, total };
-    }
+  async getEmployeesByCompany(companyId: string, page: number, limit: number, search: string): Promise<PaginatedEmployeeDTO> {
+    const employees = await this._employeeRepo.getEmployeesByCompany(companyId, page, limit, search);
+    const total = await this._employeeRepo.countEmployeesByCompany(companyId, search);
+    const totalPages = Math.ceil(total / limit);
 
-    async getEmployeeById(employeeId: string): Promise<IEmployee | null> {
-        return this._employeeRepo.findById(employeeId);
-    }
+    return {
+      data: employees.map(adminEmployeeDto),
+      total,
+      totalPages
+    };
+  }
 
-    async blockEmployee(employeeId: string): Promise<IEmployee | null> {
-        return this._employeeRepo.blockEmployee(employeeId);
-    }
+  async getEmployeeById(employeeId: string): Promise<IAdminEmployeeDTO | null> {
+    const employee = await this._employeeRepo.findById(employeeId);
+    return employee ? adminEmployeeDto(employee) : null;
+  }
 
-    async unblockEmployee(employeeId: string): Promise<IEmployee | null> {
-        return this._employeeRepo.unblockEmployee(employeeId);
-    }
+  async blockEmployee(employeeId: string): Promise<IAdminEmployeeDTO | null> {
+    const employee = await this._employeeRepo.blockEmployee(employeeId);
+    return employee ? adminEmployeeDto(employee) : null;
+  }
+
+  async unblockEmployee(employeeId: string): Promise<IAdminEmployeeDTO | null> {
+    const employee = await this._employeeRepo.unblockEmployee(employeeId);
+    return employee ? adminEmployeeDto(employee) : null;
+  }
 }

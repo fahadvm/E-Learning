@@ -1,13 +1,13 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { ObjectId } from "mongodb";
 
-interface ILesson {
+export interface ILesson {
   title: string;
   content?: string;
   videoUrl?: string;
 }
 
-interface IModule {
+export interface IModule {
   title: string;
   description?: string;
   lessons: ILesson[];
@@ -28,6 +28,7 @@ export interface ICourse extends Document {
   teacherId?: mongoose.Types.ObjectId;
   modules: IModule[];
   createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const LessonSchema = new Schema<ILesson>(
@@ -67,6 +68,9 @@ const CourseSchema = new Schema<ICourse>(
     },
     modules: { type: [ModuleSchema], default: [] },
     createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
+
+
   },
   {
     timestamps: true,
