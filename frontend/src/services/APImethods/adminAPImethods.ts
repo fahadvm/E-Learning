@@ -1,7 +1,6 @@
 import axios from "axios"
 import { getRequest, patchRequest, postRequest, putRequest } from "../api"
 import { baseURL } from "../AxiosInstance"
-import { UpdateWriteOpResult } from "mongoose"
 
 
 const get = getRequest;

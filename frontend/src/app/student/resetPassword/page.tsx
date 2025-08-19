@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
+import { studentAuthApi } from "@/services/APImethods/studentAPImethods";
+import { showInfoToast, showSuccessToast } from "@/utils/Toast";
 
 interface SignupForm {
   password: string;
@@ -53,20 +55,17 @@ export default function StudentResetPasswordPage() {
 
     setIsLoading(true);
     try {
-      const response = await axios.post<{ message: string }>(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/student/set-new-password`,
-        {
-          email,
-          newPassword: formData.password
-        },
-        {
-          withCredentials: true,
-          timeout: 10000
-        }
-      );
-      setMessage("✅ Password reset successfully");
-      localStorage.removeItem("tempforgetEmail");
-      router.push("/student/login");
+      const response = await studentAuthApi.setNewPassword({
+        email,
+        newPassword: formData.password
+      })
+      if (response?.ok) {
+        showSuccessToast(response?.message)
+        localStorage.removeItem("tempforgetEmail");
+        router.push("/student/login");
+      }else{
+        showInfoToast(response?.message)
+      }
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>;
       if (error.response?.status === 400) {
@@ -86,7 +85,7 @@ export default function StudentResetPasswordPage() {
       {/* Left Section: Reset Password Form */}
       <div className="w-full lg:w-1/2 p-6 sm:p-10 lg:p-16 bg-white flex flex-col justify-center items-center shadow-2xl">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-8 tracking-tight">
-          Reset Password 
+          Reset Password
         </h1>
 
         <form onSubmit={handleResetPassword} className="w-full max-w-md space-y-5">
@@ -164,16 +163,7 @@ export default function StudentResetPasswordPage() {
           </button>
         </form>
 
-        {message && (
-          <p
-            id="form-error"
-            className={`mt-4 text-center text-sm font-medium ${message.includes("✅") ? "text-green-600" : "text-red-600"
-              }`}
-            role="alert"
-          >
-            {message}
-          </p>
-        )}
+        
 
         <p className="mt-6 text-center text-gray-600">
           Already have an account?{" "}

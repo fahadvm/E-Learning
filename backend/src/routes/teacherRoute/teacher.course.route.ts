@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import container from '../../core/DI/container';
+import container from '../../core/di/container';
 import { TeacherCourseController } from '../../controllers/teacher/teacher.course.controller';
 import { asyncHandler } from '../../middleware/asyncHandler';
 import { authMiddleware } from '../../middleware/authMiddleware';
 import multer from 'multer';
-import { TYPES } from '../../core/DI/types';
+import { TYPES } from '../../core/di/types';
 
 
 const storage = multer.memoryStorage();

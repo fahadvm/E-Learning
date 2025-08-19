@@ -2,7 +2,7 @@
 import { Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import { ITeacherAuthService } from '../../core/interfaces/services/teacher/ITeacherAuthService';
-import { TYPES } from '../../core/DI/types';
+import { TYPES } from '../../core/di/types';
 import { setTokensInCookies, clearTokens } from '../../utils/JWTtoken';
 import { sendResponse, throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';

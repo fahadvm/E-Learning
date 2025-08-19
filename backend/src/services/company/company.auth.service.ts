@@ -9,7 +9,7 @@ import { generateAccessToken, generateRefreshToken } from '../../utils/JWTtoken'
 import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
-import { TYPES } from '../../core/DI/types';
+import { TYPES } from '../../core/di/types';
 
 
 

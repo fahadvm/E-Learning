@@ -6,7 +6,7 @@ import { MESSAGES } from '../../utils/ResponseMessages';
 
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { throwError } from '../../utils/ResANDError';
-import { TYPES } from '../../core/DI/types';
+import { TYPES } from '../../core/di/types';
 
 
 

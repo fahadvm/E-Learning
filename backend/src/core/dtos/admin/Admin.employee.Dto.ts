@@ -2,7 +2,7 @@
 import { IEmployee } from "../../../models/Employee";
 
 export interface IAdminEmployeeDTO {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   companyId: string;
@@ -21,7 +21,7 @@ export interface PaginatedEmployeeDTO {
 
 
 export const adminEmployeeDto = (employee: IEmployee): IAdminEmployeeDTO => ({
-  id: employee._id.toString(),
+  _id: employee._id.toString(),
   name: employee.name,
   email: employee.email,
   companyId: employee.companyId.toString(),

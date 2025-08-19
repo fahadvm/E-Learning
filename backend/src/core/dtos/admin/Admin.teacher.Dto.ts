@@ -27,7 +27,7 @@ export interface AdminSocialLinksDTO {
 }
 
 export interface IAdminTeacherDTO {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   isVerified: boolean;
@@ -64,7 +64,7 @@ export const mapExperienceDTO = (exp: Experience): AdminExperienceDTO => ({ ...e
 export const mapSocialLinksDTO = (links: SocialLinks): AdminSocialLinksDTO => ({ ...links });
 
 export const adminTeacherDto = (teacher: ITeacher): IAdminTeacherDTO => ({
-  id: teacher._id.toString(),
+  _id: teacher._id.toString(),
   name: teacher.name,
   email: teacher.email,
   isVerified: teacher.isVerified,

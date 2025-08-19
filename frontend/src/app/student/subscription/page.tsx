@@ -5,6 +5,7 @@ import { Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Header from '@/componentssss/student/header';
 import axios from '@/utils/axios';
+import { studentSubscriptionApi } from '@/services/APImethods/studentAPImethods';
 
 interface Plan {
   _id?: string;
@@ -22,8 +23,8 @@ export default function SubscriptionPlansPage() {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const response = await axios.get('/auth/student/subscriptions');
-        setPlans(response.data.data);
+        const response = await studentSubscriptionApi.getAllPlans();
+        setPlans(response.data);
       } catch (error) {
         console.error('Error fetching subscription plans:', error);
       } finally {

@@ -1,9 +1,9 @@
 import express from 'express';
-import container from '../../core/DI/container';
+import container from '../../core/di/container';
 import { CompanyCourseController } from '../../controllers/company/company.course.controller';
 import { authMiddleware } from '../../middleware/authMiddleware';
 import { asyncHandler } from '../../middleware/asyncHandler';
-import { TYPES } from '../../core/DI/types';
+import { TYPES } from '../../core/di/types';
 
 
 const router = express.Router();

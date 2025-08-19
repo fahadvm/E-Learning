@@ -64,17 +64,17 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      try {
-        await axiosInstance.get("/refresh-token");
-        processQueue(null);
-        return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        processQueue(refreshError);
-        showInfoToast("Session expired. Please login again.");
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
-      }
+      // try {
+      //   await axiosInstance.get("/refresh-token");
+      //   processQueue(null);
+      //   return axiosInstance(originalRequest);
+      // } catch (refreshError) {
+      //   processQueue(refreshError);
+      //   showInfoToast("Session expired. Please login again.");
+      //   return Promise.reject(refreshError);
+      // } finally {
+      //   isRefreshing = false;
+      // }
     }
 
     return Promise.reject(error);

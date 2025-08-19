@@ -2,11 +2,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { showInfoToast, showSuccessToast } from "@/utils/Toast";
 
 interface Props {
   localStorageKey: string;
-  verifyUrl: string;
-  resendUrl: string;
+  verifyUrl: any;
+  resendUrl: any;
   redirectPath: string;
   purpose: string;
   backToPath?: string;
@@ -28,7 +29,6 @@ export default function OtpVerificationPage({
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
   const router = useRouter();
-
 
 
   useEffect(() => {
@@ -59,22 +59,20 @@ export default function OtpVerificationPage({
 
     try {
       console.log("its working")
-      const res = await axios.post(
-        verifyUrl,
-        { email, otp },
-        { withCredentials: true }
-      );
-      console.log(res)
-      setMessage("✅ OTP verified successfully!");
-
-      if (localStorageKey !== "tempforgetEmail") {
-        localStorage.removeItem(localStorageKey);
-
+      const res = await verifyUrl({ email, otp });
+      console.log("response form verify otp",res)
+      if (res?.ok) {
+        showSuccessToast(res.message);
+        if (localStorageKey !== "tempforgetEmail") {
+          localStorage.removeItem(localStorageKey);
+        }
+        router.push(redirectPath);
+      }else{
+        setMessage(res?.message)
       }
-      router.push(redirectPath);
 
     } catch (err: any) {
-      // console.log(err)
+      console.log(err)
       setMessage(err?.response?.data?.message || "Verification failed");
     }
   }
@@ -84,15 +82,16 @@ export default function OtpVerificationPage({
     setMessage("");
 
     try {
-      await axios.post(
-        resendUrl,
-        { email, purpose },
-        { withCredentials: true }
-      );
+      const res = await resendUrl({ email, purpose });
+      if(res?.ok){
+        showSuccessToast(res?.message)
+        setTimer(1);
+        setIsButtonDisabled(true);
+      }else{
+        showInfoToast(res?.message)
+      }
 
-      setMessage("✅ OTP resent successfully!");
-      setTimer(30);
-      setIsButtonDisabled(true);
+
     } catch (err: any) {
       console.log("response:", err)
       setMessage(err?.response?.data?.message || "Failed to resend OTP");

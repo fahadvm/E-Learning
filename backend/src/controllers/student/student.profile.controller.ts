@@ -25,7 +25,10 @@ export class StudentProfileController {
   editProfile = async (req: Request, res: Response) => {
     const decoded = decodeToken(req.cookies.token);
     if (!decoded?.id) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+    console.log("updated in controller working")
     const updated = await this._studentProfileService.updateStudentProfile(decoded.id, req.body);
+    console.log("updated in controller", updated)
+
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.PROFILE_UPDATED, true, updated);
   };
 }

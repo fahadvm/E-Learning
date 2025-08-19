@@ -11,7 +11,7 @@ import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { generateOtp, sendOtpEmail } from '../../utils/OtpServices';
 import { GooglePayLoad } from '../../types/userTypes';
 import { verifyGoogleIdToken } from '../../utils/googleVerify';
-import { TYPES } from '../../core/DI/types';
+import { TYPES } from '../../core/di/types';
 import { MESSAGES } from '../../utils/ResponseMessages';
 
 @injectable()
@@ -48,14 +48,14 @@ export class StudentAuthService implements IStudentAuthService {
 
   async verifyOtp(email: string, otp: string) {
     const record = await this._otpRepo.findByEmail(email);
-    if (!record || record.otp !== otp || record.expiresAt < new Date()) throwError(MESSAGES.OTP_INVALID, STATUS_CODES.UNAUTHORIZED);
+    if (!record || record.otp !== otp || record.expiresAt < new Date()) throwError(MESSAGES.OTP_INVALID, STATUS_CODES.BAD_REQUEST);
     if (!record.tempUserData) throwError(MESSAGES.TEMP_USER_DATA_MISSING, STATUS_CODES.BAD_REQUEST);
     const { name, password } = record.tempUserData;
     const student = await this._studentRepo.create({ name, email, password, isVerified: true, isBlocked: false });
     await this._otpRepo.deleteByEmail(email);
-    const token = generateAccessToken(student.id, 'student');
-    const refreshToken = generateRefreshToken(student.id, 'student');
-    return { token, refreshToken, user: { id: student.id, role: 'student', email: student.email, name: student.name } };
+    const token = generateAccessToken(student._id.toString(), 'student');
+    const refreshToken = generateRefreshToken(student._id.toString(), 'student');
+    return { token, refreshToken, user: { id: student._id.toString(), role: 'student', email: student.email, name: student.name } };
   }
 
   async login(email: string, password: string) {
@@ -65,9 +65,9 @@ export class StudentAuthService implements IStudentAuthService {
     if (!match) throwError(MESSAGES.INVALID_CREDENTIALS, STATUS_CODES.BAD_REQUEST);
     if (!student.isVerified) throwError(MESSAGES.VERIFY_EMAIL, STATUS_CODES.UNAUTHORIZED);
     if (student.isBlocked) throwError(MESSAGES.ACCOUNT_BLOCKED, STATUS_CODES.FORBIDDEN);
-    const token = generateAccessToken(student.id, 'student');
-    const refreshToken = generateRefreshToken(student.id, 'student');
-    return { token, refreshToken, user: { id: student.id, role: 'student', email: student.email, name: student.name } };
+    const token = generateAccessToken(student._id.toString(), 'student');
+    const refreshToken = generateRefreshToken(student._id.toString(), 'student');
+    return { token, refreshToken, user: { id: student._id.toString(), role: 'student', email: student.email, name: student.name } };
   }
 
   async googleAuth(profile: GooglePayLoad) {
@@ -104,7 +104,7 @@ export class StudentAuthService implements IStudentAuthService {
   async verifyForgotOtp(email: string, otp: string) {
     const record = await this._otpRepo.findByEmail(email);
     if (!record || record.purpose !== 'forgot-password') throwError(MESSAGES.OTP_NOT_VALID, STATUS_CODES.BAD_REQUEST);
-    if (record.otp !== otp || record.expiresAt < new Date()) throwError(MESSAGES.OTP_INVALID, STATUS_CODES.UNAUTHORIZED);
+    if (record.otp !== otp || record.expiresAt < new Date()) throwError(MESSAGES.OTP_INVALID, STATUS_CODES.BAD_REQUEST);
   }
 
   async setNewPassword(email: string, newPassword: string) {

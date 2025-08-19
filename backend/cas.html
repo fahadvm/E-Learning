@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course Detail Page</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background: #f8fafc;
+      color: #1e293b;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: url('https://picsum.photos/1200/400?course') center/cover no-repeat;
+      color: white;
+      padding: 60px 20px;
+      text-align: center;
+      position: relative;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+      margin: auto;
+    }
+    .hero h1 {
+      font-size: 2.5rem;
+      margin: 0 0 10px;
+    }
+    .hero p {
+      font-size: 1.1rem;
+      margin: 10px 0;
+    }
+    .rating {
+      margin-top: 10px;
+      color: #fbbf24;
+    }
+
+    /* Layout */
+    .container {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    @media (max-width: 900px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 20px;
+    }
+    .price {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #2563eb;
+    }
+    .old-price {
+      text-decoration: line-through;
+      color: #64748b;
+      font-size: 1rem;
+      margin-left: 8px;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #1e40af;
+    }
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+    .quick-info {
+      margin-top: 20px;
+      font-size: 0.95rem;
+    }
+    .quick-info p {
+      margin: 5px 0;
+    }
+
+    /* Main Content */
+    .section {
+      margin-bottom: 40px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .section h2 {
+      margin-bottom: 15px;
+      color: #0f172a;
+    }
+
+    /* Curriculum Accordion */
+    .accordion-item {
+      margin-bottom: 10px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .accordion-header {
+      background: #f1f5f9;
+      padding: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      background: white;
+      padding: 0 12px;
+    }
+    .accordion-content.open {
+      padding: 12px;
+    }
+    .lesson {
+      padding: 6px 0;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 0.95rem;
+    }
+    .lesson:last-child {
+      border-bottom: none;
+    }
+
+    /* Reviews */
+    .review {
+      border-top: 1px solid #e2e8f0;
+      padding: 10px 0;
+    }
+    .review strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    /* Instructor */
+    .instructor {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .instructor img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    /* Related Courses */
+    .related-courses {
+      display: grid;
+      grid-template-columns: repeat(auto-fill,minmax(250px,1fr));
+      gap: 20px;
+    }
+    .course-card {
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: 0.3s;
+    }
+    .course-card:hover {
+      transform: translateY(-5px);
+    }
+    .course-card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+    }
+    .course-card .content {
+      padding: 15px;
+    }
+    .course-card h4 {
+      margin: 0 0 8px;
+    }
+    .course-card .price {
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero Section -->
+  <div class="hero">
+    <div class="hero-content">
+      <h1>Advanced Web Development Bootcamp</h1>
+      <p>Master full-stack development with hands-on projects & real-world skills</p>
+      <div class="rating">★★★★★ (4.8/5 - 1,230 reviews)</div>
+      <p>By <strong>John Doe</strong>, Senior Software Engineer</p>
+    </div>
+  </div>
+
+  <!-- Layout -->
+  <div class="container">
+    <!-- Main -->
+    <div class="main">
+
+      <!-- Overview -->
+      <div class="section">
+        <h2>Course Overview</h2>
+        <p>This comprehensive bootcamp covers everything from frontend (HTML, CSS, JavaScript, React) to backend (Node.js, Express, MongoDB). You'll build real-world projects and gain the confidence to work as a full-stack developer.</p>
+        <ul>
+          <li>✔ Learn modern frontend frameworks</li>
+          <li>✔ Build scalable backend APIs</li>
+          <li>✔ Work with databases</li>
+          <li>✔ Deploy apps to the cloud</li>
+        </ul>
+      </div>
+
+      <!-- Curriculum -->
+      <div class="section">
+        <h2>Course Curriculum</h2>
+        <div class="accordion-item">
+          <div class="accordion-header">Module 1: Introduction <span>+</span></div>
+          <div class="accordion-content">
+            <div class="lesson">Lesson 1: Getting Started (10 min)</div>
+            <div class="lesson">Lesson 2: Setting Up Environment (15 min)</div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-header">Module 2: Frontend Development <span>+</span></div>
+          <div class="accordion-content">
+            <div class="lesson">Lesson 1: HTML & CSS Basics (20 min)</div>
+            <div class="lesson">Lesson 2: JavaScript Fundamentals (25 min)</div>
+            <div class="lesson">Lesson 3: React Introduction (30 min)</div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-header">Module 3: Backend Development <span>+</span></div>
+          <div class="accordion-content">
+            <div class="lesson">Lesson 1: Node.js Basics (15 min)</div>
+            <div class="lesson">Lesson 2: Express Framework (25 min)</div>
+            <div class="lesson">Lesson 3: MongoDB Integration (30 min)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Instructor -->
+      <div class="section">
+        <h2>Instructor</h2>
+        <div class="instructor">
+          <img src="https://picsum.photos/100" alt="Instructor">
+          <div>
+            <h3>John Doe</h3>
+            <p>Senior Software Engineer with 10+ years experience in web development. Passionate about teaching and mentoring new developers.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reviews -->
+      <div class="section">
+        <h2>Student Reviews</h2>
+        <div class="review">
+          <strong>Jane Smith</strong>
+          ⭐⭐⭐⭐⭐ - "Great course, very detailed and beginner friendly!"
+        </div>
+        <div class="review">
+          <strong>Michael Johnson</strong>
+          ⭐⭐⭐⭐ - "Loved the hands-on projects, very practical."
+        </div>
+      </div>
+
+      <!-- Related Courses -->
+      <div class="section">
+        <h2>Related Courses</h2>
+        <div class="related-courses">
+          <div class="course-card">
+            <img src="https://picsum.photos/250/150?1" alt="">
+            <div class="content">
+              <h4>React Masterclass</h4>
+              <p class="price">$49.99</p>
+            </div>
+          </div>
+          <div class="course-card">
+            <img src="https://picsum.photos/250/150?2" alt="">
+            <div class="content">
+              <h4>Node.js & Express API</h4>
+              <p class="price">$39.99</p>
+            </div>
+          </div>
+          <div class="course-card">
+            <img src="https://picsum.photos/250/150?3" alt="">
+            <div class="content">
+              <h4>MongoDB for Beginners</h4>
+              <p class="price">$29.99</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div>
+        <span class="price">$99.99</span>
+        <span class="old-price">$199.99</span>
+      </div>
+      <button class="btn btn-primary">Add to Cart</button>
+      <button class="btn btn-secondary">Add to Wishlist</button>
+
+      <div class="quick-info">
+        <p><strong>Duration:</strong> 40 hours</p>
+        <p><strong>Level:</strong> Advanced</p>
+        <p><strong>Language:</strong> English</p>
+        <p><strong>Certificate:</strong> Yes</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Accordion functionality
+    document.querySelectorAll('.accordion-header').forEach(header => {
+      header.addEventListener('click', () => {
+        const content = header.nextElementSibling;
+        content.classList.toggle('open');
+        if (content.style.maxHeight) {
+          content.style.maxHeight = null;
+          header.querySelector("span").textContent = "+";
+        } else {
+          content.style.maxHeight = content.scrollHeight + "px";
+          header.querySelector("span").textContent = "−";
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

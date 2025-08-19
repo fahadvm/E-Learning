@@ -1,18 +1,33 @@
 import { ICourse, ILesson, IModule , } from "../../../models/course";
+// Request DTO for filtering courses
 
-export interface IAdminLessonDTO {
+export interface GetStudentCoursesRequestDTO {
+  search?: string;
+  category?: string;
+  level?: string;
+  language?: string;
+  sort: string;
+  order: string;
+  page: number;
+  limit: number;
+}
+
+
+
+
+export interface IStudentLessonDTO {
   title: string;
   content?: string;
   videoUrl?: string;
 }
 
-export interface IAdminModuleDTO {
+export interface IStudentModuleDTO {
   title: string;
   description?: string;
-  lessons: IAdminLessonDTO[];
+  lessons: IStudentLessonDTO[];
 }
 
-export interface IAdminCourseDTO {
+export interface IStudentCourseDTO {
   _id: string;
   title: string;
   description: string;
@@ -25,30 +40,30 @@ export interface IAdminCourseDTO {
   status: "pending" | "verified" | "rejected";
   rejectionReason?: string;
   teacherId?: string;
-  modules: IAdminModuleDTO[];
+  modules: IStudentModuleDTO[];
   createdAt: Date;
   updatedAt: Date;
 }
 export interface PaginatedCourseDTO {
-  data: IAdminCourseDTO[];
+  data: IStudentCourseDTO[];
   total: number;
   totalPages:number;
 }
 
 
-export const AdminLessonDTO = (lesson: ILesson): IAdminLessonDTO => ({
+export const StudentLessonDTO = (lesson: ILesson): IStudentLessonDTO => ({
   title: lesson.title,
   content: lesson.content,
   videoUrl: lesson.videoUrl,
 });
 
-export const AdminModuleDTO = (module: IModule): IAdminModuleDTO => ({
+export const StudentModuleDTO = (module: IModule): IStudentModuleDTO => ({
   title: module.title,
   description: module.description,
-  lessons: module.lessons?.map(AdminLessonDTO) || [],
+  lessons: module.lessons?.map(StudentLessonDTO) || [],
 });
 
-export const AdminCourseDTO = (course: ICourse): IAdminCourseDTO => ({
+export const StudentCourseDTO = (course: ICourse): IStudentCourseDTO => ({
   _id: course._id.toString(),
   title: course.title,
   description: course.description,
@@ -61,7 +76,7 @@ export const AdminCourseDTO = (course: ICourse): IAdminCourseDTO => ({
   status: course.status as "pending" | "verified" | "rejected",
   rejectionReason: course.rejectionReason,
   teacherId: course.teacherId?.toString(),
-  modules: course.modules?.map(AdminModuleDTO) || [],
+  modules: course.modules?.map(StudentModuleDTO) || [],
   createdAt: course.createdAt!,
   updatedAt: course.updatedAt!,
 });

@@ -3,6 +3,8 @@ import { useState } from "react";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
+import { studentAuthApi } from "@/services/APImethods/studentAPImethods";
+import { showInfoToast, showSuccessToast } from "@/utils/Toast";
 // import { signIn, useSession } from "next-auth/react";
 // import { showErrorToast, showSuccessToast } from "@/utils/Toast";
 
@@ -71,13 +73,15 @@ export default function StudentSignupPage() {
 
     setIsLoading(true);
     try {
-      const response = await axios.post<{ message: string; token?: string }>(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/student/signup`,
-        formData,
-        { withCredentials: true, timeout: 10000 }
-      );
-      localStorage.setItem("tempSignupEmail", formData.email);
-      router.push("/student/verify-otp");
+      const response = await studentAuthApi.signup(formData)
+      if(response?.ok){
+        localStorage.setItem("tempSignupEmail", formData.email);
+        showSuccessToast(response.message)
+        router.push("/student/verify-otp");
+
+      }else{
+        showInfoToast(response.message)
+      }
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>;
       if (error.response?.data?.message) {

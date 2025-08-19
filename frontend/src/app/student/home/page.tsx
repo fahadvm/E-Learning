@@ -13,6 +13,7 @@ import 'swiper/css/navigation';
 import { useEffect, useState } from "react";
 import { Book, Clock, GraduationCap, Star } from "lucide-react";
 import axios from "axios";
+import { studentCourseApi } from "@/services/APImethods/studentAPImethods";
 
 export default function HeroSection() {
     interface ICourse {
@@ -38,11 +39,8 @@ export default function HeroSection() {
 
     const fetchCourses = async () => {
         try {
-            const res = await axios.get(
-                `${process.env.NEXT_PUBLIC_API_URL}/auth/student/Courses`,
-                { withCredentials: true }
-            )
-            setRecommendedCourses(res.data.data)
+            const res = await studentCourseApi.getRecommendedCourses()
+            setRecommendedCourses(res?.data.data)
         } catch (error) {
             console.error('Failed to fetch courses',error)
         }

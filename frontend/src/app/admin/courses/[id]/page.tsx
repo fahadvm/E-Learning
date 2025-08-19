@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import axios from 'axios'
+import Loader from '@/componentssss/common/Loader'
 
 interface ILesson {
   title: string
@@ -53,7 +54,9 @@ export default function CourseDetailPage() {
     if (id) fetchCourse()
   }, [id])
 
-  if (loading) return <div className="p-8">Loading...</div>
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-50">
+     <Loader text="Loading, please wait..." color="#10B981" /> : <div>Content Loaded!</div>
+    </div>
   if (!course) return <div className="p-8 text-red-500">Course not found</div>
 
   return (

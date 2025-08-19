@@ -17,8 +17,17 @@ export class CourseRepository implements ICourseRepository {
   }
   
 
-  async findAllCourses(): Promise<ICourse[]> {
-    return await Course.find().populate('teacherId', 'name email');
+  async findAllCourses(query: any, sort: any, skip: number, limit: number): Promise<ICourse[]> {
+    console.log("query from course repository ", query)
+    return await Course.find(query)
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .exec();
+  }
+
+  async countAllCourses(query: any): Promise<number> {
+    return await Course.countDocuments(query).exec();
   }
 
   async findCourseById(courseId: string): Promise<ICourse | null> {
@@ -40,8 +49,10 @@ export class CourseRepository implements ICourseRepository {
   }
 
   async findById(courseId: string): Promise<ICourse | null> {
-    return Course.findById(courseId).lean();
-  }
+  return Course.findById(courseId)
+    .populate("teacherId", "name email profilePicture about") 
+    .lean();
+}
 
   async updateStatus(courseId: string, updates: Partial<ICourse>): Promise<ICourse | null> {
     return Course.findByIdAndUpdate(courseId, updates, { new: true }).lean();

@@ -5,7 +5,7 @@ import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { sendResponse, throwError } from '../../utils/ResANDError';
 import { decodeToken } from '../../utils/JWTtoken';
 import { MESSAGES } from '../../utils/ResponseMessages';
-import { TYPES } from '../../core/DI/types';
+import { TYPES } from '../../core/di/types';
 
 @injectable()
 export class TeacherProfileController {

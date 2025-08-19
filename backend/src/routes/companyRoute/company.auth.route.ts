@@ -1,8 +1,8 @@
 import express from 'express';
-import container from '../../core/DI/container';
+import container from '../../core/di/container';
 import { CompanyAuthController } from '../../controllers/company/company.auth.controller';
 import { asyncHandler } from '../../middleware/asyncHandler';
-import {TYPES} from '../../core/DI/types';
+import {TYPES} from '../../core/di/types';
 
 const router = express.Router();
 const companyAuthController = container.get<CompanyAuthController>(TYPES.CompanyAuthController);

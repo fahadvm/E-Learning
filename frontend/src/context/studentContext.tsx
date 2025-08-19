@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { StudentApiMethods } from '@/services/APImethods';
+import { showErrorToast } from '@/utils/Toast';
 
 export interface SocialLinks {
   linkedin: string;
@@ -23,6 +24,7 @@ export interface IStudent {
   isBlocked: boolean;
   role: string;
   about: string;
+  plans:[]
   profilePicture: string;
   location: string;
   phone: string;
@@ -55,9 +57,11 @@ export const StudentContextProvider = ({ children }: { children: ReactNode }) =>
   const getStudentDetails = useCallback(async () => {
     try {
       const res = await StudentApiMethods.getStudent();
+      
       if (res?.ok && res.data) {
         setStudent(res.data);
       } else {
+        showErrorToast("this message from getiong studnent profile")
         router.push('/student/login');
       }
     } catch (error) {

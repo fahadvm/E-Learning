@@ -9,10 +9,10 @@ export function errorHandler(
 ) {
 
   const status = err.statusCode || 500;
+  
   const message = err.message || 'Internal Server Error';
-  console.log('this error message from errorHandler',message);
+  console.log('this error message from errorHandler:',message,status);
 
-  console.error('Error caught:', message);
 
-  res.status(status).json({ success: false, message });
+   res.status(status).json({ ok: false, message });
 }

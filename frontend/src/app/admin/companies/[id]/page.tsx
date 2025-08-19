@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Loader from "@/componentssss/common/Loader";
 import { useRouter, useParams } from "next/navigation";
 import {
   CheckIcon,
@@ -102,9 +103,10 @@ export default function CompanyProfile() {
     setIsEditing(false);
   };
 
-  if (loading) {
-    return <div className="p-8 text-center text-gray-500">Loading company data...</div>;
-  }
+    if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-50">
+     <Loader text="Loading, please wait..." color="#0004feff" /> : <div>Content Loaded!</div>
+    </div>
+  
 
   if (!company) {
     return <div className="p-8 text-center text-red-500">Company not found</div>;
@@ -130,7 +132,7 @@ export default function CompanyProfile() {
 
       <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow overflow-hidden">
         {/* Header */}
-        <div className="h-48 bg-gradient-to-r from-purple-400 to-indigo-500 relative">
+        <div className="h-48 bg-gradient-to-r from-gray-400 to-gray-500 relative">
           <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2">
             <img
               src={company.logo}

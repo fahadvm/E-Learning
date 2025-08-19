@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import container from '../../core/DI/container';
+import container from '../../core/di/container';
 import { TeacherProfileController } from '../../controllers/teacher/teacher.profile.controller';
 import { asyncHandler } from '../../middleware/asyncHandler';
 import { authMiddleware } from '../../middleware/authMiddleware';
-import {TYPES} from '../../core/DI/types';
+import {TYPES} from '../../core/di/types';
 
 const router = Router();
 const teacherProfileController = container.get<TeacherProfileController>(TYPES.TeacherProfileController);

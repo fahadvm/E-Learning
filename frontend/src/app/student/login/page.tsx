@@ -1,11 +1,13 @@
+"use client"
 import ReusableLoginPage from "@/reusable/ReusableLoginPage";
+import { studentAuthApi } from "@/services/APImethods/studentAPImethods";
 
 export default  function StudentLogin() {
 
   return (
     <ReusableLoginPage
       role="student"
-      apiEndpoint="/auth/student/login"
+      apiEndpoint = {studentAuthApi.login} 
       redirectPath="/student/home"
       signupPath="/student/signup"
       forgotPasswordPath="/student/forgetPassword"

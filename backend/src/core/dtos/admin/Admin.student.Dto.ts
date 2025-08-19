@@ -2,7 +2,7 @@
 import { IStudent } from "../../../models/Student";
 
 export interface IAdminStudentDTO {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   isVerified: boolean;
@@ -20,13 +20,13 @@ export interface IAdminStudentDTO {
 }
 
 export interface PaginatedStudentDTO {
-  data: IAdminStudentDTO[];
+  students: IAdminStudentDTO[];
   total: number;
   totalPages: number;
 }
 
 export const adminStudentDto = (student: IStudent): IAdminStudentDTO => ({
-  id: student._id.toString(),
+  _id: student._id.toString(),
   name: student.name,
   email: student.email,
   isVerified: student.isVerified,

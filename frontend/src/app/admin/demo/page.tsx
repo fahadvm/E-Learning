@@ -1,407 +1,421 @@
+"use client"
 
-
-
-"use client";
-
-import React, { useState } from "react";
+import { useState } from "react"
+import { Button } from "@/componentssss/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/componentssss/ui/card"
+import { Badge } from "@/componentssss/ui/badge"
 import {
-  PencilIcon,
-  CheckIcon,
-  XMarkIcon,
-  LockClosedIcon,
-  LockOpenIcon,
-} from "@heroicons/react/24/outline";
+  Star,
+  Users,
+  Clock,
+  Globe,
+  Award,
+  Download,
+  Smartphone,
+  Shield,
+  ChevronDown,
+  ChevronUp,
+  Play,
+  Lock,
+  Heart,
+  ShoppingCart,
+  Share2,
+  MessageCircle,
+} from "lucide-react"
+import Header from "@/componentssss/student/header"
 
-interface Company {
-  name: string;
-  description: string;
-  logo: string;
-  website: string;
-  email: string;
-  phone: string;
-  address: string;
-  isBlocked: boolean;
-}
+export default function CourseDetailPage() {
+  const [expandedModules, setExpandedModules] = useState<number[]>([])
+  const [reviewFilter, setReviewFilter] = useState("all")
 
-interface Employee {
-  id: number;
-  name: string;
-  role: string;
-  email: string;
-  joined: string;
-}
+  const toggleModule = (moduleIndex: number) => {
+    setExpandedModules((prev) =>
+      prev.includes(moduleIndex) ? prev.filter((i) => i !== moduleIndex) : [...prev, moduleIndex],
+    )
+  }
 
-interface Subscription {
-  id: number;
-  plan: string;
-  status: string;
-  startDate: string;
-  endDate: string;
-  price: string;
-}
+  const courseData = {
+    title: "Complete Web Development Bootcamp 2024",
+    shortDescription:
+      "Master modern web development with React, Node.js, and MongoDB. Build real-world projects and launch your career.",
+    instructor: {
+      name: "Sarah Johnson",
+      image: "/placeholder-7b7c0.png",
+      bio: "Senior Full-Stack Developer with 8+ years experience at Google and Meta",
+    },
+    rating: 4.8,
+    reviewCount: 12847,
+    enrolledStudents: 45623,
+    price: 89.99,
+    originalPrice: 199.99,
+    duration: "42 hours",
+    lessons: 156,
+    modules: 12,
+    level: "Beginner to Advanced",
+    language: "English",
+    lastUpdated: "December 2024",
+  }
 
-interface Course {
-  id: number;
-  title: string;
-  purchasedDate: string;
-  price: string;
-  status: string;
-}
+  const modules = [
+    {
+      title: "Introduction to Web Development",
+      lessons: [
+        { title: "What is Web Development?", duration: "12:30", preview: true },
+        { title: "Setting up Development Environment", duration: "18:45", preview: false },
+        { title: "HTML Fundamentals", duration: "25:15", preview: true },
+      ],
+    },
+    {
+      title: "CSS and Responsive Design",
+      lessons: [
+        { title: "CSS Basics and Selectors", duration: "22:10", preview: false },
+        { title: "Flexbox and Grid Layout", duration: "35:20", preview: false },
+        { title: "Responsive Design Principles", duration: "28:45", preview: false },
+      ],
+    },
+    {
+      title: "JavaScript Fundamentals",
+      lessons: [
+        { title: "Variables and Data Types", duration: "20:15", preview: false },
+        { title: "Functions and Scope", duration: "32:40", preview: false },
+        { title: "DOM Manipulation", duration: "41:25", preview: false },
+      ],
+    },
+  ]
 
-const mockEmployees: Employee[] = [
-  {
-    id: 1,
-    name: "John Doe",
-    role: "Developer",
-    email: "john@example.com",
-    joined: "2023-01-15",
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    role: "Designer",
-    email: "jane@example.com",
-    joined: "2023-03-22",
-  },
-  {
-    id: 3,
-    name: "Bob Johnson",
-    role: "Manager",
-    email: "bob@example.com",
-    joined: "2022-11-10",
-  },
-];
-
-const mockSubscriptions: Subscription[] = [
-  {
-    id: 1,
-    plan: "Premium",
-    status: "Active",
-    startDate: "2024-01-01",
-    endDate: "2024-12-31",
-    price: "$999/year",
-  },
-  {
-    id: 2,
-    plan: "Basic",
-    status: "Expired",
-    startDate: "2023-01-01",
-    endDate: "2023-12-31",
-    price: "$499/year",
-  },
-];
-
-const mockCourses: Course[] = [
-  {
-    id: 1,
-    title: "Advanced React",
-    purchasedDate: "2024-02-15",
-    price: "$199",
-    status: "Completed",
-  },
-  {
-    id: 2,
-    title: "UI/UX Design Principles",
-    purchasedDate: "2024-03-20",
-    price: "$149",
-    status: "In Progress",
-  },
-  {
-    id: 3,
-    title: "Project Management",
-    purchasedDate: "2024-04-10",
-    price: "$99",
-    status: "Not Started",
-  },
-];
-
-const CompanyProfile: React.FC = () => {
-  const [company, setCompany] = useState<Company>({
-    name: "Example Corp",
-    description: "A leading provider of innovative solutions.",
-    logo: "https://via.placeholder.com/150",
-    website: "https://example.com",
-    email: "contact@example.com",
-    phone: "+1 (123) 456-7890",
-    address: "123 Business St, Suite 100, City, Country",
-    isBlocked: false,
-  });
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState<Company>({ ...company });
-  const [activeTab, setActiveTab] = useState("details");
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSave = () => {
-    setCompany(formData);
-    setIsEditing(false);
-  };
-
-  const handleCancel = () => {
-    setFormData(company);
-    setIsEditing(false);
-  };
-
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData((prev) => ({ ...prev, logo: reader.result as string }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleBlockToggle = () => {
-    setCompany((prev) => ({ ...prev, isBlocked: !prev.isBlocked }));
-  };
-
-  const tabs = [
-    { id: "details", label: "Profile" },
-    { id: "employees", label: "Employees" },
-    { id: "subscriptions", label: "Subscriptions" },
-    { id: "courses", label: "Courses" },
-  ];
+  const reviews = [
+    {
+      name: "Michael Chen",
+      image: "/diverse-student-profiles.png",
+      rating: 5,
+      comment: "Excellent course! The instructor explains everything clearly and the projects are very practical.",
+      date: "2 weeks ago",
+    },
+    {
+      name: "Emma Rodriguez",
+      image: "/female-student-profile.png",
+      rating: 5,
+      comment: "This course changed my career. I landed a developer job 3 months after completing it!",
+      date: "1 month ago",
+    },
+    {
+      name: "David Kim",
+      image: "/male-student-profile.png",
+      rating: 4,
+      comment: "Great content and well-structured. Would recommend to anyone starting in web development.",
+      date: "3 weeks ago",
+    },
+  ]
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow overflow-hidden">
-        {/* Cover */}
-        <div className="h-48 bg-gradient-to-r from-purple-400 to-indigo-500 relative">
-          <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2">
-            <img
-              src={company.logo}
-              alt="Company Logo"
-              className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover"
-            />
+      <Header></Header>
+
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Course Header */}
+            <section className="animate-fade-in-up">
+              <div className="mb-4">
+                <Badge variant="secondary" className="mb-2">
+                  Web Development
+                </Badge>
+                <h1 className="text-4xl font-black text-foreground mb-4 font-montserrat leading-tight">
+                  {courseData.title}
+                </h1>
+                <p className="text-lg text-muted-foreground mb-6 leading-relaxed">{courseData.shortDescription}</p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-6 mb-6">
+                <div className="flex items-center gap-2">
+                  <img
+                    src={courseData.instructor.image || "/placeholder.svg"}
+                    alt={courseData.instructor.name}
+                    className="w-10 h-10 rounded-full"
+                  />
+                  <div>
+                    <p className="font-semibold text-foreground">{courseData.instructor.name}</p>
+                    <p className="text-sm text-muted-foreground">Instructor</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <div className="flex">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-5 h-5 ${i < Math.floor(courseData.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
+                      />
+                    ))}
+                  </div>
+                  <span className="font-semibold text-foreground">{courseData.rating}</span>
+                  <span className="text-muted-foreground">({courseData.reviewCount.toLocaleString()} reviews)</span>
+                </div>
+
+                <div className="flex items-center gap-1 text-muted-foreground">
+                  <Users className="w-4 h-4" />
+                  <span>{courseData.enrolledStudents.toLocaleString()} students</span>
+                </div>
+              </div>
+
+              <img
+                src="/coding-bootcamp-hero.png"
+                alt="Course preview"
+                className="w-full h-64 md:h-80 object-cover rounded-lg shadow-lg"
+              />
+            </section>
+
+            {/* Course Details */}
+            <section>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-montserrat">What You'll Learn</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {[
+                      "Build responsive websites with HTML, CSS, and JavaScript",
+                      "Master React.js and modern frontend development",
+                      "Create full-stack applications with Node.js and Express",
+                      "Work with databases using MongoDB and SQL",
+                      "Deploy applications to production environments",
+                      "Implement user authentication and security best practices",
+                      "Use Git and GitHub for version control",
+                      "Build RESTful APIs and work with third-party APIs",
+                    ].map((outcome, index) => (
+                      <div key={index} className="flex items-start gap-2">
+                        <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-foreground">{outcome}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+
+            {/* Course Content */}
+            <section>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-montserrat">Course Content</CardTitle>
+                  <p className="text-muted-foreground">
+                    {courseData.modules} modules • {courseData.lessons} lessons • {courseData.duration} total length
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {modules.map((module, moduleIndex) => (
+                      <div key={moduleIndex} className="border border-border rounded-lg">
+                        <button
+                          onClick={() => toggleModule(moduleIndex)}
+                          className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors"
+                        >
+                          <div>
+                            <h3 className="font-semibold text-foreground">{module.title}</h3>
+                            <p className="text-sm text-muted-foreground">{module.lessons.length} lessons</p>
+                          </div>
+                          {expandedModules.includes(moduleIndex) ? (
+                            <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                          ) : (
+                            <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                          )}
+                        </button>
+
+                        {expandedModules.includes(moduleIndex) && (
+                          <div className="border-t border-border bg-muted/20">
+                            {module.lessons.map((lesson, lessonIndex) => (
+                              <div
+                                key={lessonIndex}
+                                className="flex items-center justify-between p-4 border-b border-border last:border-b-0"
+                              >
+                                <div className="flex items-center gap-3">
+                                  {lesson.preview ? (
+                                    <Play className="w-4 h-4 text-primary" />
+                                  ) : (
+                                    <Lock className="w-4 h-4 text-muted-foreground" />
+                                  )}
+                                  <span className="text-foreground">{lesson.title}</span>
+                                  {lesson.preview && (
+                                    <Badge variant="outline" className="text-xs">
+                                      Preview
+                                    </Badge>
+                                  )}
+                                </div>
+                                <span className="text-sm text-muted-foreground">{lesson.duration}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+
+            {/* What's Included */}
+            <section>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-montserrat">This Course Includes</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {[
+                      { icon: Clock, text: "42 hours on-demand video" },
+                      { icon: Download, text: "Downloadable resources" },
+                      { icon: Award, text: "Certificate of completion" },
+                      { icon: Smartphone, text: "Access on mobile and TV" },
+                      { icon: Globe, text: "Full lifetime access" },
+                      { icon: Shield, text: "30-day money-back guarantee" },
+                    ].map((item, index) => (
+                      <div key={index} className="flex items-center gap-3">
+                        <item.icon className="w-5 h-5 text-primary" />
+                        <span className="text-foreground">{item.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+
+            {/* Student Reviews */}
+            <section>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-montserrat">Student Reviews</CardTitle>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <div className="flex">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                        ))}
+                      </div>
+                      <span className="text-2xl font-bold text-foreground">{courseData.rating}</span>
+                    </div>
+                    <span className="text-muted-foreground">({courseData.reviewCount.toLocaleString()} reviews)</span>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {reviews.map((review, index) => (
+                      <div key={index} className="flex gap-4">
+                        <img
+                          src={review.image || "/placeholder.svg"}
+                          alt={review.name}
+                          className="w-10 h-10 rounded-full flex-shrink-0"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="font-semibold text-foreground">{review.name}</span>
+                            <div className="flex">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`w-4 h-4 ${i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-sm text-muted-foreground">{review.date}</span>
+                          </div>
+                          <p className="text-foreground">{review.comment}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
           </div>
-        </div>
 
-        {/* Name + Stats */}
-        <div className="pt-20 pb-4 text-center">
-          <h1 className="text-xl font-bold">{company.name}</h1>
-          <p className="text-gray-500">Innovative Solutions Provider</p>
-          <div className="flex justify-center gap-10 mt-4">
-            <div>
-              <p className="font-bold text-gray-800">3545</p>
-              <p className="text-gray-500 text-sm">courses</p>
-            </div>
-            <div>
-              <p className="font-bold text-gray-800">3,586</p>
-              <p className="text-gray-500 text-sm">streak</p>
-            </div>
-            <div>
-              <p className="font-bold text-gray-800">2,659</p>
-              <p className="text-gray-500 text-sm">completed</p>
-            </div>
-          </div>
-        </div>
+          {/* Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-8">
+              <Card className="shadow-lg">
+                <CardContent className="p-6">
+                  <div className="text-center mb-6">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <span className="text-3xl font-bold text-foreground">${courseData.price}</span>
+                      <span className="text-lg text-muted-foreground line-through">${courseData.originalPrice}</span>
+                    </div>
+                    <Badge variant="destructive" className="mb-4">
+                      55% OFF - Limited Time
+                    </Badge>
+                  </div>
 
-        {/* Tabs */}
-        <div className="border-t border-gray-200 flex justify-center space-x-8">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`py-3 px-4 text-sm font-medium ${
-                activeTab === tab.id
-                  ? "border-b-2 border-purple-500 text-purple-500"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+                  <div className="space-y-3 mb-6">
+                    <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3">
+                      <ShoppingCart className="w-4 h-4 mr-2" />
+                      Add to Cart
+                    </Button>
+                    <Button variant="outline" className="w-full bg-transparent">
+                      <Heart className="w-4 h-4 mr-2" />
+                      Add to Wishlist
+                    </Button>
+                  </div>
 
-        {/* Content */}
-        <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Left - Intro */}
-          <div className="bg-gray-50 p-4 rounded-lg shadow-sm h-fit">
-            <h2 className="font-semibold text-gray-700 mb-2">Introduction</h2>
-            <p className="text-sm text-gray-600">{company.description}</p>
-            <div className="mt-4 space-y-2 text-sm text-gray-600">
-              <p>📍 {company.address}</p>
-              <p>📧 {company.email}</p>
-              <p>🔗 {company.website}</p>
-              <p>📞 {company.phone}</p>
-            </div>
-          </div>
-
-          {/* Right - Tab Content */}
-          <div className="md:col-span-2">
-            {activeTab === "details" && (
-              <div className="bg-white p-4 rounded-lg shadow-sm">
-                <h2 className="font-semibold text-gray-700 mb-4">
-                  Company Details
-                </h2>
-                {isEditing ? (
-                  <div className="space-y-3">
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      className="w-full border rounded p-2"
-                    />
-                    <textarea
-                      name="description"
-                      value={formData.description}
-                      onChange={handleInputChange}
-                      className="w-full border rounded p-2"
-                    />
-                    <input
-                      type="url"
-                      name="website"
-                      value={formData.website}
-                      onChange={handleInputChange}
-                      className="w-full border rounded p-2"
-                    />
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className="w-full border rounded p-2"
-                    />
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      className="w-full border rounded p-2"
-                    />
-                    <input
-                      type="text"
-                      name="address"
-                      value={formData.address}
-                      onChange={handleInputChange}
-                      className="w-full border rounded p-2"
-                    />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleLogoChange}
-                    />
-                    <div className="flex gap-2">
-                      <button
-                        onClick={handleSave}
-                        className="bg-green-500 text-white px-4 py-2 rounded"
-                      >
-                        <CheckIcon className="w-4 h-4 inline mr-1" /> Save
-                      </button>
-                      <button
-                        onClick={handleCancel}
-                        className="bg-red-500 text-white px-4 py-2 rounded"
-                      >
-                        <XMarkIcon className="w-4 h-4 inline mr-1" /> Cancel
-                      </button>
+                  <div className="text-center mb-6">
+                    <p className="text-sm text-muted-foreground mb-2">Secure payment with</p>
+                    <div className="flex justify-center gap-2">
+                      <div className="px-2 py-1 bg-muted rounded text-xs font-semibold">VISA</div>
+                      <div className="px-2 py-1 bg-muted rounded text-xs font-semibold">MC</div>
+                      <div className="px-2 py-1 bg-muted rounded text-xs font-semibold">PayPal</div>
                     </div>
                   </div>
-                ) : (
-                  <div>
-                    <p>
-                      <strong>Name:</strong> {company.name}
-                    </p>
-                    <p>
-                      <strong>Description:</strong> {company.description}
-                    </p>
-                    <p>
-                      <strong>Website:</strong> {company.website}
-                    </p>
-                    <p>
-                      <strong>Email:</strong> {company.email}
-                    </p>
-                    <p>
-                      <strong>Phone:</strong> {company.phone}
-                    </p>
-                    <p>
-                      <strong>Address:</strong> {company.address}
+
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Duration:</span>
+                      <span className="text-foreground font-semibold">{courseData.duration}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Lessons:</span>
+                      <span className="text-foreground font-semibold">{courseData.lessons}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Level:</span>
+                      <span className="text-foreground font-semibold">{courseData.level}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Language:</span>
+                      <span className="text-foreground font-semibold">{courseData.language}</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 pt-6 border-t border-border">
+                    <div className="flex items-center justify-center gap-4">
+                      <Button variant="ghost" size="sm">
+                        <Share2 className="w-4 h-4 mr-1" />
+                        Share
+                      </Button>
+                      <Button variant="ghost" size="sm">
+                        <MessageCircle className="w-4 h-4 mr-1" />
+                        Help
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 p-3 bg-muted/50 rounded-lg text-center">
+                    <p className="text-sm text-muted-foreground">
+                      <Shield className="w-4 h-4 inline mr-1" />
+                      30-day money-back guarantee
                     </p>
                   </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === "employees" && (
-              <div className="bg-white p-4 rounded-lg shadow-sm overflow-x-auto">
-                <table className="min-w-full text-sm">
-                  <thead>
-                    <tr className="bg-gray-100 text-left">
-                      <th className="p-2">Name</th>
-                      <th className="p-2">Role</th>
-                      <th className="p-2">Email</th>
-                      <th className="p-2">Joined</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {mockEmployees.map((emp) => (
-                      <tr key={emp.id} className="border-b">
-                        <td className="p-2">{emp.name}</td>
-                        <td className="p-2">{emp.role}</td>
-                        <td className="p-2">{emp.email}</td>
-                        <td className="p-2">{emp.joined}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {activeTab === "subscriptions" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {mockSubscriptions.map((sub) => (
-                  <div
-                    key={sub.id}
-                    className="bg-white p-4 rounded-lg shadow-sm"
-                  >
-                    <h3 className="font-semibold">{sub.plan}</h3>
-                    <p>Status: {sub.status}</p>
-                    <p>Start: {sub.startDate}</p>
-                    <p>End: {sub.endDate}</p>
-                    <p>Price: {sub.price}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {activeTab === "courses" && (
-              <div className="bg-white p-4 rounded-lg shadow-sm overflow-x-auto">
-                <table className="min-w-full text-sm">
-                  <thead>
-                    <tr className="bg-gray-100 text-left">
-                      <th className="p-2">Title</th>
-                      <th className="p-2">Purchased Date</th>
-                      <th className="p-2">Price</th>
-                      <th className="p-2">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {mockCourses.map((course) => (
-                      <tr key={course.id} className="border-b">
-                        <td className="p-2">{course.title}</td>
-                        <td className="p-2">{course.purchasedDate}</td>
-                        <td className="p-2">{course.price}</td>
-                        <td className="p-2">{course.status}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-};
 
-export default CompanyProfile;
+      {/* Floating Chat Button */}
+      <div className="fixed bottom-6 right-6">
+        <Button className="rounded-full w-14 h-14 shadow-lg bg-primary hover:bg-primary/90">
+          <MessageCircle className="w-6 h-6" />
+        </Button>
+      </div>
+    </div>
+  )
+}

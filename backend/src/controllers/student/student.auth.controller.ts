@@ -4,13 +4,13 @@ import { inject, injectable } from 'inversify';
 import { IStudentAuthService } from '../../core/interfaces/services/student/IStudentAuthService';
 import { TYPES } from '../../core/di/types';
 import { setTokensInCookies, clearTokens } from '../../utils/JWTtoken';
-import { sendResponse, throwError } from '../../utils/ResANDError';
+import { sendResponse, throwError, throwErrorWithRes } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 
 @injectable()
 export class StudentAuthController {
-  constructor(@inject(TYPES.StudentAuthService) private readonly _studentAuthService: IStudentAuthService) {}
+  constructor(@inject(TYPES.StudentAuthService) private readonly _studentAuthService: IStudentAuthService) { }
 
   signup = async (req: Request, res: Response) => {
     if (!req.body.email) throwError(MESSAGES.EMAIL_REQUIRED, STATUS_CODES.BAD_REQUEST);
@@ -19,6 +19,7 @@ export class StudentAuthController {
   };
 
   verifyOtp = async (req: Request, res: Response) => {
+    console.log("req.body from controller ", req.body)
     const { email, otp } = req.body;
     if (!email || !otp) throwError(MESSAGES.EMAIL_OTP_REQUIRED, STATUS_CODES.BAD_REQUEST);
     const { token, refreshToken, user } = await this._studentAuthService.verifyOtp(email, otp);
@@ -36,6 +37,7 @@ export class StudentAuthController {
 
   logout = async (_req: Request, res: Response) => {
     clearTokens(res);
+    console.log("logout successfull")
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.LOGOUT_SUCCESS, true);
   };
 
@@ -74,5 +76,8 @@ export class StudentAuthController {
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.OTP_RESENT, true);
   };
 
- 
+
+
+
+
 }

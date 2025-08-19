@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import axios from "axios";
+import { studentAuthApi } from "@/services/APImethods/studentAPImethods";
 
 
 export default function Header() {
@@ -24,12 +25,7 @@ export default function Header() {
 
     const handleLogout = async () => {
         try {
-            await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/auth/student/logout`,
-                {},
-                { withCredentials: true }
-            );
-
+            const res = studentAuthApi.logout()
             localStorage.removeItem("tempSignupEmail");
             router.push("/student/login");
         } catch (error) {

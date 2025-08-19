@@ -2,6 +2,8 @@
 import { useState ,useEffect} from "react";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
+import { studentAuthApi } from "@/services/APImethods/studentAPImethods";
+import { showInfoToast, showSuccessToast } from "@/utils/Toast";
 
 interface ForgetPasswordForm {
   email: string;
@@ -42,17 +44,14 @@ export default function StudentSignupPage() {
 
     setIsLoading(true);
     try {
-      const response = await axios.post<{ message: string; token?: string }>(
-        `${process.env.NEXT_PUBLIC_API_URL }/auth/student/forgot-password`,
-        formData,
-        {
-          withCredentials: true,
-          timeout: 10000 // 10-second timeout
-        }
-      );
-      setMessage("✅ OTP sent to your email");
-      localStorage.setItem("tempforgetEmail", formData.email);
-      router.push("/student/verify-forget-otp");
+      const response = await studentAuthApi.forgotPassword(formData)
+      if(response?.ok){
+        showSuccessToast(response.message)
+        localStorage.setItem("tempforgetEmail", formData.email);
+        router.push("/student/verify-forget-otp");
+      }else{
+        showInfoToast(response?.message)
+      }
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>;
       if (error.response?.status === 400) {

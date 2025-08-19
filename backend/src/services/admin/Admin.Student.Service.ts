@@ -35,7 +35,7 @@ export class AdminStudentService implements IAdminStudentService {
     const totalPages = Math.ceil(total / limit);
 
     return {
-      data: students.map(adminStudentDto),
+      students: students.map(adminStudentDto),
       total,
       totalPages,
     };

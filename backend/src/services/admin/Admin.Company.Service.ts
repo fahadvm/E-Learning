@@ -5,7 +5,7 @@ import { ICompanyRepository } from "../../core/interfaces/repositories/company/I
 import { throwError } from "../../utils/ResANDError";
 import { STATUS_CODES } from "../../utils/HttpStatuscodes";
 import { MESSAGES } from "../../utils/ResponseMessages";
-import { adminCompanyDto, IAdminCompanyDto } from "@/core/dtos/admin/Admin.company.Dto";
+import { adminCompanyDto, IAdminCompanyDto } from "../../core/dtos/admin/Admin.company.Dto";
 
 @injectable()
 export class AdminCompanyService implements IAdminCompanyService {

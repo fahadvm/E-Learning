@@ -30,6 +30,7 @@ export default function UserList() {
         page: currentPage,
         limit: rowsPerPage,
       });
+      console.log("res in student ",res)
 
       if (Array.isArray(res.data?.students)) {
         setUsers(res.data.students);

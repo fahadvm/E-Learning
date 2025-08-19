@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import container from '../../core/DI/container';
+import container from '../../core/di/container';
 import { AdminCourseController } from '../../controllers/admin/admin.course.controller';
 import { asyncHandler } from '../../middleware/asyncHandler';
-import {TYPES} from '../../core/DI/types';
+import {TYPES} from '../../core/di/types';
 
 const courseRouter = Router();
 const adminCourseCtrl = container.get<AdminCourseController>(TYPES.AdminCourseController);

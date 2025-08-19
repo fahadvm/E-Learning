@@ -1,8 +1,8 @@
 import { Router   } from 'express';
-import container from '../../core/DI/container';
+import container from '../../core/di/container';
 import { AdminCompanyController } from '../../controllers/admin/admin.company.controller';
 import { asyncHandler } from '../../middleware/asyncHandler';
-import { TYPES } from '../../core/DI/types'; 
+import { TYPES } from '../../core/di/types'; 
 
 const companyRouter = Router();
 const adminCompanyCtrl = container.get<AdminCompanyController>(TYPES.AdminCompanyController);

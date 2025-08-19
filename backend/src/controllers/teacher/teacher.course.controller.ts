@@ -6,7 +6,7 @@ import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { sendResponse } from '../../utils/ResANDError';
 import { throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
-import { TYPES } from '../../core/DI/types';
+import { TYPES } from '../../core/di/types';
 
 @injectable()
 export class TeacherCourseController {

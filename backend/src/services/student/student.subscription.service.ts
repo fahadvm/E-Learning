@@ -2,7 +2,7 @@
 import { inject, injectable } from 'inversify';
 import { IStudentSubscriptionService } from '../../core/interfaces/services/student/IStudentSubscriptionService';
 import { ISubscriptionPlanRepository } from '../../core/interfaces/repositories/ISubscriptionPlanRepository';
-import { TYPES } from '../../core/DI/types';
+import { TYPES } from '../../core/di/types';
 
 @injectable()
 export class StudentSubscriptionService implements IStudentSubscriptionService {

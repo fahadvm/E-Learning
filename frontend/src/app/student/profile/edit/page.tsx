@@ -6,6 +6,7 @@ import { useStudent } from '@/context/studentContext';
 import { StudentApiMethods } from '@/services/APImethods';
 import Header from '@/componentssss/student/header';
 import dynamic from 'next/dynamic';
+import { showSuccessToast } from '@/utils/Toast';
 
 const CropperModal = dynamic(() => import('@/componentssss/common/ImageCropper'), { ssr: false });
 
@@ -23,6 +24,18 @@ interface FormDataType {
   profilePicture: string;
 }
 
+interface FormErrors {
+  name?: string;
+  about?: string;
+  phone?: string;
+  profilePicture?: string;
+  social_links?: {
+    linkedin?: string;
+    twitter?: string;
+    instagram?: string;
+  };
+}
+
 export default function EditProfilePage() {
   const { student, setStudent } = useStudent();
   const router = useRouter();
@@ -37,8 +50,9 @@ export default function EditProfilePage() {
       instagram: ''
     },
     profilePicture: ''
-  });
+  });   
 
+  const [errors, setErrors] = useState<FormErrors>({});
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const [showCropper, setShowCropper] = useState(false);
   const [rawImage, setRawImage] = useState<string>('');
@@ -91,12 +105,60 @@ export default function EditProfilePage() {
     setShowCropper(false);
   };
 
+const validateForm = () => {
+  const newErrors: FormErrors = {};
+
+  if (!formData.name.trim()) {
+    newErrors.name = 'Name is required';
+  }
+
+  if (!formData.phone.trim()) {
+    newErrors.phone = 'Phone number is required';
+  } else if (!/^\d{10}$/.test(formData.phone)) {
+    newErrors.phone = 'Enter a valid 10-digit phone number';
+  }
+
+  if (formData.social_links.linkedin &&
+      !/^https?:\/\/(www\.)?linkedin\.com\/.+$/.test(formData.social_links.linkedin)) {
+    newErrors.social_links = {
+      ...newErrors.social_links,
+      linkedin: 'Enter a valid LinkedIn URL'
+    };
+  }
+
+  if (formData.social_links.twitter &&
+      !/^https?:\/\/(www\.)?twitter\.com\/.+$/.test(formData.social_links.twitter)) {
+    newErrors.social_links = {
+      ...newErrors.social_links,
+      twitter: 'Enter a valid Twitter URL'
+    };
+  }
+
+  if (formData.social_links.instagram &&
+      !/^https?:\/\/(www\.)?instagram\.com\/.+$/.test(formData.social_links.instagram)) {
+    newErrors.social_links = {
+      ...newErrors.social_links,
+      instagram: 'Enter a valid Instagram URL'
+    };
+  }
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0 && !newErrors.social_links;
+};
+
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      console.log('Validation failed');
+      return;
+    }
+
     try {
       const res = await StudentApiMethods.editProfile(formData);
-      console.log("res:" ,res)
       if (res?.ok && res.data) {
+        showSuccessToast(res?.message)
         setStudent(res.data);
         router.push('/student/profile');
       } else {
@@ -142,18 +204,24 @@ export default function EditProfilePage() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
+                  className={`mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 ${errors.name ? 'border-red-500' : 'border-gray-300'
+                    }`}
                 />
+                {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">Phone</label>
                 <input
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
+                  className={`mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 ${errors.phone ? 'border-red-500' : 'border-gray-300'
+                    }`}
                 />
+                {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
               </div>
+
               <div className="sm:col-span-2">
                 <label className="block text-sm font-medium text-gray-700">About</label>
                 <textarea
@@ -164,7 +232,6 @@ export default function EditProfilePage() {
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
                 />
               </div>
-              
             </div>
 
             {/* Social Links */}
@@ -177,26 +244,40 @@ export default function EditProfilePage() {
                     name="social_links.linkedin"
                     value={formData.social_links.linkedin}
                     onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
+                    className={`mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 ${errors.social_links?.linkedin ? 'border-red-500' : 'border-gray-300'
+                      }`}
                   />
+                  {errors.social_links?.linkedin && (
+                    <p className="text-red-500 text-sm mt-1">{errors.social_links.linkedin}</p>
+                  )}
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Twitter</label>
                   <input
                     name="social_links.twitter"
                     value={formData.social_links.twitter}
                     onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
+                    className={`mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 ${errors.social_links?.twitter ? 'border-red-500' : 'border-gray-300'
+                      }`}
                   />
+                  {errors.social_links?.twitter && (
+                    <p className="text-red-500 text-sm mt-1">{errors.social_links.twitter}</p>
+                  )}
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Instagram</label>
                   <input
                     name="social_links.instagram"
                     value={formData.social_links.instagram}
                     onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
+                    className={`mt-1 block w-full rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 ${errors.social_links?.instagram ? 'border-red-500' : 'border-gray-300'
+                      }`}
                   />
+                  {errors.social_links?.instagram && (
+                    <p className="text-red-500 text-sm mt-1">{errors.social_links.instagram}</p>
+                  )}
                 </div>
               </div>
             </div>

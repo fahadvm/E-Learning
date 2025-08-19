@@ -4,7 +4,8 @@ export interface ICourseRepository {
   create(courseData: Partial<ICourse>): Promise<ICourse>;
   findByTeacherId(teacherId: string): Promise<ICourse[]>;
   findByIdAndTeacherId(courseId: string, teacherId: string): Promise<ICourse | null>;
-  findAllCourses(): Promise<ICourse[]>;
+  findAllCourses(query: any, sort: any, skip: number, limit: number): Promise<ICourse[]>;
+  countAllCourses(query: any): Promise<number>;
   findCourseById(courseId: string): Promise<ICourse | null>;
   findAll(params: { skip: number; limit: number; search?: string }): Promise<ICourse[]>;
   count(search?: string): Promise<number>;

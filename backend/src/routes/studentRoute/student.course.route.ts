@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import container from '../../core/DI/container';
+import container from '../../core/di/container';
 import { authMiddleware } from '../../middleware/authMiddleware';
 import { StudentCourseController } from '../../controllers/student/student.course.controller';
 import { asyncHandler } from '../../middleware/asyncHandler';
-import { TYPES } from '../../core/DI/types';
+import { TYPES } from '../../core/di/types';
 
 
 const router = Router();

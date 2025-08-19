@@ -1,5 +1,7 @@
 import axiosInstance from "./AxiosInstance";
 import { showErrorToast, showInfoToast } from "../utils/Toast";
+import { Route } from "lucide-react";
+import Router from "next/router";
 
 type ApiOptions = {
   showToast?: boolean;
@@ -18,6 +20,7 @@ const handleApiError = (error: any, options: ApiOptions) => {
   
   if (error.response?.status === 401) {
     showInfoToast("Please login again.");
+    // Router.push("/student/login");
   } else {
     showErrorToast(message);
   }

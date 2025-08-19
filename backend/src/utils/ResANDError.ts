@@ -1,6 +1,13 @@
 import { Response } from 'express';
 
-export function throwError(message: string, statusCode = 400): never {
+export function throwErrorWithRes(res: Response, message: string, statusCode = 400): never {
+  console.error('Throwing error:', message);
+  res.status(statusCode).json({ message }); 
+  const error = new Error(message);
+  (error as any).statusCode = statusCode; 
+  throw error;
+}
+export function throwError( message: string, statusCode = 400): never {
   console.error('Throwing error:', message);
   const error = new Error(message);
   (error as any).statusCode = statusCode; 
@@ -8,7 +15,7 @@ export function throwError(message: string, statusCode = 400): never {
 }
  
 export function sendResponse(res: Response,status: number, message: string,  ok: boolean,data?:any) {
-    console.error(message);
+    console.error(message)
     res.status(status).json({ ok, message ,data}); 
 }
 export function handleControllerError(res: Response, error: unknown, defaultStatus = 400): void {

@@ -24,7 +24,7 @@ export const CompanyApiMethods = {
 
 export const StudentApiMethods = {
     getStudent: () => get('/student/profile'),
-    editProfile: (data: any) => post("/student/edit-profile", data),
+    editProfile: (data: any) => patch("/student/profile", data),
     
 
 }

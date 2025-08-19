@@ -1,11 +1,11 @@
 "use client"
 import { useState } from "react";
-import axios from "axios";
 import { useRouter } from "next/navigation";
+import { showSuccessToast } from "@/utils/Toast";
 
-interface LoginPageProps {
-  role: "student" | "company" | "employee" | "teacher" ;
-  apiEndpoint: string;
+interface LoginPageProps<TData = { email: string; password: string }, TResult = any> {
+  role: "student" | "company" | "employee" | "teacher";
+  apiEndpoint: (data: TData) => Promise<TResult>;
   redirectPath: string;
   signupPath: string;
   forgotPasswordPath: string;
@@ -70,13 +70,10 @@ export default function ReusableLoginPage({
     setMessage("");
 
     try {
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}${apiEndpoint}`,
-        { email, password },
-        { withCredentials: true }
-      );
+      const res = await apiEndpoint({ email, password });
       localStorage.setItem("token", res.data.token);
       setMessage("✅ Login successful!");
+      showSuccessToast(res?.message)
       setTimeout(() => router.push(redirectPath), 1500);
     } catch (err: any) {
       const msg = err?.response?.data?.message || "❌ Login failed";
@@ -99,7 +96,7 @@ export default function ReusableLoginPage({
             G
           </button>
         </div>
-        
+
 
         <p className="text-gray-500 font-medium mb-4">OR</p>
 
@@ -112,9 +109,8 @@ export default function ReusableLoginPage({
               setEmail(e.target.value);
               validateField("email", e.target.value);
             }}
-            className={`p-3 border ${
-              errors.email ? "border-red-500" : "border-gray-300"
-            } rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            className={`p-3 border ${errors.email ? "border-red-500" : "border-gray-300"
+              } rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500`}
           />
           {errors.email && <p className="text-sm text-red-600">{errors.email}</p>}
 
@@ -126,9 +122,8 @@ export default function ReusableLoginPage({
               setPassword(e.target.value);
               validateField("password", e.target.value);
             }}
-            className={`p-3 border ${
-              errors.password ? "border-red-500" : "border-gray-300"
-            } rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            className={`p-3 border ${errors.password ? "border-red-500" : "border-gray-300"
+              } rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500`}
           />
           {errors.password && <p className="text-sm text-red-600">{errors.password}</p>}
 
@@ -144,9 +139,8 @@ export default function ReusableLoginPage({
           <button
             type="submit"
             disabled={loading}
-            className={`w-full p-3 ${
-              loading ? "bg-gray-400" : "bg-gradient-to-br from-gray-800 to-gray-900"
-            } text-white rounded-lg font-semibold hover:from-gray-700 hover:to-gray-700 transition-all shadow-md hover:shadow-lg`}
+            className={`w-full p-3 ${loading ? "bg-gray-400" : "bg-gradient-to-br from-gray-800 to-gray-900"
+              } text-white rounded-lg font-semibold hover:from-gray-700 hover:to-gray-700 transition-all shadow-md hover:shadow-lg`}
           >
             {loading ? "Signing In..." : "Sign In"}
           </button>
