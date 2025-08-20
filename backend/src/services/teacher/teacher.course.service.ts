@@ -30,9 +30,9 @@ export class TeacherCourseService implements ITeacherCourseService {
 
   async getCoursesByTeacherId(teacherId: string): Promise<any[]> {
     const courses = await this._courseRepository.findByTeacherId(teacherId);
-    if (!courses || courses.length === 0) {
-      throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    }
+    // if (!courses || courses.length === 0) {
+    //   throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    // }
     return courses;
   }
 

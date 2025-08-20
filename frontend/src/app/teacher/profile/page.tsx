@@ -31,11 +31,11 @@ export default function TeacherProfilePage() {
                 className="w-32 h-32 mx-auto rounded-full object-cover border"
               />
               <h2 className="text-xl font-semibold mt-4">{teacher.name}</h2>
-              <p className={`text-sm ${teacher.isVerified ? 'text-green-600' : 'text-red-500'}`}>
+              <p className={`text-sm ${teacher.isVerified ? 'text-cyan-600' : 'text-red-500'}`}>
                 {teacher.isVerified ? "Verified Teacher" : "Unverified"}
               </p>
               <Link href="/teacher/profile/edit">
-                <button className="mt-4 bg-emerald-600 text-white px-5 py-2 rounded-lg hover:bg-emerald-700 transition">
+                <button className="mt-4 bg-cyan-500 text-white px-5 py-2 rounded-lg hover:bg-cyan-600 transition">
                   Edit Profile
                 </button>
               </Link>

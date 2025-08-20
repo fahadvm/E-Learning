@@ -37,7 +37,7 @@ export class StudentAuthController {
 
   logout = async (_req: Request, res: Response) => {
     clearTokens(res);
-    console.log("logout successfull")
+    console.log("logout successfull ")
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.LOGOUT_SUCCESS, true);
   };
 

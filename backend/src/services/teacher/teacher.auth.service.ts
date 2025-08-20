@@ -18,7 +18,7 @@ export class TeacherAuthService implements ITeacherAuthService {
   constructor(
     @inject(TYPES.TeacherRepository) private _teacherRepo: ITeacherRepository,
     @inject(TYPES.OtpRepository) private _otpRepository: IOtpRepository
-  ) {}
+  ) { }
 
   async sendOtp(data: ITeacher): Promise<void> {
     const { email, password, name } = data;
@@ -52,16 +52,20 @@ export class TeacherAuthService implements ITeacherAuthService {
   async verifyOtp(email: string, otp: string) {
     const record = await this._otpRepository.findByEmail(email);
     if (!record) throwError(MESSAGES.NO_OTP_FOUND, STATUS_CODES.NOT_FOUND);
-    if (record.otp !== otp || record.expiresAt < new Date()) throwError(MESSAGES.OTP_INVALID, STATUS_CODES.UNAUTHORIZED);
+    if (record.otp !== otp || record.expiresAt < new Date()) throwError(MESSAGES.OTP_INVALID, STATUS_CODES.BAD_REQUEST);
     if (!record.tempUserData) throwError(MESSAGES.TEMP_USER_DATA_MISSING, STATUS_CODES.BAD_REQUEST);
 
     const { name, password } = record.tempUserData;
+    console.log("everything is correct until here1")
     const teacher = await this._teacherRepo.create({ name, email, password, isVerified: true, isBlocked: false });
+    console.log("everything is correct until here2")
     await this._otpRepository.deleteByEmail(email);
+    const teacherId = teacher?._id.toString()
 
-    const token = generateAccessToken(teacher.id, 'Teacher');
-    const refreshToken = generateRefreshToken(teacher.id, 'Teacher');
-    return { token, refreshToken, user: { id: teacher.id, role: 'Teacher', email: teacher.email, name: teacher.name } };
+
+    const token = generateAccessToken(teacherId, 'Teacher');
+    const refreshToken = generateRefreshToken(teacherId, 'Teacher');
+    return { token, refreshToken, user: { id: teacherId, role: 'Teacher', email: teacher.email, name: teacher.name } };
   }
 
   async login(email: string, password: string) {
@@ -70,10 +74,11 @@ export class TeacherAuthService implements ITeacherAuthService {
     if (teacher.password && !(await bcrypt.compare(password, teacher.password))) throwError(MESSAGES.INVALID_CREDENTIALS, STATUS_CODES.BAD_REQUEST);
     if (!teacher.isVerified) throwError(MESSAGES.TEACHER_NOT_VERIFIED, STATUS_CODES.UNAUTHORIZED);
     if (teacher.isBlocked) throwError(MESSAGES.ACCOUNT_BLOCKED, STATUS_CODES.FORBIDDEN);
+    const teacherId = teacher?._id.toString()
 
-    const token = generateAccessToken(teacher.id, 'Teacher');
-    const refreshToken = generateRefreshToken(teacher.id, 'Teacher');
-    return { token, refreshToken, user: { id: teacher.id, role: 'Teacher', email: teacher.email, name: teacher.name } };
+    const token = generateAccessToken(teacherId, 'Teacher');
+    const refreshToken = generateRefreshToken(teacherId, 'Teacher');
+    return { token, refreshToken, user: { id: teacherId, role: 'Teacher', email: teacher.email, name: teacher.name } };
   }
 
   // async googleAuth(profile: GooglePayLoad) {

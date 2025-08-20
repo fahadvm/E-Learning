@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Bell, Search, Settings, ChevronDown, LogOut } from "lucide-react";
 import axios from "axios";
+import { teacherAuthApi, teacherProfileApi } from "@/services/APImethods/teacherAPImethods";
 
 
 export default function Header() {
@@ -14,11 +15,7 @@ export default function Header() {
 
     const handleLogout = async () => {
         try {
-            await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/auth/teacher/logout`,
-                {},
-                { withCredentials: true }
-            );
+            await teacherAuthApi.logout()
 
             localStorage.removeItem("tempSignupEmail");
             router.push("/teacher/login");

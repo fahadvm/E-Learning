@@ -23,6 +23,8 @@ export class TeacherProfileService implements ITeacherProfileService {
   }
 
   async updateProfile(teacherId: string, data: Partial<ITeacher>): Promise<ITeacher | null> {
+        console.log("updated service page from edit profile :", teacherId, data)
+
     const updated = await this._teacherRepository.updateById(teacherId, data);
     if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     return updated;

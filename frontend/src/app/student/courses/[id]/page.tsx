@@ -155,7 +155,7 @@ export default function CourseDetailPage() {
 
                         {expandedModules.includes(moduleIndex) && (
                           <div className="border-t border-border bg-muted/20">
-                            {module.lessons.map((lesson, lessonIndex) => (
+                            {module.lessons.map((lesson:any, lessonIndex:any) => (
                               <div
                                 key={lessonIndex}
                                 className="flex items-center justify-between p-4 border-b border-border last:border-b-0"

@@ -61,7 +61,6 @@ export const StudentContextProvider = ({ children }: { children: ReactNode }) =>
       if (res?.ok && res.data) {
         setStudent(res.data);
       } else {
-        showErrorToast("this message from getiong studnent profile")
         router.push('/student/login');
       }
     } catch (error) {

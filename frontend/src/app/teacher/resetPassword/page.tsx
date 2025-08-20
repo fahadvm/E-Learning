@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
+import { teacherAuthApi } from "@/services/APImethods/teacherAPImethods";
+import { showInfoToast, showSuccessToast } from "@/utils/Toast";
 
 interface SignupForm {
   password: string;
@@ -15,7 +17,7 @@ export default function StudentResetPasswordPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
 
-  
+
 
   // useEffect(() => {
   //   const storedEmail = localStorage.getItem("tempforgetEmail");
@@ -51,20 +53,14 @@ export default function StudentResetPasswordPage() {
 
     setIsLoading(true);
     try {
-      const response = await axios.post<{ message: string }>(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/teacher/set-new-password`,
-        {
-          email,
-          newPassword: formData.password
-        },
-        {
-          withCredentials: true,
-          timeout: 10000
-        }
-      );
-      setMessage("✅ Password reset successfully");
-      localStorage.removeItem("tempforgetEmail"); 
-      router.push("/teacher/login");
+      const response = await teacherAuthApi.setNewPassword({ email, newPassword: formData.password })
+      if (response?.ok) {
+        showSuccessToast(response.message)
+        localStorage.removeItem("tempforgetEmail");
+        router.push("/teacher/login");
+      }else{
+        showInfoToast(response?.message)
+      }
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>;
       if (error.response?.status === 400) {
@@ -128,9 +124,8 @@ export default function StudentResetPasswordPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full p-3 bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-lg font-semibold hover:from-gray-700 hover:to-gray-700 transition-all shadow-md hover:shadow-lg ${
-              isLoading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            className={`w-full p-3 bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-lg font-semibold hover:from-gray-700 hover:to-gray-700 transition-all shadow-md hover:shadow-lg ${isLoading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             aria-label="Reset Password"
           >
             {isLoading ? (
@@ -166,9 +161,8 @@ export default function StudentResetPasswordPage() {
         {message && (
           <p
             id="form-error"
-            className={`mt-4 text-center text-sm font-medium ${
-              message.includes("✅") ? "text-green-600" : "text-red-600"
-            }`}
+            className={`mt-4 text-center text-sm font-medium ${message.includes("✅") ? "text-green-600" : "text-red-600"
+              }`}
             role="alert"
           >
             {message}

@@ -8,7 +8,7 @@ const patch = patchRequest;
 
 export const TeacherApiMethods = {
     getTeacher: () => get('/teacher/profile'),
-    editProfile: (data: any) => post("/teacher/edit-profile", data),
+    editProfile: (data: any) => post("/teacher/r/profile", data),
     unverified: () => get('/admin/unverified'),
     verify: (id: any) => get(`/admin/verify/${id}`),
     reject: (id: any) => get(`/admin/reject/${id}`)

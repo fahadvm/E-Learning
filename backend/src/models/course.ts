@@ -73,7 +73,7 @@ const CourseSchema = new Schema<ICourse>(
     isBlocked: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: false },
     isPublished: { type: Boolean, default: false },
-    status: { type: String, default: 'pending' },
+    status: { type: String, default: 'published' },
     rejectionReason: { type: String },
 
     teacherId: {

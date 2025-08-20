@@ -1,5 +1,6 @@
 // app/teacher/verifyForgotOtp/page.tsx
 "use client";
+import { teacherAuthApi } from "@/services/APImethods/teacherAPImethods";
 import dynamic from "next/dynamic";
 
 const OtpVerificationPage = dynamic(() => import("@/reusable/OtpVerificationPage"), { ssr: false });
@@ -8,8 +9,8 @@ export default function ForgotPasswordOtpPage() {
   return (
     <OtpVerificationPage
       localStorageKey="tempforgetEmail"
-      verifyUrl={`${process.env.NEXT_PUBLIC_API_URL}/auth/teacher/verify-forgot-otp`}
-      resendUrl={`${process.env.NEXT_PUBLIC_API_URL}/auth/teacher/resend-otp`}
+      verifyUrl={teacherAuthApi.verifyForgotOtp}
+      resendUrl={teacherAuthApi.resendOtp}
       redirectPath="/teacher/resetPassword"
       purpose="forgot-password"
       backToPath="/teacher/signup"

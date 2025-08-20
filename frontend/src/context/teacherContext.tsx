@@ -8,7 +8,7 @@ import {
   useState,
   useCallback,
 } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter,usePathname } from 'next/navigation';
 import { TeacherApiMethods } from '@/services/APImethods';
 
 export interface Education {
@@ -72,6 +72,11 @@ const TeacherContext = createContext<TeacherContextType | null>(null);
 export const TeacherContextProvider = ({ children }: { children: ReactNode }) => {
   const [teacher, setTeacher] = useState<ITeacher | null>(null);
   const router = useRouter();
+  const pathname = usePathname();
+
+  const publicPaths = ['/teacher/login', '/teacher/signup', '/teacher/forgetPassword', '/teacher/resetPassword', '/teacher/verify-forget-otp', '/teacher/verify-otp'];
+  const isPublicPage = publicPaths.includes(pathname);
+
 
   const getTeacherDetails = useCallback(async () => {
     try {
@@ -88,8 +93,10 @@ export const TeacherContextProvider = ({ children }: { children: ReactNode }) =>
   }, [router]);
 
   useEffect(() => {
-    getTeacherDetails();
-  }, [getTeacherDetails]);
+    if (!isPublicPage) {
+      getTeacherDetails();
+    }
+  }, [getTeacherDetails, isPublicPage]);
 
   return (
     <TeacherContext.Provider value={{ teacher, setTeacher }}>

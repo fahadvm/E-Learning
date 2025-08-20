@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document ,Types} from 'mongoose';
 import { ObjectId } from "mongodb";
 
 export interface Education {
@@ -27,7 +27,7 @@ export interface SocialLinks {
 }
 
 export interface ITeacher extends Document {
-  _id: ObjectId;
+  _id: Types.ObjectId; 
   name: string;
   email: string;
   password?: string;
@@ -120,7 +120,6 @@ const TeacherSchema = new Schema<ITeacher>(
     review: { type: String },
     comment: { type: String },
     rating: { type: Number },
-    userId: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 

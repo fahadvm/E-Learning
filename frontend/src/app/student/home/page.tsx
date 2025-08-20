@@ -14,6 +14,9 @@ import { useEffect, useState } from "react";
 import { Book, Clock, GraduationCap, Star } from "lucide-react";
 import axios from "axios";
 import { studentCourseApi } from "@/services/APImethods/studentAPImethods";
+import { useStudent } from '@/context/studentContext';
+
+
 
 export default function HeroSection() {
     interface ICourse {
@@ -36,13 +39,14 @@ export default function HeroSection() {
 
     const [recommendedCourses, setRecommendedCourses] = useState<ICourse[]>([]);
     const [teachers, setTeachers] = useState<ITeacher[]>([])
+    const { student } = useStudent()
 
     const fetchCourses = async () => {
         try {
             const res = await studentCourseApi.getRecommendedCourses()
             setRecommendedCourses(res?.data.data)
         } catch (error) {
-            console.error('Failed to fetch courses',error)
+            console.error('Failed to fetch courses', error)
         }
     }
 
@@ -54,13 +58,14 @@ export default function HeroSection() {
             )
             setTeachers(res.data.data)
         } catch (error) {
-            console.error('Failed to fetch courses',error)
+            console.error('Failed to fetch courses', error)
         }
     }
 
     useEffect(() => {
-
-        fetchCourses()
+        if (student) {
+            fetchCourses()
+        }
     }, []);
 
 
@@ -179,7 +184,7 @@ export default function HeroSection() {
 
                         {/* Grid of 8 Courses */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {recommendedCourses.slice(0, 8).map((course, index) => (
+                            {recommendedCourses?.slice(0, 8).map((course, index) => (
                                 <div key={index} className="bg-white shadow-md rounded-lg overflow-hidden flex flex-col h-full">
                                     <div className="relative">
                                         <img src={course.coverImage}

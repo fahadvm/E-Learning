@@ -6,18 +6,18 @@ import { Button } from '@/componentssss/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/componentssss/ui/card';
 import { Input } from '@/componentssss/ui/input';
 import { Label } from '@/componentssss/ui/label';
-import header from '@/componentssss/teacher/header';
+import Header from '@/componentssss/student/header2';
 import {
   BookOpen,
   Upload,
   Plus,
   Trash2,
-  DragHandle,
+//   DragHandle,
   Play,
   FileText,
   Video,
   Code,
-  Quiz,
+//   Quiz,
   Save,
   Eye,
   ArrowLeft,
@@ -474,7 +474,7 @@ export default function CreateCoursePage() {
                       {lesson.type === 'video' && <Video className="h-5 w-5 text-blue-500" />}
                       {lesson.type === 'text' && <FileText className="h-5 w-5 text-green-500" />}
                       {lesson.type === 'code' && <Code className="h-5 w-5 text-purple-500" />}
-                      {lesson.type === 'quiz' && <Quiz className="h-5 w-5 text-orange-500" />}
+                      {/* {lesson.type === 'quiz' && <Quiz className="h-5 w-5 text-orange-500" />} */}
                     </div>
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-2">
                       <Input
@@ -805,7 +805,7 @@ export default function CreateCoursePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header />
+      <Header />
       
       <div className="container mx-auto px-4 py-8">
         {/* Header */}

@@ -2,6 +2,7 @@
 import { useState ,useEffect} from "react";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
+import { teacherAuthApi } from "@/services/APImethods/teacherAPImethods";
 
 interface ForgetPasswordForm {
   email: string;
@@ -42,14 +43,7 @@ export default function StudentSignupPage() {
 
     setIsLoading(true);
     try {
-      const response = await axios.post<{ message: string; token?: string }>(
-        `${process.env.NEXT_PUBLIC_API_URL }/auth/teacher/forgot-password`,
-        formData,
-        {
-          withCredentials: true,
-          timeout: 10000 // 10-second timeout
-        }
-      );
+      const response = await teacherAuthApi.forgotPassword(formData)
       setMessage("✅ OTP sent to your email");
       localStorage.setItem("tempforgetEmail", formData.email);
       router.push("/teacher/verify-forget-otp");

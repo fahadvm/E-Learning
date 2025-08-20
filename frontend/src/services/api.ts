@@ -19,7 +19,7 @@ const handleApiError = (error: any, options: ApiOptions) => {
   const message = error?.response?.data?.message || error.message || "Request failed";
   
   if (error.response?.status === 401) {
-    showInfoToast("Please login again.");
+    showInfoToast("Please login.");
     // Router.push("/student/login");
   } else {
     showErrorToast(message);
@@ -57,12 +57,9 @@ export const getRequest = async <T = any>(
 ): Promise<T | null> => {
   try {
     const res = await axiosInstance.get(url, params ? { params } : {});
-    
-    
     if (!res.data.ok) {
       throw new Error(res.data.message || 'Request failed');
     }
-    
     return res.data;
   } catch (error: any) {
     handleApiError(error, options);

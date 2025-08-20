@@ -8,6 +8,7 @@ import { FilterQuery } from 'mongoose';
 export class TeacherRepository implements ITeacherRepository {
 
   async create(teacher: Partial<ITeacher>): Promise<ITeacher> {
+    console.log("teacher from repo:" , teacher)
     return Teacher.create(teacher);
   }
 

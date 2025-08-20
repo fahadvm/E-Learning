@@ -29,6 +29,7 @@ export class TeacherCourseController {
 
   async getCourseById(req: Request, res: Response): Promise<void> {
     const { courseId } = req.params;
+    console.log("courseId :", courseId)
     const teacherId = req.user?.id;
     if (!teacherId) throwError( MESSAGES.UNAUTHORIZED,STATUS_CODES.UNAUTHORIZED);
 
