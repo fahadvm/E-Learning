@@ -5,6 +5,9 @@ import Image from "next/image";
 import { adminApiMethods } from "@/services/APImethods/adminAPImethods";
 import { useParams } from "next/navigation";
 import AdminSidebar from "@/componentssss/admin/sidebar";
+import ConfirmationDialog from '@/reusable/ConfirmationDialog'
+import { showSuccessToast } from "@/utils/Toast";
+
 
 interface Course {
   name: string;
@@ -67,6 +70,7 @@ const StudentProfileAdmin: React.FC = () => {
         ? await adminApiMethods.unblockStudent(id)
         : await adminApiMethods.blockStudent(id);
       if (res?.data) {
+        showSuccessToast(res.message)
         setStudent(res.data);
       } else {
         setStudent((prev) => prev && { ...prev, isBlocked: !prev.isBlocked });
@@ -123,12 +127,25 @@ const StudentProfileAdmin: React.FC = () => {
                   Last Login: {new Date(student.lastLogin).toLocaleDateString()}
                 </p>
                 <div className="mt-3 flex gap-3">
-                  <button
-                    onClick={handleBlockToggle}
-                    className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
-                  >
-                    {student.isBlocked ? "Unblock" : "Block"}
-                  </button>
+                  
+                  <ConfirmationDialog
+                    title={student.isBlocked ? "Unblock Student" : "Block Student"}
+                    description={
+                      student.isBlocked
+                        ? "Are you sure you want to unblock this student?"
+                        : "Are you sure you want to block this student?"
+                    }
+                    confirmText={student.isBlocked ? "Unblock" : "Block"}
+                    onConfirm={handleBlockToggle}
+                    triggerButton={
+                      <button
+                        className={`px-4 py-2 rounded-md text-white ${student.isBlocked ? "bg-green-500" : "bg-red-500"
+                          }`}
+                      >
+                        {student.isBlocked ? "Unblock" : "Block"}
+                      </button>
+                    }
+                  />
                   <button className="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200">
                     Send Notification
                   </button>
@@ -156,11 +173,10 @@ const StudentProfileAdmin: React.FC = () => {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2 -mb-px border-b-2 transition-colors ${
-                    activeTab === tab
+                  className={`px-4 py-2 -mb-px border-b-2 transition-colors ${activeTab === tab
                       ? "border-blue-500 text-blue-600 font-medium"
                       : "border-transparent text-gray-500 hover:text-blue-500"
-                  }`}
+                    }`}
                 >
                   {tab}
                 </button>

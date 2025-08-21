@@ -15,6 +15,8 @@ export class TeacherCourseController {
   ) {}
 
   async addCourse(req: Request, res: Response): Promise<void> {
+    console.log("trying to add courses body from controller:", req.body)
+    console.log("trying to add courses files from controller:", req.files)
     const created = await this._courseService.createCourse(req);
     sendResponse(res, STATUS_CODES.CREATED, MESSAGES.COURSE_CREATED, true, created);
   }

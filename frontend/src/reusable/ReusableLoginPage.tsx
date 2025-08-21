@@ -72,11 +72,11 @@ export default function ReusableLoginPage({
     try {
       const res = await apiEndpoint({ email, password });
       localStorage.setItem("token", res.data.token);
-      setMessage("✅ Login successful!");
+      
       showSuccessToast(res?.message)
       setTimeout(() => router.push(redirectPath), 1500);
     } catch (err: any) {
-      const msg = err?.response?.data?.message || "❌ Login failed";
+      const msg = err?.response?.data?.message || " Login failed";
       setMessage(msg);
     } finally {
       setLoading(false);
@@ -158,7 +158,7 @@ export default function ReusableLoginPage({
         </p>
 
         <p className="mt-4 text-center text-gray-400 text-xs">Privacy Policy</p>
-      </div>
+      </div>z
 
       {/* Right Side Banner */}
       <div className="hidden lg:flex w-1/2 p-12 bg-gradient-to-br from-gray-800 to-gray-900 text-white flex-col justify-center items-center">

@@ -2,6 +2,8 @@
 import { useState ,useEffect} from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { companyApiMethods } from "@/services/APImethods/companyAPImethods";
+import { showSuccessToast } from "@/utils/Toast";
 
 export default function CompanySignupPage() {
   const [name, setName] = useState("");
@@ -68,15 +70,13 @@ export default function CompanySignupPage() {
     }
 
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/company/signup`,
-        { name, email, password },
-        { withCredentials: true }
-      );
-
-      setMessage("✅ OTP sent to your email");
-      localStorage.setItem("tempComSignupEmail", email);
-      router.push("/company/verify-otp");
+      const response = await companyApiMethods.signup({ name, email, password })
+      if(response.ok){
+        showSuccessToast(response.message)
+         setMessage("✅ OTP sent to your email");
+         localStorage.setItem("tempComSignupEmail", email);
+         router.push("/company/verify-otp");
+      }
     } catch (err: any) {
       setMessage(`❌ ${err?.response?.data?.message || "Signup failed"}`);
     }

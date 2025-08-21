@@ -3,9 +3,10 @@ import { ObjectId } from "mongodb";
 
 export interface ILesson {
   title: string;
-  content?: string;
-  videoUrl?: string;
-  duration?: number; // store in seconds
+  description?: string;
+  videoFile?: string;
+  thumbnail?: string;
+  duration?: number; // store in minutes
 }
 
 export interface IModule {
@@ -17,12 +18,12 @@ export interface IModule {
 export interface ICourse extends Document {
   _id: ObjectId;
   title: string;
-  shortDescription: string;
+  subtitle: string;
   description: string;
   level: string;
   category: string;
   language: string;
-  price?: string;
+  price?: number;
   coverImage?: string;
   isBlocked: boolean;
   isVerified: boolean;
@@ -30,10 +31,10 @@ export interface ICourse extends Document {
   status: string;
   rejectionReason?: string;
   teacherId?: mongoose.Types.ObjectId;
-  duration?: number; // total duration in seconds
+  duration?: number; // total duration in minutes
   reviews?: mongoose.Types.ObjectId[];
   requirements?: string[];
-  objectives?: string[];
+  learningOutcomes?: string[];
   totalStudents?: number;
   modules: IModule[];
   createdAt?: Date;
@@ -43,9 +44,10 @@ export interface ICourse extends Document {
 const LessonSchema = new Schema<ILesson>(
   {
     title: { type: String, required: true },
-    content: { type: String },
-    videoUrl: { type: String },
-    duration: { type: Number }, // store in seconds
+    description: { type: String },
+    videoFile: { type: String },
+    thumbnail: { type: String },
+    duration: { type: Number }, // store in minutes
   },
   { _id: false }
 );
@@ -62,7 +64,7 @@ const ModuleSchema = new Schema<IModule>(
 const CourseSchema = new Schema<ICourse>(
   {
     title: { type: String, required: true },
-    shortDescription: { type: String, required: true },
+    subtitle: { type: String, required: true },
     description: { type: String, required: true },
     level: { type: String, required: true },
     category: { type: String, required: true },
@@ -82,7 +84,7 @@ const CourseSchema = new Schema<ICourse>(
       required: false,
     },
 
-    duration: { type: Number, default: 0 },// (in seconds)
+    duration: { type: Number, default: 0 },// (in minutes)
 
     reviews: [
       {
@@ -93,7 +95,7 @@ const CourseSchema = new Schema<ICourse>(
     ],
 
     requirements: [{ type: String }],
-    objectives: [{ type: String }],
+    learningOutcomes: [{ type: String }],
     totalStudents: { type: Number, default: 0 },
 
     modules: { type: [ModuleSchema], default: [] },

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import axios from 'axios'
 import Header from "@/componentssss/company/Header";
 import { useSearchParams, useRouter } from 'next/navigation'
+import { companyApiMethods } from '@/services/APImethods/companyAPImethods';
 
 interface ILesson {
   title: string
@@ -44,11 +45,8 @@ export default function CoursesPage() {
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/company/courses`,
-        { withCredentials: true }
-      )
-      setCourses(res.data.data)
+      const res = await companyApiMethods.getAllCourses()
+      setCourses(res.data)
     } catch (err) {
       console.error('Failed to fetch courses', err)
     } finally {

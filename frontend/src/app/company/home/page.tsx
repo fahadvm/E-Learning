@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import Header from "@/componentssss/company/Header";
 import Link from "next/link";
 

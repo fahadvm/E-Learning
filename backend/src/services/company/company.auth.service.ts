@@ -18,17 +18,19 @@ export class CompanyAuthService implements ICompanyAuthService {
   constructor(
     @inject(TYPES.CompanyRepository) private readonly _companyRepository: ICompanyRepository,
     @inject(TYPES.OtpRepository) private readonly _otpRepository: IOtpRepository
-  ) {}
+  ) { }
 
   async sendOtp(data: { name: string; email: string; password: string }): Promise<void> {
     const { name, email, password } = data;
-
-    const existing = await this._companyRepository.findByEmail(email);
-    if (existing) throwError(MESSAGES.COMPANY_ALREADY_EXISTS, STATUS_CODES.CONFLICT);
-
+    console.log("sign up service ", data)
     const hashedPassword = await bcrypt.hash(password, 10);
+    const purpose: 'signup'= 'signup'
     const otp = generateOtp();
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+    let tempUserData = { name, password }
+    const existingOtp = await this._companyRepository.findByEmail(email);
+    if (existingOtp) await this._otpRepository.updateOtp(email, otp, expiresAt,  purpose, tempUserData);
+
 
     await this._otpRepository.create({
       email,
@@ -36,6 +38,7 @@ export class CompanyAuthService implements ICompanyAuthService {
       expiresAt,
       tempUserData: { name, password: hashedPassword },
     });
+
 
     await sendOtpEmail(email, otp);
   }
@@ -68,11 +71,12 @@ export class CompanyAuthService implements ICompanyAuthService {
 
     const isMatch = await bcrypt.compare(password, company.password);
     if (!isMatch) throwError(MESSAGES.INVALID_CREDENTIALS, STATUS_CODES.UNAUTHORIZED);
+    const companyId = company.id.toString()
 
-    const token = generateAccessToken(company.id, 'company');
-    const refreshToken = generateRefreshToken(company.id, 'company');
+    const token = generateAccessToken(companyId, 'company');
+    const refreshToken = generateRefreshToken(companyId, 'company');
 
-    return { token, refreshToken, company: { id: company.id, name: company.name, email: company.email } };
+    return { token, refreshToken, company: { id: companyId, name: company.name, email: company.email } };
   }
 
   async forgotPassword(email: string): Promise<void> {

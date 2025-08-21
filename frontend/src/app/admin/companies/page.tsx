@@ -22,7 +22,7 @@ export default function CompanyList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const rowsPerPage = 2;
+  const rowsPerPage = 5;
   const router = useRouter();
 
 

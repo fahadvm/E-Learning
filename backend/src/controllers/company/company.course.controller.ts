@@ -20,6 +20,7 @@ export class CompanyCourseController {
   async getCourseDetailById(req: Request, res: Response): Promise<void> {
     const { courseId } = req.params;
     const course = await this._courseService.getCourseDetail(courseId);
+    
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, course);
   }

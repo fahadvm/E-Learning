@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios, { AxiosError } from "axios";
 import Header from "@/componentssss/company/Header";
 import { useRouter, useParams } from "next/navigation";
+import { companyApiMethods } from "@/services/APImethods/companyAPImethods";
 
 interface Employee {
   _id: string;
@@ -39,8 +40,8 @@ export default function EmployeeDetailsPage() {
 
   const fetchEmployee = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/auth/company/employee/${id}`);
-      setEmployee(res.data.data);
+      const res = await companyApiMethods.getEmployeeById(id as string)
+      setEmployee(res.data.daxiosata);
     } catch (err) {
       const errorMessage = err instanceof AxiosError ? err.response?.data?.message || err.message : "Failed to fetch employee";
       setError(errorMessage);
@@ -111,12 +112,11 @@ export default function EmployeeDetailsPage() {
     }
 
     try {
-      await axios.put(`${API_BASE_URL}/auth/company/employee/${selectedEmployee._id}`, {
+      const res = await companyApiMethods.updateEmployee(selectedEmployee._id, {
         name: editName,
         email: editEmail,
         position: editPosition,
-      });
-
+      })
       await fetchEmployee(); // refresh data
       setIsEditModalOpen(false);
     } catch (err) {
@@ -224,7 +224,7 @@ export default function EmployeeDetailsPage() {
 
             {activeTab === "details" && (
               <div className="space-y-3">
-                
+
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-xl font-bold text-gray-900">Employee Details</h3>
                   <button
@@ -234,7 +234,7 @@ export default function EmployeeDetailsPage() {
                   >
                     Edit
                   </button>
-                   <span className="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -top-8 left-1/2 transform -translate-x-1/2">
+                  <span className="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -top-8 left-1/2 transform -translate-x-1/2">
                     Edit Employee
                   </span>
                 </div>

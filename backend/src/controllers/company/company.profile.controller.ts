@@ -15,7 +15,9 @@ export class CompanyProfileController {
 
 
   async getProfile(req: Request, res: Response): Promise<void> {
+    console.log("getting profile of company")
     const decoded = decodeToken(req.cookies.token);
+    console.log("decoded is" , decoded)
     if (!decoded?.id) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
     const company = await this._companyService.getProfile(decoded.id);
     if (!company) throwError(MESSAGES.COMPANY_NOT_FOUND, STATUS_CODES.NOT_FOUND);

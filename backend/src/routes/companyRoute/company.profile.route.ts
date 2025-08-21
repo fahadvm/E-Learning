@@ -7,6 +7,6 @@ import { TYPES } from '../../core/di/types';
 
 const router = express.Router();
 const companyProfileController = container.get<CompanyProfileController>(TYPES.CompanyProfileController);
-router.get('/profile', asyncHandler(companyProfileController.getProfile.bind(companyProfileController)));
+router.get('/', asyncHandler(companyProfileController.getProfile.bind(companyProfileController)));
 
 export default router;

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Menu, X, Bell, Heart, ShoppingCart, LogOut, BookOpen,Users, Route, Compass, User } from "lucide-react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { companyApiMethods } from "@/services/APImethods/companyAPImethods";
 
 
 export default function Header() {
@@ -22,11 +23,7 @@ export default function Header() {
 
   const handleLogout = async () => {
     try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/company/logout`,
-        {},
-        { withCredentials: true }
-      );
+      await companyApiMethods.logout()
 
       localStorage.removeItem("tempSignupEmail");
       router.push("/company/login");

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios, { AxiosError } from "axios";
 import Header from "@/componentssss/company/Header";
 import { useRouter } from "next/navigation";
+import { companyApiMethods } from "@/services/APImethods/companyAPImethods";
 
 interface Employee {
     _id: string;
@@ -69,12 +70,10 @@ export default function EmployeesPage() {
         setFetchLoading(true);
         setError(null);
         try {
-            const res = await axios.get<PaginatedResponse>(
-                `${API_BASE_URL}/auth/company/employees/${companyId}?page=${page}&limit=${pageSize}&search=${searchQuery}&sortBy=${sortField}&sortOrder=${sortOrder}`
-            );
-            if (Array.isArray(res.data.data)) {
-                setEmployees(res.data.data);
-                setTotalPages(res.data.totalPages || 1);
+            const res = await companyApiMethods.getAllEmployees()
+            if (Array.isArray(res.data)) {
+                setEmployees(res.data);
+                setTotalPages(res.totalPages || 1);
             } else {
                 throw new Error("Unexpected API response format");
             }
@@ -125,7 +124,7 @@ export default function EmployeesPage() {
         setActionLoading(true);
         setError(null);
         try {
-            await axios.put(`${API_BASE_URL}/auth/company/employee/${employeeId}`, {
+            await companyApiMethods.updateEmployee(employeeId , {
                 name: editName,
                 email: editEmail,
                 position: editPosition.trim() || undefined,
@@ -145,7 +144,7 @@ export default function EmployeesPage() {
         setActionLoading(true);
         setError(null);
         try {
-            await axios.patch(`${API_BASE_URL}/auth/company/employee/${employeeId}/block`, { status: !blocked });
+            await companyApiMethods.blockEmployee(employeeId, { status: !blocked });
             await fetchEmployees();
         } catch (err) {
             const errorMessage = err instanceof AxiosError ? err.response?.data?.message || err.message : "Failed to toggle block status";

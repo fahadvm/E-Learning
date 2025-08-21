@@ -8,6 +8,7 @@ import { Variants } from 'framer-motion';
 
 import Header from '@/componentssss/company/Header';
 import axios from '@/utils/axios';
+import { companyApiMethods } from '@/services/APImethods/companyAPImethods';
 
 interface Plan {
   _id?: string;
@@ -25,8 +26,8 @@ export default function SubscriptionPlansPage() {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const response = await axios.get('/auth/company/subscriptions');
-        setPlans(response.data.data);
+      const response = await companyApiMethods.getAllCompanyPlans()
+        setPlans(response?.data.data);
       } catch (error) {
         console.error('Error fetching subscription plans:', error);
       } finally {

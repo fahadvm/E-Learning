@@ -1,5 +1,6 @@
 // src/core/dto/teacher/teacherProfileDto.ts
 import { ITeacher } from "../../../models/Teacher";
+import mongoose from "mongoose";
 
 export const teacherProfileDto = (teacher: ITeacher) => ({
   _id: teacher._id.toString(),
@@ -24,3 +25,33 @@ export const teacherProfileDto = (teacher: ITeacher) => ({
   rating: teacher.rating,
   userId: teacher.userId,
 });
+
+export interface LessonDTO {
+  title: string;
+  description?: string;
+  duration?: number;
+  videoFile?: string | undefined;    // URL after upload
+  thumbnail?: string | undefined;    // URL after upload
+}
+
+export interface ModuleDTO {
+  title: string;
+  lessons: LessonDTO[];
+}
+
+export interface CourseCreateDTO {
+  title: string;
+  subtitle?: string;
+  description: string;
+  category: string;
+  level: string;
+  coverImage: string;
+  language: string;
+  price: number;
+  learningOutcomes: string[];
+  requirements: string[];
+  isPublished: boolean;
+  modules: ModuleDTO[];
+  teacherId: mongoose.Types.ObjectId;
+}
+

@@ -10,9 +10,10 @@ const adminCourseCtrl = container.get<AdminCourseController>(TYPES.AdminCourseCo
 courseRouter.get('/', asyncHandler(adminCourseCtrl.getAllCourses.bind(adminCourseCtrl)));
 courseRouter.get('/unverified', asyncHandler(adminCourseCtrl.getUnverifiedCourses.bind(adminCourseCtrl)));
 courseRouter.get('/:courseId', asyncHandler(adminCourseCtrl.getCourseById.bind(adminCourseCtrl)));
-courseRouter.patch('/:courseId/verify', asyncHandler(adminCourseCtrl.verifyCourse.bind(adminCourseCtrl)));
-courseRouter.patch('/:courseId/reject', asyncHandler(adminCourseCtrl.rejectCourse.bind(adminCourseCtrl)));
-courseRouter.patch('/:courseId/block', asyncHandler(adminCourseCtrl.blockCourse.bind(adminCourseCtrl)));
-courseRouter.patch('/:courseId/unblock', asyncHandler(adminCourseCtrl.unblockCourse.bind(adminCourseCtrl)));
+courseRouter.patch('/verify/:courseId', asyncHandler(adminCourseCtrl.verifyCourse.bind(adminCourseCtrl)));
+courseRouter.patch('/reject/:courseId', asyncHandler(adminCourseCtrl.rejectCourse.bind(adminCourseCtrl)));
+courseRouter.patch('/block/:courseId', asyncHandler(adminCourseCtrl.blockCourse.bind(adminCourseCtrl)));
+courseRouter.patch('/unblock/:courseId', asyncHandler(adminCourseCtrl.unblockCourse.bind(adminCourseCtrl)));
 
 export default courseRouter;
+

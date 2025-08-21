@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import axios from 'axios';
 import Image from 'next/image';
 import Header from "@/componentssss/company/Header";
+import { companyApiMethods } from '@/services/APImethods/companyAPImethods';
 
 interface ILesson {
   title: string;
@@ -42,17 +43,15 @@ interface ICourse {
 
 export default function CourseDetailPage() {
   const { id } = useParams();
+  
   const [course, setCourse] = useState<ICourse | null>(null);
   const [loading, setLoading] = useState(true);
   const [openModule, setOpenModule] = useState<number | null>(0);
 
   const fetchCourse = async () => {
     try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/company/course/${id}`,
-        { withCredentials: true }
-      );
-      setCourse(res.data.data);
+      const res = await companyApiMethods.getCourseById(id as string)
+      setCourse(res.data);
     } catch (err) {
       console.error('Failed to fetch course', err);
     } finally {

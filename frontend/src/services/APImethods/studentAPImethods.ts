@@ -34,3 +34,9 @@ export const studentSubscriptionApi = {
   getAllPlans: () => get('/student/subscriptions/'),
 };
 
+export const studentTeacherApi = {
+  getAllTeachers: () => get('/student/teachers/'),
+};
+
+
+

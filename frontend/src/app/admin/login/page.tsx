@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import { adminApiMethods } from "@/services/APImethods/adminAPImethods";
+import { showErrorToast, showSuccessToast } from "@/utils/Toast";
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -34,20 +35,14 @@ export default function AdminLogin() {
     if (emailErr || passErr) return;
 
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/admin/login`, {
-        email,
-        password,
-      });
-
-      if (res.data) {
+      const res = await adminApiMethods.login({email,password})
+      if (res.ok) {
         localStorage.setItem("adminToken", res.data.token);
-        setMessage("✅ Login successful");
-        setMessageType("success");
+        showSuccessToast(res.message)
         router.push("/admin/dashboard");
       }
     } catch (err) {
       console.error(err);
-      setMessage("❌ Login failed. Please check your credentials.");
       setMessageType("error");
     }
   };

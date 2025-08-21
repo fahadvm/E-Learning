@@ -8,7 +8,7 @@ import {
     useState,
     useCallback,
 } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter ,usePathname} from 'next/navigation';
 import { CompanyApiMethods } from '@/services/APImethods'; 
 
 // Types
@@ -59,10 +59,19 @@ const CompanyContext = createContext<CompanyContextType | null>(null);
 export const CompanyContextProvider = ({ children }: { children: ReactNode }) => {
     const [company, setCompany] = useState<ICompany | null>(null);
     const router = useRouter();
+  const pathname = usePathname();
+
+  const publicPaths = ['/company/login', '/company/signup', '/company/forgetpassword' , '/company/resetpassword', '/company/verify-forget-otp' , '/company/verify-otp'];
+  const isPublicPage = publicPaths.includes(pathname);
+
+
+
+
 
     const getCompanyDetails = useCallback(async () => {
         try {
             const res = await CompanyApiMethods.getCompany();
+            console.log("res from ",res)
             if (res?.ok && res.data) {
                 setCompany(res.data);
             } else {
@@ -74,9 +83,11 @@ export const CompanyContextProvider = ({ children }: { children: ReactNode }) =>
         }
     }, [router]);
 
-    useEffect(() => {
-        getCompanyDetails();
-    }, [getCompanyDetails]);
+     useEffect(() => {
+    if (!isPublicPage) {
+      getCompanyDetails();
+    }
+  }, [getCompanyDetails, isPublicPage]);
 
     return (
         <CompanyContext.Provider value={{ company, setCompany }}>

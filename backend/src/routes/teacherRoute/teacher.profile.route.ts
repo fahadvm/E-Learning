@@ -16,3 +16,4 @@ router
   .patch(authMiddleware('Teacher'), asyncHandler(teacherProfileController.updateProfile.bind(teacherProfileController)));
 
 export default router;
+  

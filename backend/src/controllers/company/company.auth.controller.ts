@@ -23,13 +23,16 @@ export class CompanyAuthController {
   }
 
   async verifyOtp(req: Request, res: Response): Promise<void> {
+    console.log("verifying otp ",req.body)
     const { email, otp } = req.body;
+    
     if (!email || !otp) throwError(MESSAGES.ALL_FIELDS_REQUIRED, STATUS_CODES.BAD_REQUEST);
     const company = await this._companyService.verifyOtp(email, otp);
     sendResponse(res, STATUS_CODES.OK, MESSAGES.OTP_VERIFIED, true, company);
   }
 
   async login(req: Request, res: Response): Promise<void> {
+    console.log("working login page ....")
     const { email, password } = req.body;
     if (!email || !password) throwError(MESSAGES.ALL_FIELDS_REQUIRED, STATUS_CODES.BAD_REQUEST);
     const { token, refreshToken, company } = await this._companyService.login(email, password);

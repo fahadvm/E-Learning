@@ -2,6 +2,8 @@
 import { useState } from "react";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
+import { companyApiMethods } from "@/services/APImethods/companyAPImethods";
+import { showSuccessToast } from "@/utils/Toast";
 
 interface ForgetPasswordForm {
   email: string;
@@ -40,17 +42,13 @@ export default function CompanySignupPage() {
 
     setIsLoading(true);
     try {
-      const response = await axios.post<{ message: string; token?: string }>(
-        `${process.env.NEXT_PUBLIC_API_URL }/auth/company/forgot-password`,
-        formData,
-        {
-          withCredentials: true,
-          timeout: 10000 // 10-second timeout
-        }
-      );
-      setMessage("✅ OTP sent to your email");
-      localStorage.setItem("tempforgetEmail", formData.email);
-      router.push("/company/verify-forget-otp");
+      const response = await companyApiMethods.forgotPassword(formData)
+      if(response.ok){
+        showSuccessToast(response.message)
+        setMessage("✅ OTP sent to your email");
+        localStorage.setItem("tempforgetEmail", formData.email);
+        router.push("/company/verify-forget-otp");
+      }
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>;
       if (error.response?.status === 400) {

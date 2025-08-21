@@ -8,6 +8,7 @@ import {
   Pencil, Trash2, Plus, Package, Star,
   IndianRupee, Tag
 } from 'lucide-react'
+import { adminApiMethods } from '@/services/APImethods/adminAPImethods'
 
 interface SubscriptionPlan {
   _id: string
@@ -23,11 +24,12 @@ export default function AdminSubscriptionsPage() {
   const router = useRouter()
   const [plans, setPlans] = useState<SubscriptionPlan[]>([])
   const [loading, setLoading] = useState(true)
+  const id = "234234234242"
 
   const fetchPlans = async () => {
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/auth/admin/subscriptionplans`) 
-      setPlans(res.data.data)
+      const res =  await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/auth/admin/subscriptionplans/${id}`)
+      setPlans(res.data)
     } catch (error) {
       console.error("Failed to fetch subscription plans", error)
     } finally {

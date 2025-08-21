@@ -11,4 +11,4 @@ const adminAuthCtrl = container.get<AdminAuthController>(TYPES.AdminAuthControll
 authRouter.post('/login' ,asyncHandler(adminAuthCtrl.login.bind(adminAuthCtrl)));
 authRouter.post('/logout',asyncHandler( adminAuthCtrl.logout.bind(adminAuthCtrl)));
 
-export default authRouter;
+export default authRouter; 

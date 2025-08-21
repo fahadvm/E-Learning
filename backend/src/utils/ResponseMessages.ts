@@ -170,4 +170,8 @@ export enum MESSAGES {
   DATABASE_ERROR = 'Database operation failed',
   RATE_LIMIT_EXCEEDED = 'Too many requests, please try again later',
   SERVICE_UNAVAILABLE = 'Service temporarily unavailable'
+
+
+  , TITLE_DESCRIPTION_CATEGORY_REQUIRED= 'Title & description  & and category are required',
+   AT_LEAST_ONE_MODULE_REQUIRED= 'At least one module is required',
 }

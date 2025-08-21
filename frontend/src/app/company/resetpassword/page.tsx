@@ -3,6 +3,8 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState,useEffect } from 'react';
 import axios from 'axios';
+import { companyApiMethods } from '@/services/APImethods/companyAPImethods';
+import { showSuccessToast } from '@/utils/Toast';
 
 export default function ResetPasswordPage() {
   const [otp, setOtp] = useState('');
@@ -22,13 +24,14 @@ export default function ResetPasswordPage() {
     setError('');
 
     try {
-      const res = await axios.post('/api/company/reset-password', {
-        email,
+      const res = await companyApiMethods.resetPassword({email,
         otp,
-        newPassword,
-      });
-      setMessage(res.data.message);
-      setTimeout(() => router.push('/company/login'), 2000);
+        newPassword,})
+      if(res.ok){
+        showSuccessToast(res.message)
+        setMessage(res.data.message);
+         router.push('/company/login');
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Reset failed');
     }

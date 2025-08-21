@@ -1,367 +1,570 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Course Detail Page</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      background: #f8fafc;
-      color: #1e293b;
-    }
-
-    /* Hero Section */
-    .hero {
-      background: url('https://picsum.photos/1200/400?course') center/cover no-repeat;
-      color: white;
-      padding: 60px 20px;
-      text-align: center;
-      position: relative;
-    }
-    .hero::after {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5);
-    }
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      max-width: 900px;
-      margin: auto;
-    }
-    .hero h1 {
-      font-size: 2.5rem;
-      margin: 0 0 10px;
-    }
-    .hero p {
-      font-size: 1.1rem;
-      margin: 10px 0;
-    }
-    .rating {
-      margin-top: 10px;
-      color: #fbbf24;
-    }
-
-    /* Layout */
-    .container {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 20px;
-      max-width: 1200px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
-    @media (max-width: 900px) {
-      .container {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* Sidebar */
-    .sidebar {
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      position: sticky;
-      top: 20px;
-    }
-    .price {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #2563eb;
-    }
-    .old-price {
-      text-decoration: line-through;
-      color: #64748b;
-      font-size: 1rem;
-      margin-left: 8px;
-    }
-    .btn {
-      display: block;
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border-radius: 8px;
-      border: none;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .btn-primary {
-      background: #2563eb;
-      color: white;
-    }
-    .btn-primary:hover {
-      background: #1e40af;
-    }
-    .btn-secondary {
-      background: #e2e8f0;
-      color: #1e293b;
-    }
-    .btn-secondary:hover {
-      background: #cbd5e1;
-    }
-    .quick-info {
-      margin-top: 20px;
-      font-size: 0.95rem;
-    }
-    .quick-info p {
-      margin: 5px 0;
-    }
-
-    /* Main Content */
-    .section {
-      margin-bottom: 40px;
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-    .section h2 {
-      margin-bottom: 15px;
-      color: #0f172a;
-    }
-
-    /* Curriculum Accordion */
-    .accordion-item {
-      margin-bottom: 10px;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .accordion-header {
-      background: #f1f5f9;
-      padding: 12px;
-      cursor: pointer;
-      font-weight: bold;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .accordion-content {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-      background: white;
-      padding: 0 12px;
-    }
-    .accordion-content.open {
-      padding: 12px;
-    }
-    .lesson {
-      padding: 6px 0;
-      border-bottom: 1px solid #e2e8f0;
-      font-size: 0.95rem;
-    }
-    .lesson:last-child {
-      border-bottom: none;
-    }
-
-    /* Reviews */
-    .review {
-      border-top: 1px solid #e2e8f0;
-      padding: 10px 0;
-    }
-    .review strong {
-      display: block;
-      margin-bottom: 5px;
-    }
-
-    /* Instructor */
-    .instructor {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    .instructor img {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-
-    /* Related Courses */
-    .related-courses {
-      display: grid;
-      grid-template-columns: repeat(auto-fill,minmax(250px,1fr));
-      gap: 20px;
-    }
-    .course-card {
-      background: #fff;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      transition: 0.3s;
-    }
-    .course-card:hover {
-      transform: translateY(-5px);
-    }
-    .course-card img {
-      width: 100%;
-      height: 150px;
-      object-fit: cover;
-    }
-    .course-card .content {
-      padding: 15px;
-    }
-    .course-card h4 {
-      margin: 0 0 8px;
-    }
-    .course-card .price {
-      font-size: 1.2rem;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Hero Section -->
-  <div class="hero">
-    <div class="hero-content">
-      <h1>Advanced Web Development Bootcamp</h1>
-      <p>Master full-stack development with hands-on projects & real-world skills</p>
-      <div class="rating">★★★★★ (4.8/5 - 1,230 reviews)</div>
-      <p>By <strong>John Doe</strong>, Senior Software Engineer</p>
-    </div>
-  </div>
-
-  <!-- Layout -->
-  <div class="container">
-    <!-- Main -->
-    <div class="main">
-
-      <!-- Overview -->
-      <div class="section">
-        <h2>Course Overview</h2>
-        <p>This comprehensive bootcamp covers everything from frontend (HTML, CSS, JavaScript, React) to backend (Node.js, Express, MongoDB). You'll build real-world projects and gain the confidence to work as a full-stack developer.</p>
-        <ul>
-          <li>✔ Learn modern frontend frameworks</li>
-          <li>✔ Build scalable backend APIs</li>
-          <li>✔ Work with databases</li>
-          <li>✔ Deploy apps to the cloud</li>
-        </ul>
-      </div>
-
-      <!-- Curriculum -->
-      <div class="section">
-        <h2>Course Curriculum</h2>
-        <div class="accordion-item">
-          <div class="accordion-header">Module 1: Introduction <span>+</span></div>
-          <div class="accordion-content">
-            <div class="lesson">Lesson 1: Getting Started (10 min)</div>
-            <div class="lesson">Lesson 2: Setting Up Environment (15 min)</div>
-          </div>
-        </div>
-        <div class="accordion-item">
-          <div class="accordion-header">Module 2: Frontend Development <span>+</span></div>
-          <div class="accordion-content">
-            <div class="lesson">Lesson 1: HTML & CSS Basics (20 min)</div>
-            <div class="lesson">Lesson 2: JavaScript Fundamentals (25 min)</div>
-            <div class="lesson">Lesson 3: React Introduction (30 min)</div>
-          </div>
-        </div>
-        <div class="accordion-item">
-          <div class="accordion-header">Module 3: Backend Development <span>+</span></div>
-          <div class="accordion-content">
-            <div class="lesson">Lesson 1: Node.js Basics (15 min)</div>
-            <div class="lesson">Lesson 2: Express Framework (25 min)</div>
-            <div class="lesson">Lesson 3: MongoDB Integration (30 min)</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Instructor -->
-      <div class="section">
-        <h2>Instructor</h2>
-        <div class="instructor">
-          <img src="https://picsum.photos/100" alt="Instructor">
-          <div>
-            <h3>John Doe</h3>
-            <p>Senior Software Engineer with 10+ years experience in web development. Passionate about teaching and mentoring new developers.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Reviews -->
-      <div class="section">
-        <h2>Student Reviews</h2>
-        <div class="review">
-          <strong>Jane Smith</strong>
-          ⭐⭐⭐⭐⭐ - "Great course, very detailed and beginner friendly!"
-        </div>
-        <div class="review">
-          <strong>Michael Johnson</strong>
-          ⭐⭐⭐⭐ - "Loved the hands-on projects, very practical."
-        </div>
-      </div>
-
-      <!-- Related Courses -->
-      <div class="section">
-        <h2>Related Courses</h2>
-        <div class="related-courses">
-          <div class="course-card">
-            <img src="https://picsum.photos/250/150?1" alt="">
-            <div class="content">
-              <h4>React Masterclass</h4>
-              <p class="price">$49.99</p>
-            </div>
-          </div>
-          <div class="course-card">
-            <img src="https://picsum.photos/250/150?2" alt="">
-            <div class="content">
-              <h4>Node.js & Express API</h4>
-              <p class="price">$39.99</p>
-            </div>
-          </div>
-          <div class="course-card">
-            <img src="https://picsum.photos/250/150?3" alt="">
-            <div class="content">
-              <h4>MongoDB for Beginners</h4>
-              <p class="price">$29.99</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <div>
-        <span class="price">$99.99</span>
-        <span class="old-price">$199.99</span>
-      </div>
-      <button class="btn btn-primary">Add to Cart</button>
-      <button class="btn btn-secondary">Add to Wishlist</button>
-
-      <div class="quick-info">
-        <p><strong>Duration:</strong> 40 hours</p>
-        <p><strong>Level:</strong> Advanced</p>
-        <p><strong>Language:</strong> English</p>
-        <p><strong>Certificate:</strong> Yes</p>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Accordion functionality
-    document.querySelectorAll('.accordion-header').forEach(header => {
-      header.addEventListener('click', () => {
-        const content = header.nextElementSibling;
-        content.classList.toggle('open');
-        if (content.style.maxHeight) {
-          content.style.maxHeight = null;
-          header.querySelector("span").textContent = "+";
-        } else {
-          content.style.maxHeight = content.scrollHeight + "px";
-          header.querySelector("span").textContent = "−";
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Management | Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
         }
-      });
-    });
-  </script>
+        
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        
+        .course-header {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        }
+        
+        .stat-card {
+            transition: transform 0.2s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .module-item {
+            transition: all 0.2s ease;
+        }
+        
+        .module-item:hover {
+            background-color: #f9fafb;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="sidebar bg-white w-64 border-r border-gray-200 fixed h-full flex flex-col">
+            <div class="p-4 border-b border-gray-200">
+                <h1 class="text-xl font-bold text-indigo-600">Edu<span class="text-indigo-400">Admin</span></h1>
+            </div>
+            <nav class="flex-1 overflow-y-auto">
+                <div class="p-4">
+                    <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Dashboard</h2>
+                    <ul class="mt-3 space-y-2">
+                        <li>
+                            <a href="#" class="flex items-center p-2 text-gray-700 rounded-lg hover:bg-indigo-50 group">
+                                <span class="ml-3">Overview</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center p-2 text-gray-700 rounded-lg hover:bg-indigo-50 group">
+                                <span class="ml-3">Courses</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center p-2 text-gray-700 rounded-lg hover:bg-indigo-50 group">
+                                <span class="ml-3">Users</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="p-4">
+                    <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Analytics</h2>
+                    <ul class="mt-3 space-y-2">
+                        <li>
+                            <a href="#" class="flex items-center p-2 text-gray-700 rounded-lg hover:bg-indigo-50 group">
+                                <span class="ml-3">Reports</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center p-2 text-gray-700 rounded-lg hover:bg-indigo-50 group">
+                                <span class="ml-3">Engagement</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <div class="p-4 border-t border-gray-200">
+                <div class="flex items-center">
+                    <img class="h-8 w-8 rounded-full" src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/d1d24c84-45d4-47c5-891a-66506b16fe8b.png" alt="Admin profile picture with dark background" />
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-700">Admin User</p>
+                        <p class="text-xs font-medium text-gray-500">admin@example.com</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- Main Content -->
+        <div class="flex-1 overflow-y-auto ml-64">
+            <!-- Mobile Header -->
+            <div class="bg-white shadow-sm lg:hidden p-4 flex justify-between items-center border-b border-gray-200">
+                <button class="text-gray-500 focus:outline-none">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                <h1 class="text-lg font-semibold text-gray-800">Course Details</h1>
+                <div class="w-6"></div>
+            </div>
+
+            <!-- Course Header -->
+            <div class="course-header px-6 py-8 text-white">
+                <div class="max-w-7xl mx-auto">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="flex items-center space-x-2 mb-2">
+                                <span class="text-indigo-200 font-medium">Course ID: #CRS-48596</span>
+                                <span class="bg-indigo-800 text-xs px-2 py-1 rounded-full">Active</span>
+                            </div>
+                            <h1 class="text-3xl font-bold mb-2">Advanced Web Development</h1>
+                            <p class="text-indigo-100 max-w-2xl">Master modern web development techniques with React, Node.js, and MongoDB. Learn to build full-stack applications from scratch.</p>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-md flex items-center">
+                                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                </svg>
+                                Edit
+                            </button>
+                            <button class="bg-white text-indigo-600 px-4 py-2 rounded-md flex items-center">
+                                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15l8-8m0 0l-8-8m8 8H4"></path>
+                                </svg>
+                                Publish
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="max-w-7xl mx-auto px-6 py-8">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="stat-card bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-medium text-gray-500">Total Enrollments</h3>
+                            <div class="p-2 rounded-full bg-indigo-100 text-indigo-600">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="mt-2 text-3xl font-semibold text-gray-900">1,248</p>
+                        <p class="mt-1 text-sm text-indigo-600 font-medium">+12.3% from last month</p>
+                    </div>
+                    <div class="stat-card bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-medium text-gray-500">Completion Rate</h3>
+                            <div class="p-2 rounded-full bg-green-100 text-green-600">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="mt-2 text-3xl font-semibold text-gray-900">76%</p>
+                        <p class="mt-1 text-sm text-green-600 font-medium">+8.5% from last month</p>
+                    </div>
+                    <div class="stat-card bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-medium text-gray-500">Avg. Rating</h3>
+                            <div class="p-2 rounded-full bg-yellow-100 text-yellow-600">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="mt-2 text-3xl font-semibold text-gray-900">4.8</p>
+                        <div class="mt-1 flex items-center">
+                            <div class="flex">
+                                <svg class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                                <!-- Repeat for 4 more stars -->
+                                <svg class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                                <svg class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                                <svg class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                                <svg class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                            </div>
+                            <span class="ml-1 text-sm text-gray-500">(872 reviews)</span>
+                        </div>
+                    </div>
+                    <div class="stat-card bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-medium text-gray-500">Content Hours</h3>
+                            <div class="p-2 rounded-full bg-purple-100 text-purple-600">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="mt-2 text-3xl font-semibold text-gray-900">24.5</p>
+                        <p class="mt-1 text-sm text-purple-600 font-medium">10 modules, 48 lessons</p>
+                    </div>
+                </div>
+
+                <!-- Course Details Sections -->
+                <div class="flex flex-col lg:flex-row gap-8">
+                    <!-- Left Column -->
+                    <div class="lg:w-2/3">
+                        <!-- Overview Card -->
+                        <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 mb-6">
+                            <div class="px-6 py-4 border-b border-gray-100">
+                                <h2 class="text-lg font-semibold text-gray-800">Course Overview</h2>
+                            </div>
+                            <div class="p-6">
+                                <div class="prose max-w-none text-gray-600">
+                                    <p>This comprehensive course takes you through the complete process of building modern web applications using the MERN stack (MongoDB, Express.js, React, and Node.js).</p>
+                                    <p class="mt-4">You'll learn:</p>
+                                    <ul class="mt-2 list-disc pl-5 space-y-1">
+                                        <li>Building responsive UIs with React and Tailwind CSS</li>
+                                        <li>Creating RESTful APIs with Node.js and Express</li>
+                                        <li>Database design and operations with MongoDB</li>
+                                        <li>Authentication and authorization using JWT</li>
+                                        <li>Deploying applications to production</li>
+                                    </ul>
+                                    <p class="mt-4">By the end of this course, you'll be able to build and deploy full-featured web applications.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modules Card -->
+                        <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 mb-6">
+                            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                                <h2 class="text-lg font-semibold text-gray-800">Course Modules</h2>
+                                <button class="text-sm bg-indigo-600 text-white px-3 py-1 rounded-md hover:bg-indigo-700">Add Module</button>
+                            </div>
+                            <div class="divide-y divide-gray-100">
+                                <!-- Module 1 -->
+                                <div class="module-item p-6 hover:bg-gray-50">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <div class="flex items-center">
+                                                <span class="font-medium text-gray-900 mr-3">1. Introduction to React</span>
+                                                <span class="text-xs bg-gray-100 px-2 py-1 rounded-md text-gray-600">Published</span>
+                                            </div>
+                                            <p class="mt-1 text-sm text-gray-500">4 lessons • 2h 15m</p>
+                                        </div>
+                                        <button class="text-gray-400 hover:text-gray-600">
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="mt-4 pl-6">
+                                        <div class="flex items-center py-2">
+                                            <span class="w-10 text-xs font-medium text-gray-500">1.1</span>
+                                            <span class="text-sm text-gray-700 flex-1">React Fundamentals</span>
+                                            <span class="text-xs text-gray-500">32:15</span>
+                                        </div>
+                                        <div class="flex items-center py-2">
+                                            <span class="w-10 text-xs font-medium text-gray-500">1.2</span>
+                                            <span class="text-sm text-gray-700 flex-1">Components and Props</span>
+                                            <span class="text-xs text-gray-500">28:42</span>
+                                        </div>
+                                        <div class="flex items-center py-2">
+                                            <span class="w-10 text-xs font-medium text-gray-500">1.3</span>
+                                            <span class="text-sm text-gray-700 flex-1">State and Lifecycle</span>
+                                            <span class="text-xs text-gray-500">41:08</span>
+                                        </div>
+                                        <div class="flex items-center py-2">
+                                            <span class="w-10 text-xs font-medium text-gray-500">1.4</span>
+                                            <span class="text-sm text-gray-700 flex-1">Handling Events</span>
+                                            <span class="text-xs text-gray-500">32:55</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Module 2 -->
+                                <div class="module-item p-6 hover:bg-gray-50">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <div class="flex items-center">
+                                                <span class="font-medium text-gray-900 mr-3">2. Advanced React Patterns</span>
+                                                <span class="text-xs bg-gray-100 px-2 py-1 rounded-md text-gray-600">Published</span>
+                                            </div>
+                                            <p class="mt-1 text-sm text-gray-500">5 lessons • 3h 10m</p>
+                                        </div>
+                                        <button class="text-gray-400 hover:text-gray-600">
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Module 3 -->
+                                <div class="module-item p-6 hover:bg-gray-50">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <div class="flex items-center">
+                                                <span class="font-medium text-gray-900 mr-3">3. Building a Node.js API</span>
+                                                <span class="text-xs bg-yellow-100 px-2 py-1 rounded-md text-yellow-800">Draft</span>
+                                            </div>
+                                            <p class="mt-1 text-sm text-gray-500">3 lessons • 1h 45m</p>
+                                        </div>
+                                        <button class="text-gray-400 hover:text-gray-600">
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Resources Card -->
+                        <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+                            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                                <h2 class="text-lg font-semibold text-gray-800">Resources</h2>
+                                <button class="text-sm bg-indigo-600 text-white px-3 py-1 rounded-md hover:bg-indigo-700">Add Resource</button>
+                            </div>
+                            <div class="p-6">
+                                <div class="space-y-4">
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0 p-2 bg-blue-50 rounded-md">
+                                            <svg class="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="ml-4">
+                                            <h3 class="text-sm font-medium text-gray-900">Course Slides PDF</h3>
+                                            <p class="text-sm text-gray-500 mt-1">Complete set of slides for all modules in PDF format.</p>
+                                            <p class="text-xs text-gray-400 mt-1">Uploaded: Jan 15, 2023 • 4.2 MB</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0 p-2 bg-green-50 rounded-md">
+                                            <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="ml-4">
+                                            <h3 class="text-sm font-medium text-gray-900">Project Starter Files</h3>
+                                            <p class="text-sm text-gray-500 mt-1">ZIP archive containing all starter files for course projects.</p>
+                                            <p class="text-xs text-gray-400 mt-1">Uploaded: Jan 18, 2023 • 12.7 MB</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="lg:w-1/3">
+                        <!-- Course Actions Card -->
+                        <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 mb-6">
+                            <div class="px-6 py-4 border-b border-gray-100">
+                                <h2 class="text-lg font-semibold text-gray-800">Course Actions</h2>
+                            </div>
+                            <div class="p-6">
+                                <div class="space-y-3">
+                                    <button class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-md">
+                                        <span>View Course Page</span>
+                                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                        </svg>
+                                    </button>
+                                    <button class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-md">
+                                        <span>Preview as Student</span>
+                                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                    </button>
+                                    <button class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-md">
+                                        <span>Download Course Data</span>
+                                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="mt-6 pt-6 border-t border-gray-100">
+                                    <button class="w-full flex items-center justify-between px-4 py-3 bg-red-50 hover:bg-red-100 text-red-700 rounded-md">
+                                        <span>Archive Course</span>
+                                        <svg class="h-4 w-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Instructor Card -->
+                        <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 mb-6">
+                            <div class="px-6 py-4 border-b border-gray-100">
+                                <h2 class="text-lg font-semibold text-gray-800">Instructor</h2>
+                            </div>
+                            <div class="p-6">
+                                <div class="flex items-center">
+                                    <img class="h-12 w-12 rounded-full" src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/cbad04f3-9953-4fb2-b7ee-432d0e09fb1b.png" alt="Professional headshot of course instructor Sarah Johnson with blue background" />
+                                    <div class="ml-4">
+                                        <h3 class="text-sm font-semibold text-gray-900">Sarah Johnson</h3>
+                                        <p class="text-sm text-gray-500">Senior Web Developer</p>
+                                        <div class="flex mt-1">
+                                            <svg class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.922-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                            </svg>
+                                            <span class="text-xs text-gray-500 ml-1">4.9 (1,203 ratings)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="mt-4 text-sm text-gray-600">Sarah has been building web applications for over 10 years and specializes in JavaScript frameworks and modern web development.</p>
+                                <button class="mt-4 w-full px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">Message Instructor</button>
+                            </div>
+                        </div>
+
+                        <!-- Timeline Card -->
+                        <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+                            <div class="px-6 py-4 border-b border-gray-100">
+                                <h2 class="text-lg font-semibold text-gray-800">Activity Timeline</h2>
+                            </div>
+                            <div class="p-6">
+                                <div class="flow-root">
+                                    <ul class="-mb-8">
+                                        <li>
+                                            <div class="relative pb-8">
+                                                <div class="relative flex items-start space-x-3">
+                                                    <div class="mt-1">
+                                                        <div class="flex items-center justify-center h-8 w-8 rounded-full bg-indigo-100">
+                                                            <svg class="h-5 w-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                    <div class="min-w-0 flex-1">
+                                                        <div>
+                                                            <div class="text-sm">
+                                                                <p class="font-medium text-gray-900">You created the course</p>
+                                                            </div>
+                                                            <p class="mt-0.5 text-sm text-gray-500">2 days ago</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="relative pb-8">
+                                                <div class="relative flex items-start space-x-3">
+                                                    <div class="mt-1">
+                                                        <div class="flex items-center justify-center h-8 w-8 rounded-full bg-green-100">
+                                                            <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                    <div class="min-w-0 flex-1">
+                                                        <div>
+                                                            <div class="text-sm">
+                                                                <p class="font-medium text-gray-900">Published first 2 modules</p>
+                                                            </div>
+                                                            <p class="mt-0.5 text-sm text-gray-500">1 day ago</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="relative pb-8">
+                                                <div class="relative flex items-start space-x-3">
+                                                    <div class="mt-1">
+                                                        <div class="flex items-center justify-center h-8 w-8 rounded-full bg-blue-100">
+                                                            <svg class="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                    <div class="min-w-0 flex-1">
+                                                        <div>
+                                                            <div class="text-sm">
+                                                                <p class="font-medium text-gray-900">Added resources</p>
+                                                            </div>
+                                                            <p class="mt-0.5 text-sm text-gray-500">8 hours ago</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="relative">
+                                                <div class="relative flex items-start space-x-3">
+                                                    <div class="mt-1">
+                                                        <div class="flex items-center justify-center h-8 w-8 rounded-full bg-yellow-100">
+                                                            <svg class="h-5 w-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                    <div class="min-w-0 flex-1">
+                                                        <div>
+                                                            <div class="text-sm">
+                                                                <p class="font-medium text-gray-900">Received 5-star rating</p>
+                                                            </div>
+                                                            <p class="mt-0.5 text-sm text-gray-500">2 hours ago</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile sidebar toggle
+        const mobileSidebarButton = document.querySelector('.lg\\:hidden button');
+        const sidebar = document.querySelector('.sidebar');
+        
+        mobileSidebarButton.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+
+        // Simulated course data - in a real app this would come from an API
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup tooltips or other interactive elements
+            const moduleItems = document.querySelectorAll('.module-item');
+            
+            moduleItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    // Don't toggle if clicking the dots menu
+                    if (!e.target.closest('button')) {
+                        const lessons = item.querySelector('div.pl-6');
+                        if (lessons) {
+                            lessons.style.display = lessons.style.display === 'none' ? 'block' : 'none';
+                        }
+                    }
+                });
+            });
+            
+            // Initialize any hidden lesson lists
+            document.querySelectorAll('.module-item div.pl-6').forEach(el => {
+                el.style.display = 'none';
+            });
+        });
+    </script>
 </body>
 </html>
+
