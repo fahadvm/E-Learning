@@ -32,7 +32,6 @@ export class CompanyAuthController {
   }
 
   async login(req: Request, res: Response): Promise<void> {
-    console.log("working login page ....")
     const { email, password } = req.body;
     if (!email || !password) throwError(MESSAGES.ALL_FIELDS_REQUIRED, STATUS_CODES.BAD_REQUEST);
     const { token, refreshToken, company } = await this._companyService.login(email, password);

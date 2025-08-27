@@ -119,7 +119,6 @@ export default function MyCoursesPage() {
   const fetchCourses = async () => {
     try {
       const res = await teacherCourseApi.getMyCourses()
-      console.log('res in teachers course page :', res)
       setCourses(res.data)
     } catch (err) {
       console.error('Failed to fetch courses', err)

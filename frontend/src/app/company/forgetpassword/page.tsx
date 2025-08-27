@@ -45,7 +45,7 @@ export default function CompanySignupPage() {
       const response = await companyApiMethods.forgotPassword(formData)
       if(response.ok){
         showSuccessToast(response.message)
-        setMessage("✅ OTP sent to your email");
+        setMessage(" OTP sent to your email");
         localStorage.setItem("tempforgetEmail", formData.email);
         router.push("/company/verify-forget-otp");
       }
@@ -127,7 +127,7 @@ export default function CompanySignupPage() {
         {message && (
           <p
             id="form-error"
-            className={`mt-4 text-center text-sm font-medium ${message.includes("✅") ? "text-green-600" : "text-red-600"}`}
+            className={`mt-4 text-center text-sm font-medium ${message.includes("") ? "text-green-600" : "text-red-600"}`}
             role="alert"
           >
             {message}

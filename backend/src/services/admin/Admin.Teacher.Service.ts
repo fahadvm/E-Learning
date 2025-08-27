@@ -1,17 +1,19 @@
 import { inject, injectable } from 'inversify';
 import { IAdminTeacherService } from '../../core/interfaces/services/admin/IAdminTeacherService';
-import { ITeacherRepository } from '../../core/interfaces/repositories/teacher/ITeacherRepository';
+import { ITeacherRepository } from '../../core/interfaces/repositories/ITeacherRepository';
+import { ICourseRepository } from '../../core/interfaces/repositories/ICourseRepository';
 import { TYPES } from '../../core/di/types';
 import { throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { IAdminTeacherDTO, PaginatedTeacherDTO, adminTeacherDto } from '../../core/dtos/admin/Admin.teacher.Dto';
+import { IAdminCourseDTO ,AdminCourseDTO } from '../../core/dtos/admin/Admin.course.Dto';
 
 @injectable()
 export class AdminTeacherService implements IAdminTeacherService {
     constructor(
-        @inject(TYPES.TeacherRepository)
-        private readonly _teacherRepo: ITeacherRepository
+        @inject(TYPES.TeacherRepository) private readonly _teacherRepo: ITeacherRepository,
+        @inject(TYPES.CourseRepository) private readonly _courseRepo: ICourseRepository
     ) { }
 
     async getAllTeachers(page: number, limit: number, search?: string): Promise<PaginatedTeacherDTO> {
@@ -39,7 +41,20 @@ export class AdminTeacherService implements IAdminTeacherService {
         return adminTeacherDto(updated);
     }
 
-    async rejectTeacher(teacherId: string): Promise<IAdminTeacherDTO > {
+    async getTeacherById(teacherId: string): Promise<IAdminTeacherDTO> {
+        const teacher = await this._teacherRepo.findById(teacherId);
+        if (!teacher) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+        return adminTeacherDto(teacher);
+    }
+
+    async getTeacherCourses(teacherId: string): Promise<IAdminCourseDTO[]> {
+    const teacher = await this._teacherRepo.findById(teacherId);
+    if (!teacher) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    const courses = await this._courseRepo.findByTeacherId(teacherId); 
+    return courses.map(AdminCourseDTO);
+}
+
+    async rejectTeacher(teacherId: string): Promise<IAdminTeacherDTO> {
         const updated = await this._teacherRepo.updateStatus(teacherId, { isVerified: false, isRejected: true });
         if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND)
         return adminTeacherDto(updated);

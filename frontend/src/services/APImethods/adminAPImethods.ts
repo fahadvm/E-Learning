@@ -33,11 +33,17 @@ export const adminApiMethods = {
     verifyCourse: (courseId: string) => patch(`/admin/courses/verify/${courseId}`, {}),
     rejectCourse: (courseId: string, rejectReason: string) => patch(`/admin/courses/reject/${courseId}`, { rejectReason }),
     blockCourse: (courseId: string) => patch(`/admin/courses/block/${courseId}`, {}),
-    unblockCourse: (courseId: string) => patch(`/admin/courses/unblock/${courseId}`, {})
+    unblockCourse: (courseId: string) => patch(`/admin/courses/unblock/${courseId}`, {}),
 
-    
+    getTeachers: (params: { page?: number; limit?: number; search?: string }) => get('/admin/teachers', params),
+    getTeacherById: (teacherId: string) => get(`/admin/teachers/${teacherId}`, {}),
+    getUnverifiedTeachers: (params: { page?: number; limit?: number; search?: string }) => get('/admin/teachers/unverified', params),
+    verifyTeacher: (teacherId: string) => patch(`/admin/teachers/verify/${teacherId}`, {}),
+    rejectTeacher: (teacherId: string, rejectReason: string) => patch(`/admin/teachers/reject/${teacherId}`, { rejectReason }),
+    blockTeacher: (teacherId: string) => patch(`/admin/teachers/block/${teacherId}`, {}),
+    unblockTeacher: (teacherId: string) => patch(`/admin/teachers/unblock/${teacherId}`, {}),
+    getTeacherCourses: (teacherId: string) => get(`/admin/teachers/courses/${teacherId}`, {}),
 
-    
 };
 
 

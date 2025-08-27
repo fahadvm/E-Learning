@@ -2,8 +2,8 @@
 import { inject, injectable } from 'inversify';
 import bcrypt from 'bcryptjs';
 import { IStudentAuthService } from '../../core/interfaces/services/student/IStudentAuthService';
-import { IStudentRepository } from '../../core/interfaces/repositories/student/IStudentRepository';
-import { IOtpRepository } from '../../core/interfaces/repositories/common/IOtpRepository';
+import { IStudentRepository } from '../../core/interfaces/repositories/IStudentRepository';
+import { IOtpRepository } from '../../core/interfaces/repositories/admin/IOtpRepository';
 import { IStudent } from '../../models/Student';
 import { throwError } from '../../utils/ResANDError';
 import { generateAccessToken, generateRefreshToken } from '../../utils/JWTtoken';

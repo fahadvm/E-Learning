@@ -1,6 +1,7 @@
-"use client"
+"use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { FcGoogle } from "react-icons/fc";
 import { showSuccessToast } from "@/utils/Toast";
 
 interface LoginPageProps<TData = { email: string; password: string }, TResult = any> {
@@ -27,6 +28,7 @@ export default function ReusableLoginPage({
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -71,12 +73,10 @@ export default function ReusableLoginPage({
 
     try {
       const res = await apiEndpoint({ email, password });
-      localStorage.setItem("token", res.data.token);
-      
-      showSuccessToast(res?.message)
+      showSuccessToast(res?.message);
       setTimeout(() => router.push(redirectPath), 1500);
     } catch (err: any) {
-      const msg = err?.response?.data?.message || " Login failed";
+      const msg = err?.response?.data?.message || "Login failed.";
       setMessage(msg);
     } finally {
       setLoading(false);
@@ -91,16 +91,17 @@ export default function ReusableLoginPage({
           Sign In to DevNext
         </h1>
 
+        {/* Google Signup */}
         <div className="flex items-center space-x-4 mb-6">
-          <button className="p-3 bg-blue-500 border border-gray-300 rounded-full shadow-md hover:bg-blue-400 transition-transform transform hover:scale-105 text-lg font-semibold">
-            G
+          <button className="flex items-center p-3 bg-white border border-gray-300 rounded-full shadow-md hover:bg-gray-50 transition-transform transform hover:scale-105 text-lg font-semibold">
+            <FcGoogle className="mr-2 w-5 h-5" />
+            Sign in with Google
           </button>
         </div>
 
-
         <p className="text-gray-500 font-medium mb-4">OR</p>
 
-        <form onSubmit={handleLogin} className="w-full text-gray-900 max-w-md space-y-4">
+        <form onSubmit={handleLogin} className="w-full text-gray-900 max-w-md space-y-4 relative">
           <input
             type="email"
             placeholder="Email"
@@ -109,22 +110,65 @@ export default function ReusableLoginPage({
               setEmail(e.target.value);
               validateField("email", e.target.value);
             }}
-            className={`p-3 border ${errors.email ? "border-red-500" : "border-gray-300"
-              } rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            className={`p-3 border ${errors.email ? "border-red-500" : "border-gray-300"} rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500`}
           />
           {errors.email && <p className="text-sm text-red-600">{errors.email}</p>}
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              validateField("password", e.target.value);
-            }}
-            className={`p-3 border ${errors.password ? "border-red-500" : "border-gray-300"
-              } rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500`}
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                validateField("password", e.target.value);
+              }}
+              className={`p-3 border ${errors.password ? "border-red-500" : "border-gray-300"} rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10`}
+            />
+            <span
+              className="absolute right-3 top-3 cursor-pointer text-gray-600"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ?(
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.048 10.048 0 012.041-3.362M6.223 6.223A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.05 10.05 0 01-4.132 5.411M3 3l18 18M15 12a3 3 0 01-3 3c-.795 0-1.543-.31-2.1-.867M9.878 9.878A3 3 0 0112 9c.795 0 1.543.31 2.1.867"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+              )
+              }
+            </span>
+          </div>
           {errors.password && <p className="text-sm text-red-600">{errors.password}</p>}
 
           <div className="text-right">
@@ -139,8 +183,7 @@ export default function ReusableLoginPage({
           <button
             type="submit"
             disabled={loading}
-            className={`w-full p-3 ${loading ? "bg-gray-400" : "bg-gradient-to-br from-gray-800 to-gray-900"
-              } text-white rounded-lg font-semibold hover:from-gray-700 hover:to-gray-700 transition-all shadow-md hover:shadow-lg`}
+            className={`w-full p-3 ${loading ? "bg-gray-400" : "bg-gradient-to-br from-gray-800 to-gray-900"} text-white rounded-lg font-semibold hover:from-gray-700 hover:to-gray-700 transition-all shadow-md hover:shadow-lg`}
           >
             {loading ? "Signing In..." : "Sign In"}
           </button>
@@ -158,7 +201,7 @@ export default function ReusableLoginPage({
         </p>
 
         <p className="mt-4 text-center text-gray-400 text-xs">Privacy Policy</p>
-      </div>z
+      </div>
 
       {/* Right Side Banner */}
       <div className="hidden lg:flex w-1/2 p-12 bg-gradient-to-br from-gray-800 to-gray-900 text-white flex-col justify-center items-center">

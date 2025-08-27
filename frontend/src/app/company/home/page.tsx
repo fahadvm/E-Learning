@@ -19,9 +19,9 @@ export default function CompanyDashboard() {
     const fetchMetrics = async () => {
       // You can replace this with real API call
       setMetrics({
-        totalCompanies: 15,
-        totalStudents: 120,
-        activeCourses: 8,
+        totalCompanies: 0,
+        totalStudents: 0,
+        activeCourses: 0,
       });
     };
     fetchMetrics();

@@ -1,4 +1,4 @@
-import { ICourse } from '../../../../models/course';
+import { ICourse } from '../../../models/course';
 
 export interface ICourseRepository {
   create(courseData: Partial<ICourse>): Promise<ICourse>;

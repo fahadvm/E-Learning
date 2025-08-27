@@ -1,7 +1,7 @@
 // repositories/student/StudentRepository.ts
 import { injectable } from 'inversify';
 import { FilterQuery } from 'mongoose';
-import { IStudentRepository } from '../core/interfaces/repositories/student/IStudentRepository';
+import { IStudentRepository } from '../core/interfaces/repositories/IStudentRepository';
 import { Student, IStudent } from '../models/Student';
 
 @injectable()

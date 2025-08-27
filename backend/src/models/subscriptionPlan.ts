@@ -18,8 +18,9 @@ const SubscriptionPlanSchema = new Schema<ISubscriptionPlan>({
   description: { type: String, required: true },
   features: [{ type: String, required: true }],
   planFor: { type: String, required: true },
-  popular: { type: Boolean, default: false }
-});
+  popular: { type: Boolean, default: false },
+}, { timestamps: true, });
+
 
 export const SubscriptionPlan = mongoose.model<ISubscriptionPlan>('SubscriptionPlan', SubscriptionPlanSchema);
 

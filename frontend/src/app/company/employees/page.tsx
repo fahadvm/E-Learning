@@ -1,31 +1,19 @@
 "use client";
 import { useEffect, useState } from "react";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import Header from "@/componentssss/company/Header";
 import { useRouter } from "next/navigation";
 import { companyApiMethods } from "@/services/APImethods/companyAPImethods";
+import { showSuccessToast } from "@/utils/Toast";
+import { useCompany } from "@/context/companyContext";
+import ConfirmationDialog from "@/reusable/ConfirmationDialog";
 
 interface Employee {
     _id: string;
     name: string;
     email: string;
     position?: string;
-    blocked?: boolean;
-}
-
-interface PaginatedResponse {
-    data: Employee[];
-    total: number;
-    page: number;
-    totalPages: number;
-}
-
-interface CourseFormData {
-    title: string;
-    description: string;
-    level: string;
-    category: string;
-    price: string;
+    isBlocked?: boolean;
 }
 
 export default function EmployeesPage() {
@@ -49,45 +37,53 @@ export default function EmployeesPage() {
     const [pageSize, setPageSize] = useState(5);
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState("");
-    const [sortField, setSortField] = useState<"name" | "email" | "position">("name");
-    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-
-    const companyId = "64b9c21f3abc1234de567890";
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+    const { company } = useCompany();
     const router = useRouter();
 
+    //  validate form
     const validateForm = (formData: { name: string; email: string; position: string }) => {
         const errors: { name?: string; email?: string; position?: string } = {};
         if (!formData.name.trim()) errors.name = "Name is required";
         else if (formData.name.length < 2) errors.name = "Name must be at least 2 characters";
+
         if (!formData.email.trim()) errors.email = "Email is required";
-        else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email)) errors.email = "Invalid email format";
-        if (formData.position && formData.position.length > 50) errors.position = "Position cannot exceed 50 characters";
+        else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email))
+            errors.email = "Invalid email format";
+
+        if (formData.position && formData.position.length > 50)
+            errors.position = "Position cannot exceed 50 characters";
+
         return errors;
     };
 
+    //  fetch employees with pagination, search, sort
     const fetchEmployees = async () => {
         setFetchLoading(true);
         setError(null);
         try {
-            const res = await companyApiMethods.getAllEmployees()
-            if (Array.isArray(res.data)) {
-                setEmployees(res.data);
-                setTotalPages(res.totalPages || 1);
+            const res = await companyApiMethods.getAllEmployees({
+                search: searchQuery,
+                page,
+                limit: pageSize,
+            });
+            if (res.data) {
+                setEmployees(res.data.employees);
+                setTotalPages(res.data.totalPages || 1);
             } else {
                 throw new Error("Unexpected API response format");
             }
         } catch (err) {
-            const errorMessage = err instanceof AxiosError
-                ? `Failed to fetch employees: ${err.response?.status} - ${err.response?.data?.message || err.message}`
-                : "Failed to fetch employees";
+            const errorMessage =
+                err instanceof AxiosError
+                    ? `Failed to fetch employees: ${err.response?.status} - ${err.response?.data?.message || err.message}`
+                    : "Failed to fetch employees";
             setError(errorMessage);
-            console.error("Fetch employees error:", err);
         } finally {
             setFetchLoading(false);
         }
     };
 
+    //  Add employee
     const addEmployee = async () => {
         const errors = validateForm({ name, email, position });
         setFormErrors(errors);
@@ -96,26 +92,31 @@ export default function EmployeesPage() {
         setAddLoading(true);
         setError(null);
         try {
-            await axios.post(`${API_BASE_URL}/auth/company/addemployee`, {
+            const res = await companyApiMethods.addEmployee({
                 name,
                 email,
                 position: position.trim() || undefined,
-                companyId,
+                companyId: company?._id,
             });
-            setName("");
-            setEmail("");
-            setPosition("");
-            setFormErrors({});
-            await fetchEmployees();
-            setIsAddEmployeeModalOpen(false);
+            if (res.ok) {
+                showSuccessToast(res.message)
+                setName("");
+                setEmail("");
+                setPosition("");
+                setFormErrors({});
+                await fetchEmployees();
+                setIsAddEmployeeModalOpen(false);
+            }
         } catch (err) {
-            const errorMessage = err instanceof AxiosError ? err.response?.data?.message || err.message : "Failed to add employee";
+            const errorMessage =
+                err instanceof AxiosError ? err.response?.data?.message || err.message : "Failed to add employee";
             setError(errorMessage);
         } finally {
             setAddLoading(false);
         }
     };
 
+    //  Edit employee
     const editEmployee = async (employeeId: string) => {
         const errors = validateForm({ name: editName, email: editEmail, position: editPosition });
         setEditFormErrors(errors);
@@ -124,7 +125,7 @@ export default function EmployeesPage() {
         setActionLoading(true);
         setError(null);
         try {
-            await companyApiMethods.updateEmployee(employeeId , {
+            await companyApiMethods.updateEmployee(employeeId, {
                 name: editName,
                 email: editEmail,
                 position: editPosition.trim() || undefined,
@@ -133,27 +134,34 @@ export default function EmployeesPage() {
             setEditFormErrors({});
             await fetchEmployees();
         } catch (err) {
-            const errorMessage = err instanceof AxiosError ? err.response?.data?.message || err.message : "Failed to update employee";
+            const errorMessage =
+                err instanceof AxiosError ? err.response?.data?.message || err.message : "Failed to update employee";
             setError(errorMessage);
         } finally {
             setActionLoading(false);
         }
     };
 
-    const toggleBlockEmployee = async (employeeId: string, blocked: boolean) => {
+    //  Block/unblock employee
+    const toggleBlockEmployee = async (employeeId: string, isBlocked: boolean) => {
         setActionLoading(true);
         setError(null);
         try {
-            await companyApiMethods.blockEmployee(employeeId, { status: !blocked });
+            const res = await companyApiMethods.blockEmployee(employeeId, { status: !isBlocked });
+            if (res.ok) {
+                showSuccessToast(res.message)
+            }
             await fetchEmployees();
         } catch (err) {
-            const errorMessage = err instanceof AxiosError ? err.response?.data?.message || err.message : "Failed to toggle block status";
+            const errorMessage =
+                err instanceof AxiosError ? err.response?.data?.message || err.message : "Failed to toggle block status";
             setError(errorMessage);
         } finally {
             setActionLoading(false);
         }
     };
 
+    //  Open edit modal
     const openEditModal = (employee: Employee) => {
         setSelectedEmployee(employee);
         setEditName(employee.name);
@@ -165,7 +173,7 @@ export default function EmployeesPage() {
 
     useEffect(() => {
         fetchEmployees();
-    }, [page, pageSize, searchQuery, sortField, sortOrder]);
+    }, [page, pageSize, searchQuery,]);
 
     return (
         <>
@@ -208,35 +216,8 @@ export default function EmployeesPage() {
                                         aria-label="Search employees"
                                     />
                                 </div>
-                                <div>
-                                    <select
-                                        className="w-full rounded-md border border-gray-300 p-3 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        value={sortField}
-                                        onChange={(e) => {
-                                            setSortField(e.target.value as "name" | "email" | "position");
-                                            setPage(1);
-                                        }}
-                                        aria-label="Sort by"
-                                    >
-                                        <option value="name">Name</option>
-                                        <option value="email">Email</option>
-                                        <option value="position">Position</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <select
-                                        className="w-full rounded-md border border-gray-300 p-3 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        value={sortOrder}
-                                        onChange={(e) => {
-                                            setSortOrder(e.target.value as "asc" | "desc");
-                                            setPage(1);
-                                        }}
-                                        aria-label="Sort order"
-                                    >
-                                        <option value="asc">Ascending</option>
-                                        <option value="desc">Descending</option>
-                                    </select>
-                                </div>
+
+
                             </div>
                         </div>
 
@@ -264,8 +245,8 @@ export default function EmployeesPage() {
                                                 <td className="p-4">{emp.email}</td>
                                                 <td className="p-4">{emp.position || "N/A"}</td>
                                                 <td className="p-4">
-                                                    <span className={`px-2 py-1 rounded-full text-sm ${emp.blocked ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
-                                                        {emp.blocked ? "Blocked" : "Active"}
+                                                    <span className={`px-2 py-1 rounded-full text-sm ${emp.isBlocked ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
+                                                        {emp.isBlocked ? "Blocked" : "Active"}
                                                     </span>
                                                 </td>
                                                 <td className="p-4 space-x-3">
@@ -294,16 +275,30 @@ export default function EmployeesPage() {
                                                         </span>
                                                     </span> */}
                                                     <span className="group relative">
-                                                        <button
-                                                            onClick={() => toggleBlockEmployee(emp._id, emp.blocked || false)}
-                                                            className={`${emp.blocked ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"} text-white py-1 px-3 rounded-lg transition-colors`}
-                                                            aria-label={emp.blocked ? `Unblock ${emp.name}` : `Block ${emp.name}`}
-                                                        >
-                                                            {emp.blocked ? "Unblock" : "Block"}
-                                                        </button>
-                                                        <span className="absolute hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 -top-8 left-1/2 transform -translate-x-1/2">
-                                                            {emp.blocked ? "Unblock Employee" : "Block Employee"}
-                                                        </span>
+
+
+
+
+
+                                                        <ConfirmationDialog
+                                                            title={emp.isBlocked ? "Unblock Employee" : "Block Employee"}
+                                                            description={
+                                                                emp.isBlocked
+                                                                    ? "Are you sure you want to unblock this Employee?"
+                                                                    : "Are you sure you want to block this Employee?"
+                                                            }
+                                                            confirmText={emp.isBlocked ? "Unblock" : "Block"}
+                                                            onConfirm={() => toggleBlockEmployee(emp._id, emp.isBlocked || false)}
+                                                            triggerButton={
+                                                                <button
+                                                                    className={`${emp.isBlocked ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"} text-white py-1 px-3 rounded-lg transition-colors`}
+                                                                    aria-label={emp.isBlocked ? `Unblock ${emp.name}` : `Block ${emp.name}`}
+                                                                >
+                                                                    {emp.isBlocked ? "Unblock" : "Block"}
+                                                                </button>
+                                                            }
+                                                        />
+                                                        
                                                     </span>
                                                 </td>
                                             </tr>
@@ -375,7 +370,7 @@ export default function EmployeesPage() {
 
                         {/* Add Employee Modal */}
                         {isAddEmployeeModalOpen && (
-                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in">
+                            <div className="fixed inset-0 bg-black/50  flex items-center justify-center z-50 animate-fade-in">
                                 <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
                                     <h3 className="text-xl font-bold text-gray-900 mb-4">Add Employee</h3>
                                     <div className="space-y-4">

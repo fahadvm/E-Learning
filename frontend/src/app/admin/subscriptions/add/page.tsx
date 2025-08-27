@@ -45,7 +45,6 @@ export default function AddSubscriptionPlanPage() {
                 `${process.env.NEXT_PUBLIC_API_URL}/auth/admin/subscriptionplans`,
                 form
             )
-            console.log("Successfully added plan", res.data)
 
             router.push('/admin/subscriptions')
         } catch (error) {

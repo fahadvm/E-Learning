@@ -19,7 +19,7 @@ export class StudentAuthController {
   };
 
   verifyOtp = async (req: Request, res: Response) => {
-    console.log("req.body from controller ", req.body)
+    console.log("verifying otp ", req.body)
     const { email, otp } = req.body;
     if (!email || !otp) throwError(MESSAGES.EMAIL_OTP_REQUIRED, STATUS_CODES.BAD_REQUEST);
     const { token, refreshToken, user } = await this._studentAuthService.verifyOtp(email, otp);

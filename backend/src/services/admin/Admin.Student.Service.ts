@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { IAdminStudentService } from '../../core/interfaces/services/admin/IAdminStudentService';
-import { IStudentRepository } from '../../core/interfaces/repositories/student/IStudentRepository';
+import { IStudentRepository } from '../../core/interfaces/repositories/IStudentRepository';
 import { IStudent } from '../../models/Student';
 import { TYPES } from '../../core/di/types';
 import { throwError } from '../../utils/ResANDError';

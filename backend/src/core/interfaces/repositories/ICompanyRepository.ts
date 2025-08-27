@@ -1,4 +1,4 @@
-import { ICompany } from '../../../../models/Company';
+import { ICompany } from '../../../models/Company';
 
 export interface ICompanyRepository {
   findByEmail(email: string): Promise<ICompany | null>;

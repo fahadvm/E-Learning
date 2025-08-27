@@ -71,7 +71,6 @@ export const CompanyContextProvider = ({ children }: { children: ReactNode }) =>
     const getCompanyDetails = useCallback(async () => {
         try {
             const res = await CompanyApiMethods.getCompany();
-            console.log("res from ",res)
             if (res?.ok && res.data) {
                 setCompany(res.data);
             } else {

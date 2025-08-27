@@ -27,11 +27,12 @@ export const companyApiMethods = {
   addEmployee: (data: any) => post('/company/employees', data),
   getAllEmployees: (params?: { page?: number; limit?: number; search?: string }) => get('/company/employees', params),
   getEmployeeById: (employeeId: string) => get(`/company/employees/${employeeId}`),
-  blockEmployee: (employeeId: string ,data: any) => patch(`/company/employees/block/${employeeId}`, data),
+  blockEmployee: (employeeId: string, data: any) => patch(`/company/employees/block/${employeeId}`, data),
   updateEmployee: (employeeId: string, data: any) => put(`/company/employees/${employeeId}`, data),
 
   // Profile
   getCompanyProfile: () => get('/company/profile'),
+  updateCompanyProfile: (data: any) => put('/company/profile', data),
 
   // Subscriptions
   getAllCompanyPlans: () => get('/company/subscriptions'),

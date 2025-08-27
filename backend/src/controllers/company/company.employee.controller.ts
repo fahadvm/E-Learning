@@ -24,9 +24,10 @@ export class CompanyEmployeeController {
     sendResponse(res, STATUS_CODES.CREATED, MESSAGES.EMPLOYEE_CREATED, true, employee);
   }
 
-  async getAllEmployees(req: Request, res: Response): Promise<void> {
+  async getAllEmployees(req: Request, res: Response): Promise<void> { 
     const { page = '1', limit = '10', search = '', sortBy = 'name', sortOrder = 'desc' } = req.query;
-    const companyId = req.params.companyId;
+   
+    const companyId = req.user?.id;
     if (!companyId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
 
     const employees = await this._employeeService.getAllEmployees(
@@ -36,7 +37,7 @@ export class CompanyEmployeeController {
   }
 
   async getEmployeeById(req: Request, res: Response): Promise<void> {
-    const employeeId = req.params.id;
+    const {employeeId} = req.params;
     if (!employeeId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
     const employee = await this._employeeService.getEmployeeById(employeeId);
     if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
@@ -46,6 +47,7 @@ export class CompanyEmployeeController {
   async blockEmployee(req: Request, res: Response): Promise<void> {
     const { employeeId } = req.params;
     const { status } = req.body;
+
     const employee = await this._employeeService.blockEmployee(employeeId, status);
     sendResponse(res,STATUS_CODES.OK,status ? MESSAGES.EMPLOYEE_BLOCKED : MESSAGES.EMPLOYEE_UNBLOCKED,true,employee);}
 

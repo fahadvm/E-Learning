@@ -23,10 +23,10 @@ async function createAdmin() {
     });
 
     await admin.save();
-    console.log("✅ Admin created successfully");
+    console.log(" Admin created successfully");
     process.exit(0);
   } catch (err) {
-    console.error("❌ Error creating admin:", err);
+    console.error(" Error creating admin:", err);
     process.exit(1);
   }
 }

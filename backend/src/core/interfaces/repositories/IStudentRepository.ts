@@ -1,5 +1,5 @@
 // core/interfaces/repositories/student/IStudentRepository.ts
-import { IStudent } from '../../../../models/Student';
+import { IStudent } from '../../../models/Student';
 import { FilterQuery } from 'mongoose';
 
 export interface IStudentRepository {

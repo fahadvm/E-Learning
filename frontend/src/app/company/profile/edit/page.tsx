@@ -1,471 +1,219 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useTeacher } from '@/context/teacherContext';
-import { TeacherApiMethods } from '@/services/APImethods';
-import Header from '@/componentssss/teacher/header';
-import dynamic from 'next/dynamic';
-
-const CropperModal = dynamic(() => import('@/componentssss/common/ImageCropper'), { ssr: false });
-
-export default function EditProfilePage() {
-  const { teacher, setTeacher } = useTeacher();
+import { useState, useEffect } from "react";
+import { useCompany } from "@/context/companyContext";
+import { useRouter } from "next/navigation";
+import { Mail, Phone, Globe, Linkedin, Instagram, Twitter, Upload } from "lucide-react";
+import Header from "@/componentssss/company/Header";
+import { companyApiMethods } from "@/services/APImethods/companyAPImethods";
+import { showSuccessToast } from "@/utils/Toast";
+export default function EditCompanyProfile() {
+  const { company, setCompany } = useCompany();
   const router = useRouter();
-  
-  interface Education {
-    degree: string;
-    institution: string;
-    from: string;
-    to: string;
-    description: string;
-  }
-
-  interface Experience {
-    title: string;
-    company: string;
-    from: string;
-    to: string;
-    description: string;
-  }
 
   const [formData, setFormData] = useState({
-    name: '',
-    about: '',
-    phone: '',
-    location: '',
-    website: '',
+    name: "",
+    email: "",
+    phone: "",
+    website: "",
+    about: "",
     social_links: {
-      linkedin: '',
-      twitter: '',
-      instagram: ''
+      linkedin: "",
+      instagram: "",
+      twitter: "",
     },
-    skills: [] as string[],
-    education: [] as Education[],
-    experiences: [] as Experience[],
-    profilePicture: ''
+    profilePicture: "",
   });
 
-  const [newSkill, setNewSkill] = useState('');
-  const [croppedImage, setCroppedImage] = useState<string | null>(null);
-  const [showCropper, setShowCropper] = useState(false);
-  const [rawImage, setRawImage] = useState<string>('');
+  const [loading, setLoading] = useState(false);
 
+  // Populate existing data
   useEffect(() => {
-    if (teacher) {
+    if (company) {
       setFormData({
-        ...teacher,
-        social_links: { ...teacher.social_links },
-        skills: [...teacher.skills],
-        education: [...teacher.education],
-        experiences: [...teacher.experiences]
+        name: company.name || "",
+        email: company.email || "",
+        phone: company.phone || "",
+        website: company.website || "",
+        about: company.about || "",
+        social_links: {
+          linkedin: company.social_links?.linkedin || "",
+          instagram: company.social_links?.instagram || "",
+          twitter: company.social_links?.twitter || "",
+        },
+        profilePicture: company.profilePicture || "",
       });
     }
-  }, [teacher]);
+  }, [company]);
 
-  const handleChange = (e: any) => {
+  // Handle input changes
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    if (name.includes('social_links')) {
-      const key = name.split('.')[1];
-      setFormData(prev => ({
+    if (name.startsWith("social_links.")) {
+      const key = name.split(".")[1];
+      setFormData((prev) => ({
         ...prev,
-        social_links: { ...prev.social_links, [key]: value }
+        social_links: { ...prev.social_links, [key]: value },
       }));
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  const handleAddSkill = () => {
-    if (newSkill.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        skills: [...prev.skills, newSkill.trim()]
-      }));
-      setNewSkill('');
-    }
-  };
-
-  const handleRemoveSkill = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      skills: prev.skills.filter((_, i) => i !== index)
-    }));
-  };
-
-  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Image upload preview
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setRawImage(reader.result as string);
-        setShowCropper(true);
+        setFormData((prev) => ({ ...prev, profilePicture: reader.result as string }));
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleCroppedImage = (img: string) => {
-    setCroppedImage(img);
-    setFormData(prev => ({ ...prev, profilePicture: img }));
-    setShowCropper(false);
-  };
-
-  const handleSubmit = async (e: any) => {
+  // Save to backend
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      const res = await TeacherApiMethods.editProfile(formData);
-      if (res?.ok && res.data) {
-        setTeacher(res.data);
-        router.push('/teacher/profile');
+      console.log("form data when updaating profile :",formData)
+      const res = await companyApiMethods.updateCompanyProfile(formData);
+      setCompany(res.data);
+      if(res.ok){
+        showSuccessToast(res.message)
+        router.push("/company/profile");
       }
-    } catch (err) {
-      console.error('Profile update failed:', err);
+    } catch (error) {
+      console.error("Error updating company profile:", error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (!company) {
+    return <div className="text-center mt-10 text-gray-500">Loading profile...</div>;
+  }
 
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">Edit Your Profile</h1>
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Profile Image */}
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-gray-700">Profile Picture</label>
-              <div className="flex items-center space-x-4">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleProfileImageChange}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                />
-                {formData.profilePicture && (
-                  <img
-                    src={formData.profilePicture}
-                    alt="Profile"
-                    className="h-20 w-20 rounded-full object-cover border-2 border-gray-200"
-                  />
-                )}
-              </div>
+      <div className="bg-gray-50 min-h-screen px-4 sm:px-6 py-10 mt-10">
+        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-md p-6">
+          <h2 className="text-2xl font-semibold mb-6">Edit Company Profile</h2>
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {/* Profile Picture */}
+            <div className="flex items-center gap-4">
+              <img
+                src={formData.profilePicture || "/gallery/avatar.jpg"}
+                alt="Profile"
+                className="w-20 h-20 rounded-full object-cover border"
+              />
+              <label className="cursor-pointer bg-gray-100 px-3 py-2 rounded-md border text-sm flex items-center gap-2">
+                <Upload size={16} /> Upload
+                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+              </label>
             </div>
 
-            {/* Personal Info */}
-            <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Name</label>
-                <input
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Phone</label>
-                <input
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-gray-700">About</label>
-                <textarea
-                  name="about"
-                  value={formData.about}
-                  onChange={handleChange}
-                  rows={4}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Location</label>
-                <input
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Website</label>
-                <input
-                  name="website"
-                  value={formData.website}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                />
-              </div>
+            {/* Company Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input
+                type="text"
+                name="name"
+                placeholder="Company Name"
+                value={formData.name}
+                onChange={handleChange}
+                className="border rounded-md p-2 w-full"
+                required
+              />
+              <input
+                type="email"
+                name="email"
+                placeholder="Company Email"
+                value={formData.email}
+                onChange={handleChange}
+                className="border rounded-md p-2 w-full"
+                required
+              />
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input
+                type="text"
+                name="phone"
+                placeholder="Phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className="border rounded-md p-2 w-full"
+              />
+              <input
+                type="text"
+                name="website"
+                placeholder="Website"
+                value={formData.website}
+                onChange={handleChange}
+                className="border rounded-md p-2 w-full"
+              />
+            </div>
+
+            {/* About */}
+            <textarea
+              name="about"
+              placeholder="About Company"
+              value={formData.about}
+              onChange={handleChange}
+              className="border rounded-md p-2 w-full h-24"
+            />
 
             {/* Social Links */}
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-gray-900">Social Links</h2>
-              <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-3 sm:gap-x-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">LinkedIn</label>
-                  <input
-                    name="social_links.linkedin"
-                    value={formData.social_links.linkedin}
-                    onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Twitter</label>
-                  <input
-                    name="social_links.twitter"
-                    value={formData.social_links.twitter}
-                    onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Instagram</label>
-                  <input
-                    name="social_links.instagram"
-                    value={formData.social_links.instagram}
-                    onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Skills */}
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-gray-900">Skills</h2>
-              <div className="flex gap-3">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Linkedin size={16} />
                 <input
-                  value={newSkill}
-                  onChange={(e) => setNewSkill(e.target.value)}
-                  placeholder="Add a skill"
-                  className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
+                  type="text"
+                  name="social_links.linkedin"
+                  placeholder="LinkedIn"
+                  value={formData.social_links.linkedin}
+                  onChange={handleChange}
+                  className="border rounded-md p-2 w-full"
                 />
-                <button
-                  type="button"
-                  onClick={handleAddSkill}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                >
-                  Add
-                </button>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {formData.skills.map((skill, idx) => (
-                  <span
-                    key={idx}
-                    className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
-                  >
-                    {skill}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveSkill(idx)}
-                      className="ml-2 text-red-500 hover:text-red-700"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
+              <div className="flex items-center gap-2">
+                <Instagram size={16} />
+                <input
+                  type="text"
+                  name="social_links.instagram"
+                  placeholder="Instagram"
+                  value={formData.social_links.instagram}
+                  onChange={handleChange}
+                  className="border rounded-md p-2 w-full"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Twitter size={16} />
+                <input
+                  type="text"
+                  name="social_links.twitter"
+                  placeholder="Twitter"
+                  value={formData.social_links.twitter}
+                  onChange={handleChange}
+                  className="border rounded-md p-2 w-full"
+                />
               </div>
             </div>
 
-            {/* Education */}
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-gray-900">Education</h2>
-              {formData.education.map((edu, idx) => (
-                <div key={idx} className="p-4 bg-gray-50 rounded-lg space-y-3">
-                  <input
-                    value={edu.degree}
-                    onChange={(e) => {
-                      const updated = [...formData.education];
-                      updated[idx].degree = e.target.value;
-                      setFormData(prev => ({ ...prev, education: updated }));
-                    }}
-                    placeholder="Degree"
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                  />
-                  <input
-                    value={edu.institution}
-                    onChange={(e) => {
-                      const updated = [...formData.education];
-                      updated[idx].institution = e.target.value;
-                      setFormData(prev => ({ ...prev, education: updated }));
-                    }}
-                    placeholder="Institution"
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                  />
-                  <div className="grid grid-cols-2 gap-3">
-                    <input
-                      value={edu.from}
-                      onChange={(e) => {
-                        const updated = [...formData.education];
-                        updated[idx].from = e.target.value;
-                        setFormData(prev => ({ ...prev, education: updated }));
-                      }}
-                      placeholder="From (e.g., 2020)"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                    />
-                    <input
-                      value={edu.to}
-                      onChange={(e) => {
-                        const updated = [...formData.education];
-                        updated[idx].to = e.target.value;
-                        setFormData(prev => ({ ...prev, education: updated }));
-                      }}
-                      placeholder="To (e.g., 2024)"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                    />
-                  </div>
-                  <textarea
-                    value={edu.description}
-                    onChange={(e) => {
-                      const updated = [...formData.education];
-                      updated[idx].description = e.target.value;
-                      setFormData(prev => ({ ...prev, education: updated }));
-                    }}
-                    placeholder="Description"
-                    rows={3}
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const updated = [...formData.education];
-                      updated.splice(idx, 1);
-                      setFormData(prev => ({ ...prev, education: updated }));
-                    }}
-                    className="text-red-600 hover:text-red-800 text-sm font-medium"
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() => {
-                  setFormData(prev => ({
-                    ...prev,
-                    education: [
-                      ...prev.education,
-                      { degree: '', institution: '', from: '', to: '', description: '' }
-                    ]
-                  }));
-                }}
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                + Add Education
-              </button>
-            </div>
-
-            {/* Experience */}
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-gray-900">Experience</h2>
-              {formData.experiences.map((exp, idx) => (
-                <div key={idx} className="p-4 bg-gray-50 rounded-lg space-y-3">
-                  <input
-                    value={exp.title}
-                    onChange={(e) => {
-                      const updated = [...formData.experiences];
-                      updated[idx].title = e.target.value;
-                      setFormData(prev => ({ ...prev, experiences: updated }));
-                    }}
-                    placeholder="Job Title"
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                  />
-                  <input
-                    value={exp.company}
-                    onChange={(e) => {
-                      const updated = [...formData.experiences];
-                      updated[idx].company = e.target.value;
-                      setFormData(prev => ({ ...prev, experiences: updated }));
-                    }}
-                    placeholder="Company"
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                  />
-                  <div className="grid grid-cols-2 gap-3">
-                    <input
-                      value={exp.from}
-                      onChange={(e) => {
-                        const updated = [...formData.experiences];
-                        updated[idx].from = e.target.value;
-                        setFormData(prev => ({ ...prev, experiences: updated }));
-                      }}
-                      placeholder="From (e.g., Jan 2022)"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                    />
-                    <input
-                      value={exp.to}
-                      onChange={(e) => {
-                        const updated = [...formData.experiences];
-                        updated[idx].to = e.target.value;
-                        setFormData(prev => ({ ...prev, experiences: updated }));
-                      }}
-                      placeholder="To (e.g., Present)"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                    />
-                  </div>
-                  <textarea
-                    value={exp.description}
-                    onChange={(e) => {
-                      const updated = [...formData.experiences];
-                      updated[idx].description = e.target.value;
-                      setFormData(prev => ({ ...prev, experiences: updated }));
-                    }}
-                    placeholder="Description"
-                    rows={3}
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const updated = [...formData.experiences];
-                      updated.splice(idx, 1);
-                      setFormData(prev => ({ ...prev, experiences: updated }));
-                    }}
-                    className="text-red-600 hover:text-red-800 text-sm font-medium"
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() => {
-                  setFormData(prev => ({
-                    ...prev,
-                    experiences: [
-                      ...prev.experiences,
-                      { title: '', company: '', from: '', to: '', description: '' }
-                    ]
-                  }));
-                }}
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                + Add Experience
-              </button>
-            </div>
-
+            {/* Submit */}
             <div className="flex justify-end">
               <button
                 type="submit"
-                className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                disabled={loading}
+                className="px-6 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition"
               >
-                Update Profile
+                {loading ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </form>
         </div>
-
-        {showCropper && rawImage && (
-          <CropperModal
-            image={rawImage}
-            onCropComplete={handleCroppedImage}
-            onClose={() => setShowCropper(false)}
-          />
-        )}
       </div>
     </>
   );

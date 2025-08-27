@@ -34,7 +34,9 @@ export default function CompanyList() {
         limit: rowsPerPage,
       });
 
+
       if (Array.isArray(res.data?.companies)) {
+
         setCompanies(res.data.companies);
         setTotalPages(res.data.totalPages || 1);
       } else {

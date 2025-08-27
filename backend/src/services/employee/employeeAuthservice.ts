@@ -1,6 +1,6 @@
 import { injectable, inject } from 'inversify';
 import { IEmployeeAuthService } from '../../core/interfaces/services/employee/IEmployeeAuthService';
-import { IEmployeeRepository } from '../../core/interfaces/repositories/employee/IEmployeeRepository';
+import { IEmployeeRepository } from '../../core/interfaces/repositories/IEmployeeRepository';
 import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import bcrypt from 'bcryptjs';

@@ -1,7 +1,7 @@
 // application/services/TeacherProfileService.ts
 import { injectable, inject } from 'inversify';
 import { ITeacherProfileService } from '../../core/interfaces/services/teacher/ITeacherProfileService';
-import { ITeacherRepository } from '../../core/interfaces/repositories/teacher/ITeacherRepository';
+import { ITeacherRepository } from '../../core/interfaces/repositories/ITeacherRepository';
 import { ITeacher } from '../../models/Teacher';
 import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
@@ -23,7 +23,6 @@ export class TeacherProfileService implements ITeacherProfileService {
   }
 
   async updateProfile(teacherId: string, data: Partial<ITeacher>): Promise<ITeacher | null> {
-        console.log("updated service page from edit profile :", teacherId, data)
 
     const updated = await this._teacherRepository.updateById(teacherId, data);
     if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);

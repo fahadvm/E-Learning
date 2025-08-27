@@ -18,7 +18,6 @@ export class AdminCourseController {
     const limit = parseInt(req.query.limit as string) || 10;
     const search = req.query.search as string | undefined;
     const courses = await this._adminCourseService.getAllCourses(page, limit, search);
-    // console.log("course from controller is ", courses)
     sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, courses)
   }
 

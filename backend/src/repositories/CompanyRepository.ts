@@ -1,5 +1,5 @@
 import { injectable } from 'inversify';
-import { ICompanyRepository } from '../core/interfaces/repositories/company/ICompanyRepository';
+import { ICompanyRepository } from '../core/interfaces/repositories/ICompanyRepository';
 import { ICompany, Company } from '../models/Company';
 
 @injectable()
@@ -23,7 +23,10 @@ export class CompanyRepository implements ICompanyRepository {
   }
 
   async findById(id: string): Promise<ICompany | null> {
-    return Company.findById(id).exec();
+    return Company.findById(id).populate({
+      path: "employees",
+      select: "name email position isblocked _id"
+    }) .exec();
   }
 
   async updateById(id: string, data: Partial<ICompany>): Promise<ICompany | null> {
@@ -34,7 +37,10 @@ export class CompanyRepository implements ICompanyRepository {
     const query = search
       ? { name: { $regex: search, $options: 'i' } }
       : {};
-    return Company.find(query)
+    return Company.find(query).populate({
+      path: "employees",
+      select: "name email"
+    })
       .skip((page - 1) * limit)
       .limit(limit)
       .exec();
@@ -109,7 +115,7 @@ export class CompanyRepository implements ICompanyRepository {
     ).exec();
   }
 
-   async approveAll(): Promise<{ modifiedCount: number }> {
+  async approveAll(): Promise<{ modifiedCount: number }> {
     const result = await Company.updateMany(
       { status: 'pending', isVerified: false },
       { $set: { status: 'verified', isVerified: true, rejectionReason: null } }

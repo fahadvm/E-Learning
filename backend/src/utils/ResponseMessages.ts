@@ -94,6 +94,7 @@ export enum MESSAGES {
   TEACHER_VERIFIED = 'Teacher verified successfully',
   TEACHER_NOT_VERIFIED = 'Teacher unverified successfully',
   TEACHER_DETAILS_FETCHED = 'Teacher details fetched successfully',
+  TEACHER_COURSES_FETCHED = 'Teacher courses fetched successfully',
   TEACHER_NOT_FOUND = 'Teacher not found',
   TEACHER_UNBLOCKED = 'Teacher unblocked successfully',
   TEACHER_UPDATED = 'Teacher updated successfully',

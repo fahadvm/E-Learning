@@ -48,6 +48,7 @@
       instagram: { type: String }
     }
 
-  });
+}, { timestamps: true, });
+
 
   export const Student = mongoose.model<IStudent>('Student', StudentSchema);

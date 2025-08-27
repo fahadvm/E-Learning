@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../core/di/types';
 import { IStudentProfileService } from '../../core/interfaces/services/student/IStudentProfileService';
-import { IStudentRepository } from '../../core/interfaces/repositories/student/IStudentRepository';
+import { IStudentRepository } from '../../core/interfaces/repositories/IStudentRepository';
 import { IStudent } from '../../models/Student';
 import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
@@ -25,7 +25,6 @@ export class StudentProfileService implements IStudentProfileService {
   async updateStudentProfile(studentId: string, data: Partial<IStudent>): Promise<IStudentProfileDTO> {
     const updated = await this._studentRepo.update(studentId, data);
     if (!updated) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    console.log("updated profile in service",updated)
     return studentProfileDto(updated);
   }
 }

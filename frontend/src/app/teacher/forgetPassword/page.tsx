@@ -44,7 +44,7 @@ export default function StudentSignupPage() {
     setIsLoading(true);
     try {
       const response = await teacherAuthApi.forgotPassword(formData)
-      setMessage("✅ OTP sent to your email");
+      setMessage(" OTP sent to your email");
       localStorage.setItem("tempforgetEmail", formData.email);
       router.push("/teacher/verify-forget-otp");
     } catch (err) {
@@ -125,7 +125,7 @@ export default function StudentSignupPage() {
         {message && (
           <p
             id="form-error"
-            className={`mt-4 text-center text-sm font-medium ${message.includes("✅") ? "text-green-600" : "text-red-600"}`}
+            className={`mt-4 text-center text-sm font-medium ${message.includes("") ? "text-green-600" : "text-red-600"}`}
             role="alert"
           >
             {message}

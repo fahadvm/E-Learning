@@ -1,5 +1,5 @@
 import { injectable } from 'inversify';
-import { ICourseRepository } from '../core/interfaces/repositories/course/ICourseRepository';
+import { ICourseRepository } from '../core/interfaces/repositories/ICourseRepository';
 import { ICourse, Course } from '../models/course';
 
 @injectable()
@@ -36,8 +36,6 @@ export class CourseRepository implements ICourseRepository {
 async findAll({ skip, limit, search }: { skip: number; limit: number; search?: string }): Promise<ICourse[]> {
   const query = search ? { title: { $regex: search, $options: 'i' } } : {};
   const course = await Course.find(query).populate({ path: 'teacherId', select:" name " }).skip(skip).limit(limit).lean();
-  console.log(course); 
-
   return course;
 }
 
