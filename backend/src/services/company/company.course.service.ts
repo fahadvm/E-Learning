@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { ICompanyCourseService } from '../../core/interfaces/services/company/ICompanyCourseService';
-import { ICourseRepository } from '../../core/interfaces/repositories/course/ICourseRepository';
+import { ICourseRepository } from '../../core/interfaces/repositories/ICourseRepository';
 import { ICourse } from '../../models/course';
 import { TYPES } from '../../core/di/types';
 import { throwError } from '../../utils/ResANDError';

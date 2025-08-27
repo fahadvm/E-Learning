@@ -15,7 +15,6 @@ export class AdminAuthController {
 
     async login(req: Request, res: Response) {
         const { email, password } = req.body;
-        console.log(req.body)
         const { token, refreshToken, admin } = await this._adminService.login(email, password);
         setTokensInCookies(res, token, refreshToken);
         return sendResponse(res, STATUS_CODES.OK, MESSAGES.LOGIN_SUCCESS, true, admin);

@@ -12,6 +12,7 @@ export default function AdminLogin() {
   const [passwordError, setPasswordError] = useState("");
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error" | "">("");
+  const [showPassword, setShowPassword] = useState(false); 
 
   const validateEmail = (email: string): string => {
     if (!email) return "Email is required";
@@ -35,10 +36,9 @@ export default function AdminLogin() {
     if (emailErr || passErr) return;
 
     try {
-      const res = await adminApiMethods.login({email,password})
+      const res = await adminApiMethods.login({ email, password });
       if (res.ok) {
-        localStorage.setItem("adminToken", res.data.token);
-        showSuccessToast(res.message)
+        showSuccessToast(res.message);
         router.push("/admin/dashboard");
       }
     } catch (err) {
@@ -63,28 +63,69 @@ export default function AdminLogin() {
                 setEmail(e.target.value);
                 setEmailError(validateEmail(e.target.value));
               }}
-              className={`p-3 border ${
-                emailError ? "border-red-500" : "border-gray-300"
-              } rounded-lg w-full focus:ring-2 focus:ring-blue-500 text-gray-900`}
+              className={`p-3 border ${emailError ? "border-red-500" : "border-gray-300"
+                } rounded-lg w-full focus:ring-2 focus:ring-blue-500 text-gray-900`}
             />
             {emailError && (
               <p className="text-sm text-red-600 mt-1">{emailError}</p>
             )}
           </div>
 
-          <div>
+          <div className="relative">
             <input
-              type="password"
+              type={showPassword ? "text" : "password"} // Toggle input type
               placeholder="Password"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
                 setPasswordError(validatePassword(e.target.value));
               }}
-              className={`p-3 border ${
-                passwordError ? "border-red-500" : "border-gray-300"
-              } rounded-lg w-full focus:ring-2 focus:ring-blue-500 text-gray-900`}
+              className={`p-3 border ${passwordError ? "border-red-500" : "border-gray-300"
+                } rounded-lg w-full focus:ring-2 focus:ring-blue-500 text-gray-900`}
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)} // 
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-600 hover:text-gray-800"
+            >
+              {showPassword ? (
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.048 10.048 0 012.041-3.362M6.223 6.223A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.05 10.05 0 01-4.132 5.411M3 3l18 18M15 12a3 3 0 01-3 3c-.795 0-1.543-.31-2.1-.867M9.878 9.878A3 3 0 0112 9c.795 0 1.543.31 2.1.867"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+              )}
+            </button>
             {passwordError && (
               <p className="text-sm text-red-600 mt-1">{passwordError}</p>
             )}
@@ -100,9 +141,8 @@ export default function AdminLogin() {
 
         {message && (
           <p
-            className={`mt-4 text-center text-sm font-medium ${
-              messageType === "success" ? "text-green-600" : "text-red-600"
-            }`}
+            className={`mt-4 text-center text-sm font-medium ${messageType === "success" ? "text-green-600" : "text-red-600"
+              }`}
           >
             {message}
           </p>
@@ -126,8 +166,6 @@ export default function AdminLogin() {
       {/* Right Side - Banner */}
       <div className="hidden lg:flex w-1/2 p-12 bg-gradient-to-br from-gray-800 to-gray-900 text-white flex-col justify-center items-center">
         <h2 className="text-3xl font-bold mb-6 tracking-wide">ADMIN PANEL</h2>
-
-        
 
         <p className="text-lg text-gray-200 text-center max-w-lg leading-relaxed">
           Manage companies, monitor users, and keep DevNext running smoothly from

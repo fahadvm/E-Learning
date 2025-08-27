@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../core/di/types';
 import { IAdminEmployeeService } from '../../core/interfaces/services/admin/IAdminEmployeeService';
-import { IEmployeeRepository } from '../../core/interfaces/repositories/employee/IEmployeeRepository';
+import { IEmployeeRepository } from '../../core/interfaces/repositories/IEmployeeRepository';
 import { IAdminEmployeeDTO, PaginatedEmployeeDTO, adminEmployeeDto } from '../../core/dtos/admin/Admin.employee.Dto';
 
 @injectable()

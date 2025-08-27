@@ -21,7 +21,7 @@ interface Company {
 }
 
 interface Employee {
-  id: number;
+  _id: number;
   name: string;
   role: string;
   email: string;
@@ -64,7 +64,6 @@ export default function CompanyProfile() {
     const fetchCompanyData = async () => {
       try {
         const res = await adminApiMethods.getCompanyById(companyId);
-        console.log("res in page :", res)
         
         if (!res.ok) throw new Error("Failed to fetch company data");
 
@@ -221,16 +220,14 @@ export default function CompanyProfile() {
                   <thead>
                     <tr className="bg-gray-100 text-left">
                       <th className="p-2">Name</th>
-                      <th className="p-2">Role</th>
                       <th className="p-2">Email</th>
                       <th className="p-2">Joined</th>
                     </tr>
                   </thead>
                   <tbody>
                     {employees.map((emp) => (
-                      <tr key={emp.id} className="border-b">
+                      <tr key={emp._id} className="border-b">
                         <td className="p-2">{emp.name}</td>
-                        <td className="p-2">{emp.role}</td>
                         <td className="p-2">{emp.email}</td>
                         <td className="p-2">{emp.joined}</td>
                       </tr>

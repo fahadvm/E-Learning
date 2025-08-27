@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { IAdminCourseService } from "../../core/interfaces/services/admin/IAdminCourseService";
-import { ICourseRepository } from "../../core/interfaces/repositories/course/ICourseRepository";
+import { ICourseRepository } from "../../core/interfaces/repositories/ICourseRepository";
 import { TYPES } from "../../core/di/types";
 import { IAdminCourseDTO,AdminCourseDTO, PaginatedCourseDTO } from "../../core/dtos/admin/Admin.course.Dto";
 

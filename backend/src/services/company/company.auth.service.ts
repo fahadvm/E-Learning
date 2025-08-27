@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { ICompanyAuthService } from '../../core/interfaces/services/company/ICompanyAuthService';
-import { ICompanyRepository } from '../../core/interfaces/repositories/company/ICompanyRepository';
-import { IOtpRepository } from '../../core/interfaces/repositories/common/IOtpRepository';
+import { ICompanyRepository } from '../../core/interfaces/repositories/ICompanyRepository';
+import { IOtpRepository } from '../../core/interfaces/repositories/admin/IOtpRepository';
 import { ICompany } from '../../models/Company';
 import bcrypt from 'bcryptjs';
 import { generateOtp, sendOtpEmail } from '../../utils/OtpServices';
@@ -22,7 +22,6 @@ export class CompanyAuthService implements ICompanyAuthService {
 
   async sendOtp(data: { name: string; email: string; password: string }): Promise<void> {
     const { name, email, password } = data;
-    console.log("sign up service ", data)
     const hashedPassword = await bcrypt.hash(password, 10);
     const purpose: 'signup'= 'signup'
     const otp = generateOtp();

@@ -1,5 +1,5 @@
-import { IOtpRepository } from '../../core/interfaces/repositories/common/IOtpRepository';
-import { Otp, IOtp } from '../../models/Otp';
+import { IOtpRepository } from '../core/interfaces/repositories/admin/IOtpRepository';
+import { Otp, IOtp } from '../models/Otp';
 
 export class OtpRepository implements IOtpRepository {
   async create(data: {

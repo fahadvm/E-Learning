@@ -10,9 +10,9 @@ import { validatePagination } from '../../utils/validatePagination';
 @injectable()
 export class AdminTeacherController {
     constructor(
-        @inject(TYPES.AdminTeacherService) 
+        @inject(TYPES.AdminTeacherService)
         private readonly _teacherService: IAdminTeacherService
-    ) {}
+    ) { }
 
     async getAllTeachers(req: Request, res: Response): Promise<void> {
         const { page = '1', limit = '10', search = '' } = req.query;
@@ -31,6 +31,21 @@ export class AdminTeacherController {
             String(search || '')
         );
         sendResponse(res, STATUS_CODES.OK, MESSAGES.TEACHERS_FETCHED, true, result);
+    }
+
+    async getTeacherById(req: Request, res: Response): Promise<void> {
+
+        const { teacherId } = req.params;
+        const teacher = await this._teacherService.getTeacherById(teacherId);
+        if (!teacher) return sendResponse(res, STATUS_CODES.NOT_FOUND, MESSAGES.TEACHER_NOT_FOUND, false);
+        sendResponse(res, STATUS_CODES.OK, MESSAGES.TEACHER_DETAILS_FETCHED, true, teacher);
+
+    }
+
+    async getTeacherCourses(req: Request, res: Response): Promise<void> {
+        const { teacherId } = req.params;
+        const courses = await this._teacherService.getTeacherCourses(teacherId);
+        sendResponse(res, STATUS_CODES.OK, MESSAGES.TEACHER_COURSES_FETCHED, true, courses);
     }
 
     async getUnverifiedTeachers(req: Request, res: Response): Promise<void> {

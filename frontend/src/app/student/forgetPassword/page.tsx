@@ -130,7 +130,7 @@ export default function StudentSignupPage() {
         {message && (
           <p
             id="form-error"
-            className={`mt-4 text-center text-sm font-medium ${message.includes("✅") ? "text-green-600" : "text-red-600"}`}
+            className={`mt-4 text-center text-sm font-medium ${message.includes("") ? "text-green-600" : "text-red-600"}`}
             role="alert"
           >
             {message}

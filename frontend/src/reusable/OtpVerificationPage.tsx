@@ -58,7 +58,6 @@ export default function OtpVerificationPage({
     }
 
     try {
-      console.log("its working")
       const res = await verifyUrl({ email, otp });
       console.log("response form verify otp",res)
       if (res?.ok) {

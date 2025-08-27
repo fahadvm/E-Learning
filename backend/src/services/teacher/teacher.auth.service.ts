@@ -1,8 +1,8 @@
 import { inject, injectable } from 'inversify';
 import bcrypt from 'bcryptjs';
 import { ITeacherAuthService } from '../../core/interfaces/services/teacher/ITeacherAuthService';
-import { ITeacherRepository } from '../../core/interfaces/repositories/teacher/ITeacherRepository';
-import { IOtpRepository } from '../../core/interfaces/repositories/common/IOtpRepository';
+import { ITeacherRepository } from '../../core/interfaces/repositories/ITeacherRepository';
+import { IOtpRepository } from '../../core/interfaces/repositories/admin/IOtpRepository';
 import { ITeacher } from '../../models/Teacher';
 import { throwError } from '../../utils/ResANDError';
 import { generateAccessToken, generateRefreshToken } from '../../utils/JWTtoken';
@@ -56,9 +56,7 @@ export class TeacherAuthService implements ITeacherAuthService {
     if (!record.tempUserData) throwError(MESSAGES.TEMP_USER_DATA_MISSING, STATUS_CODES.BAD_REQUEST);
 
     const { name, password } = record.tempUserData;
-    console.log("everything is correct until here1")
     const teacher = await this._teacherRepo.create({ name, email, password, isVerified: true, isBlocked: false });
-    console.log("everything is correct until here2")
     await this._otpRepository.deleteByEmail(email);
     const teacherId = teacher?._id.toString()
 

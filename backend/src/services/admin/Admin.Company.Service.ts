@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../core/di/types";
 import { IAdminCompanyService } from "../../core/interfaces/services/admin/IAdminCompanyService";
-import { ICompanyRepository } from "../../core/interfaces/repositories/company/ICompanyRepository";
+import { ICompanyRepository } from "../../core/interfaces/repositories/ICompanyRepository";
 import { throwError } from "../../utils/ResANDError";
 import { STATUS_CODES } from "../../utils/HttpStatuscodes";
 import { MESSAGES } from "../../utils/ResponseMessages";

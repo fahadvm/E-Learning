@@ -42,12 +42,12 @@
 
 //     const matchedRole = Object.keys(roleRedirectMap).find(prefix => path.startsWith(prefix));
 
-//     // ✅ If public route AND token exists → redirect to home
+//     //  If public route AND token exists → redirect to home
 //     if (publicRoutes.includes(path) && token && matchedRole) {
 //         return NextResponse.redirect(new URL(roleRedirectMap[matchedRole], req.url));
 //     }
 
-//     // ✅ If protected route AND no token → redirect to login
+//     //  If protected route AND no token → redirect to login
 //     if (!publicRoutes.includes(path) && !token && matchedRole) {
 //         return NextResponse.redirect(new URL(`${matchedRole}/login`, req.url));
 //     }

@@ -24,7 +24,6 @@ export default function CourseDetailPage() {
   useEffect(() => {
     async function fetchCourseData() {
       const res = await studentCourseApi.getCourseDetailById(id)
-      console.log("response is", res)
 
       setCourseData(res.data)
       setModules(res.data.modules)

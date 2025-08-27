@@ -11,7 +11,7 @@ const employeeController = container.get<CompanyEmployeeController>(TYPES.Compan
 router.post('/', authMiddleware('company'), asyncHandler(employeeController.addEmployee.bind(employeeController)));
 router.get('/', authMiddleware('company'), asyncHandler(employeeController.getAllEmployees.bind(employeeController)));
 router.get('/:employeeId', authMiddleware('company'), asyncHandler(employeeController.getEmployeeById.bind(employeeController)));
-router.patch('/block/:EmployeeId', authMiddleware('company'), asyncHandler(employeeController.blockEmployee.bind(employeeController)));
+router.patch('/block/:employeeId', authMiddleware('company'), asyncHandler(employeeController.blockEmployee.bind(employeeController)));
 router.put('/:employeeId', authMiddleware('company'), asyncHandler(employeeController.updateEmployee.bind(employeeController)));
 
 

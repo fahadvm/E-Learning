@@ -3,7 +3,7 @@ import { useState } from "react";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { showErrorToast, showInfoToast, showSuccessToast } from "@/utils/Toast";
 import { teacherAuthApi } from "@/services/APImethods/teacherAPImethods";
 
@@ -22,7 +22,7 @@ interface FormErrors {
   global?: string;
 }
 
-export default function StudentSignupPage() {
+export default function TeacherSignupPage() {
   const [formData, setFormData] = useState<SignupForm>({
     name: "",
     email: "",
@@ -32,6 +32,8 @@ export default function StudentSignupPage() {
 
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,8 +55,7 @@ export default function StudentSignupPage() {
     }
 
     if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password)) {
-      errors.password =
-        "Password must be at least 8 characters and include uppercase, lowercase, and a number";
+      errors.password = "Password must be at least 8 characters and include uppercase, lowercase, and a number";
     }
 
     if (password !== confirmPassword) {
@@ -71,13 +72,13 @@ export default function StudentSignupPage() {
 
     setIsLoading(true);
     try {
-      const response = await teacherAuthApi.signup(formData)
-      if(response?.ok){
-        showSuccessToast(response.message)
+      const response = await teacherAuthApi.signup(formData);
+      if (response?.ok) {
+        showSuccessToast(response.message);
         localStorage.setItem("tempSignupEmail", formData.email);
         router.push("/teacher/verify-otp");
-      }else{
-        showInfoToast(response.message)
+      } else {
+        showInfoToast(response.message);
       }
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>;
@@ -104,6 +105,27 @@ export default function StudentSignupPage() {
       showErrorToast("Google signup failed, please try again.");
     }
   };
+
+  const EyeIcon = ({ isOpen }: { isOpen: boolean }) => (
+    <svg
+      className="w-5 h-5 text-gray-600"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {isOpen ? (
+        <>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </>
+      ) : (
+        <>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.048 10.048 0 012.041-3.362M6.223 6.223A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.05 10.05 0 01-4.132 5.411M3 3l18 18M15 12a3 3 0 01-3 3c-.795 0-1.543-.31-2.1-.867M9.878 9.878A3 3 0 0112 9c.795 0 1.543.31 2.1.867" />
+        </>
+      )}
+    </svg>
+  );
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -137,13 +159,9 @@ export default function StudentSignupPage() {
               placeholder="Full Name"
               value={formData.name}
               onChange={handleInputChange}
-              className={`p-3 border ${
-                formErrors.name ? "border-red-500" : "border-gray-300"
-              } rounded-lg w-full text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm`}
+              className={`p-3 border ${formErrors.name ? "border-red-500" : "border-gray-300"} rounded-lg w-full text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm`}
             />
-            {formErrors.name && (
-              <p className="text-red-600 text-sm mt-1">{formErrors.name}</p>
-            )}
+            {formErrors.name && <p className="text-red-600 text-sm mt-1">{formErrors.name}</p>}
           </div>
 
           {/* Email */}
@@ -155,67 +173,61 @@ export default function StudentSignupPage() {
               placeholder="Email Address"
               value={formData.email}
               onChange={handleInputChange}
-              className={`p-3 border ${
-                formErrors.email ? "border-red-500" : "border-gray-300"
-              } rounded-lg w-full text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm`}
+              className={`p-3 border ${formErrors.email ? "border-red-500" : "border-gray-300"} rounded-lg w-full text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm`}
             />
-            {formErrors.email && (
-              <p className="text-red-600 text-sm mt-1">{formErrors.email}</p>
-            )}
+            {formErrors.email && <p className="text-red-600 text-sm mt-1">{formErrors.email}</p>}
           </div>
 
           {/* Password */}
-          <div>
+          <div className="relative">
             <input
               id="password"
               name="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Create Password"
               value={formData.password}
               onChange={handleInputChange}
-              className={`p-3 border ${
-                formErrors.password ? "border-red-500" : "border-gray-300"
-              } rounded-lg w-full text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm`}
+              className={`p-3 border ${formErrors.password ? "border-red-500" : "border-gray-300"} rounded-lg w-full text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm pr-10`}
             />
-            {formErrors.password && (
-              <p className="text-red-600 text-sm mt-1">{formErrors.password}</p>
-            )}
+            <span
+              className="absolute right-3 top-3 cursor-pointer"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              <EyeIcon isOpen={showPassword} />
+            </span>
+            {formErrors.password && <p className="text-red-600 text-sm mt-1">{formErrors.password}</p>}
           </div>
 
           {/* Confirm Password */}
-          <div>
+          <div className="relative">
             <input
               id="confirmPassword"
               name="confirmPassword"
-              type="password"
+              type={showConfirmPassword ? "text" : "password"}
               placeholder="Confirm Password"
               value={formData.confirmPassword}
               onChange={handleInputChange}
-              className={`p-3 border ${
-                formErrors.confirmPassword ? "border-red-500" : "border-gray-300"
-              } rounded-lg w-full text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm`}
+              className={`p-3 border ${formErrors.confirmPassword ? "border-red-500" : "border-gray-300"} rounded-lg w-full text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm pr-10`}
             />
-            {formErrors.confirmPassword && (
-              <p className="text-red-600 text-sm mt-1">{formErrors.confirmPassword}</p>
-            )}
+            <span
+              className="absolute right-3 top-3 cursor-pointer"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              <EyeIcon isOpen={showConfirmPassword} />
+            </span>
+            {formErrors.confirmPassword && <p className="text-red-600 text-sm mt-1">{formErrors.confirmPassword}</p>}
           </div>
 
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full p-3 bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-lg font-semibold hover:from-gray-700 hover:to-gray-700 transition-all shadow-md hover:shadow-lg ${
-              isLoading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            className={`w-full p-3 bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-lg font-semibold hover:from-gray-700 hover:to-gray-700 transition-all shadow-md hover:shadow-lg ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             {isLoading ? "Loading..." : "Continue with Email"}
           </button>
         </form>
 
-        {formErrors.global && (
-          <p className="mt-4 text-red-600 text-sm text-center" role="alert">
-            {formErrors.global}
-          </p>
-        )}
+        {formErrors.global && <p className="mt-4 text-red-600 text-sm text-center" role="alert">{formErrors.global}</p>}
 
         <p className="mt-6 text-center text-gray-600">
           Already have an account?{" "}
@@ -227,10 +239,10 @@ export default function StudentSignupPage() {
 
       {/* Right side visual */}
       <div className="hidden lg:flex w-1/2 p-12 bg-gradient-to-br from-gray-800 to-gray-900 text-white flex-col justify-center items-center">
-        <h2 className="text-3xl font-bold mb-6 tracking-wide">Student Sign Up</h2>
+        <h2 className="text-3xl font-bold mb-6 tracking-wide">Teacher Sign Up</h2>
         <img
           src="/teacherLogin.jpg"
-          alt="Student illustration"
+          alt="Teacher illustration"
           className="mb-6 rounded-lg shadow-lg w-96 h-96 object-cover"
           onError={(e) => (e.currentTarget.src = "/fallback-image.jpg")}
         />

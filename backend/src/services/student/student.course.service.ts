@@ -1,7 +1,7 @@
 // src/services/student/student.course.service.ts
 import { injectable, inject } from 'inversify';
 import { IStudentCourseService, CourseFilters } from '../../core/interfaces/services/student/IStudentCourseService';
-import { ICourseRepository } from '../../core/interfaces/repositories/course/ICourseRepository';
+import { ICourseRepository } from '../../core/interfaces/repositories/ICourseRepository';
 import { TYPES } from '../../core/di/types';
 import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
@@ -24,7 +24,6 @@ export class StudentCourseService implements IStudentCourseService {
     const skip = (page - 1) * limit;
     const sortQuery = { [sort]: order === "asc" ? 1 : -1 };
 
-    console.log("query from service page", query)
 
     const courses = await this._courseRepo.findAllCourses(query, sortQuery, skip, limit);
 

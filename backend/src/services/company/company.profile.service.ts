@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { ICompanyProfileService } from '../../core/interfaces/services/company/ICompanyProfileService';
-import { ICompanyRepository } from '../../core/interfaces/repositories/company/ICompanyRepository';
+import { ICompanyRepository } from '../../core/interfaces/repositories/ICompanyRepository';
 import { ICompany } from '../../models/Company';
 import { MESSAGES } from '../../utils/ResponseMessages';
 

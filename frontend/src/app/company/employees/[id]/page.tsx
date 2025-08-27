@@ -4,13 +4,14 @@ import axios, { AxiosError } from "axios";
 import Header from "@/componentssss/company/Header";
 import { useRouter, useParams } from "next/navigation";
 import { companyApiMethods } from "@/services/APImethods/companyAPImethods";
+import { showSuccessToast } from "@/utils/Toast";
 
 interface Employee {
   _id: string;
   name: string;
   email: string;
   position?: string;
-  blocked?: boolean;
+  isBlocked?: boolean;
 }
 
 interface Course {
@@ -41,7 +42,8 @@ export default function EmployeeDetailsPage() {
   const fetchEmployee = async () => {
     try {
       const res = await companyApiMethods.getEmployeeById(id as string)
-      setEmployee(res.data.daxiosata);
+
+      setEmployee(res.data);
     } catch (err) {
       const errorMessage = err instanceof AxiosError ? err.response?.data?.message || err.message : "Failed to fetch employee";
       setError(errorMessage);
@@ -117,6 +119,9 @@ export default function EmployeeDetailsPage() {
         email: editEmail,
         position: editPosition,
       })
+      if(res.ok){
+        showSuccessToast(res.message)
+      }
       await fetchEmployee(); // refresh data
       setIsEditModalOpen(false);
     } catch (err) {
@@ -207,20 +212,8 @@ export default function EmployeeDetailsPage() {
               >
                 Courses
               </button>
-              <button
-                onClick={() => setActiveTab("recent activities")}
-                className={`px-4 py-2 font-semibold ${activeTab === "recent activities" ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-600 hover:text-blue-600"}`}
-                aria-label="Employee details tab"
-              >
-                Recent activities
-              </button>
+              
             </div>
-            {activeTab === "recent activities" && (
-              <div>
-                <h3 className="text-xl font-bold text-gray-900">Recent Activities</h3>
-                <p className="text-gray-700">Coming soon or under development...</p>
-              </div>
-            )}
 
             {activeTab === "details" && (
               <div className="space-y-3">
@@ -242,7 +235,7 @@ export default function EmployeeDetailsPage() {
                 <p className="text-gray-700"><strong>Name:</strong> {employee.name}</p>
                 <p className="text-gray-700"><strong>Email:</strong> {employee.email}</p>
                 <p className="text-gray-700"><strong>Position:</strong> {employee.position || "N/A"}</p>
-                <p className="text-gray-700"><strong>Status:</strong> {employee.blocked ? "Blocked" : "Active"}</p>
+                <p className="text-gray-700"><strong>Status:</strong> {employee.isBlocked ? "Blocked" : "Active"}</p>
               </div>
             )}
             {activeTab === "courses" && (

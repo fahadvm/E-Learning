@@ -1,4 +1,6 @@
 import { IEmployee } from '../../../../models/Employee';
+import { PaginatedEmployeeDTO } from '@/core/dtos/company/company.employee.Dto';
+
 export interface ICompanyEmployeeService {
   addEmployee(data: {
     companyId: string;
@@ -16,7 +18,7 @@ export interface ICompanyEmployeeService {
     search: string,
     sortBy: string,
     sortOrder: string
-  ): Promise<IEmployee[]>;
+  ): Promise<PaginatedEmployeeDTO>;
 
   getEmployeeById(employeeId: string): Promise<IEmployee | null>;
 

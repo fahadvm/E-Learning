@@ -1,3 +1,4 @@
+import { IAdminCourseDTO } from '@/core/dtos/admin/Admin.course.Dto';
 import { IAdminTeacherDTO, PaginatedTeacherDTO } from '../../../../core/dtos/admin/Admin.teacher.Dto';
 
 
@@ -8,4 +9,6 @@ export interface IAdminTeacherService {
     rejectTeacher(teacherId: string): Promise<IAdminTeacherDTO | null>;
     blockTeacher(teacherId: string): Promise<IAdminTeacherDTO | null>;
     unblockTeacher(teacherId: string): Promise<IAdminTeacherDTO | null>;
+    getTeacherById(teacherId: string): Promise<IAdminTeacherDTO>;
+    getTeacherCourses(teacherId: string): Promise<IAdminCourseDTO[]>;
 }

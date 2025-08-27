@@ -26,7 +26,7 @@ export const authMiddleware = (role: 'student' | 'Teacher' | 'company' | 'Admin'
         id: decoded?.id,
         role: decoded?.role,
       };
-      console.log('req.user:' ,req.user);
+      console.log('req.user from middleware:' ,req.user);
 
       next();
     } catch (err) {

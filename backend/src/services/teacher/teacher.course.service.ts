@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { ITeacherCourseService } from '../../core/interfaces/services/teacher/ITeacherCourseService';
-import { ICourseRepository } from '../../core/interfaces/repositories/course/ICourseRepository';
+import { ICourseRepository } from '../../core/interfaces/repositories/ICourseRepository';
 import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
@@ -141,7 +141,6 @@ export class TeacherCourseService implements ITeacherCourseService {
     throw new Error(MESSAGES.AT_LEAST_ONE_MODULE_REQUIRED);
   }
 
-  console.log('courseData:', courseData);
   return await this._courseRepository.create(courseData);
 }
 

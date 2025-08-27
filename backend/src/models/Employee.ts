@@ -9,7 +9,7 @@ export interface IEmployee extends Document {
   password?: string;
   coursesAssigned: mongoose.Types.ObjectId[];
   position?: string;
-  blocked: boolean;
+  isBlocked: boolean;
   subscription: boolean;
   NoEmployees: number;
   
@@ -22,10 +22,10 @@ const EmployeeSchema: Schema = new Schema({
   companyId: { type: Schema.Types.ObjectId, ref: 'Company', required: true },
   coursesAssigned: [{ type: Schema.Types.ObjectId, ref: 'Course' }],
   position: { type: String },
-  blocked: { type: Boolean, default: false },
+  isBlocked: { type: Boolean, default: false },
   subscription: { type: Boolean, default: false },
   NoEmployees: { type: Number, default: 0 },
-});
+}, { timestamps: true, });
 
 export const Employee = mongoose.model<IEmployee>('Employee', EmployeeSchema);
 

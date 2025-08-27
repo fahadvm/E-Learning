@@ -11,7 +11,6 @@
   export class StudentCourseController {
     constructor(@inject(TYPES.StudentCourseService) private readonly _courseService: IStudentCourseService) {}
     getAllCourses = async (req: Request, res: Response) => {
-      console.log("req.query in all course" , req.query) 
        const {
       search,
       category,
@@ -22,7 +21,6 @@
       page = "1",
       limit = "8"
     } = req.query;
-          console.log("language in all course controller" , language) 
 
       const courses = await this._courseService.getAllCourses({
       search: search as string,
@@ -39,7 +37,6 @@
 
     getCourseDetailById = async (req: Request, res: Response) => {
       const { courseId } = req.params;
-      console.log(courseId)
       if (!courseId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
       const course = await this._courseService.getCourseDetail(courseId);
       if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);

@@ -18,11 +18,9 @@ export class TeacherProfileController {
 
   async updateProfile(req: Request, res: Response) {
     
-    console.log("controller edit profile is working ",)
     const decoded = decodeToken(req.cookies.token);
     if (!decoded?.id) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
     const result = await this._teacherservice.updateProfile(decoded.id, req.body);
-    console.log("updated data from edit profile :", result)
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.PROFILE_UPDATED, true, result);
   }
 
