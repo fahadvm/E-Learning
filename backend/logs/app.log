@@ -6953,3 +6953,4 @@
 2025-09-03T05:50:02.682Z [INFO]: GET /admin/subscriptions 304 - - 18.260 ms
 2025-09-03T05:50:11.763Z [INFO]: GET /admin/teachers?search=&page=1&limit=5 304 - - 27.325 ms
 2025-09-03T05:50:11.776Z [INFO]: GET /admin/teachers?search=&page=1&limit=5 304 - - 10.498 ms
+2025-09-03T07:24:58.833Z [INFO]: GET /admin/subscriptions 200 1659 - 67.515 ms
