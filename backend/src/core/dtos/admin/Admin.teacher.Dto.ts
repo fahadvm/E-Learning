@@ -1,5 +1,5 @@
 // src/core/dtos/admin/AdminTeacher.dto.ts
-import { ITeacher, Education, Experience, SocialLinks } from "../../../models/Teacher";
+import { ITeacher, Education, Experience, SocialLinks } from '../../../models/Teacher';
 
 export interface AdminEducationDTO {
   degree: string;

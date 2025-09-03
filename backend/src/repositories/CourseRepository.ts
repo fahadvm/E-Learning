@@ -1,6 +1,8 @@
 import { injectable } from 'inversify';
 import { ICourseRepository } from '../core/interfaces/repositories/ICourseRepository';
 import { ICourse, Course } from '../models/course';
+import { FilterQuery, SortOrder } from "mongoose";
+
 
 @injectable()
 export class CourseRepository implements ICourseRepository {
@@ -17,13 +19,18 @@ export class CourseRepository implements ICourseRepository {
   }
   
 
-  async findAllCourses(query: any, sort: any, skip: number, limit: number): Promise<ICourse[]> {
-    return await Course.find(query)
-      .sort(sort)
-      .skip(skip)
-      .limit(limit)
-      .exec();
-  }
+async findAllCourses(
+  query: FilterQuery<ICourse>,
+  sort: Record<string, SortOrder>,
+  skip: number,
+  limit: number
+): Promise<ICourse[]> {
+  return Course.find(query)
+    .sort(sort)
+    .skip(skip)
+    .limit(limit)
+    .exec();
+}
 
   async countAllCourses(query: any): Promise<number> {
     return await Course.countDocuments(query).exec();
@@ -35,7 +42,7 @@ export class CourseRepository implements ICourseRepository {
 
 async findAll({ skip, limit, search }: { skip: number; limit: number; search?: string }): Promise<ICourse[]> {
   const query = search ? { title: { $regex: search, $options: 'i' } } : {};
-  const course = await Course.find(query).populate({ path: 'teacherId', select:" name " }).skip(skip).limit(limit).lean();
+  const course = await Course.find(query).populate({ path: 'teacherId', select:' name ' }).skip(skip).limit(limit).lean();
   return course;
 }
 
@@ -50,7 +57,7 @@ async findAll({ skip, limit, search }: { skip: number; limit: number; search?: s
 
   async findById(courseId: string): Promise<ICourse | null> {
   return Course.findById(courseId)
-    .populate("teacherId", "name email profilePicture about") 
+    .populate('teacherId', 'name email profilePicture about') 
     .lean();
 }
 

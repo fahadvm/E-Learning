@@ -1,11 +1,12 @@
 // core/interfaces/services/admin/IAdminStudentService.ts
+import { IStudent } from '../../../../models/Student';
 import { IAdminStudentDTO, PaginatedStudentDTO,  } from '../../../../core/dtos/admin/Admin.student.Dto';
 
 export interface IAdminStudentService {
-  createStudent(data: Partial<IAdminStudentDTO>): Promise<IAdminStudentDTO>;
+  createStudent(data: Partial<IStudent>): Promise<IAdminStudentDTO>;
   getAllStudents(page: number, limit: number, search?: string): Promise<PaginatedStudentDTO>;
   getStudentById(id: string): Promise<IAdminStudentDTO | null>;
-  updateStudent(id: string, data: Partial<IAdminStudentDTO>): Promise<IAdminStudentDTO>;
+  updateStudent(id: string, data: Partial<IStudent>): Promise<IAdminStudentDTO>;
   blockStudent(id: string): Promise<IAdminStudentDTO>;
   unblockStudent(id: string): Promise<IAdminStudentDTO>;
 }

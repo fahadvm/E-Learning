@@ -9,6 +9,7 @@ import {
   IndianRupee, Tag
 } from 'lucide-react'
 import { adminApiMethods } from '@/services/APImethods/adminAPImethods'
+import { showSuccessToast } from '@/utils/Toast'
 
 interface SubscriptionPlan {
   _id: string
@@ -24,12 +25,12 @@ export default function AdminSubscriptionsPage() {
   const router = useRouter()
   const [plans, setPlans] = useState<SubscriptionPlan[]>([])
   const [loading, setLoading] = useState(true)
-  const id = "234234234242"
 
   const fetchPlans = async () => {
     try {
-      const res =  await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/auth/admin/subscriptionplans/${id}`)
-      setPlans(res.data)
+      const res =  await adminApiMethods.getPlans()
+      console.log("res from  ", res.data.plans)
+      setPlans(res.data.plans)
     } catch (error) {
       console.error("Failed to fetch subscription plans", error)
     } finally {
@@ -52,8 +53,11 @@ export default function AdminSubscriptionsPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this plan?')) return
     try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/auth/admin/subscriptionplans/${id}`)
-      setPlans(prev => prev.filter(plan => plan._id !== id))
+      const res = await adminApiMethods.deletePlan(id)
+      if(res.ok){
+        showSuccessToast(res.message)
+        setPlans(prev => prev.filter(plan => plan._id !== id))
+      }
     } catch (err) {
       console.error("Failed to delete plan", err)
     }

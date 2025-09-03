@@ -1,5 +1,5 @@
 // src/core/dto/company/companyProfileDto.ts
-import { ICompany } from "../../../models/Company";
+import { ICompany } from '../../../models/Company';
 
 export const companyProfileDto = (company: ICompany) => ({
   _id: company._id.toString(),

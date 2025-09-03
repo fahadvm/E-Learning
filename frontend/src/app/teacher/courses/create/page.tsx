@@ -175,7 +175,7 @@ export default function CreateCoursePage() {
       });
 
       // Log FormData
-      for (let [key, value] of formData.entries()) {
+      for (const [key, value] of formData.entries()) {
         console.log(`FormData: ${key}`, value instanceof File ? value.name : value);
       }
       const res = await teacherCourseApi.addCourse(formData)

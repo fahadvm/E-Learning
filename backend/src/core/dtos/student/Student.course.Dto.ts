@@ -1,4 +1,4 @@
-import { ICourse, ILesson, IModule , } from "../../../models/course";
+import { ICourse, ILesson, IModule , } from '../../../models/course';
 // Request DTO for filtering courses
 
 export interface GetStudentCoursesRequestDTO {
@@ -37,7 +37,7 @@ export interface IStudentCourseDTO {
   coverImage?: string;
   isBlocked: boolean;
   isVerified: boolean;
-  status: "pending" | "verified" | "rejected";
+  status: 'pending' | 'verified' | 'rejected';
   rejectionReason?: string;
   teacherId?: string;
   modules: IStudentModuleDTO[];
@@ -73,7 +73,7 @@ export const StudentCourseDTO = (course: ICourse): IStudentCourseDTO => ({
   coverImage: course.coverImage,
   isBlocked: course.isBlocked,
   isVerified: course.isVerified,
-  status: course.status as "pending" | "verified" | "rejected",
+  status: course.status as 'pending' | 'verified' | 'rejected',
   rejectionReason: course.rejectionReason,
   teacherId: course.teacherId?.toString(),
   modules: course.modules?.map(StudentModuleDTO) || [],

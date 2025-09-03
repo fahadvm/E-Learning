@@ -1,5 +1,5 @@
 import axios from "axios"
-import { getRequest, patchRequest, postRequest, putRequest } from "../api"
+import { getRequest, patchRequest, postRequest, putRequest ,deleteRequest  } from "../api"
 import { baseURL } from "../AxiosInstance"
 
 
@@ -7,6 +7,7 @@ const get = getRequest;
 const post = postRequest;
 const patch = patchRequest;
 const put = putRequest
+const del = deleteRequest 
 
 export const adminApiMethods = {
     login: (data: any) => post('/admin/auth/login', data),
@@ -26,6 +27,8 @@ export const adminApiMethods = {
     rejectCompany: (companyId: string, rejectReason: string) => patch(`/admin/companies/${companyId}/reject`, { rejectReason }),
     approveAllCompanies: () => put(`/admin/companies/approve-all`, {}),
     rejectAllCompanies: (rejectReason: string) => put(`/admin/companies/reject-all`, { rejectReason }),
+    getEmployeeById: (employeeId: string) => { return get(`/admin/companies/employee/${employeeId}`) },
+
 
     getCourses: (params: { page?: number; limit?: number; search?: string }) => get('/admin/courses', params),
     getUnverifiedCourses: (params: { page?: number; limit?: number; search?: string }) => get('/admin/courses/unverified', params),
@@ -43,6 +46,16 @@ export const adminApiMethods = {
     blockTeacher: (teacherId: string) => patch(`/admin/teachers/block/${teacherId}`, {}),
     unblockTeacher: (teacherId: string) => patch(`/admin/teachers/unblock/${teacherId}`, {}),
     getTeacherCourses: (teacherId: string) => get(`/admin/teachers/courses/${teacherId}`, {}),
+
+    getPlans: () => get('/admin/subscriptions'),
+    getPlanById: (planId: string) => get(`/admin/subscriptions/${planId}`),
+    createPlan: (data: any) => post('/admin/subscriptions', data),
+    updatePlan: (planId: string, data: any) => put(`/admin/subscriptions/${planId}`, data),
+    deletePlan: (planId: string) => del(`/admin/subscriptions/${planId}`),
+
+
+
+
 
 };
 

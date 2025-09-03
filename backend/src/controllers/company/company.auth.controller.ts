@@ -23,7 +23,7 @@ export class CompanyAuthController {
   }
 
   async verifyOtp(req: Request, res: Response): Promise<void> {
-    console.log("verifying otp ",req.body)
+    console.log('verifying otp ',req.body);
     const { email, otp } = req.body;
     
     if (!email || !otp) throwError(MESSAGES.ALL_FIELDS_REQUIRED, STATUS_CODES.BAD_REQUEST);

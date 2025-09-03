@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, ObjectId } from 'mongoose';
 
 export interface SocialLinks {
   linkedin?: string;
@@ -7,13 +7,15 @@ export interface SocialLinks {
 }
 
 export interface ICompany extends Document {
+  _id :ObjectId;
   name: string;
   about?: string;
   phone?: string;
   website?: string;
+  profilePicture?: string;
   email: string;
   password: string;
-  status?: string;
+  status: string;
   rejectReason?: string;
   employees: mongoose.Types.ObjectId[];
   isPremium: boolean;
@@ -29,6 +31,7 @@ const CompanySchema: Schema = new Schema(
     about: { type: String },
     phone: { type: String },
     website: { type: String },
+    profilePicture: { type: String },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     rejectReason: { type: String },

@@ -58,7 +58,7 @@ export class TeacherAuthService implements ITeacherAuthService {
     const { name, password } = record.tempUserData;
     const teacher = await this._teacherRepo.create({ name, email, password, isVerified: true, isBlocked: false });
     await this._otpRepository.deleteByEmail(email);
-    const teacherId = teacher?._id.toString()
+    const teacherId = teacher?._id.toString();
 
 
     const token = generateAccessToken(teacherId, 'Teacher');
@@ -72,7 +72,7 @@ export class TeacherAuthService implements ITeacherAuthService {
     if (teacher.password && !(await bcrypt.compare(password, teacher.password))) throwError(MESSAGES.INVALID_CREDENTIALS, STATUS_CODES.BAD_REQUEST);
     if (!teacher.isVerified) throwError(MESSAGES.TEACHER_NOT_VERIFIED, STATUS_CODES.UNAUTHORIZED);
     if (teacher.isBlocked) throwError(MESSAGES.ACCOUNT_BLOCKED, STATUS_CODES.FORBIDDEN);
-    const teacherId = teacher?._id.toString()
+    const teacherId = teacher?._id.toString();
 
     const token = generateAccessToken(teacherId, 'Teacher');
     const refreshToken = generateRefreshToken(teacherId, 'Teacher');

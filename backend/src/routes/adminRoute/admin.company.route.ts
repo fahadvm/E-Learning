@@ -10,6 +10,7 @@ const adminCompanyCtrl = container.get<AdminCompanyController>(TYPES.AdminCompan
 companyRouter.get('/', asyncHandler(adminCompanyCtrl.getAllCompanies.bind(adminCompanyCtrl)));
 companyRouter.get('/unverified', asyncHandler(adminCompanyCtrl.getUnverifiedCompanies.bind(adminCompanyCtrl)));
 companyRouter.get('/:companyId', asyncHandler(adminCompanyCtrl.getCompayById.bind(adminCompanyCtrl)));
+companyRouter.get ('/employee/:employeeId', asyncHandler(adminCompanyCtrl.getEmployeeById.bind(adminCompanyCtrl)));
 companyRouter.patch('/:companyId/verify', asyncHandler(adminCompanyCtrl.verifyCompany.bind(adminCompanyCtrl)));
 companyRouter.patch('/:companyId/reject', asyncHandler(adminCompanyCtrl.rejectCompany.bind(adminCompanyCtrl)));
 companyRouter.patch('/:companyId/block', asyncHandler(adminCompanyCtrl.blockCompany.bind(adminCompanyCtrl)));

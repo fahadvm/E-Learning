@@ -16,13 +16,13 @@ export class StudentCourseService implements IStudentCourseService {
     const { search, category, level, language, sort, order, page, limit } = filters;
 
     const query: any = {};
-    if (search) query.title = { $regex: search, $options: "i" };
+    if (search) query.title = { $regex: search, $options: 'i' };
     if (category) query.category = category;
     if (level) query.level = level;
     if (language) query.language = language;
 
     const skip = (page - 1) * limit;
-    const sortQuery = { [sort]: order === "asc" ? 1 : -1 };
+    const sortQuery = { [sort]: order === 'asc' ? 1 : -1 };
 
 
     const courses = await this._courseRepo.findAllCourses(query, sortQuery, skip, limit);
@@ -35,7 +35,7 @@ export class StudentCourseService implements IStudentCourseService {
       data: courses.map(StudentCourseDTO),
       total,
       totalPages,
-    }
+    };
   };
 
 

@@ -49,7 +49,7 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
         return newEmployee;
     }
     async getAllEmployees(companyId: string, page: number, limit: number, search: string, sortBy: string, sortOrder: string): Promise<PaginatedEmployeeDTO> {
-        const total = await this._employeeRepo.countEmployeesByCompany(companyId,search)
+        const total = await this._employeeRepo.countEmployeesByCompany(companyId,search);
         const skip = (page - 1) * limit;
         const employees = await this._employeeRepo.findByCompanyId(companyId, skip, limit, search, sortBy, sortOrder);
         const totalPages = Math.ceil(total / limit);

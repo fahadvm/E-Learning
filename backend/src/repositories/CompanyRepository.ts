@@ -1,10 +1,10 @@
 import { injectable } from 'inversify';
 import { ICompanyRepository } from '../core/interfaces/repositories/ICompanyRepository';
 import { ICompany, Company } from '../models/Company';
+import { FilterQuery, UpdateQuery } from 'mongoose';
 
 @injectable()
 export class CompanyRepository implements ICompanyRepository {
-
   async findByEmail(email: string): Promise<ICompany | null> {
     return Company.findOne({ email }).exec();
   }
@@ -23,40 +23,43 @@ export class CompanyRepository implements ICompanyRepository {
   }
 
   async findById(id: string): Promise<ICompany | null> {
-    return Company.findById(id).populate({
-      path: "employees",
-      select: "name email position isblocked _id"
-    }) .exec();
+    return Company.findById(id)
+      .populate({
+        path: 'employees',
+        select: 'name email position isblocked _id',
+      })
+      .exec();
   }
 
   async updateById(id: string, data: Partial<ICompany>): Promise<ICompany | null> {
-    return Company.findByIdAndUpdate(id, data, { new: true }).exec();
+    return Company.findByIdAndUpdate(id, data as UpdateQuery<ICompany>, { new: true }).exec();
   }
 
   async getAllCompanies(page: number, limit: number, search: string): Promise<ICompany[]> {
-    const query = search
+    const query: FilterQuery<ICompany> = search
       ? { name: { $regex: search, $options: 'i' } }
       : {};
-    return Company.find(query).populate({
-      path: "employees",
-      select: "name email"
-    })
+    return Company.find(query)
+      .populate({
+        path: 'employees',
+        select: 'name email',
+      })
       .skip((page - 1) * limit)
       .limit(limit)
       .exec();
   }
 
   async countCompanies(search: string): Promise<number> {
-    const query = search
+    const query: FilterQuery<ICompany> = search
       ? { name: { $regex: search, $options: 'i' } }
       : {};
     return Company.countDocuments(query).exec();
   }
 
   async countUnverifiedCompanies(search: string): Promise<number> {
-    const query: any = {
+    const query: FilterQuery<ICompany> = {
       isVerified: false,
-      status: 'pending'
+      status: 'pending',
     };
 
     if (search) {
@@ -67,7 +70,7 @@ export class CompanyRepository implements ICompanyRepository {
   }
 
   async getUnverifiedCompanies(page: number, limit: number, search: string): Promise<ICompany[]> {
-    const query: any = {
+    const query: FilterQuery<ICompany> = {
       isVerified: false,
       status: 'pending',
     };
@@ -82,11 +85,10 @@ export class CompanyRepository implements ICompanyRepository {
       .exec();
   }
 
-
   async verifyCompany(companyId: string): Promise<ICompany | null> {
     return Company.findByIdAndUpdate(
       companyId,
-      { isVerified: true, status: 'verified' },
+      { isVerified: true, status: 'verified' } as UpdateQuery<ICompany>,
       { new: true }
     ).exec();
   }
@@ -94,7 +96,7 @@ export class CompanyRepository implements ICompanyRepository {
   async rejectCompany(companyId: string, reason: string): Promise<ICompany | null> {
     return Company.findByIdAndUpdate(
       companyId,
-      { status: 'rejected', rejectReason: reason },
+      { status: 'rejected', rejectReason: reason } as UpdateQuery<ICompany>,
       { new: true }
     ).exec();
   }
@@ -102,7 +104,7 @@ export class CompanyRepository implements ICompanyRepository {
   async blockCompany(companyId: string): Promise<ICompany | null> {
     return Company.findByIdAndUpdate(
       companyId,
-      { isBlocked: true },
+      { isBlocked: true } as UpdateQuery<ICompany>,
       { new: true }
     ).exec();
   }
@@ -110,7 +112,7 @@ export class CompanyRepository implements ICompanyRepository {
   async unblockCompany(companyId: string): Promise<ICompany | null> {
     return Company.findByIdAndUpdate(
       companyId,
-      { isBlocked: false },
+      { isBlocked: false } as UpdateQuery<ICompany>,
       { new: true }
     ).exec();
   }
@@ -118,7 +120,7 @@ export class CompanyRepository implements ICompanyRepository {
   async approveAll(): Promise<{ modifiedCount: number }> {
     const result = await Company.updateMany(
       { status: 'pending', isVerified: false },
-      { $set: { status: 'verified', isVerified: true, rejectionReason: null } }
+      { $set: { status: 'verified', isVerified: true, rejectionReason: null } } as UpdateQuery<ICompany>
     ).exec();
     return { modifiedCount: result.modifiedCount };
   }
@@ -126,7 +128,7 @@ export class CompanyRepository implements ICompanyRepository {
   async rejectAll(reason: string): Promise<{ modifiedCount: number }> {
     const result = await Company.updateMany(
       { status: 'pending', isVerified: false },
-      { $set: { status: 'rejected', isVerified: false, rejectReason: reason } }
+      { $set: { status: 'rejected', isVerified: false, rejectReason: reason } } as UpdateQuery<ICompany>
     ).exec();
     return { modifiedCount: result.modifiedCount };
   }

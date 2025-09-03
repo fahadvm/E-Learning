@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import { IEmployeeRepository } from '../core/interfaces/repositories/IEmployeeRepository';
 import { IEmployee, Employee } from '../models/Employee';
-import { ICompany, Company } from '../models/Company';
+import {  Company } from '../models/Company';
 
 @injectable()
 export class EmployeeRepository implements IEmployeeRepository {
@@ -15,9 +15,10 @@ export class EmployeeRepository implements IEmployeeRepository {
         position?: string;
     }): Promise<IEmployee> {
         const employee = await new Employee(data).save();
-        const saving = await Company.findByIdAndUpdate(data.companyId, {
+         await Company.findByIdAndUpdate(data.companyId, {
             $push: { employees: employee._id }
         });
+        
         return employee;
     }
 
@@ -30,6 +31,7 @@ export class EmployeeRepository implements IEmployeeRepository {
     }
 
     async findById(employeeId: string): Promise<IEmployee | null> {
+        console.log('employeeId from repository ', employeeId);
         return await Employee.findById(employeeId);
     }
 
@@ -54,6 +56,23 @@ export class EmployeeRepository implements IEmployeeRepository {
 
         return await Employee.find(query)
             .sort(sort)
+            .skip(skip)
+            .limit(limit);
+    }
+    async getEmployeesByCompany(
+        companyId: string,
+        skip: number,
+        limit: number,
+        search: string,
+    ): Promise<IEmployee[]> {
+        const query: any = {
+            companyId,
+            $or: [
+                { name: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } },
+            ]
+        };
+        return await Employee.find(query)
             .skip(skip)
             .limit(limit);
     }

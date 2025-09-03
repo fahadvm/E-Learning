@@ -15,7 +15,7 @@ export class AdminCompanyController {
     ) { }
 
     async getAllCompanies(req: Request, res: Response): Promise<void> {
-         const { page = '1', limit = '10', search = '' } = req.query;
+        const { page = '1', limit = '10', search = '' } = req.query;
         const { pageNum, limitNum, error } = validatePagination(String(page), String(limit));
 
         if (error || pageNum === null || limitNum === null) {
@@ -54,6 +54,14 @@ export class AdminCompanyController {
         const { companyId } = req.params;
         const company = await this._companyService.getCompanyById(companyId);
         sendResponse(res, STATUS_CODES.OK, MESSAGES.COMPANY_DETAILS_FETCHED, true, company);
+    }
+
+    async getEmployeeById(req: Request, res: Response): Promise<void> {
+        const { employeeId } = req.params;
+        console.log('here request reached with :', employeeId);
+        const employee = await this._companyService.getEmployeeById(employeeId);
+        console.log('came back to controller ', employee);
+        sendResponse(res, STATUS_CODES.OK, MESSAGES.EMPLOYEE_DETAILS_FETCHED, true, employee);
     }
 
 

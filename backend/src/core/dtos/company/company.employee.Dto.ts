@@ -1,4 +1,4 @@
-import { IEmployee } from "../../../models/Employee";
+import { IEmployee } from '../../../models/Employee';
 
 export interface ICompanyEmployeeDTO {
   _id: string;

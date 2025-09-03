@@ -29,8 +29,8 @@ interface Student {
   location: string;
   lastLogin: string;
   profilePicture: string;
-  isBlocked: Boolean;
-  isPremium: Boolean;
+  isBlocked: boolean;
+  isPremium: boolean;
   stats: { courses: number; streak: number; completed: number };
   personalDetails: Record<string, string>;
   enrollmentDetails: Record<string, string>;
@@ -108,7 +108,7 @@ const StudentProfileAdmin: React.FC = () => {
             {/* Profile Info */}
             <div className="flex flex-col md:flex-row items-center gap-6">
               <Image
-                src={student.profilePicture || "/default-avatar.png"}
+                src={student.profilePicture ||"/icon/no_image.webp"}
                 alt={student.name}
                 width={120}
                 height={120}
@@ -124,7 +124,7 @@ const StudentProfileAdmin: React.FC = () => {
                   )}
                 </h2>
                 <p className="text-gray-500 text-sm">
-                  Last Login: {new Date(student.lastLogin).toLocaleDateString()}
+                  
                 </p>
                 <div className="mt-3 flex gap-3">
                   

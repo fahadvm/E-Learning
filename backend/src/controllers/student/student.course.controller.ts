@@ -16,10 +16,10 @@
       category,
       level,
       language,
-      sort = "createdAt",   
-      order = "desc",
-      page = "1",
-      limit = "8"
+      sort = 'createdAt',   
+      order = 'desc',
+      page = '1',
+      limit = '8'
     } = req.query;
 
       const courses = await this._courseService.getAllCourses({

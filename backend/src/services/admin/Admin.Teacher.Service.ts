@@ -31,13 +31,13 @@ export class AdminTeacherService implements IAdminTeacherService {
 
     async getUnverifiedTeachers(): Promise<IAdminTeacherDTO[]> {
         const teachers = await this._teacherRepo.findUnverified();
-        if (!teachers) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND)
+        if (!teachers) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
         return teachers.map(adminTeacherDto);
     }
 
     async verifyTeacher(teacherId: string): Promise<IAdminTeacherDTO> {
         const updated = await this._teacherRepo.updateStatus(teacherId, { isVerified: true, isRejected: false });
-        if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND)
+        if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
         return adminTeacherDto(updated);
     }
 
@@ -56,19 +56,19 @@ export class AdminTeacherService implements IAdminTeacherService {
 
     async rejectTeacher(teacherId: string): Promise<IAdminTeacherDTO> {
         const updated = await this._teacherRepo.updateStatus(teacherId, { isVerified: false, isRejected: true });
-        if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND)
+        if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
         return adminTeacherDto(updated);
     }
 
     async blockTeacher(teacherId: string): Promise<IAdminTeacherDTO> {
         const updated = await this._teacherRepo.updateStatus(teacherId, { isBlocked: true });
-        if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND)
+        if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
         return adminTeacherDto(updated);
     }
 
     async unblockTeacher(teacherId: string): Promise<IAdminTeacherDTO> {
         const updated = await this._teacherRepo.updateStatus(teacherId, { isBlocked: false });
-        if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND)
+        if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
         return adminTeacherDto(updated);
     }
 }

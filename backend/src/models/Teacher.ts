@@ -1,5 +1,4 @@
 import mongoose, { Schema, Document ,Types} from 'mongoose';
-import { ObjectId } from "mongodb";
 
 export interface Education {
   degree: string;

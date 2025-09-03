@@ -18,7 +18,7 @@ export class AdminCourseController {
     const limit = parseInt(req.query.limit as string) || 10;
     const search = req.query.search as string | undefined;
     const courses = await this._adminCourseService.getAllCourses(page, limit, search);
-    sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, courses)
+    sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, courses);
   }
 
   async getUnverifiedCourses(req: Request, res: Response) {

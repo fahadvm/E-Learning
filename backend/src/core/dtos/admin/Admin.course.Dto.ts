@@ -1,6 +1,6 @@
-import { ITeacher } from "@/models/Teacher";
-import { ILesson, IModule, ICourse } from "../../../models/course";
-import mongoose from "mongoose";
+import { ITeacher } from '@/models/Teacher';
+import { ILesson, IModule, ICourse } from '../../../models/course';
+import mongoose from 'mongoose';
 
 export interface IAdminLessonDTO {
   title: string;
@@ -77,7 +77,7 @@ export const AdminCourseDTO = (course: ICourse): IAdminCourseDTO => ({
   isPublished: course.isPublished,
   status: course.status,
   rejectionReason: course.rejectionReason,
-  teacherId: course.teacherId as mongoose.Types.ObjectId | ITeacher, // strict type, no any
+  teacherId: course.teacherId as mongoose.Types.ObjectId | ITeacher, 
   duration: course.duration,
   requirements: course.requirements || [],
   learningOutcomes: course.learningOutcomes || [],

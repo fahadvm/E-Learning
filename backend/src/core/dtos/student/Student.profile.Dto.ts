@@ -1,7 +1,7 @@
 // src/core/dto/student/studentProfileDto.ts
-import { IStudent } from "../../../models/Student";
+import { IStudent } from '../../../models/Student';
 
-export const studentProfileDto = (student: IStudent) :IStudentStudentDTO=> ({
+export const studentProfileDto = (student: IStudent): IStudentProfileDTO => ({
   _id: student._id.toString(),
   name: student.name,
   email: student.email,
@@ -14,8 +14,6 @@ export const studentProfileDto = (student: IStudent) :IStudentStudentDTO=> ({
   googleUser: student.googleUser,
   social_links: student.social_links,
 });
-
-
 
 export interface IStudentProfileDTO {
   _id: string;
@@ -34,4 +32,3 @@ export interface IStudentProfileDTO {
     instagram?: string;
   };
 }
-

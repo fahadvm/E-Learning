@@ -134,7 +134,7 @@ container.bind<AdminCourseController>(TYPES.AdminCourseController).to(AdminCours
 container.bind<AdminTeacherController>(TYPES.AdminTeacherController).to(AdminTeacherController);
 container.bind<AdminStudentController>(TYPES.AdminStudentController).to(AdminStudentController);
 container.bind<AdminCompanyController>(TYPES.AdminCompanyController).to(AdminCompanyController);
-container.bind<AdminSubscriptionPlanController>(TYPES.SubscriptionPlanController).to(AdminSubscriptionPlanController);
+container.bind<AdminSubscriptionPlanController>(TYPES.AdminSubscriptionPlanController).to(AdminSubscriptionPlanController);
 container.bind<TeacherAuthController>(TYPES.TeacherAuthController).to(TeacherAuthController);
 container.bind<TeacherCourseController>(TYPES.TeacherCourseController).to(TeacherCourseController);
 container.bind<TeacherProfileController>(TYPES.TeacherProfileController).to(TeacherProfileController);
