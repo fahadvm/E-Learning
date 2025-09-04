@@ -7,9 +7,12 @@ import { setTokensInCookies, clearTokens } from '../../utils/JWTtoken';
 import { sendResponse, throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import logger from '../../utils/logger';
+import { IStudentAuthController } from '../../core/interfaces/controllers/student/IStudentAuthController';
+
 
 @injectable()
-export class StudentAuthController {
+export class StudentAuthController implements IStudentAuthController {
   constructor(@inject(TYPES.StudentAuthService) private readonly _studentAuthService: IStudentAuthService) { }
 
   signup = async (req: Request, res: Response) => {

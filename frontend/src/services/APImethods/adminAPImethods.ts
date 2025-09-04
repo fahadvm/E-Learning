@@ -1,6 +1,4 @@
-import axios from "axios"
 import { getRequest, patchRequest, postRequest, putRequest ,deleteRequest  } from "../api"
-import { baseURL } from "../AxiosInstance"
 
 
 const get = getRequest;

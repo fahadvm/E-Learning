@@ -7,7 +7,7 @@ export interface SocialLinks {
 }
 
 export interface ICompany extends Document {
-  _id :ObjectId;
+  _id: ObjectId;
   name: string;
   about?: string;
   phone?: string;
@@ -20,6 +20,7 @@ export interface ICompany extends Document {
   employees: mongoose.Types.ObjectId[];
   isPremium: boolean;
   isVerified: boolean;
+  isBlocked: boolean;
   social_links?: SocialLinks;
   createdAt: Date;
   updatedAt: Date;
@@ -38,6 +39,7 @@ const CompanySchema: Schema = new Schema(
     status: { type: String },
     isPremium: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: false },
+    isBlocked: { type: Boolean, default: false }, 
     employees: [{ type: Schema.Types.ObjectId, ref: 'Employee' }],
     social_links: {
       linkedin: { type: String },

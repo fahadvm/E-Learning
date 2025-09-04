@@ -22,7 +22,7 @@ const app = express();
 app.use(
     morgan('tiny', {
       stream: {
-        write: (message:string) => logger.info(message.trim())
+        write: (message:string) => console.log(message.trim())
       }
     })
   );
@@ -31,8 +31,26 @@ app.use(
 app.use(session({ secret: 'your_secret', resave: false, saveUninitialized: false }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
-app.use(cookieParser());
+const allowedOrigins = [
+  "http://localhost:3000",
+  /\.devtunnels\.ms$/, 
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.some((o) =>
+        typeof o === "string" ? o === origin : o.test(origin)
+      )) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);app.use(cookieParser());
 app.use(express.json());
 app.use('/company', companyRoutes);
 app.use('/admin', adminRoutes);

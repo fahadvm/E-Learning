@@ -120,7 +120,7 @@ export default function CompanyProfile() {
           <h2 className="text-3xl font-bold mt-2">{company.name}</h2>
           {/* <p className="text-gray-700">{company.description}</p> */}
 
-          <button
+          {/* <button
             onClick={() => {
               if (company) setCompany({ ...company, isBlocked: !company.isBlocked });
             }}
@@ -128,7 +128,7 @@ export default function CompanyProfile() {
               } text-white`}
           >
             {company?.isBlocked ? "Unblock" : "Block"}
-          </button>
+          </button> */}
 
           <div className="mt-4 text-gray-700 space-y-1">
             <p>📍 {company.about}</p>
@@ -213,9 +213,7 @@ export default function CompanyProfile() {
                       >
                         Details
                       </button>
-                      <button className="bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700">
-                        {emp.isBlocked ? "Unblock" : "Block"}
-                      </button>
+                      
                     </td>
                   </tr>
                 ))}

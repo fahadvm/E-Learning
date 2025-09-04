@@ -6,9 +6,10 @@ import { TYPES } from '../../core/di/types';
 import { sendResponse } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { IAdminCourseController } from '../../core/interfaces/controllers/admin/IAdminCourseController';
 
 @injectable()
-export class AdminCourseController {
+export class AdminCourseController implements IAdminCourseController{
   constructor(
     @inject(TYPES.AdminCourseService) private readonly _adminCourseService: IAdminCourseService
   ) { }

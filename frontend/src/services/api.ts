@@ -1,7 +1,5 @@
 import axiosInstance from "./AxiosInstance";
 import { showErrorToast, showInfoToast } from "../utils/Toast";
-import { Route } from "lucide-react";
-import Router from "next/router";
 
 type ApiOptions = {
   showToast?: boolean;

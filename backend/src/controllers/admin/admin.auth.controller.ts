@@ -6,9 +6,10 @@ import { sendResponse} from '../../utils/ResANDError';
 import { setTokensInCookies, clearTokens } from '../../utils/JWTtoken';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { TYPES } from '../../core/di/types';
+import { IAdminAuthController } from '../../core/interfaces/controllers/admin/IAdminAuthController';
 
 @injectable()
-export class AdminAuthController {
+export class AdminAuthController implements IAdminAuthController {
     constructor(
         @inject(TYPES.AdminAuthService) private _adminService: IAdminAuthService
     ) { }

@@ -37,6 +37,8 @@ export default function EmployeesPage() {
     const [pageSize, setPageSize] = useState(5);
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState("");
+    const [debouncedInputValue, setDebouncedInputValue] = useState('');
+
     const { company } = useCompany();
     const router = useRouter();
 
@@ -62,7 +64,7 @@ export default function EmployeesPage() {
         setError(null);
         try {
             const res = await companyApiMethods.getAllEmployees({
-                search: searchQuery,
+                search: debouncedInputValue,
                 page,
                 limit: pageSize,
             });
@@ -174,6 +176,29 @@ export default function EmployeesPage() {
     useEffect(() => {
         fetchEmployees();
     }, [page, pageSize, searchQuery,]);
+
+
+
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedInputValue(searchQuery);
+        }, 500);
+
+        // Cleanup function to clear the timeout if inputValue changes before the delay
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [searchQuery]);
+
+     useEffect(() => {
+    if (debouncedInputValue) {
+      // Perform your search or other action here
+      console.log('Searching for:', debouncedInputValue);
+      // Example: fetch(`/api/search?query=${debouncedInputValue}`);
+    }
+  }, [debouncedInputValue]);
+
 
     return (
         <>
@@ -298,7 +323,7 @@ export default function EmployeesPage() {
                                                                 </button>
                                                             }
                                                         />
-                                                        
+
                                                     </span>
                                                 </td>
                                             </tr>

@@ -7,9 +7,10 @@ import { sendResponse } from '../../utils/ResANDError';
 import { throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { TYPES } from '../../core/di/types';
+import { ITeacherCourseController } from '../../core/interfaces/controllers/teacher/ITeacherCourseController';
 
 @injectable()
-export class TeacherCourseController {
+export class TeacherCourseController implements ITeacherCourseController{
   constructor(
     @inject(TYPES.TeacherCourseService) private readonly _courseService: ITeacherCourseService
   ) {}

@@ -1,4 +1,7 @@
 // components/Loader.tsx
+
+'use client';
+import { useLoading } from "../../hooks/useLoading";
 import React from "react";
 
 interface LoaderProps {
@@ -7,7 +10,10 @@ interface LoaderProps {
   text?: string;       // optional loading text
 }
 
-const Loader: React.FC<LoaderProps> = ({ size = 60, color = "#000000ff", text }) => {
+const Loader: React.FC<LoaderProps> = ({ size = 60, color = "#000000ff", }) => {
+  const { isLoading } = useLoading();
+  if (!isLoading) return null;
+
   return (
     <div className="flex flex-col items-center justify-center space-y-4">
       <div
@@ -26,7 +32,7 @@ const Loader: React.FC<LoaderProps> = ({ size = 60, color = "#000000ff", text })
           style={{ backgroundColor: color }}
         ></div>
       </div>
-      
+
     </div>
   );
 };

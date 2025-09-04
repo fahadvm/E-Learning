@@ -5,9 +5,10 @@ import { TYPES } from '../../core/di/types';
 import { sendResponse } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
+import { IAdminSubscriptionController } from '../../core/interfaces/controllers/admin/IAdminSubscriptionController';
 
 @injectable()
-export class AdminSubscriptionPlanController {
+export class AdminSubscriptionPlanController implements IAdminSubscriptionController {
   constructor(
     @inject(TYPES.AdminSubscriptionPlanService)
     private readonly _planService: IAdminSubscriptionPlanService

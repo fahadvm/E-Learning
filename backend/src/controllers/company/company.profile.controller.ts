@@ -6,9 +6,10 @@ import {  decodeToken } from '../../utils/JWTtoken';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { TYPES } from '../../core/di/types';
 import { ICompanyProfileService } from '../../core/interfaces/services/company/ICompanyProfileService';
+import { ICompanyProfileController } from '../../core/interfaces/controllers/company/ICompanyProfileController';
 
 @injectable()
-export class CompanyProfileController {
+export class CompanyProfileController implements ICompanyProfileController {
   constructor(
     @inject(TYPES.CompanyProfileService) private readonly _companyService: ICompanyProfileService
   ) {}

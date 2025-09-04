@@ -5,9 +5,10 @@ import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { sendResponse, throwError } from '../../utils/ResANDError';
 import { TYPES } from '../../core/di/types';
 import { MESSAGES } from '../../utils/ResponseMessages';
+import { ICompanyCourseController } from '../../core/interfaces/controllers/company/ICompanyCourseController';
 
 @injectable()
-export class CompanyCourseController {
+export class CompanyCourseController implements ICompanyCourseController {
   constructor(
     @inject(TYPES.CompanyCourseService) private readonly _courseService: ICompanyCourseService
   ) {}

@@ -115,9 +115,9 @@ export default function CourseDetailPage() {
 
             <p className="text-gray-600 leading-relaxed mb-8">{course.description}</p>
             <div className="flex gap-4">
-              <button className="px-4 py-2 bg-cyan-500 text-white rounded-md">
+              {/* <button className="px-4 py-2 bg-cyan-500 text-white rounded-md">
                 Edit
-              </button>
+              </button> */}
             </div>
           </div>
 

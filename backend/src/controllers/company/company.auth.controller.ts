@@ -6,9 +6,10 @@ import { sendResponse, throwError } from '../../utils/ResANDError';
 import { setTokensInCookies, clearTokens } from '../../utils/JWTtoken';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { TYPES } from '../../core/di/types';
+import { ICompanyAuthController } from '../../core/interfaces/controllers/company/ICompanyAuthController';
 
 @injectable()
-export class CompanyAuthController {
+export class CompanyAuthController implements ICompanyAuthController{
   constructor(
     @inject(TYPES.CompanyAuthService) private readonly _companyService: ICompanyAuthService
   ) {}

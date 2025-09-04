@@ -6,9 +6,10 @@ import { TYPES } from '../../core/di/types';
 import { sendResponse } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { IStudentSubscriptionController } from '../../core/interfaces/controllers/student/IStudentSubscriptionController';
 
 @injectable()
-export class StudentSubscriptionController {
+export class StudentSubscriptionController implements IStudentSubscriptionController{
   constructor(
     @inject(TYPES.StudentSubscriptionService)
     private readonly _planService: IStudentSubscriptionService

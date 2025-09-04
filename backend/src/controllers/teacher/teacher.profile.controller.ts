@@ -6,9 +6,10 @@ import { sendResponse, throwError } from '../../utils/ResANDError';
 import { decodeToken } from '../../utils/JWTtoken';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { TYPES } from '../../core/di/types';
+import { ITeacherProfileController } from '../../core/interfaces/controllers/teacher/ITeacherProfileController';
 
 @injectable()
-export class TeacherProfileController {
+export class TeacherProfileController implements ITeacherProfileController{
   constructor(@inject(TYPES.TeacherProfileService) private _teacherservice: ITeacherProfileService) {}
 
   async createProfile(req: Request, res: Response) {
