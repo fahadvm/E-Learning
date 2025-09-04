@@ -28,7 +28,7 @@ export class AdminAuthService implements IAdminAuthService {
     if (!match) {
       throwError(MESSAGES.INVALID_CREDENTIALS, STATUS_CODES.BAD_REQUEST);
     }
-    const adminId = admin._id.toString()
+    const adminId = admin._id.toString();
 
     const token = generateAccessToken(adminId, 'admin');
     const refreshToken = generateRefreshToken(adminId, 'admin');

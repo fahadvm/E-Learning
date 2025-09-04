@@ -1,8 +1,8 @@
-import { inject, injectable } from "inversify";
-import { IAdminCourseService } from "../../core/interfaces/services/admin/IAdminCourseService";
-import { ICourseRepository } from "../../core/interfaces/repositories/ICourseRepository";
-import { TYPES } from "../../core/di/types";
-import { IAdminCourseDTO,AdminCourseDTO, PaginatedCourseDTO } from "../../core/dtos/admin/Admin.course.Dto";
+import { inject, injectable } from 'inversify';
+import { IAdminCourseService } from '../../core/interfaces/services/admin/IAdminCourseService';
+import { ICourseRepository } from '../../core/interfaces/repositories/ICourseRepository';
+import { TYPES } from '../../core/di/types';
+import { IAdminCourseDTO,AdminCourseDTO, PaginatedCourseDTO } from '../../core/dtos/admin/Admin.course.Dto';
 
 @injectable()
 export class AdminCourseService implements IAdminCourseService {
@@ -31,12 +31,12 @@ export class AdminCourseService implements IAdminCourseService {
   }
 
   async verifyCourse(courseId: string): Promise<IAdminCourseDTO | null> {
-    const course = await this._courseRepo.updateStatus(courseId, { status: "verified" });
+    const course = await this._courseRepo.updateStatus(courseId, { status: 'verified' });
     return course ? AdminCourseDTO(course) : null;
   }
 
   async rejectCourse(courseId: string): Promise<IAdminCourseDTO | null> {
-    const course = await this._courseRepo.updateStatus(courseId, { status: "rejected" });
+    const course = await this._courseRepo.updateStatus(courseId, { status: 'rejected' });
     return course ? AdminCourseDTO(course) : null;
   }
 

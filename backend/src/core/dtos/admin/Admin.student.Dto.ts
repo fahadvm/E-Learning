@@ -1,5 +1,5 @@
 // src/core/dtos/admin/AdminStudent.dto.ts
-import { IStudent } from "../../../models/Student";
+import { IStudent } from '../../../models/Student';
 
 export interface IAdminStudentDTO {
   _id: string;

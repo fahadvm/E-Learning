@@ -25,6 +25,13 @@ export interface IEmployeeRepository {
         sortOrder: string
     ): Promise<IEmployee[]>;
 
+    getEmployeesByCompany(
+        companyId: string,
+        skip: number,
+        limit: number,
+        search: string,
+    ): Promise<IEmployee[]>;
+
     countEmployeesByCompany(companyId: string, search: string): Promise<number>;
 
     updateEmployeeById(employeeId: string, data: Partial<IEmployee>): Promise<IEmployee | null>;

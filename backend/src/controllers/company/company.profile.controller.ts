@@ -6,9 +6,10 @@ import {  decodeToken } from '../../utils/JWTtoken';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { TYPES } from '../../core/di/types';
 import { ICompanyProfileService } from '../../core/interfaces/services/company/ICompanyProfileService';
+import { ICompanyProfileController } from '../../core/interfaces/controllers/company/ICompanyProfileController';
 
 @injectable()
-export class CompanyProfileController {
+export class CompanyProfileController implements ICompanyProfileController {
   constructor(
     @inject(TYPES.CompanyProfileService) private readonly _companyService: ICompanyProfileService
   ) {}
@@ -25,8 +26,9 @@ export class CompanyProfileController {
    async updateProfile(req: Request, res: Response) {
     const decoded = decodeToken(req.cookies.token);
     if (!decoded?.id) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
-    const companyId = decoded.id
+    const companyId = decoded.id;
     const updatedData = req.body;
+    console.log('updatedData' , updatedData);
     const updatedCompany = await this._companyService.updateProfile(companyId, updatedData);
      sendResponse(res, STATUS_CODES.OK, MESSAGES.COMPANY_UPDATED, true, updatedCompany);
    }

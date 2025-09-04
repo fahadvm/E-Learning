@@ -15,7 +15,7 @@ export function throwError( message: string, statusCode = 400): never {
 }
  
 export function sendResponse(res: Response,status: number, message: string,  ok: boolean,data?:any) {
-    console.error(message)
+    console.log(message);
     res.status(status).json({ ok, message ,data}); 
 }
 export function handleControllerError(res: Response, error: unknown, defaultStatus = 400): void {

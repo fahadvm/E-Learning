@@ -5,9 +5,10 @@ import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { sendResponse } from '../../utils/ResANDError';
 import { TYPES } from '../../core/di/types';
 import { MESSAGES } from '../../utils/ResponseMessages';
+import { ICompanySubscriptionController } from '../../core/interfaces/controllers/company/ICompanySubscriptionController';
 
 @injectable()
-export class CompanySubscriptionController {
+export class CompanySubscriptionController implements ICompanySubscriptionController {
   constructor(
     @inject(TYPES.CompanySubscriptionService)private readonly _planService: ICompanySubscriptionService) {}
 

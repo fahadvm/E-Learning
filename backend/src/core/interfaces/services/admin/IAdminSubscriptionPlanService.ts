@@ -1,13 +1,11 @@
+import { IAdminSubscriptionPlanDTO, PaginatedSubscriptionPlanDTO } from '../../../dtos/admin/Admin.subscriptionPlan.Dto';
 import { ISubscriptionPlan } from '../../../../models/subscriptionPlan';
 
 export interface IAdminSubscriptionPlanService {
-  create(plan: Partial<ISubscriptionPlan>): Promise<ISubscriptionPlan>
-  getAll(): Promise<ISubscriptionPlan[]>
-  update(id: string, plan: Partial<ISubscriptionPlan>): Promise<ISubscriptionPlan | null>
-  delete(id: string): Promise<void>
-  getById(id: string): Promise<ISubscriptionPlan | null>;
-  getAllForStudent(): Promise<ISubscriptionPlan[]>
-  getAllForCompany(): Promise<ISubscriptionPlan[]>
-
+  createPlan(data: Partial<ISubscriptionPlan>): Promise<IAdminSubscriptionPlanDTO>;
+  getAllPlans(page?: number, limit?: number, search?: string): Promise<PaginatedSubscriptionPlanDTO>;
+  getPlanById(id: string): Promise<IAdminSubscriptionPlanDTO>;
+  updatePlan(id: string, data: Partial<ISubscriptionPlan>): Promise<IAdminSubscriptionPlanDTO>;
+  deletePlan(id: string): Promise<void>;
 
 }

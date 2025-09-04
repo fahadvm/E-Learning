@@ -81,7 +81,7 @@ export default function UserList() {
                   className={`px-2 py-1 rounded text-white text-sm font-medium ${u.isBlocked ? "bg-red-500" : "bg-green-500"
                     }`}
                 >
-                  {u.isBlocked ? "Blocked" : "UnBlock"}
+                  {u.isBlocked ? "Blocked" : "Active"}
                 </span>
               ),
             },

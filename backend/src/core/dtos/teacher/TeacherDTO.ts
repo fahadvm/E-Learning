@@ -1,6 +1,6 @@
 // src/core/dto/teacher/teacherProfileDto.ts
-import { ITeacher } from "../../../models/Teacher";
-import mongoose from "mongoose";
+import { ITeacher } from '../../../models/Teacher';
+import mongoose from 'mongoose';
 
 export const teacherProfileDto = (teacher: ITeacher) => ({
   _id: teacher._id.toString(),

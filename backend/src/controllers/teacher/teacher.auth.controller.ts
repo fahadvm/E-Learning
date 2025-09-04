@@ -7,9 +7,10 @@ import { setTokensInCookies, clearTokens } from '../../utils/JWTtoken';
 import { sendResponse, throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { ITeacherAuthController } from '../../core/interfaces/controllers/teacher/ITeacherAuthController';
 
 @injectable()
-export class TeacherAuthController {
+export class TeacherAuthController implements ITeacherAuthController {
   constructor(
     @inject(TYPES.TeacherAuthService) private readonly _teacherAuthService: ITeacherAuthService
   ) {}

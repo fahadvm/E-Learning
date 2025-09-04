@@ -8,7 +8,6 @@ import { useEffect, useState } from 'react'
 export default function WelcomePage() {
   const [displayText, setDisplayText] = useState('')
   const fullText = 'Your ultimate e-learning platform'
-  // Typewriter effect for headline
   useEffect(() => {
     let index = 0
     const interval = setInterval(() => {
@@ -22,7 +21,7 @@ export default function WelcomePage() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <div className="w-64 h-full bg-white border-r shadow-sm"><AdminSidebar /></div>
-      <div>
+      <div className="flex-1">
         {/* Hero Section */}
         <div className="relative w-full h-screen">
           <Image

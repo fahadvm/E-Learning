@@ -1,18 +1,22 @@
-import { inject, injectable } from "inversify";
-import { TYPES } from "../../core/di/types";
-import { IAdminCompanyService } from "../../core/interfaces/services/admin/IAdminCompanyService";
-import { ICompanyRepository } from "../../core/interfaces/repositories/ICompanyRepository";
-import { throwError } from "../../utils/ResANDError";
-import { STATUS_CODES } from "../../utils/HttpStatuscodes";
-import { MESSAGES } from "../../utils/ResponseMessages";
-import { adminCompanyDto, IAdminCompanyDto } from "../../core/dtos/admin/Admin.company.Dto";
+import { inject, injectable } from 'inversify';
+import { TYPES } from '../../core/di/types';
+import { IAdminCompanyService } from '../../core/interfaces/services/admin/IAdminCompanyService';
+import { ICompanyRepository } from '../../core/interfaces/repositories/ICompanyRepository';
+import { IEmployeeRepository } from '../../core/interfaces/repositories/IEmployeeRepository';
+import { throwError } from '../../utils/ResANDError';
+import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { MESSAGES } from '../../utils/ResponseMessages';
+import { adminCompanyDto, IAdminCompanyDto ,IAdminCompanyEmployeeDto ,adminCompanyEmployeeDto} from '../../core/dtos/admin/Admin.company.Dto';
 
 @injectable()
 export class AdminCompanyService implements IAdminCompanyService {
   constructor(
-    @inject(TYPES.CompanyRepository)
-    private readonly _companyRepo: ICompanyRepository
-  ) { }
+  @inject(TYPES.CompanyRepository)
+  private readonly _companyRepo: ICompanyRepository,
+
+  @inject(TYPES.EmployeeRepository)
+  private readonly _employeeRepo: IEmployeeRepository
+) { }
 
   async getAllCompanies(page: number, limit: number, search: string):
     Promise<{ companies: IAdminCompanyDto[]; total: number; totalPages: number }> {
@@ -40,6 +44,16 @@ export class AdminCompanyService implements IAdminCompanyService {
     if (!company) throwError(MESSAGES.COMPANY_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     return adminCompanyDto(company);
   }
+  
+
+  async getEmployeeById(employeeId: string): Promise<IAdminCompanyEmployeeDto> {
+    console.log('from service' ,employeeId);
+    const employee = await this._employeeRepo.findById(employeeId);
+    if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    console.log('from service ressult' ,employee);
+    return adminCompanyEmployeeDto(employee);
+  }
+
 
   async verifyCompany(companyId: string): Promise<IAdminCompanyDto> {
     const updated = await this._companyRepo.verifyCompany(companyId);
@@ -68,12 +82,12 @@ export class AdminCompanyService implements IAdminCompanyService {
   async approveAllCompanies() {
     const updated = await this._companyRepo.approveAll();
     if (!updated) throwError(MESSAGES.COMPANY_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    return updated ;
+    return updated;
   }
 
   async rejectAllCompanies(reason: string) {
     const updated = await this._companyRepo.rejectAll(reason);
     if (!updated) throwError(MESSAGES.COMPANY_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    return updated ;
+    return updated;
   }
 }

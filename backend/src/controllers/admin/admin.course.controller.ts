@@ -6,9 +6,10 @@ import { TYPES } from '../../core/di/types';
 import { sendResponse } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { IAdminCourseController } from '../../core/interfaces/controllers/admin/IAdminCourseController';
 
 @injectable()
-export class AdminCourseController {
+export class AdminCourseController implements IAdminCourseController{
   constructor(
     @inject(TYPES.AdminCourseService) private readonly _adminCourseService: IAdminCourseService
   ) { }
@@ -18,7 +19,7 @@ export class AdminCourseController {
     const limit = parseInt(req.query.limit as string) || 10;
     const search = req.query.search as string | undefined;
     const courses = await this._adminCourseService.getAllCourses(page, limit, search);
-    sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, courses)
+    sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, courses);
   }
 
   async getUnverifiedCourses(req: Request, res: Response) {

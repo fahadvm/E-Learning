@@ -344,17 +344,7 @@ export default function MyCoursesPage() {
 
                   {/* Actions */}
                   <div className="flex space-x-2 pt-4 border-t">
-                    <Button
-                      asChild
-                      variant="outline"
-                      size="sm"
-                      className="flex-1"
-                    >
-                      <Link href={`/teacher/courses/edit/${course._id}`}>
-                        <Edit className="h-4 w-4 mr-1" />
-                        Edit
-                      </Link>
-                    </Button>
+                   
                     <Button variant="outline" size="sm" className="flex-1">
                       <BarChart3 className="h-4 w-4 mr-1" />
                       Analytics

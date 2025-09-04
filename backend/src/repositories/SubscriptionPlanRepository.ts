@@ -1,5 +1,7 @@
 // src/repositories/admin/SubscriptionPlanRepository.ts
 import { injectable } from 'inversify';
+import { FilterQuery } from 'mongoose';
+
 import { ISubscriptionPlanRepository } from '../core/interfaces/repositories/ISubscriptionPlanRepository';
 import { ISubscriptionPlan, SubscriptionPlan } from '../models/subscriptionPlan';
 
@@ -12,7 +14,20 @@ export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
   async findAll(): Promise<ISubscriptionPlan[]> {
     return await SubscriptionPlan.find();
   }
-   async getById(id: string): Promise<ISubscriptionPlan | null> {
+
+  async countAll(search?: string): Promise<number> {
+    const filter: FilterQuery<ISubscriptionPlan> = search
+      ? { name: { $regex: search, $options: 'i' } }
+      : {};
+    return SubscriptionPlan.countDocuments(filter).exec();
+  }
+
+
+
+
+  async getById(id: string): Promise<ISubscriptionPlan | null> {
+    console.log('trying to get in repository ',id);
+
     return await SubscriptionPlan.findById(id);
   }
 
@@ -26,12 +41,12 @@ export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
 
 
   async findAllForStudents(): Promise<ISubscriptionPlan[]> {
-    return await SubscriptionPlan.find({planFor: 'Student'});
+    return await SubscriptionPlan.find({ planFor: 'Student' });
   }
   async findAllForCompany(): Promise<ISubscriptionPlan[]> {
-    return await SubscriptionPlan.find({planFor: 'Company'});
+    return await SubscriptionPlan.find({ planFor: 'Company' });
   }
 
-  
-   
+
+
 }

@@ -6,9 +6,10 @@ import { decodeToken } from '../../utils/JWTtoken';
 import { sendResponse, throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { IStudentProfileController } from '../../core/interfaces/controllers/student/IStudentProfileController';
 
 @injectable()
-export class StudentProfileController {
+export class StudentProfileController implements IStudentProfileController{
   constructor(
     @inject(TYPES.StudentProfileService)
     private readonly _studentProfileService: IStudentProfileService

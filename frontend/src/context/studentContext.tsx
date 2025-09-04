@@ -57,7 +57,6 @@ export const StudentContextProvider = ({ children }: { children: ReactNode }) =>
   const getStudentDetails = useCallback(async () => {
     try {
       const res = await StudentApiMethods.getStudent();
-      
       if (res?.ok && res.data) {
         setStudent(res.data);
       } else {

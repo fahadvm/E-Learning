@@ -1,7 +1,5 @@
 import axiosInstance from "./AxiosInstance";
 import { showErrorToast, showInfoToast } from "../utils/Toast";
-import { Route } from "lucide-react";
-import Router from "next/router";
 
 type ApiOptions = {
   showToast?: boolean;
@@ -108,3 +106,20 @@ export const putRequest = async <T = any>(
     return null;
   }
 }
+
+export const deleteRequest = async <T = any>(
+  url: string,
+  params?: object,
+  options: ApiOptions = defaultOptions
+): Promise<T | null> => {
+  try {
+    const res = await axiosInstance.delete(url, params ? { params } : {});
+    if (!res.data.ok) {
+      throw new Error(res.data.message || 'Request failed');
+    }
+    return res.data;
+  } catch (error: any) {
+    handleApiError(error, options);
+    return null;
+  }
+};

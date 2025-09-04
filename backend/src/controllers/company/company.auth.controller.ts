@@ -6,9 +6,10 @@ import { sendResponse, throwError } from '../../utils/ResANDError';
 import { setTokensInCookies, clearTokens } from '../../utils/JWTtoken';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { TYPES } from '../../core/di/types';
+import { ICompanyAuthController } from '../../core/interfaces/controllers/company/ICompanyAuthController';
 
 @injectable()
-export class CompanyAuthController {
+export class CompanyAuthController implements ICompanyAuthController{
   constructor(
     @inject(TYPES.CompanyAuthService) private readonly _companyService: ICompanyAuthService
   ) {}
@@ -23,7 +24,7 @@ export class CompanyAuthController {
   }
 
   async verifyOtp(req: Request, res: Response): Promise<void> {
-    console.log("verifying otp ",req.body)
+    console.log('verifying otp ',req.body);
     const { email, otp } = req.body;
     
     if (!email || !otp) throwError(MESSAGES.ALL_FIELDS_REQUIRED, STATUS_CODES.BAD_REQUEST);

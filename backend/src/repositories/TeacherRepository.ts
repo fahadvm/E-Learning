@@ -73,7 +73,7 @@ export class TeacherRepository implements ITeacherRepository {
   }
 
   async findUnverified(): Promise<ITeacher[]> {
-    return Teacher.find({ isVerified: false, isRejected: false }).lean();
+    return Teacher.find({ isVerified: false }).lean();
   }
 
   async verifyTeacherById(id: string): Promise<ITeacher | null> {

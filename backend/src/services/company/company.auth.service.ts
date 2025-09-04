@@ -23,10 +23,10 @@ export class CompanyAuthService implements ICompanyAuthService {
   async sendOtp(data: { name: string; email: string; password: string }): Promise<void> {
     const { name, email, password } = data;
     const hashedPassword = await bcrypt.hash(password, 10);
-    const purpose: 'signup'= 'signup'
+    const purpose: 'signup'= 'signup';
     const otp = generateOtp();
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-    let tempUserData = { name, password }
+    let tempUserData = { name, password };
     const existingOtp = await this._companyRepository.findByEmail(email);
     if (existingOtp) await this._otpRepository.updateOtp(email, otp, expiresAt,  purpose, tempUserData);
 
@@ -70,7 +70,7 @@ export class CompanyAuthService implements ICompanyAuthService {
 
     const isMatch = await bcrypt.compare(password, company.password);
     if (!isMatch) throwError(MESSAGES.INVALID_CREDENTIALS, STATUS_CODES.UNAUTHORIZED);
-    const companyId = company.id.toString()
+    const companyId = company.id.toString();
 
     const token = generateAccessToken(companyId, 'company');
     const refreshToken = generateRefreshToken(companyId, 'company');

@@ -6,9 +6,10 @@ import { sendResponse } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { validatePagination } from '../../utils/validatePagination';
+import { IAdminEmployeeController } from '../../core/interfaces/controllers/admin/IAdminEmployeeController';
 
 @injectable()
-export class AdminEmployeeController {
+export class AdminEmployeeController implements IAdminEmployeeController{
     constructor(
         @inject(TYPES.AdminEmployeeService)
         private readonly _employeeService: IAdminEmployeeService

@@ -31,6 +31,7 @@ export const authMiddleware = (role: 'student' | 'Teacher' | 'company' | 'Admin'
       next();
     } catch (err) {
       return throwError('Invalid or expired token', STATUS_CODES.UNAUTHORIZED);
+      
     }
   };
 };

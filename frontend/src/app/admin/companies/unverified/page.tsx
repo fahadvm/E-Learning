@@ -4,6 +4,7 @@ import AdminSidebar from "@/componentssss/admin/sidebar";
 import DataTable from "@/reusable/DataTable";
 import { useRouter } from "next/navigation";
 import { adminApiMethods } from "@/services/APImethods/adminAPImethods";
+import { showErrorToast } from "@/utils/Toast";
 
 type User = {
   _id: string;
@@ -25,7 +26,7 @@ export default function CompanyList() {
   const [isRejectModalOpen, setRejectModalOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [rejectCompanyId, setRejectCompanyId] = useState<string | null>(null);
-  const [rejectAllMode, setRejectAllMode] = useState(false); // NEW
+  const [rejectAllMode, setRejectAllMode] = useState(false);
 
   const fetchCompanies = async () => {
     try {
@@ -61,6 +62,12 @@ export default function CompanyList() {
 
   const handleReject = async () => {
     if (!rejectCompanyId) return;
+
+    if (!rejectReason.trim()) {
+      showErrorToast("please provide a reason ")
+      return;
+    }
+
     try {
       await adminApiMethods.rejectCompany(rejectCompanyId, rejectReason);
       closeRejectModal();

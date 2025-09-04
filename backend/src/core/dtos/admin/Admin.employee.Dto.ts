@@ -1,5 +1,5 @@
 // src/core/dtos/admin/AdminEmployee.dto.ts
-import { IEmployee } from "../../../models/Employee";
+import { IEmployee } from '../../../models/Employee';
 
 export interface IAdminEmployeeDTO {
   _id: string;
@@ -8,7 +8,7 @@ export interface IAdminEmployeeDTO {
   companyId: string;
   coursesAssigned: string[];
   position?: string;
-  blocked: boolean;
+  isBlocked: boolean;
   subscription: boolean;
   NoEmployees: number;
 }
@@ -27,7 +27,7 @@ export const adminEmployeeDto = (employee: IEmployee): IAdminEmployeeDTO => ({
   companyId: employee.companyId.toString(),
   coursesAssigned: employee.coursesAssigned?.map(id => id.toString()) || [],
   position: employee.position,
-  blocked: employee.blocked,
+  isBlocked: employee.isBlocked,
   subscription: employee.subscription,
   NoEmployees: employee.NoEmployees,
 });

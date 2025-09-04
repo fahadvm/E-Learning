@@ -1,8 +1,6 @@
 import axios from "axios";
-
-
-import { showInfoToast } from "@/utils/Toast";
 import { useLoading } from "@/hooks/useLoading";
+import { showInfoToast } from "@/utils/Toast";
 
 export const baseURL = `${process.env.NEXT_PUBLIC_API_URL}`
 

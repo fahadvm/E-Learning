@@ -51,7 +51,7 @@ export const TYPES = {
     AdminStudentController: Symbol.for('AdminStudentController'),
     AdminCompanyController: Symbol.for('AdminCompanyController'),
     AdminEmployeeController: Symbol.for('AdminEmployeeController'),
-    SubscriptionPlanController: Symbol.for('SubscriptionPlanController'),
+    AdminSubscriptionPlanController: Symbol.for('AdminSubscriptionPlanController'),
     TeacherAuthController: Symbol.for('TeacherAuthController'),
     TeacherCourseController: Symbol.for('TeacherCourseController'),
     TeacherProfileController: Symbol.for('TeacherProfileController'),

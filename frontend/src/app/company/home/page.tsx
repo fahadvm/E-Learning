@@ -4,15 +4,19 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/componentssss/company/Header";
 import Link from "next/link";
+import { useCompany } from "@/context/companyContext";
+
 
 
 export default function CompanyDashboard() {
+  const { company, setCompany } = useCompany();
   const router = useRouter();
 
+
   const [metrics, setMetrics] = useState({
-    totalCompanies: 15,
-    totalStudents: 20,
-    activeCourses: 8,
+    totalCompanies: 0,
+    totalEmployees: 0,
+    activeCourses: 0,
   });
 
   useEffect(() => {
@@ -20,7 +24,7 @@ export default function CompanyDashboard() {
       // You can replace this with real API call
       setMetrics({
         totalCompanies: 0,
-        totalStudents: 0,
+        totalEmployees: company?.employees.length || 0,
         activeCourses: 0,
       });
     };
@@ -68,13 +72,13 @@ export default function CompanyDashboard() {
             </div>
 
             <div className="bg-gray-100 p-6 rounded-lg shadow hover:shadow-md transition">
-              <h3 className="text-4xl font-bold text-gray-800">{metrics.totalStudents}</h3>
+              <h3 className="text-4xl font-bold text-gray-800">{metrics.totalEmployees}</h3>
               <p className="text-gray-600 mt-2">Employees </p>
             </div>
           </div>
         </section>
 
-       
+
 
         <section className="py-20 px-6 bg-gray-50">
           <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">What You Can Do</h2>

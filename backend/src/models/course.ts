@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { ObjectId } from "mongodb";
+import { ObjectId } from 'mongodb';
 
 export interface ILesson {
   title: string;

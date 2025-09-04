@@ -34,6 +34,7 @@ export default function UnverifiedTeachersPage() {
         page: currentPage,
         limit: rowsPerPage,
       });
+      console.log("unverifid teachers",res)
 
 
       if (Array.isArray(res.data)) {
