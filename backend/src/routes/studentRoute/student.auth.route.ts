@@ -15,7 +15,7 @@ authRouter.post('/verify-otp', asyncHandler(studentAuthCtrl.verifyOtp.bind(stude
 authRouter.post('/logout', authMiddleware('student'), asyncHandler(studentAuthCtrl.logout.bind(studentAuthCtrl)));
 
 // Google Auth
-// authRouter.post('/google/signup', asyncHandler(studentAuthCtrl.googleAuth.bind(studentAuthCtrl)));
+authRouter.post('/google/signup', asyncHandler(studentAuthCtrl.googleAuth.bind(studentAuthCtrl)));
 
 // Password Reset Flow
 authRouter.post('/forgot-password', asyncHandler(studentAuthCtrl.sendForgotPasswordOtp.bind(studentAuthCtrl)));

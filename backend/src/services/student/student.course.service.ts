@@ -1,6 +1,6 @@
 // src/services/student/student.course.service.ts
 import { injectable, inject } from 'inversify';
-import { IStudentCourseService, CourseFilters } from '../../core/interfaces/services/student/IStudentCourseService';
+import { IStudentCourseService } from '../../core/interfaces/services/student/IStudentCourseService';
 import { ICourseRepository } from '../../core/interfaces/repositories/ICourseRepository';
 import { TYPES } from '../../core/di/types';
 import { throwError } from '../../utils/ResANDError';

@@ -7,7 +7,7 @@ import { setTokensInCookies, clearTokens } from '../../utils/JWTtoken';
 import { sendResponse, throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
-import logger from '../../utils/logger';
+
 import { IStudentAuthController } from '../../core/interfaces/controllers/student/IStudentAuthController';
 
 
@@ -45,11 +45,13 @@ export class StudentAuthController implements IStudentAuthController {
   };
 
   googleAuth = async (req: Request, res: Response) => {
-    const { email, googleId } = req.body;
-    if (!email || !googleId) throwError(MESSAGES.GOOGLE_AUTH_REQUIRED, STATUS_CODES.BAD_REQUEST);
-    const r = await this._studentAuthService.googleAuth(req.body);
-    setTokensInCookies(res, r.token, r.refreshToken);
-    return sendResponse(res, STATUS_CODES.OK, MESSAGES.GOOGLE_AUTH_SUCCESS, true, r.user);
+    console.log("gooogle sign in is working nonw", req.body)
+    const {  tokenId  } = req.body;
+    console.log("tokenId",tokenId)
+    if (!tokenId) throwError(MESSAGES.GOOGLE_AUTH_REQUIRED, STATUS_CODES.BAD_REQUEST);
+    const result = await this._studentAuthService.googleAuth(tokenId);
+    setTokensInCookies(res, result.token, result.refreshToken);
+    return sendResponse(res, STATUS_CODES.OK, MESSAGES.GOOGLE_AUTH_SUCCESS, true, result.user);
   };
 
   sendForgotPasswordOtp = async (req: Request, res: Response) => {

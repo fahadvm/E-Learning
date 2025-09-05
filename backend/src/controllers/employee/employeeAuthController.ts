@@ -10,14 +10,14 @@ import {Request , Response} from 'express';
 
 export class EmployeeAuthController{
     constructor(
-        @inject('EmployeeAuthService') private employeeService: IEmployeeAuthService
+        @inject('EmployeeAuthService') private _employeeService: IEmployeeAuthService
     ) {}
 
     async login(req: Request, res: Response) {
     try {
         const { email, password } = req.body;
 
-        const { token, refreshToken, user } = await this.employeeService.login(email, password);
+        const { token, refreshToken, user } = await this._employeeService.login(email, password);
 
         setTokensInCookies(res, token, refreshToken);
 

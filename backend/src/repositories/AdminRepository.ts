@@ -1,7 +1,7 @@
 // repositories/student/StudentRepository.ts
 import { injectable } from 'inversify';
 import { Admin, IAdmin } from '../models/Admin';
-import { IAdminRepository } from '../core/interfaces/repositories/admin/IAdminRepository';
+import { IAdminRepository } from '../core/interfaces/repositories/IAdminRepository';
 
 @injectable()
 export class AdminRepository implements IAdminRepository {

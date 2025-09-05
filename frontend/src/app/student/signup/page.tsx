@@ -1,10 +1,10 @@
 "use client";
 import { useState } from "react";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
-import { FcGoogle } from "react-icons/fc";
 import { studentAuthApi } from "@/services/APImethods/studentAPImethods";
 import { showInfoToast, showSuccessToast } from "@/utils/Toast";
+import { GoogleLoginButton } from "@/componentssss/student/googleLogin";
 
 interface SignupForm {
   name: string;
@@ -73,6 +73,7 @@ export default function StudentSignupPage() {
     setIsLoading(true);
     try {
       const response = await studentAuthApi.signup(formData);
+    
       if (response?.ok) {
         localStorage.setItem("tempSignupEmail", formData.email);
         showSuccessToast(response.message);
@@ -94,6 +95,16 @@ export default function StudentSignupPage() {
     }
   };
 
+  const handleGoogleSuccess = (user: any) => {
+    showSuccessToast("Google signup successful!");
+    router.push("/student/home");
+  };
+
+  const handleGoogleError = (error: any) => {
+    console.error("Google login error:", error);
+    showInfoToast("Google login failed. Please try again.");
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       <div className="w-full lg:w-1/2 p-6 sm:p-10 lg:p-16 bg-white flex flex-col justify-center items-center shadow-2xl">
@@ -103,13 +114,10 @@ export default function StudentSignupPage() {
 
         {/* Google Signup */}
         <div className="flex items-center space-x-4 mb-6">
-          <button
-            type="button"
-            aria-label="Sign in with Google"
-            className="flex items-center px-6 py-2 bg-white border border-gray-300 rounded-full shadow-md hover:bg-gray-50 transition-all text-sm text-gray-700 font-medium"
-          >
-            <FcGoogle className="mr-2 h-5 w-8" />
-          </button>
+          <GoogleLoginButton
+            onLoginSuccess={handleGoogleSuccess}
+            onLoginError={handleGoogleError}
+          />
         </div>
 
         <p className="text-gray-500 font-medium mb-4">OR</p>
@@ -166,7 +174,6 @@ export default function StudentSignupPage() {
               onClick={() => setShowPassword((prev) => !prev)}
             >
               {showPassword ? (
-                // Eye-slash icon
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -176,7 +183,6 @@ export default function StudentSignupPage() {
                   />
                 </svg>
               ) : (
-                // Eye icon
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -215,7 +221,6 @@ export default function StudentSignupPage() {
               onClick={() => setShowConfirmPassword((prev) => !prev)}
             >
               {showConfirmPassword ? (
-                // Eye-slash icon
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -225,7 +230,6 @@ export default function StudentSignupPage() {
                   />
                 </svg>
               ) : (
-                // Eye icon
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -242,9 +246,7 @@ export default function StudentSignupPage() {
                 </svg>
               )}
             </button>
-            {formErrors.confirmPassword && (
-              <p className="text-red-600 text-sm mt-1">{formErrors.confirmPassword}</p>
-            )}
+            {formErrors.confirmPassword && <p className="text-red-600 text-sm mt-1">{formErrors.confirmPassword}</p>}
           </div>
 
           <button

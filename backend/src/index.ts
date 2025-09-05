@@ -3,7 +3,6 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from 'morgan';
 import session from 'express-session';
-import logger from './utils/logger';
 import passport from 'passport';
 import connectDb from './config/db';
 import cookieParser from 'cookie-parser';
@@ -32,7 +31,7 @@ app.use(session({ secret: 'your_secret', resave: false, saveUninitialized: false
 app.use(passport.initialize());
 app.use(passport.session());
 const allowedOrigins = [
-  "http://localhost:3000",
+  'http://localhost:3000',
   /\.devtunnels\.ms$/, 
 ];
 
@@ -41,21 +40,21 @@ app.use(
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
       if (allowedOrigins.some((o) =>
-        typeof o === "string" ? o === origin : o.test(origin)
+        typeof o === 'string' ? o === origin : o.test(origin)
       )) {
         callback(null, true);
       } else {
-        callback(new Error("Not allowed by CORS"));
+        callback(new Error('Not allowed by CORS'));
       }
     },
     credentials: true,
   })
 );app.use(cookieParser());
 app.use(express.json());
-app.use('/company', companyRoutes);
-app.use('/admin', adminRoutes);
-app.use('/student',studentRoutes);
-app.use('/teacher',teacherRoutes);
+app.use('/api/company', companyRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/student',studentRoutes);
+app.use('/api/teacher',teacherRoutes);
 // app.use("/employee", employeeRoutes);
 app.use(errorHandler);
 

@@ -29,7 +29,7 @@ export const authMiddleware = (role: 'student' | 'Teacher' | 'company' | 'Admin'
       console.log('req.user from middleware:' ,req.user);
 
       next();
-    } catch (err) {
+    } catch {
       return throwError('Invalid or expired token', STATUS_CODES.UNAUTHORIZED);
       
     }

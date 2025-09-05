@@ -15,6 +15,12 @@ export class StudentRepository implements IStudentRepository {
     return Student.findOne({ email }).lean().exec();
   }
 
+  async findByGoogleId(googleId: string): Promise<IStudent | null> {
+    return Student.findOne({ googleId }).lean().exec();
+  }
+
+
+
   async findAll(skip: number, limit: number, search?: string): Promise<IStudent[]> {
     const filter: FilterQuery<IStudent> = search
       ? { name: { $regex: search, $options: 'i' } }

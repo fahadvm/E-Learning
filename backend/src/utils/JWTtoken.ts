@@ -20,7 +20,7 @@ export const generateRefreshToken = (id: string, role: string): string => {
 export const verifyAccessToken = (token: string): TokenPayload | null => {
   try {
     return jwt.verify(token,SECRET_KEY  ) as TokenPayload;
-  } catch (error) {
+  } catch  {
     return null;
   }
 };
@@ -28,7 +28,7 @@ export const verifyAccessToken = (token: string): TokenPayload | null => {
 export const verifyRefreshToken = (token: string): TokenPayload | null => {
   try {
     return jwt.verify(token, REFRESH_KEY) as TokenPayload;
-  } catch (error) {
+  } catch  {
     return null;
   }
 };
@@ -36,7 +36,7 @@ export const decodeToken = (token: string): TokenPayload | null => {
   try {
     const decoded = jwt.decode(token) as TokenPayload | null;
     return decoded;
-  } catch (error) {
+  } catch  {
     return null;
   }
 };

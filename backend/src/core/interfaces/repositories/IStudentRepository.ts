@@ -5,6 +5,7 @@ import { FilterQuery } from 'mongoose';
 export interface IStudentRepository {
   create(student: Partial<IStudent>): Promise<IStudent>;
   findByEmail(email: string): Promise<IStudent | null>;
+  findByGoogleId(googleId: string): Promise<IStudent | null>;
   findAll(skip: number, limit: number, search?: string): Promise<IStudent[]>;
   findOne(filter: FilterQuery<IStudent>): Promise<IStudent | null>;
   findById(id: string): Promise<IStudent | null>;

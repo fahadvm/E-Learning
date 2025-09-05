@@ -1,5 +1,5 @@
 import { ICourse } from '../../../models/course';
-import { FilterQuery, SortOrder } from "mongoose";
+import { FilterQuery, SortOrder } from 'mongoose';
 
 export interface ICourseRepository {
   create(courseData: Partial<ICourse>): Promise<ICourse>;

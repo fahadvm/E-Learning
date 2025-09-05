@@ -5,9 +5,8 @@ import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { TYPES } from '../../core/di/types';
-import { ICourse,   } from '../../models/course';
 import cloudinary from '../../config/cloudinary';
-import { CourseCreateDTO ,ModuleDTO , LessonDTO } from '../../core/dtos/teacher/TeacherDTO';
+import { CourseCreateDTO ,ModuleDTO  } from '../../core/dtos/teacher/TeacherDTO';
 
 @injectable()
 export class TeacherCourseService implements ITeacherCourseService {

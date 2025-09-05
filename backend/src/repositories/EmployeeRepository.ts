@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import { IEmployeeRepository } from '../core/interfaces/repositories/IEmployeeRepository';
 import { IEmployee, Employee } from '../models/Employee';
-import {  Company } from '../models/Company';
+import { Company } from '../models/Company';
 
 @injectable()
 export class EmployeeRepository implements IEmployeeRepository {
@@ -15,10 +15,9 @@ export class EmployeeRepository implements IEmployeeRepository {
         position?: string;
     }): Promise<IEmployee> {
         const employee = await new Employee(data).save();
-         await Company.findByIdAndUpdate(data.companyId, {
+        await Company.findByIdAndUpdate(data.companyId, {
             $push: { employees: employee._id }
         });
-        
         return employee;
     }
 
@@ -41,9 +40,9 @@ export class EmployeeRepository implements IEmployeeRepository {
         limit: number,
         search: string,
         sortField: string = 'createdAt',
-        sortOrder: string = 'desc'
+        sortOrder: 'asc' | 'desc' = 'desc'
     ): Promise<IEmployee[]> {
-        const query: any = {
+        const query: Record<string, unknown> = {
             companyId,
             $or: [
                 { name: { $regex: search, $options: 'i' } },
@@ -51,21 +50,22 @@ export class EmployeeRepository implements IEmployeeRepository {
             ]
         };
 
-        const sort: any = {};
-        sort[sortField] = sortOrder === 'asc' ? -1 : 1;
+        const sort: Record<string, 1 | -1> = {};
+        sort[sortField] = sortOrder === 'asc' ? 1 : -1;
 
         return await Employee.find(query)
             .sort(sort)
             .skip(skip)
             .limit(limit);
     }
+
     async getEmployeesByCompany(
         companyId: string,
         skip: number,
         limit: number,
         search: string,
     ): Promise<IEmployee[]> {
-        const query: any = {
+        const query: Record<string, unknown> = {
             companyId,
             $or: [
                 { name: { $regex: search, $options: 'i' } },
@@ -78,7 +78,7 @@ export class EmployeeRepository implements IEmployeeRepository {
     }
 
     async countEmployeesByCompany(companyId: string, search: string): Promise<number> {
-        const query: any = { companyId };
+        const query: Record<string, unknown> = { companyId };
         if (search) {
             query.$or = [
                 { name: { $regex: search, $options: 'i' } },

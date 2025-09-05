@@ -9,17 +9,21 @@ import { throwError } from '../../utils/ResANDError';
 import { generateAccessToken, generateRefreshToken } from '../../utils/JWTtoken';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { generateOtp, sendOtpEmail } from '../../utils/OtpServices';
-import { GooglePayLoad } from '../../types/userTypes';
-import { verifyGoogleIdToken } from '../../utils/googleVerify';
+import { OAuth2Client } from 'google-auth-library'
 import { TYPES } from '../../core/di/types';
 import { MESSAGES } from '../../utils/ResponseMessages';
+const GOOGLE_CLIENT_ID = '1009449170165-l51vq71vru9hqefmkl570nf782455uf1.apps.googleusercontent.com'
+
 
 @injectable()
 export class StudentAuthService implements IStudentAuthService {
+  private _googleClient: OAuth2Client
   constructor(
     @inject(TYPES.StudentRepository) private _studentRepo: IStudentRepository,
     @inject(TYPES.OtpRepository) private _otpRepo: IOtpRepository
-  ) {}
+  ) {
+    this._googleClient = new OAuth2Client(GOOGLE_CLIENT_ID)
+  }
 
   private async handleOtp(email: string, purpose: 'signup' | 'forgot-password', tempUserData?: { name: string; password: string; }) {
     const otp = generateOtp();
@@ -70,30 +74,55 @@ export class StudentAuthService implements IStudentAuthService {
     return { token, refreshToken, user: { id: student._id.toString(), role: 'student', email: student.email, name: student.name } };
   }
 
-  async googleAuth(profile: GooglePayLoad) {
-    if (!profile.email || !profile.googleId) throwError(MESSAGES.INVALID_PROFILE_DATA, STATUS_CODES.BAD_REQUEST);
-    let user = await this._studentRepo.findOne({ email: profile.email });
-    if (!user) {
-      user = await this._studentRepo.create({
-        name: profile.username, email: profile.email, googleId: profile.googleId,
-        profilePicture: profile.image, role: 'student', googleUser: true, isVerified: true
-      });
-    } else if (!user.googleUser) {
-      user = await this._studentRepo.update(user.id, {
-        name: profile.username, email: profile.email, googleId: profile.googleId, googleUser: true, isVerified: true
-      });
-    }
-    if (user.isBlocked) throwError(MESSAGES.USER_BLOCKED, STATUS_CODES.FORBIDDEN);
-    const token = generateAccessToken(user.id, user.role);
-    const refreshToken = generateRefreshToken(user.id, user.role);
-    return { token, refreshToken, user: { id: user.id, role: user.role } };
+async googleAuth(idToken: string): Promise<{
+  token: string;
+  refreshToken: string;
+  user: { id: string; role: string };
+}> {
+  const ticket = await this._googleClient.verifyIdToken({
+    idToken,
+    audience: GOOGLE_CLIENT_ID,
+  });
+  const payload = ticket.getPayload();
+
+  if (!payload) throw new Error('Invalid Google token payload');
+  console.log("Expected Audience:", GOOGLE_CLIENT_ID);
+console.log("Actual Audience from token:", payload.aud);
+
+  const { sub: googleId, email, name } = payload;
+  if (!googleId || !email) throw new Error('Google token missing required fields');
+
+  let user = await this._studentRepo.findByGoogleId(googleId);
+  if (!user) user = await this._studentRepo.findByEmail(email);
+
+  if (!user) {
+    user = await this._studentRepo.create({
+      googleId,
+      email,
+      name,
+      isVerified: true,
+      isBlocked: false,
+      role: 'student',
+    });
+  } else if (!user.googleId) {
+    throw new Error('User is not linked to Google');
   }
 
-  async handleGoogleSignup(idToken: string) {
-    const profile = await verifyGoogleIdToken(idToken);
-    const { token, user } = await this.googleAuth(profile);
-    return { user, token };
-  }
+  const token = generateAccessToken(user._id.toString(), user.role);
+  const refreshToken = generateRefreshToken(user._id.toString(), user.role);
+
+  return {
+    token, // matches interface
+    refreshToken,
+    user: {
+      id: user._id.toString(),
+      role: 'student', 
+    },
+  };
+}
+
+
+
 
   async sendForgotPasswordOtp(email: string) {
     const student = await this._studentRepo.findByEmail(email);

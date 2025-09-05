@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import { ICourseRepository } from '../core/interfaces/repositories/ICourseRepository';
 import { ICourse, Course } from '../models/course';
-import { FilterQuery, SortOrder } from "mongoose";
+import { FilterQuery, SortOrder } from 'mongoose';
 
 
 @injectable()

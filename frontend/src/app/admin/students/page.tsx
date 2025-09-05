@@ -18,22 +18,23 @@ type User = {
 export default function UserList() {
   const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const rowsPerPage = 5;
-  const router = useRouter();
+  const router = useRouter()
 
   const fetchUsers = async () => {
     try {
       const res = await adminApiMethods.getStudents({
-        search: searchTerm,
+        search: debouncedSearchTerm,
         page: currentPage,
         limit: rowsPerPage,
       });
 
       if (Array.isArray(res.data?.students)) {
         setUsers(res.data.students);
-        setTotalPages(res.data.totalPages | 1);
+        setTotalPages(res.data.totalPages || 1);
       } else {
         console.error("Unexpected response format:", res.data);
       }
@@ -44,16 +45,14 @@ export default function UserList() {
 
   useEffect(() => {
     fetchUsers();
-  }, [searchTerm, currentPage]);
+  }, [debouncedSearchTerm, currentPage]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-black">
-      {/* Sidebar */}
       <aside className="w-64 bg-gray-900 border-r border-gray-700">
         <AdminSidebar />
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 p-6 md:p-10 bg-white overflow-auto">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Students</h1>
 
@@ -78,8 +77,9 @@ export default function UserList() {
               label: "Status",
               render: (u) => (
                 <span
-                  className={`px-2 py-1 rounded text-white text-sm font-medium ${u.isBlocked ? "bg-red-500" : "bg-green-500"
-                    }`}
+                  className={`px-2 py-1 rounded text-white text-sm font-medium ${
+                    u.isBlocked ? "bg-red-500" : "bg-green-500"
+                  }`}
                 >
                   {u.isBlocked ? "Blocked" : "Active"}
                 </span>

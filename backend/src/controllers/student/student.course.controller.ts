@@ -6,7 +6,7 @@ import { TYPES } from '../../core/di/types';
 import { sendResponse, throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
-import logger from '../../utils/logger';
+
 import { IStudentCourseController } from '../../core/interfaces/controllers/student/IStudentCourseController';
 
 @injectable()
