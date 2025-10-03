@@ -47,10 +47,8 @@ export class AdminCompanyService implements IAdminCompanyService {
   
 
   async getEmployeeById(employeeId: string): Promise<IAdminCompanyEmployeeDto> {
-    console.log('from service' ,employeeId);
     const employee = await this._employeeRepo.findById(employeeId);
     if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    console.log('from service ressult' ,employee);
     return adminCompanyEmployeeDto(employee);
   }
 

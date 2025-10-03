@@ -20,7 +20,6 @@ export class AdminSubscriptionPlanController implements IAdminSubscriptionContro
   }
 
   async getAllPlans(req: Request, res: Response): Promise<void> {
-    console.log('adding new plans in backend ');
     const plans = await this._planService.getAllPlans();
     sendResponse(res, STATUS_CODES.OK, MESSAGES.SUBSCRIPTION_PLANS_FETCHED, true, plans);
   }

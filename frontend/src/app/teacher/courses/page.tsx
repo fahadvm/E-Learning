@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import Header from '@/componentssss/teacher/header'
+import Header from '@/components/teacher/header'
 import { useTeacher } from '@/context/teacherContext'
 import { teacherCourseApi } from '@/services/APImethods/teacherAPImethods'
 
@@ -24,8 +24,8 @@ import {
   CardTitle,
   CardDescription,
   CardContent
-} from '@/componentssss/ui/card'
-import { Button } from '@/componentssss/ui/button'
+} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 // === Interfaces ===
 interface ILesson {

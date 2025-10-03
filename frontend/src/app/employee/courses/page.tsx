@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import axios from 'axios'
-import Header from "@/componentssss/teacher/header";
+import Header from "@/components/teacher/header";
 
 interface ILesson {
   title: string

@@ -2,10 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import axios from 'axios';
-import Image from 'next/image';
-import Header from "@/componentssss/company/Header";
+import Header from "@/components/company/Header";
 import { companyApiMethods } from '@/services/APImethods/companyAPImethods';
+import { showSuccessToast } from '@/utils/Toast';
 
 interface ILesson {
   title: string;
@@ -43,6 +42,8 @@ interface ICourse {
 
 export default function CourseDetailPage() {
   const { id } = useParams();
+  const courseId = id as string
+  
   
   const [course, setCourse] = useState<ICourse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -50,7 +51,7 @@ export default function CourseDetailPage() {
 
   const fetchCourse = async () => {
     try {
-      const res = await companyApiMethods.getCourseById(id as string)
+      const res = await companyApiMethods.getCourseById(courseId)
       setCourse(res.data);
     } catch (err) {
       console.error('Failed to fetch course', err);
@@ -58,6 +59,14 @@ export default function CourseDetailPage() {
       setLoading(false);
     }
   };
+
+  const addToWishlist = async () => {
+    const res = await companyApiMethods.addToWishlist({courseId})
+    if(res.ok){
+      showSuccessToast(res.message)
+    }
+
+  }
 
   useEffect(() => {
     if (id) fetchCourse();
@@ -112,8 +121,8 @@ export default function CourseDetailPage() {
                   className="w-full h-48 object-cover rounded-lg"
                 />
                 <div className="text-2xl font-bold text-gray-900">₹{course.price ?? 'Free'}</div>
-                <button className="w-full bg-gray-600 text-white py-3 rounded-lg hover:bg-gray-700 transition-colors font-medium">
-                  Buy Course Now
+                <button onClick={addToWishlist} className="w-full bg-gray-600 text-white py-3 rounded-lg hover:bg-gray-700 transition-colors font-medium">
+                  Add to Wishlist
                 </button>
                 <button className="w-full border border-gray-300 text-gray-600 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium">
                   Add to Cart

@@ -2,8 +2,8 @@
 
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import AdminSidebar from '@/componentssss/admin/sidebar';
-import Loader from '@/componentssss/common/Loader';
+import AdminSidebar from '@/components/admin/sidebar';
+import Loader from '@/components/common/Loader';
 import axios from 'axios';
 import { adminApiMethods } from '@/services/APImethods/adminAPImethods';
 import { strict } from 'assert';

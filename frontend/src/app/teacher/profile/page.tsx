@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import Header from '@/componentssss/teacher/header';
+import Header from '@/components/teacher/header';
 import { Mail, Phone, Globe, Linkedin, Instagram, Twitter } from 'lucide-react';
 import { useTeacher } from '@/context/teacherContext';
 

@@ -9,20 +9,20 @@ import { throwError } from '../../utils/ResANDError';
 import { generateAccessToken, generateRefreshToken } from '../../utils/JWTtoken';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { generateOtp, sendOtpEmail } from '../../utils/OtpServices';
-import { OAuth2Client } from 'google-auth-library'
+import { OAuth2Client } from 'google-auth-library';
 import { TYPES } from '../../core/di/types';
 import { MESSAGES } from '../../utils/ResponseMessages';
-const GOOGLE_CLIENT_ID = '1009449170165-l51vq71vru9hqefmkl570nf782455uf1.apps.googleusercontent.com'
+const GOOGLE_CLIENT_ID = '1009449170165-l51vq71vru9hqefmkl570nf782455uf1.apps.googleusercontent.com';
 
 
 @injectable()
 export class StudentAuthService implements IStudentAuthService {
-  private _googleClient: OAuth2Client
+  private _googleClient: OAuth2Client;
   constructor(
     @inject(TYPES.StudentRepository) private _studentRepo: IStudentRepository,
     @inject(TYPES.OtpRepository) private _otpRepo: IOtpRepository
   ) {
-    this._googleClient = new OAuth2Client(GOOGLE_CLIENT_ID)
+    this._googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
   }
 
   private async handleOtp(email: string, purpose: 'signup' | 'forgot-password', tempUserData?: { name: string; password: string; }) {
@@ -86,8 +86,8 @@ async googleAuth(idToken: string): Promise<{
   const payload = ticket.getPayload();
 
   if (!payload) throw new Error('Invalid Google token payload');
-  console.log("Expected Audience:", GOOGLE_CLIENT_ID);
-console.log("Actual Audience from token:", payload.aud);
+  console.log('Expected Audience:', GOOGLE_CLIENT_ID);
+console.log('Actual Audience from token:', payload.aud);
 
   const { sub: googleId, email, name } = payload;
   if (!googleId || !email) throw new Error('Google token missing required fields');

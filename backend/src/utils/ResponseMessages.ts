@@ -1,4 +1,40 @@
 export enum MESSAGES {
+ COMPANY_FETCHED= "Company fetched",
+  COMPANY_FOUND= "Company found",
+  REQUEST_SENT= "Request sent",
+  REQUEST_CANCELLED= "Request cancelled",
+  LEFT_COMPANY= "Left company",
+  REQUESTED_EMPLOYEES_FETCHED=  "Requested employees fetched successfully",
+  EMPLOYEE_REQUEST_APPROVED=  "Employee request approved successfully",
+  EMPLOYEE_REQUEST_REJECTED=  "Employee request rejected",
+  GOOGLE_TOKEN_INVALID = "Invalid Google token",
+GOOGLE_TOKEN_MISSING_FIELDS = "Google token missing required fields",
+USER_NOT_LINKED_GOOGLE = "User is not linked to Google",
+  ALREADY_REQUESTED_COMPANY= "You have already requested a company",
+  NO_REQUEST_FOUND= "No request found",
+  NOT_PART_OF_COMPANY= "Not part of any company",
+  ORDERS_NOT_FOUND= "No orders found",
+  COMPANY_ORDERS_FETCHED= "Company orders fetched successfully",
+  STUDENT_ORDERS_FETCHED= "Student orders fetched successfully",
+  AVAILABILITY_FETCHED= "Teacher availability fetched successfully.",
+  BOOKING_CREATED= "Booking created successfully.",
+  BOOKING_CANCELLED= "Booking cancelled successfully.",
+  BOOKING_APPROVED= "Booking approved successfully.",
+  PAYMENT_SUCCESS= "Payment processed successfully.",
+  HISTORY_FETCHED= "Booking history fetched successfully.",
+  TEACHER_AVAILABILITY_FETCHED= "Teacher availability fetched successfully.",
+  TEACHER_AVAILABILITY_NOT_FOUND= "Teacher availability not found.",
+  AVAILABLE_SLOTS_FETCHED = "Teacher available slots fetched successfully.",
+
+
+
+
+
+
+
+
+
+
   // -------------------- GENERAL --------------------
   ACCOUNT_BLOCKED = 'Account is blocked',
   ALL_FIELDS_REQUIRED = 'All fields are required',
@@ -100,6 +136,7 @@ export enum MESSAGES {
   TEACHER_UPDATED = 'Teacher updated successfully',
   TEACHERS_FETCHED = 'Teachers fetched successfully',
   UNVERIFIED_TEACHERS_FETCHED = 'Unverified teachers fetched successfully',
+  TEACHER_PROFILE_FETCHED = 'teacher profile fetched successfully',
 
   // -------------------- EMPLOYEE --------------------
   EMPLOYEE_ALREADY_EXISTS = 'Employee already exists',
@@ -108,6 +145,7 @@ export enum MESSAGES {
   EMPLOYEE_DELETED = 'Employee deleted successfully',
   EMPLOYEE_DETAILS_FETCHED = 'Employee details fetched successfully',
   EMPLOYEE_NOT_FOUND = 'Employee not found',
+  ORDER_NOT_FOUND = 'Order not found',
   EMPLOYEE_UNBLOCKED = 'Employee unblocked successfully',
   EMPLOYEE_UPDATED = 'Employee updated successfully',
   EMPLOYEES_FETCHED = 'Employees fetched successfully',
@@ -123,6 +161,8 @@ export enum MESSAGES {
   COURSE_UNASSIGNED = 'Course unassigned successfully',
   COURSE_UPDATED = 'Course updated successfully',
   COURSES_FETCHED = 'Courses fetched successfully',
+  COURSE_FETCHED = 'Course fetched successfully',
+
 
   // -------------------- SUBSCRIPTION PLAN --------------------
   SUBSCRIPTION_PLANS_FETCHED = 'Subscription plans fetched successfully',
@@ -131,6 +171,34 @@ export enum MESSAGES {
   SUBSCRIPTION_PLAN_UPDATED = 'Subscription plan updated successfully',
   SUBSCRIPTION_PLAN_DELETED = 'Subscription plan deleted successfully',
   SUBSCRIPTION_PLAN_NOT_FOUND = 'Subscription plan not found',
+  ORDER_CREATED = 'Subscription order created successfully',
+  PAYMENT_VERIFIED_SUCCESSFULLY = 'Payment verified successfully',
+  PAYMENT_PAID_SUCCESSFULLY = 'Payment paid successfully',
+  PAYMENT_VERIFICATION_FAILED = 'Payment verified failed',
+  FREE_PLAN_ACTIVATED = 'Free subscription plan activated successfully',
+  ACTIVE_SUBSCRIPTION_FETCHED = 'Active subscription fetched successfully',
+
+
+  // --------------------Wishlist Messages--------------------
+  WISHLIST_COURSE_ADDED = 'Course added to wishlist successfully',
+  WISHLIST_FETCHED = 'Wishlist fetched successfully',
+  WISHLIST_COURSE_REMOVED = 'Course removed from wishlist successfully',
+  WISHLIST_ALREADY_EXISTS = 'Course is already in wishlist',
+  INVALID_INPUT = 'StudentId and CourseId are required.',
+  WISHLIST_ADD_FAIL = 'Failed to add course to wishlists.',
+  WISHLIST_EMPTY = 'Wishlist is empty.',
+  WISHLIST_NOT_FOUND = 'Wishlist not found for this student.',
+  WISHLIST_COURSE_NOT_FOUND = 'Course not found in wishlist.',
+  WISHLIST_REMOVE_FAIL = 'Failed to remove course from wishlist.',
+
+  // --------------------Cart Messages--------------------
+  CART_COURSE_ADDED = 'Course added to cart successfully',
+  CART_FETCHED = 'Cart fetched successfully',
+  CART_COURSE_REMOVED = 'Course removed from cart successfully',
+  CART_CHECKOUT_SUCCESS = 'Checkout completed successfully',
+  CART_ALREADY_EXISTS = 'Course is already in cart',
+  CART_CLEARED = 'Cart cleared successfully',
+  CART_UPDATED = 'Cart updated successfully',
 
 
   // -------------------- RELATIONSHIP ACTIONS --------------------
@@ -173,6 +241,11 @@ export enum MESSAGES {
   SERVICE_UNAVAILABLE = 'Service temporarily unavailable'
 
 
-  , TITLE_DESCRIPTION_CATEGORY_REQUIRED= 'Title & description  & and category are required',
-   AT_LEAST_ONE_MODULE_REQUIRED= 'At least one module is required',
+  , TITLE_DESCRIPTION_CATEGORY_REQUIRED = 'Title & description  & and category are required',
+  AT_LEAST_ONE_MODULE_REQUIRED = 'At least one module is required',
+
+
+  //order
+    ORDER_CREATED_SUCCESSFULLY= "Order created successfully",
+
 }

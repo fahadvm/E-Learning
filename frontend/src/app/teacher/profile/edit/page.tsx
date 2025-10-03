@@ -3,12 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTeacher } from '@/context/teacherContext';
-import Header from '@/componentssss/teacher/header';
+import Header from '@/components/teacher/header';
 import dynamic from 'next/dynamic';
 import { showInfoToast, showSuccessToast } from '@/utils/Toast';
 import { teacherProfileApi } from '@/services/APImethods/teacherAPImethods';
 
-const CropperModal = dynamic(() => import('@/componentssss/common/ImageCropper'), { ssr: false });
+const CropperModal = dynamic(() => import('@/components/common/ImageCropper'), { ssr: false });
 
 export default function EditProfilePage() {
   const { teacher, setTeacher } = useTeacher();

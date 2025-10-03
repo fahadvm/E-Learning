@@ -10,8 +10,10 @@ import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { TYPES } from '../../core/di/types';
+import { customAlphabet } from "nanoid";
 
 
+  const nanoid = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8);
 
 @injectable()
 export class CompanyAuthService implements ICompanyAuthService {
@@ -20,15 +22,16 @@ export class CompanyAuthService implements ICompanyAuthService {
     @inject(TYPES.OtpRepository) private readonly _otpRepository: IOtpRepository
   ) { }
 
+
   async sendOtp(data: { name: string; email: string; password: string }): Promise<void> {
     const { name, email, password } = data;
     const hashedPassword = await bcrypt.hash(password, 10);
-    const purpose: 'signup'= 'signup';
+    const purpose: 'signup' = 'signup';
     const otp = generateOtp();
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
     let tempUserData = { name, password };
     const existingOtp = await this._companyRepository.findByEmail(email);
-    if (existingOtp) await this._otpRepository.updateOtp(email, otp, expiresAt,  purpose, tempUserData);
+    if (existingOtp) await this._otpRepository.updateOtp(email, otp, expiresAt, purpose, tempUserData);
 
 
     await this._otpRepository.create({
@@ -42,6 +45,8 @@ export class CompanyAuthService implements ICompanyAuthService {
     await sendOtpEmail(email, otp);
   }
 
+
+
   async verifyOtp(email: string, otp: string): Promise<ICompany> {
     const tempData = await this._otpRepository.findByEmail(email);
     if (!tempData) throwError(MESSAGES.COMPANY_NOT_FOUND, STATUS_CODES.NOT_FOUND);
@@ -54,15 +59,23 @@ export class CompanyAuthService implements ICompanyAuthService {
     const existingCompany = await this._companyRepository.findByEmail(email);
     if (existingCompany) throwError(MESSAGES.VERIFIED, STATUS_CODES.CONFLICT);
 
+    let companyCode = nanoid();
+    while (await this._companyRepository.findByCompanyCode(companyCode)) {
+      companyCode = nanoid();
+    }
+
     const newCompany = await this._companyRepository.create({
       email: tempData.email,
-      name: tempData.tempUserData?.name ?? '',
-      password: tempData.tempUserData?.password ?? '',
+      name: tempData.tempUserData?.name ?? "",
+      password: tempData.tempUserData?.password ?? "",
+      companyCode, 
     });
 
     await this._otpRepository.deleteByEmail(email);
+
     return newCompany;
   }
+
 
   async login(email: string, password: string) {
     const company = await this._companyRepository.findByEmail(email);

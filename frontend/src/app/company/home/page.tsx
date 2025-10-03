@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/componentssss/company/Header";
+import Header from "@/components/company/Header";
 import Link from "next/link";
 import { useCompany } from "@/context/companyContext";
 

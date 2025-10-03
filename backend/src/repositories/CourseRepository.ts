@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import { ICourseRepository } from '../core/interfaces/repositories/ICourseRepository';
-import { ICourse, Course } from '../models/course';
+import { ICourse, Course } from '../models/Course';
 import { FilterQuery, SortOrder } from 'mongoose';
 
 
@@ -17,6 +17,12 @@ export class CourseRepository implements ICourseRepository {
   async findByIdAndTeacherId(courseId: string, teacherId: string): Promise<ICourse | null> {
     return await Course.findOne({ _id: courseId, teacherId });
   }
+
+  async getPremiumCourses(): Promise<ICourse[]> {
+    return await Course.find({});
+  }
+
+
   
 
 async findAllCourses(

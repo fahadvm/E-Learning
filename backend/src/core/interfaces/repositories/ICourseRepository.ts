@@ -1,4 +1,4 @@
-import { ICourse } from '../../../models/course';
+import { ICourse } from '../../../models/Course';
 import { FilterQuery, SortOrder } from 'mongoose';
 
 export interface ICourseRepository {
@@ -18,4 +18,5 @@ findAllCourses(
   findUnverified(): Promise<ICourse[]>;
   findById(courseId: string): Promise<ICourse | null>;
   updateStatus(courseId: string, updates: Partial<ICourse>): Promise<ICourse | null>;
+  getPremiumCourses(): Promise<ICourse[]>;
 }

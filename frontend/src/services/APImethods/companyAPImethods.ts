@@ -1,11 +1,12 @@
 import axios from "axios"
-import { getRequest, patchRequest, postRequest, putRequest } from "../api"
+import { getRequest, patchRequest, postRequest, putRequest, deleteRequest } from "../api"
 import { baseURL } from "../AxiosInstance"
 
 const get = getRequest;
 const post = postRequest;
 const patch = patchRequest;
 const put = putRequest;
+const del = deleteRequest;
 
 export const companyApiMethods = {
   // Auth
@@ -23,12 +24,18 @@ export const companyApiMethods = {
   getAllCourses: (params?: { page?: number; limit?: number; search?: string }) => get('/company/courses', params),
   getCourseById: (courseId: string) => get(`/company/courses/${courseId}`),
 
+
+
+
   // Employees
   addEmployee: (data: any) => post('/company/employees', data),
   getAllEmployees: (params?: { page?: number; limit?: number; search?: string }) => get('/company/employees', params),
+  getRequestedEmployees: () => get('/company/employees/requests/pending'),
   getEmployeeById: (employeeId: string) => get(`/company/employees/${employeeId}`),
   blockEmployee: (employeeId: string, data: any) => patch(`/company/employees/block/${employeeId}`, data),
   updateEmployee: (employeeId: string, data: any) => put(`/company/employees/${employeeId}`, data),
+  approveEmployeeRequest : (employeeId: string, data: {status : "approve"}) => patch(`/company/employees/approve/${employeeId}`, data),
+  rejectEmployeeRequest: (employeeId: string, data: {status : "reject"}) => patch(`/company/employees/reject/${employeeId}`, data),
 
   // Profile
   getCompanyProfile: () => get('/company/profile'),
@@ -36,4 +43,20 @@ export const companyApiMethods = {
 
   // Subscriptions
   getAllCompanyPlans: () => get('/company/subscriptions'),
+
+
+  getWishlist: () => get('/company/wishlist/'),
+  addToWishlist: (data: { courseId: string }) => post('/company/wishlist/', data),
+  removeWishlist: (courseId: string) => del(`/company/wishlist/${courseId}`),
+
+
+  getCart: () => get('/company/cart/'),
+  addToCart: (data: { courseId: string }) => post('/company/cart/', data),
+  removeFromCart: (courseId: string) => del(`/company/cart/${courseId}`),
+  clearCart: () => del('/company/cart/'),
+
+  createCheckoutSession: (data: { courses: string[], amount: number }) => post('/company/purchase/checkout-session', data),
+  verifyPayment: (data: { sessionId: string }) => post('/company/purchase/verify-payment', data),
+  getmycourses: () => get('/company/purchase/entrollments'),
+  getmycourseDetails: (courseId: string) => get(`/company/purchase/entrollments/${courseId}`),
 };

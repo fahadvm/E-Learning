@@ -32,3 +32,8 @@ export const teacherCourseApi = {
     updateCourse: (courseId: string, data: any) => patch(`/teacher/courses/${courseId}`, data),
 };
 
+export const teacherAvailabilityApi = {
+    getAvailability: async () =>get(`/teacher/availability`),
+    saveAvailability: async (data: any) => post("/teacher/availability", data),
+
+}

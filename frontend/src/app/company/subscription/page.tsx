@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { easeInOut } from "framer-motion";
 import { Variants } from 'framer-motion';
 
-import Header from '@/componentssss/company/Header';
+import Header from '@/components/company/Header';
 import axios from '@/utils/axios';
 import { companyApiMethods } from '@/services/APImethods/companyAPImethods';
 

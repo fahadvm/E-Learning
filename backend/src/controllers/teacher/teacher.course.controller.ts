@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { Request, Response } from 'express';
+import {  Response } from 'express';
 
 import { ITeacherCourseService } from '../../core/interfaces/services/teacher/ITeacherCourseService';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
@@ -8,6 +8,7 @@ import { throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { TYPES } from '../../core/di/types';
 import { ITeacherCourseController } from '../../core/interfaces/controllers/teacher/ITeacherCourseController';
+import { AuthRequest } from '../../types/AuthenticatedRequest';
 
 @injectable()
 export class TeacherCourseController implements ITeacherCourseController{
@@ -15,13 +16,13 @@ export class TeacherCourseController implements ITeacherCourseController{
     @inject(TYPES.TeacherCourseService) private readonly _courseService: ITeacherCourseService
   ) {}
 
-  async addCourse(req: Request, res: Response): Promise<void> {
+  async addCourse(req: AuthRequest, res: Response): Promise<void> {
 
     const created = await this._courseService.createCourse(req);
     sendResponse(res, STATUS_CODES.CREATED, MESSAGES.COURSE_CREATED, true, created);
   }
 
-  async getMyCourses(req: Request, res: Response): Promise<void> {
+  async getMyCourses(req: AuthRequest, res: Response): Promise<void> {
     const teacherId = req.user?.id;
     if (!teacherId) throwError( MESSAGES.UNAUTHORIZED ,STATUS_CODES.UNAUTHORIZED);
 
@@ -29,7 +30,7 @@ export class TeacherCourseController implements ITeacherCourseController{
     sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, courses);
   }
 
-  async getCourseById(req: Request, res: Response): Promise<void> {
+  async getCourseById(req: AuthRequest, res: Response): Promise<void> {
     const { courseId } = req.params;
     const teacherId = req.user?.id;
     if (!teacherId) throwError( MESSAGES.UNAUTHORIZED,STATUS_CODES.UNAUTHORIZED);

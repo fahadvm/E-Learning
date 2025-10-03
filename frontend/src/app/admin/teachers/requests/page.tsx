@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import AdminSidebar from "@/componentssss/admin/sidebar";
+import AdminSidebar from "@/components/admin/sidebar";
 import DataTable from "@/reusable/DataTable";
 import { useRouter } from "next/navigation";
 import { adminApiMethods } from "@/services/APImethods/adminAPImethods";

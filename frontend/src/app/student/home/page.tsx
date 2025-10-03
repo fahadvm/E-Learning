@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react";
-import Header from "@/componentssss/student/header";
+import Header from "@/components/student/header";
 import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation } from 'swiper/modules';
@@ -41,18 +41,20 @@ export default function HeroSection() {
     const [teachers, setTeachers] = useState<ITeacher[]>([])
     const { student } = useStudent()
 
-    const fetchCourses = async () => {
-        try {
-            const res = await studentCourseApi.getRecommendedCourses()
-            setRecommendedCourses(res?.data.data)
-        } catch (error) {
-            console.error('Failed to fetch courses', error)
-        }
-    }
+    // const fetchCourses = async () => {
+    //     try {
+    //         const res = await studentCourseApi.getRecommendedCourses();
+    //         console.log("Recommended courses response:", res.data);
+    //         console.log("res?.data.data:", res)
+    //         setRecommendedCourses(res?.data.data)
+    //     } catch (error) {
+    //         console.error('Failed to fetch courses', error)
+    //     }
+    // }
 
     const fetchTeachers = async () => {
         try {
-            
+
             const res = await studentTeacherApi.getAllTeachers()
             setTeachers(res.data.data)
         } catch (error) {
@@ -60,11 +62,11 @@ export default function HeroSection() {
         }
     }
 
-    useEffect(() => {
-        if (student) {
-            fetchCourses()
-        }
-    }, []);
+    // useEffect(() => {
+    //     if (student) {
+    //         fetchCourses()
+    //     }
+    // }, []);
 
 
 
@@ -92,88 +94,92 @@ export default function HeroSection() {
     return (
         <>
             <Header />
-
-
-
-
-            <div className="relative flex items-center justify-center h-200 bg-gray-50   00 text-white"
+            <div
+                className="relative flex items-center justify-center min-h-[70vh] bg-gray-50 text-white bg-cover bg-center"
                 style={{
                     backgroundImage: "url('/hero/h1_hero.png')",
                 }}
             >
+                {/* Dark Overlay */}
                 <div className="absolute inset-0 bg-black opacity-50"></div>
-                <div className="relative z-10 flex flex-col items-start p-8">
 
-                    <h1 className="text-5xl font-bold mb-4">
+                {/* Content */}
+                <div className="relative z-10 flex flex-col items-start p-6 md:p-12 max-w-3xl">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 leading-snug">
                         Advance Your Career in a Digitalized World
                     </h1>
-                    <p className="mb-6">
-                        We provide you with unrestricted access to the greatest courses from the top specialists, allowing you to learn countless practical lessons in a range of topics.
+                    <p className="mb-6 text-sm sm:text-base md:text-lg text-gray-200">
+                        We provide you with unrestricted access to the greatest courses from the top specialists,
+                        allowing you to learn countless practical lessons in a range of topics.
                     </p>
-                    <div className="flex mb-4 ">
+
+                    {/* Search Bar */}
+                    <div className="flex w-full max-w-md mb-4">
                         <input
                             type="text"
                             placeholder="Search course, event or author"
-                            className="p-3 rounded-l-md bg-white text-gray-900 outline-none w-200"
+                            className="flex-1 p-3 rounded-l-md bg-white text-gray-900 outline-none"
                         />
-                        <button className="p-3 bg-indigo-500 rounded-r-md ">
+                        <button className="p-3 bg-indigo-500 rounded-r-md hover:bg-indigo-600 transition">
                             Search
                         </button>
                     </div>
-                    <div className="text-sm">
-                        Popular: <span className="font-medium">UI Design, UX Research, Android, C++</span>
-                    </div>
-                </div>
 
-
-            </div>
-            <div className=" py-12">
-                <div className="mx-auto px-4">
-                    <div className="flex justify-center gap-6">
-                        <div className="w-full sm:w-2/3 md:w-1/2 lg:w-1/3">
-                            <div className="single-services mb-6 p-6 border rounded-lg shadow-md text-center">
-                                <div className="features-icon mb-4">
-                                    <img src="/icon/icon1.svg" alt="UX Courses" className="mx-auto" />
-                                </div>
-                                <div className="features-caption">
-                                    <h3 className="text-xl font-semibold mb-2">60+  courses</h3>
-                                    <p className="text-gray-600">The automated process all your website tasks.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="w-full sm:w-2/3 md:w-1/2 lg:w-1/3">
-                            <div className="single-services mb-6 p-6 border rounded-lg shadow-md text-center">
-                                <div className="features-icon mb-4">
-                                    <img src="/icon/icon2.svg" alt="Expert Instructors" className="mx-auto" />
-                                </div>
-                                <div className="features-caption">
-                                    <h3 className="text-xl font-semibold mb-2">Expert instructors</h3>
-                                    <p className="text-gray-600">The automated process all your website tasks.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="w-full sm:w-2/3 md:w-1/2 lg:w-1/3">
-                            <div className="single-services mb-6 p-6 border rounded-lg shadow-md text-center">
-                                <div className="features-icon mb-4">
-                                    <img src="/icon/icon3.svg" alt="Lifetime Access" className="mx-auto" />
-                                </div>
-                                <div className="features-caption">
-                                    <h3 className="text-xl font-semibold mb-2">Life time access</h3>
-                                    <p className="text-gray-600">The automated process all your website tasks.</p>
-                                </div>
-                            </div>
-                        </div>
+                    <div className="text-xs sm:text-sm">
+                        Popular:{" "}
+                        <span className="font-medium">
+                            UI Design, UX Research, Android, C++
+                        </span>
                     </div>
                 </div>
             </div>
 
+            {/* Services Section */}
+            <div className="py-12">
+                <div className="mx-auto px-4 max-w-6xl">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {/* Service 1 */}
+                        <div className="single-services p-6 border rounded-lg shadow-md text-center bg-white">
+                            <div className="features-icon mb-4">
+                                <img src="/icon/icon1.svg" alt="UX Courses" className="mx-auto w-12 h-12" />
+                            </div>
+                            <div className="features-caption">
+                                <h3 className="text-lg sm:text-xl font-semibold mb-2">60+ Courses</h3>
+                                <p className="text-gray-600 text-sm sm:text-base">
+                                    The automated process handles all your website tasks.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Service 2 */}
+                        <div className="single-services p-6 border rounded-lg shadow-md text-center bg-white">
+                            <div className="features-icon mb-4">
+                                <img src="/icon/icon2.svg" alt="Expert Instructors" className="mx-auto w-12 h-12" />
+                            </div>
+                            <div className="features-caption">
+                                <h3 className="text-lg sm:text-xl font-semibold mb-2">Expert Instructors</h3>
+                                <p className="text-gray-600 text-sm sm:text-base">
+                                    Learn from top industry experts across fields.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Service 3 */}
+                        <div className="single-services p-6 border rounded-lg shadow-md text-center bg-white">
+                            <div className="features-icon mb-4">
+                                <img src="/icon/icon3.svg" alt="Lifetime Access" className="mx-auto w-12 h-12" />
+                            </div>
+                            <div className="features-caption">
+                                <h3 className="text-lg sm:text-xl font-semibold mb-2">Lifetime Access</h3>
+                                <p className="text-gray-600 text-sm sm:text-base">
+                                    Access courses anytime, anywhere with no limits.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div className="min-h-screen bg-gray-200 px-6 py-8">
-
-
-
-
                 <section className="py-16 bg-gray-100">
                     <div className="container mx-auto px-4">
                         <div className="text-center mb-12">
@@ -214,7 +220,7 @@ export default function HeroSection() {
                         {/* Centered View More Button */}
                         <div className="text-center mt-10">
                             <Link
-                                href="/courses"
+                                href="/student/courses"
                                 className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded hover:bg-gray-100"
                             >
                                 View More Courses

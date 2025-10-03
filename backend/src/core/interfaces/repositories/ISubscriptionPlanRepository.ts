@@ -10,6 +10,14 @@ export interface ISubscriptionPlanRepository {
   getById(id: string): Promise<ISubscriptionPlan | null>;
   findAllForStudents(): Promise<ISubscriptionPlan[]>
   findAllForCompany(): Promise<ISubscriptionPlan[]>
- 
+  findAllPlans(): Promise<any[]>;
+  findPlanById(planId: string): Promise<any | null>;
+  saveStudentSubscription(studentId: string, planId: string, orderId: string, paymentId?: string): Promise<any>;
+  updatePaymentStatus(orderId: string, status: string, paymentId?: string): Promise<any>;
+  findActiveSubscription(studentId: string): Promise<any | null>;
 
 }
+
+ 
+
+

@@ -4,7 +4,7 @@ import {  verifyAccessToken } from '../utils/JWTtoken';
 import { throwError } from '../utils/ResANDError';
 import { STATUS_CODES } from '../utils/HttpStatuscodes';
 
-export const authMiddleware = (role: 'student' | 'Teacher' | 'company' | 'Admin') => {
+export const authMiddleware = (role: 'student' | 'Teacher' | 'company' | 'Admin' | 'employee') => {
   return (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies?.token ;
     console.log(' authMiddleware token is :', token);

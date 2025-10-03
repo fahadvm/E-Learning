@@ -2,7 +2,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
-import { showSuccessToast } from "@/utils/Toast";
+import { showInfoToast, showSuccessToast } from "@/utils/Toast";
+import { GoogleLoginButton } from "@/components/student/googleLogin";
+
 
 interface LoginPageProps<TData = { email: string; password: string }, TResult = any> {
   role: "student" | "company" | "employee" | "teacher";
@@ -64,6 +66,17 @@ export default function ReusableLoginPage({
     return validateField("email", email) && validateField("password", password);
   };
 
+   const handleGoogleSuccess = (user: any) => {
+      showSuccessToast("Google signup successful!");
+      router.push("/student/home");
+    };
+    
+  
+    const handleGoogleError = (error: any) => {
+      console.error("Google login error:", error);
+      showInfoToast("Google login failed. Please try again.");
+    };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -93,10 +106,10 @@ export default function ReusableLoginPage({
 
         {/* Google Signup */}
         <div className="flex items-center space-x-4 mb-6">
-          <button className="flex items-center p-3 bg-white border border-gray-300 rounded-full shadow-md hover:bg-gray-50 transition-transform transform hover:scale-105 text-lg font-semibold">
-            <FcGoogle className="mr-2 w-5 h-5" />
-            Sign in with Google
-          </button>
+          <GoogleLoginButton
+            onLoginSuccess={handleGoogleSuccess}
+            onLoginError={handleGoogleError}
+          />
         </div>
 
         <p className="text-gray-500 font-medium mb-4">OR</p>

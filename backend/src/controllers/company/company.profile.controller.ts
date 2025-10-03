@@ -28,7 +28,6 @@ export class CompanyProfileController implements ICompanyProfileController {
     if (!decoded?.id) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
     const companyId = decoded.id;
     const updatedData = req.body;
-    console.log('updatedData' , updatedData);
     const updatedCompany = await this._companyService.updateProfile(companyId, updatedData);
      sendResponse(res, STATUS_CODES.OK, MESSAGES.COMPANY_UPDATED, true, updatedCompany);
    }

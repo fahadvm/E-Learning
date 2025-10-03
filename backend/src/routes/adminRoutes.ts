@@ -7,6 +7,7 @@ import studentRoutes from './adminRoute/admin.student.route';
 import teacherRoutes from './adminRoute/admin.teacher.route';
 import companyRoutes from './adminRoute/admin.company.route';
 import subscriptionRoutes from './adminRoute/admin.subscription.route';
+import orderRoutes from './adminRoute/admin.order.route';
 // import employeeRoutes from './adminRoute/admin.employee.route';
 
 const  adminRouter = Router();
@@ -17,6 +18,7 @@ adminRouter.use('/students', studentRoutes);
 adminRouter.use('/teachers', teacherRoutes);
 adminRouter.use('/companies', companyRoutes);
 adminRouter.use('/subscriptions', subscriptionRoutes);
+adminRouter.use('/orders', orderRoutes);
 // adminRouter.use('/employees', employeeRoutes);
 
 export default adminRouter;

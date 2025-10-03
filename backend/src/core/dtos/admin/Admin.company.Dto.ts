@@ -1,4 +1,4 @@
-import { IEmployee } from '@/models/Employee';
+import { IEmployee } from '../../../models/Employee';
 import { ICompany } from '../../../models/Company';
 
 export interface IAdminCompanyEmployeeDto {

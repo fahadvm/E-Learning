@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/componentssss/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/componentssss/ui/card"
-import { Badge } from "@/componentssss/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import {
   Star,
   Users,
@@ -22,7 +22,7 @@ import {
   Share2,
   MessageCircle,
 } from "lucide-react"
-import Header from "@/componentssss/student/header"
+import Header from "@/components/student/header"
 
 export default function CourseDetailPage() {
   const [expandedModules, setExpandedModules] = useState<number[]>([])

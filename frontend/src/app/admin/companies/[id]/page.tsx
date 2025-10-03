@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import Loader from "@/componentssss/common/Loader";
+import Loader from "@/components/common/Loader";
 import { useRouter, useParams } from "next/navigation";
 import { adminApiMethods } from "@/services/APImethods/adminAPImethods";
 import { CheckIcon, XMarkIcon, PencilIcon } from "@heroicons/react/24/outline";
-import AdminSidebar from "@/componentssss/admin/sidebar";
+import AdminSidebar from "@/components/admin/sidebar";
 
 interface Company {
   _id: string;

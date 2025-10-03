@@ -4,7 +4,7 @@ import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { studentAuthApi } from "@/services/APImethods/studentAPImethods";
 import { showInfoToast, showSuccessToast } from "@/utils/Toast";
-import { GoogleLoginButton } from "@/componentssss/student/googleLogin";
+import { GoogleLoginButton } from "@/components/student/googleLogin";
 
 interface SignupForm {
   name: string;

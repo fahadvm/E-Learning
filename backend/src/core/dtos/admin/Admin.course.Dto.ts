@@ -1,5 +1,5 @@
-import { ITeacher } from '@/models/Teacher';
-import { ILesson, IModule, ICourse } from '../../../models/course';
+import { ITeacher } from '../../../models/Teacher';
+import { ILesson, IModule, ICourse } from '../../../models/Course';
 import mongoose from 'mongoose';
 
 export interface IAdminLessonDTO {
@@ -32,7 +32,7 @@ export interface IAdminCourseDTO {
   status: string; // can restrict later if needed
   rejectionReason?: string;
   teacherId?: mongoose.Types.ObjectId | ITeacher; // <-- STRICT union type
-  duration?: number;
+  totalDuration?: number;
   requirements?: string[];
   learningOutcomes?: string[];
   totalStudents?: number;
@@ -78,7 +78,7 @@ export const AdminCourseDTO = (course: ICourse): IAdminCourseDTO => ({
   status: course.status,
   rejectionReason: course.rejectionReason,
   teacherId: course.teacherId as mongoose.Types.ObjectId | ITeacher, 
-  duration: course.duration,
+  totalDuration: course.totalDuration,
   requirements: course.requirements || [],
   learningOutcomes: course.learningOutcomes || [],
   totalStudents: course.totalStudents || 0,

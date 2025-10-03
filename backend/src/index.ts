@@ -9,7 +9,7 @@ import cookieParser from 'cookie-parser';
 import companyRoutes from './routes/companyRoutes';
 import adminRoutes from './routes/adminRoutes';
 import studentRoutes from './routes/studentAuthRoutes';
-// import employeeRoutes from './routes/employeeRoutes'
+import employeeRoutes from './routes/employeeRoutes'
 import teacherRoutes from './routes/teacherAuthRoutes';
 import { errorHandler } from './middleware/errorHandler';
 import './config/passport'; 
@@ -55,7 +55,7 @@ app.use('/api/company', companyRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/student',studentRoutes);
 app.use('/api/teacher',teacherRoutes);
-// app.use("/employee", employeeRoutes);
+app.use("/api/employee", employeeRoutes);
 app.use(errorHandler);
 
 const PORT = process.env.PORT;

@@ -12,7 +12,7 @@ const studentAuthCtrl = container.get<StudentAuthController>(TYPES.StudentAuthCo
 authRouter.post('/login', asyncHandler(studentAuthCtrl.login.bind(studentAuthCtrl)));
 authRouter.post('/signup', asyncHandler(studentAuthCtrl.signup.bind(studentAuthCtrl)));
 authRouter.post('/verify-otp', asyncHandler(studentAuthCtrl.verifyOtp.bind(studentAuthCtrl)));
-authRouter.post('/logout', authMiddleware('student'), asyncHandler(studentAuthCtrl.logout.bind(studentAuthCtrl)));
+authRouter.post('/logout', asyncHandler(studentAuthCtrl.logout.bind(studentAuthCtrl)));
 
 // Google Auth
 authRouter.post('/google/signup', asyncHandler(studentAuthCtrl.googleAuth.bind(studentAuthCtrl)));

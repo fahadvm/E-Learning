@@ -30,8 +30,8 @@ export interface LessonDTO {
   title: string;
   description?: string;
   duration?: number;
-  videoFile?: string | undefined;    // URL after upload
-  thumbnail?: string | undefined;    // URL after upload
+  videoFile?: string | undefined;   
+  thumbnail?: string | undefined;   
 }
 
 export interface ModuleDTO {
@@ -45,13 +45,14 @@ export interface CourseCreateDTO {
   description: string;
   category: string;
   level: string;
-  coverImage: string;
+  totalDuration?:number | undefined;
+  coverImage?: string;
   language: string;
-  price: number;
-  learningOutcomes: string[];
-  requirements: string[];
+  price?: number;
+  learningOutcomes?: string[];
+  requirements?: string[];
   isPublished: boolean;
   modules: ModuleDTO[];
-  teacherId: mongoose.Types.ObjectId;
+  teacherId?: mongoose.Types.ObjectId;
 }
 

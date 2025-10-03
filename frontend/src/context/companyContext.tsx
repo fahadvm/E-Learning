@@ -34,6 +34,7 @@ export interface ICompany {
     about: string;
     profilePicture: string;
     location: string;
+    companyCode:string;
     phone: string;
     website: string;
     social_links: SocialLinks;

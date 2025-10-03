@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import axios from 'axios'
-import Header from '@/componentssss/teacher/header'
+import Header from '@/components/teacher/header'
 import { teacherCourseApi } from '@/services/APImethods/teacherAPImethods'
-import { Card, CardHeader, CardTitle, CardContent } from '@/componentssss/ui/card'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 
 interface ILesson {
   title: string

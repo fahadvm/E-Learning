@@ -21,9 +21,11 @@ export async function middleware(req: NextRequest) {
         "/teacher/verify-otp",
 
         "/employee/login",
+        "/employee/signup",
         "/employee/forgetPassword",
         "/employee/resetPassword",
-        "/employee/verify-forget-otp",
+        "/employee/forgetPassword/verify-forget-otp",
+        "/employee/signup/verify-otp",
 
         "/company/login",
         "/company/signup",

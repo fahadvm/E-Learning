@@ -51,7 +51,6 @@ export class AdminSubscriptionPlanService implements IAdminSubscriptionPlanServi
   }
 
   async updatePlan(id: string, data: Partial<ISubscriptionPlan>): Promise<IAdminSubscriptionPlanDTO> {
-    console.log(id , data , ' these are the resources');
     const updated = await this._planRepo.update(id, data);
     if (!updated) throwError(MESSAGES.NOT_FOUND, STATUS_CODES.NOT_FOUND);
     return adminSubscriptionPlanDto(updated);

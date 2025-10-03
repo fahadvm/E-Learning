@@ -9,7 +9,7 @@ export class CompanyRepository implements ICompanyRepository {
     return Company.findOne({ email }).exec();
   }
 
-  async create(data: { name: string; email: string; password: string }): Promise<ICompany> {
+  async create(data: { name: string; email: string; password: string ,companyCode: string }): Promise<ICompany> {
     const company = new Company(data);
     return company.save();
   }
@@ -131,5 +131,9 @@ export class CompanyRepository implements ICompanyRepository {
       { $set: { status: 'rejected', isVerified: false, rejectReason: reason } } as UpdateQuery<ICompany>
     ).exec();
     return { modifiedCount: result.modifiedCount };
+  }
+
+  async findByCompanyCode(code: string): Promise<ICompany | null> {
+    return Company.findOne({ companyCode: code }).exec();
   }
 }

@@ -1,16 +1,20 @@
-// import  express  from "express";
+import { Router } from 'express';
 
-// const router = express.Router()
-// import container from "../core/di/container";
-// import { EmployeeAuthController } from "../controllers/employee/employeeAuthController";
-
-
-
-
-// const employeeAuthController = container.get<EmployeeAuthController>("EmployeeAuthController");
+import authRoutes from './employeeRoute/employee.auth.route';
+import profileRoutes from './employeeRoute/employee.profile.route';
+import companyRoutes from './employeeRoute/employee.company.route';
+import courseRoutes from './employeeRoute/employee.courses.route';
 
 
-// router.post("/login", (req, res) => employeeAuthController.login(req, res));
 
 
-// export default router;
+const employeeRouter = Router();
+
+employeeRouter.use('/auth', authRoutes);
+employeeRouter.use('/profile', profileRoutes);
+employeeRouter.use('/company', companyRoutes);
+employeeRouter.use('/courses', courseRoutes);
+
+
+
+export default employeeRouter;

@@ -2,16 +2,12 @@
 import { injectable } from 'inversify';
 import { Admin, IAdmin } from '../models/Admin';
 import { IAdminRepository } from '../core/interfaces/repositories/IAdminRepository';
+import { BaseRepository } from './BaseRepository';
 
 @injectable()
-export class AdminRepository implements IAdminRepository {
+export class AdminRepository extends BaseRepository <IAdmin> implements IAdminRepository{
 
-  async findByEmail(email: string): Promise<IAdmin | null> {
-    return Admin.findOne({ email }).lean().exec();
-  }
-
-  async findById(id: string): Promise<IAdmin | null> {
-    return Admin.findById(id).lean().exec();
-  }
-
+    constructor (){
+        super(Admin);
+    }
 }

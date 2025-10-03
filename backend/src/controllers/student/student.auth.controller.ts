@@ -7,6 +7,7 @@ import { setTokensInCookies, clearTokens } from '../../utils/JWTtoken';
 import { sendResponse, throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import logger from '../../utils/logger';
 
 import { IStudentAuthController } from '../../core/interfaces/controllers/student/IStudentAuthController';
 
@@ -22,7 +23,7 @@ export class StudentAuthController implements IStudentAuthController {
   };
 
   verifyOtp = async (req: Request, res: Response) => {
-    console.log('verifying otp ', req.body);
+    logger.info('verifying otp ', req.body);
     const { email, otp } = req.body;
     if (!email || !otp) throwError(MESSAGES.EMAIL_OTP_REQUIRED, STATUS_CODES.BAD_REQUEST);
     const { token, refreshToken, user } = await this._studentAuthService.verifyOtp(email, otp);
@@ -40,14 +41,13 @@ export class StudentAuthController implements IStudentAuthController {
 
   logout = async (_req: Request, res: Response) => {
     clearTokens(res);
-    console.log('logout successfull ');
+    logger.info('logout successfull ');
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.LOGOUT_SUCCESS, true);
   };
 
   googleAuth = async (req: Request, res: Response) => {
-    console.log("gooogle sign in is working nonw", req.body)
     const {  tokenId  } = req.body;
-    console.log("tokenId",tokenId)
+    logger.info('tokenId',tokenId);
     if (!tokenId) throwError(MESSAGES.GOOGLE_AUTH_REQUIRED, STATUS_CODES.BAD_REQUEST);
     const result = await this._studentAuthService.googleAuth(tokenId);
     setTokensInCookies(res, result.token, result.refreshToken);

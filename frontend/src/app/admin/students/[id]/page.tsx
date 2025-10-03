@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { adminApiMethods } from "@/services/APImethods/adminAPImethods";
 import { useParams } from "next/navigation";
-import AdminSidebar from "@/componentssss/admin/sidebar";
+import AdminSidebar from "@/components/admin/sidebar";
 import ConfirmationDialog from '@/reusable/ConfirmationDialog'
 import { showSuccessToast } from "@/utils/Toast";
 

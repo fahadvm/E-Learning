@@ -1,0 +1,22 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const student_auth_route_1 = __importDefault(require("./studentRoute/student.auth.route"));
+const student_profile_route_1 = __importDefault(require("./studentRoute/student.profile.route"));
+const student_course_route_1 = __importDefault(require("./studentRoute/student.course.route"));
+const student_subscription_route_1 = __importDefault(require("./studentRoute/student.subscription.route"));
+const student_wishlist_route_1 = __importDefault(require("./studentRoute/student.wishlist.route"));
+const student_cart_route_1 = __importDefault(require("./studentRoute/student.cart.route"));
+const student_purchase_routes_1 = __importDefault(require("./studentRoute/student.purchase.routes"));
+const studentRouter = (0, express_1.Router)();
+studentRouter.use('/auth', student_auth_route_1.default);
+studentRouter.use('/profile', student_profile_route_1.default);
+studentRouter.use('/courses', student_course_route_1.default);
+studentRouter.use('/subscriptions', student_subscription_route_1.default);
+studentRouter.use('/wishlist', student_wishlist_route_1.default);
+studentRouter.use('/cart', student_cart_route_1.default);
+studentRouter.use('/purchase', student_purchase_routes_1.default);
+exports.default = studentRouter;

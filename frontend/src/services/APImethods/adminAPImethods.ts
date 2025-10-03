@@ -52,6 +52,10 @@ export const adminApiMethods = {
     deletePlan: (planId: string) => del(`/admin/subscriptions/${planId}`),
 
 
+    getCompanyOrders: () => get(`/admin/orders/company`),
+    getStudentOrders: () => get(`/admin/orders/student`),
+
+
 
 
 

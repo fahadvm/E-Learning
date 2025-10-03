@@ -1,4 +1,4 @@
-import { ICourse, ILesson, IModule , } from '../../../models/course';
+import { ICourse, ILesson, IModule , } from '../../../models/Course';
 // Request DTO for filtering courses
 
 export interface GetStudentCoursesRequestDTO {
@@ -33,7 +33,7 @@ export interface IStudentCourseDTO {
   description: string;
   level: string;
   category: string;
-  price?: string;
+  price?: number;
   coverImage?: string;
   isBlocked: boolean;
   isVerified: boolean;
@@ -41,6 +41,8 @@ export interface IStudentCourseDTO {
   rejectionReason?: string;
   teacherId?: string;
   modules: IStudentModuleDTO[];
+  language: string;
+  totalDuration:number|undefined;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -53,8 +55,8 @@ export interface PaginatedCourseDTO {
 
 export const StudentLessonDTO = (lesson: ILesson): IStudentLessonDTO => ({
   title: lesson.title,
-  content: lesson.content,
-  videoUrl: lesson.videoUrl,
+  content: lesson.description,
+  videoUrl: lesson.videoFile,
 });
 
 export const StudentModuleDTO = (module: IModule): IStudentModuleDTO => ({
@@ -77,6 +79,8 @@ export const StudentCourseDTO = (course: ICourse): IStudentCourseDTO => ({
   rejectionReason: course.rejectionReason,
   teacherId: course.teacherId?.toString(),
   modules: course.modules?.map(StudentModuleDTO) || [],
+  totalDuration: course.totalDuration??undefined,
+  language : course.language,
   createdAt: course.createdAt!,
   updatedAt: course.updatedAt!,
 });

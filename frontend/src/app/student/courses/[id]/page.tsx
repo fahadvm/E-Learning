@@ -1,16 +1,18 @@
 "use client"
 import { useEffect, useState } from "react"
-import { Button } from "@/componentssss/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/componentssss/ui/card"
-import { Badge } from "@/componentssss/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import {
   Star, Users, Clock, Globe, Award, Download, Smartphone,
   Shield, ChevronDown, ChevronUp, Play, Lock, Heart,
   ShoppingCart, Share2, MessageCircle
 } from "lucide-react"
-import Header from "@/componentssss/student/header"
-import { studentCourseApi } from "@/services/APImethods/studentAPImethods"
+import Header from "@/components/student/header"
+import { studentCartApi, studentCourseApi } from "@/services/APImethods/studentAPImethods"
 import { useParams } from "next/navigation"
+import { studentWishlistApi } from "@/services/APImethods/studentAPImethods"
+import { showErrorToast, showSuccessToast } from "@/utils/Toast"
 
 export default function CourseDetailPage() {
   const params = useParams();
@@ -19,12 +21,42 @@ export default function CourseDetailPage() {
   const [courseData, setCourseData] = useState<any>(null)
   const [modules, setModules] = useState<any[]>([])
   const [reviews, setReviews] = useState<any[]>([])
+  const [loading, setLoading] = useState(false);
 
+
+  const handleAddToWishlist = async () => {
+    try {
+      setLoading(true);
+      const res = await studentWishlistApi.addToWishlist({ courseId: id });
+      if (res.ok) {
+        showSuccessToast(res.message);
+      }
+    } catch (err: any) {
+      console.error("Add to wishlist failed:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddToCart = async () => {
+    try {
+      const res = await studentCartApi.addToCart({ courseId: id })
+      if (res.ok) {
+        showSuccessToast(res.message)
+      }
+    } catch (err) {
+      console.error("Failed to remove course:", err);
+    }
+  };
+
+  const getTotalLessons = (modules: any[]) => {
+    return modules.reduce((total, module) => total + (module.lessons?.length || 0), 0);
+  };
 
   useEffect(() => {
     async function fetchCourseData() {
       const res = await studentCourseApi.getCourseDetailById(id)
-
+      console.log("res.data is", res.data)
       setCourseData(res.data)
       setModules(res.data.modules)
       setReviews(res.data.reviews)
@@ -154,7 +186,7 @@ export default function CourseDetailPage() {
 
                         {expandedModules.includes(moduleIndex) && (
                           <div className="border-t border-border bg-muted/20">
-                            {module.lessons.map((lesson:any, lessonIndex:any) => (
+                            {module.lessons.map((lesson: any, lessonIndex: any) => (
                               <div
                                 key={lessonIndex}
                                 className="flex items-center justify-between p-4 border-b border-border last:border-b-0"
@@ -265,11 +297,11 @@ export default function CourseDetailPage() {
               <Card className="shadow-lg">
                 <CardContent className="p-6">
                   <div className="text-center mb-6">
-                      <img
-                        src={courseData.coverImage}
-                        alt="Course preview"
-                        className="  object-cover rounded-lg shadow-lg"
-                      />
+                    <img
+                      src={courseData.coverImage}
+                      alt="Course preview"
+                      className="  object-cover rounded-lg shadow-lg"
+                    />
                     <div className="flex items-center justify-center gap-2 mb-2">
                       <span className="text-3xl font-bold text-foreground">₹{courseData.price}</span>
                       {/* <span className="text-lg text-muted-foreground line-through">${courseData.originalPrice}</span> */}
@@ -280,13 +312,18 @@ export default function CourseDetailPage() {
                   </div>
 
                   <div className="space-y-3 mb-6">
-                    <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3">
+                    <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3" onClick={handleAddToCart} disabled={loading}>
                       <ShoppingCart className="w-4 h-4 mr-2" />
                       Add to Cart
                     </Button>
-                    <Button variant="outline" className="w-full bg-transparent">
+                    <Button
+                      variant="outline"
+                      className="w-full bg-transparent"
+                      onClick={handleAddToWishlist}
+                      disabled={loading}
+                    >
                       <Heart className="w-4 h-4 mr-2" />
-                      Add to Wishlist
+                      {loading ? "Adding..." : "Add to Wishlist"}
                     </Button>
                   </div>
 
@@ -302,11 +339,11 @@ export default function CourseDetailPage() {
                   <div className="space-y-3 text-sm">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Duration:</span>
-                      <span className="text-foreground font-semibold">{courseData.duration}</span>
+                      <span className="text-foreground font-semibold">{courseData.totalDuration}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Lessons:</span>
-                      <span className="text-foreground font-semibold">{courseData.lessons}</span>
+                      <span className="text-foreground font-semibold">{getTotalLessons(modules)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Level:</span>

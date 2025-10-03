@@ -19,37 +19,9 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
         @inject(TYPES.EmployeeRepository) private _employeeRepo: IEmployeeRepository
     ) { }
 
-    async addEmployee(data: {
-        companyId: string;
-        name: string;
-        email: string;
-        password?: string;
-        coursesAssigned?: string[];
-        position: string;
-    }): Promise<any> {
-
-
-        const existing = await this._employeeRepo.findByEmail(data.email);
-        if (existing) {
-            throwError(MESSAGES.ALREADY_EXISTS, STATUS_CODES.CONFLICT);
-        }
-
-        const tempPassword = 'Temp@' + generateOtp();
-        console.log(`new employee added email :${data.email} & password :${tempPassword}`);
-
-        const hashedPassword = tempPassword
-            ? await bcrypt.hash(tempPassword, 10)
-            : undefined;
-
-        const newEmployee = await this._employeeRepo.create({
-            ...data,
-            password: hashedPassword,
-        });
-        await sendOtpEmail(data.email, tempPassword);
-        return newEmployee;
-    }
-    async getAllEmployees(companyId: string, page: number, limit: number, search: string, sortBy: string, sortOrder: string): Promise<PaginatedEmployeeDTO> {
-        const total = await this._employeeRepo.countEmployeesByCompany(companyId,search);
+    
+    async getAllEmployees(companyId: string, page: number, limit: number, search: string, sortBy: string, sortOrder: string ): Promise<PaginatedEmployeeDTO> {
+        const total = await this._employeeRepo.countEmployeesByCompany(companyId, search);
         const skip = (page - 1) * limit;
         const employees = await this._employeeRepo.findByCompanyId(companyId, skip, limit, search, sortBy, sortOrder);
         const totalPages = Math.ceil(total / limit);
@@ -65,14 +37,29 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
     }
 
     async blockEmployee(id: string, status: boolean): Promise<void> {
-        const employee = await this._employeeRepo.blockEmployee(id ,status);
+        const employee = await this._employeeRepo.blockEmployee(id, status);
         if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
         await this._employeeRepo.blockEmployee(id, status);
     }
 
 
     async updateEmployee(employeeId: string, data: Partial<IEmployee>): Promise<IEmployee | null> {
-        return await this._employeeRepo.updateEmployeeById(employeeId, data);
+        return await this._employeeRepo.updateById(employeeId, data);
+    }
+
+    async requestedEmployees(companyId: string): Promise<IEmployee[] | null> {
+        const courses = await this._employeeRepo.findRequestedEmployees(companyId)
+        return courses
+    }
+
+    async approvingEmployee(companyId: string , employeeId :string ): Promise<IEmployee | null> {
+        const courses = await this._employeeRepo.findEmployeeAndApprove(companyId , employeeId)
+        return courses
+    }
+
+    async rejectingEmployee(companyId: string): Promise<IEmployee | null> {
+        const courses = await this._employeeRepo.findEmployeeAndReject(companyId)
+        return courses
     }
 
 

@@ -1,4 +1,4 @@
-import { IAdminCourseDTO } from '@/core/dtos/admin/Admin.course.Dto';
+import { IAdminCourseDTO } from '../../../../core/dtos/admin/Admin.course.Dto';
 import { IAdminTeacherDTO, PaginatedTeacherDTO } from '../../../../core/dtos/admin/Admin.teacher.Dto';
 
 

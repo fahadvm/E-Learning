@@ -10,7 +10,6 @@ export interface IAdminEmployeeDTO {
   position?: string;
   isBlocked: boolean;
   subscription: boolean;
-  NoEmployees: number;
 }
 
 export interface PaginatedEmployeeDTO {
@@ -29,5 +28,4 @@ export const adminEmployeeDto = (employee: IEmployee): IAdminEmployeeDTO => ({
   position: employee.position,
   isBlocked: employee.isBlocked,
   subscription: employee.subscription,
-  NoEmployees: employee.NoEmployees,
 });

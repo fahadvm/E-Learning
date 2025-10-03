@@ -2,14 +2,14 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Header from '@/componentssss/teacher/header';
-import ProgressSteps from '@/componentssss/teacher/course/addCourse/ProgressSteps';
-import BasicInformation from '@/componentssss/teacher/course/addCourse/BasicInformation';
-import Curriculum from '@/componentssss/teacher/course/addCourse/Curriculum';
-import PricingSettings from '@/componentssss/teacher/course/addCourse/PricingSettings';
-import ReviewPublish from '@/componentssss/teacher/course/addCourse/ReviewPublish';
-import Navigation from '@/componentssss/teacher/course/addCourse/Navigation';
-import { Button } from '@/componentssss/ui/button';
+import Header from '@/components/teacher/header';
+import ProgressSteps from '@/components/teacher/course/addCourse/ProgressSteps';
+import BasicInformation from '@/components/teacher/course/addCourse/BasicInformation';
+import Curriculum from '@/components/teacher/course/addCourse/Curriculum';
+import PricingSettings from '@/components/teacher/course/addCourse/PricingSettings';
+import ReviewPublish from '@/components/teacher/course/addCourse/ReviewPublish';
+import Navigation from '@/components/teacher/course/addCourse/Navigation';
+import { Button } from '@/components/ui/button';
 import { showErrorToast, showSuccessToast } from '@/utils/Toast';
 import { ArrowLeft } from 'lucide-react';
 import axios from 'axios';
@@ -47,6 +47,7 @@ interface CourseData {
   requirements: string[];
   isPublished: boolean;
   allowDiscounts: boolean;
+  totalDuration: number;
 }
 
 const steps = [
@@ -74,6 +75,8 @@ export default function CreateCoursePage() {
     requirements: [''],
     isPublished: false,
     allowDiscounts: true,
+    totalDuration: 0,
+
   });
 
   const [modules, setModules] = useState<CourseModule[]>([
@@ -142,6 +145,7 @@ export default function CreateCoursePage() {
       formData.append('description', courseData.description);
       formData.append('category', courseData.category);
       formData.append('level', courseData.level);
+      formData.append('totalDuration', getTotalDuration().toString());
       formData.append('language', courseData.language);
       formData.append('price', courseData.price.toString());
       formData.append('currency', courseData.currency);
@@ -179,7 +183,7 @@ export default function CreateCoursePage() {
         console.log(`FormData: ${key}`, value instanceof File ? value.name : value);
       }
       const res = await teacherCourseApi.addCourse(formData)
-    
+
       if (res.ok) {
         showSuccessToast('Course created successfully!');
         router.push('/teacher/courses');

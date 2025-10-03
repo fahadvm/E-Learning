@@ -4,12 +4,12 @@ import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useCompany } from "@/context/companyContext";
 import { useRouter } from "next/navigation";
 import { Mail, Phone, Globe, Linkedin, Instagram, Twitter, Upload } from "lucide-react";
-import Header from "@/componentssss/company/Header";
+import Header from "@/components/company/Header";
 import { companyApiMethods } from "@/services/APImethods/companyAPImethods";
 import { showSuccessToast } from "@/utils/Toast";
 import dynamic from "next/dynamic";
 
-const CropperModal = dynamic(() => import("@/componentssss/common/ImageCropper"), { ssr: false });
+const CropperModal = dynamic(() => import("@/components/common/ImageCropper"), { ssr: false });
 
 export default function EditCompanyProfile() {
   const { company, setCompany } = useCompany();

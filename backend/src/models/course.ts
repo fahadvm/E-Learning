@@ -31,7 +31,8 @@ export interface ICourse extends Document {
   status: string;
   rejectionReason?: string;
   teacherId?: mongoose.Types.ObjectId;
-  duration?: number; // total duration in minutes
+  teacherName?: string;
+  totalDuration?: number; // total duration in minutes
   reviews?: mongoose.Types.ObjectId[];
   requirements?: string[];
   learningOutcomes?: string[];
@@ -70,21 +71,22 @@ const CourseSchema = new Schema<ICourse>(
     category: { type: String, required: true },
     language: { type: String, required: true },
     coverImage: { type: String },
-    price: { type: String },
+    price: { type: Number, required: true },
     
     isBlocked: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: false },
     isPublished: { type: Boolean, default: false },
     status: { type: String, default: 'published' },
     rejectionReason: { type: String },
+    teacherName: { type: String },
 
     teacherId: {
       type: Schema.Types.ObjectId,
       ref: 'Teacher',
-      required: false,
+      required: true,
     },
 
-    duration: { type: Number, default: 0 },// (in minutes)
+    totalDuration: { type: Number, default: 0 },// (in minutes)
 
     reviews: [
       {

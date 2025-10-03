@@ -1,0 +1,14 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const teacher_auth_route_1 = __importDefault(require("./teacherRoute/teacher.auth.route"));
+const teacher_profile_route_1 = __importDefault(require("./teacherRoute/teacher.profile.route"));
+const teacher_course_route_1 = __importDefault(require("./teacherRoute/teacher.course.route"));
+const teacherRouter = (0, express_1.Router)();
+teacherRouter.use('/auth', teacher_auth_route_1.default);
+teacherRouter.use('/profile', teacher_profile_route_1.default);
+teacherRouter.use('/courses', teacher_course_route_1.default);
+exports.default = teacherRouter;

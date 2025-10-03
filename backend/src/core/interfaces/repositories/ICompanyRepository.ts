@@ -2,7 +2,7 @@ import { ICompany } from '../../../models/Company';
 
 export interface ICompanyRepository {
   findByEmail(email: string): Promise<ICompany | null>;
-  create(data: { name: string; email: string; password: string }): Promise<ICompany>;
+  create(data: { name: string; email: string; password: string ,companyCode:string }): Promise<ICompany>;
   updatePassword(email: string, newPassword: string): Promise<void>;
 
   findAll(): Promise<ICompany[]>;
@@ -22,5 +22,6 @@ export interface ICompanyRepository {
 
   blockCompany(companyId: string): Promise<ICompany | null>;
   unblockCompany(companyId: string): Promise<ICompany | null>;
+ findByCompanyCode(code: string): Promise<ICompany | null> 
 
 }

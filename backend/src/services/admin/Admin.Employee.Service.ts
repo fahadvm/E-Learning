@@ -29,12 +29,12 @@ export class AdminEmployeeService implements IAdminEmployeeService {
   }
 
   async blockEmployee(employeeId: string): Promise<IAdminEmployeeDTO | null> {
-    const employee = await this._employeeRepo.blockEmployee(employeeId);
+    const employee = await this._employeeRepo.blockEmployee(employeeId, true);
     return employee ? adminEmployeeDto(employee) : null;
   }
 
   async unblockEmployee(employeeId: string): Promise<IAdminEmployeeDTO | null> {
-    const employee = await this._employeeRepo.unblockEmployee(employeeId);
+    const employee = await this._employeeRepo.blockEmployee(employeeId ,false);
     return employee ? adminEmployeeDto(employee) : null;
   }
 }

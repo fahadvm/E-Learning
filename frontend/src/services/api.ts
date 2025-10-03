@@ -15,11 +15,15 @@ const handleApiError = (error: any, options: ApiOptions) => {
   if (!options.showToast) return;
 
   const message = error?.response?.data?.message || error.message || "Request failed";
+  console.log("error for testing ", error?.response?.data)
   
   if (error.response?.status === 401) {
     showInfoToast("Please login.");
     // Router.push("/student/login");
-  } else {
+  } else if(error.response?.status === 409 ){
+    //info message handling
+    showInfoToast(message);
+  } else{
     showErrorToast(message);
   }
 };

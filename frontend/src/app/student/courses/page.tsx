@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import Header from "@/componentssss/student/header";
+import Header from "@/components/student/header";
 import { studentCourseApi } from '@/services/APImethods/studentAPImethods';
 
 interface ILesson {

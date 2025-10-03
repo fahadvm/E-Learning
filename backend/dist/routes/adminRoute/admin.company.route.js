@@ -1,0 +1,22 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const container_1 = __importDefault(require("../../core/di/container"));
+const asyncHandler_1 = require("../../middleware/asyncHandler");
+const types_1 = require("../../core/di/types");
+const companyRouter = (0, express_1.Router)();
+const adminCompanyCtrl = container_1.default.get(types_1.TYPES.AdminCompanyController);
+companyRouter.get('/', (0, asyncHandler_1.asyncHandler)(adminCompanyCtrl.getAllCompanies.bind(adminCompanyCtrl)));
+companyRouter.get('/unverified', (0, asyncHandler_1.asyncHandler)(adminCompanyCtrl.getUnverifiedCompanies.bind(adminCompanyCtrl)));
+companyRouter.get('/:companyId', (0, asyncHandler_1.asyncHandler)(adminCompanyCtrl.getCompayById.bind(adminCompanyCtrl)));
+companyRouter.get('/employee/:employeeId', (0, asyncHandler_1.asyncHandler)(adminCompanyCtrl.getEmployeeById.bind(adminCompanyCtrl)));
+companyRouter.patch('/:companyId/verify', (0, asyncHandler_1.asyncHandler)(adminCompanyCtrl.verifyCompany.bind(adminCompanyCtrl)));
+companyRouter.patch('/:companyId/reject', (0, asyncHandler_1.asyncHandler)(adminCompanyCtrl.rejectCompany.bind(adminCompanyCtrl)));
+companyRouter.patch('/:companyId/block', (0, asyncHandler_1.asyncHandler)(adminCompanyCtrl.blockCompany.bind(adminCompanyCtrl)));
+companyRouter.patch('/:companyId/unblock', (0, asyncHandler_1.asyncHandler)(adminCompanyCtrl.unblockCompany.bind(adminCompanyCtrl)));
+companyRouter.put('/approve-all', (0, asyncHandler_1.asyncHandler)(adminCompanyCtrl.approveAllCompanies.bind(adminCompanyCtrl)));
+companyRouter.put('/reject-all', (0, asyncHandler_1.asyncHandler)(adminCompanyCtrl.rejectAllCompanies.bind(adminCompanyCtrl)));
+exports.default = companyRouter;

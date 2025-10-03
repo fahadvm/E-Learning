@@ -8,11 +8,13 @@ import { TYPES } from '../../core/di/types';
 const router = express.Router();
 const employeeController = container.get<CompanyEmployeeController>(TYPES.CompanyEmployeeController);
 
-router.post('/', authMiddleware('company'), asyncHandler(employeeController.addEmployee.bind(employeeController)));
 router.get('/', authMiddleware('company'), asyncHandler(employeeController.getAllEmployees.bind(employeeController)));
 router.get('/:employeeId', authMiddleware('company'), asyncHandler(employeeController.getEmployeeById.bind(employeeController)));
 router.patch('/block/:employeeId', authMiddleware('company'), asyncHandler(employeeController.blockEmployee.bind(employeeController)));
 router.put('/:employeeId', authMiddleware('company'), asyncHandler(employeeController.updateEmployee.bind(employeeController)));
+router.get('/requests/pending', authMiddleware('company'), asyncHandler(employeeController.getRequestedEmployees.bind(employeeController)));
+router.patch('/approve/:employeeId', authMiddleware('company'), asyncHandler(employeeController.approveEmployee.bind(employeeController)));
+router.patch('/reject/:employeeId', authMiddleware('company'), asyncHandler(employeeController.rejectEmployee.bind(employeeController)));
 
 
 export default router;

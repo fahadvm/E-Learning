@@ -1,6 +1,6 @@
 
 import { Request } from 'express';
-import { ICourse } from '../../../../models/course';
+import { ICourse } from '../../../../models/Course';
 import { CourseCreateDTO } from '../../../../core/dtos/teacher/TeacherDTO';
 export interface ITeacherCourseService {
   createCourse(req: Request): Promise<CourseCreateDTO>;
