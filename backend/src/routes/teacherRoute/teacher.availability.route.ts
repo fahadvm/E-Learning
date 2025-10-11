@@ -9,7 +9,7 @@ import { TeacherAvailabilityController } from '../../controllers/teacher/teacher
 const router = Router()
 const availabilityCtrl = container.get<TeacherAvailabilityController>(TYPES.TeacherAvailabilityController)
 
-router.post("/", authMiddleware('Teacher'), asyncHandler(availabilityCtrl.saveAvailability.bind(availabilityCtrl)))
-router.get("/", authMiddleware('Teacher'), asyncHandler(availabilityCtrl.getMyAvailability.bind(availabilityCtrl)))
+router.post("/", authMiddleware('teacher'), asyncHandler(availabilityCtrl.saveAvailability.bind(availabilityCtrl)))
+router.get("/", authMiddleware('teacher'), asyncHandler(availabilityCtrl.getMyAvailability.bind(availabilityCtrl)))
 
 export default router

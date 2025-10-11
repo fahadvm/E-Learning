@@ -11,5 +11,6 @@ const studentCourseCtrl = container.get<StudentCourseController>(TYPES.StudentCo
 
 router.get('/', authMiddleware('student'), asyncHandler(studentCourseCtrl.getAllCourses.bind(studentCourseCtrl)));
 router.get('/:courseId', authMiddleware('student'), asyncHandler(studentCourseCtrl.getCourseDetailById.bind(studentCourseCtrl)));
+router.get( '/:courseId/module/:moduleIndex/lesson/:lessonIndex/complete', authMiddleware('student'), asyncHandler(studentCourseCtrl.markLessonComplete.bind(studentCourseCtrl)));
 
 export default router;

@@ -5,6 +5,7 @@ export interface IBookingDTO {
   teacherId: string;
   courseId: string;
   slot: Date;
+  date:Date;
   status: "pending" | "approved" | "cancelled" | "paid";
   createdAt?: Date;
   updatedAt?: Date;
@@ -16,6 +17,7 @@ export const bookingDto = (booking: any): IBookingDTO => ({
   teacherId: booking.teacherId,
   courseId: booking.courseId,
   slot: booking.slot,
+  date:booking.date,
   status: booking.status,
   createdAt: booking.createdAt,
   updatedAt: booking.updatedAt,

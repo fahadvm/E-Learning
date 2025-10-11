@@ -8,6 +8,7 @@ import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 
 import { IStudentCourseController } from '../../core/interfaces/controllers/student/IStudentCourseController';
+import { AuthRequest } from '../../types/AuthenticatedRequest';
 
 @injectable()
 export class StudentCourseController implements IStudentCourseController {
@@ -44,5 +45,13 @@ export class StudentCourseController implements IStudentCourseController {
     const course = await this._courseService.getCourseDetail(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, course);
+  };
+  markLessonComplete = async (req: AuthRequest, res: Response) => {
+    const  studentId  = req.user?.id;
+    const { courseId, moduleIndex, lessonIndex } = req.params;
+    if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+    const result = await this._courseService.markLessonComplete(
+        studentId,courseId,Number(moduleIndex), Number(lessonIndex));
+    return sendResponse(res, STATUS_CODES.OK, MESSAGES.COMPLETD_LESSON_MARKED, true, result);
   };
 }

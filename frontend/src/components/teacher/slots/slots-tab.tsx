@@ -10,29 +10,34 @@ import StudentDetailsDialog from "./student-details-dialog"
 
 type Grouped = Record<string, Slot[]>
 
-function fmtTimeRange(startISO: string, endISO: string) {
-  const s = new Date(startISO)
-  const e = new Date(endISO)
-  const fmt = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" })
-  return `${fmt.format(s)} – ${fmt.format(e)}`
-}
+
 
 function fmtDayTitle(dateKey: string) {
-  const d = new Date(dateKey)
+  const [year, month, day] = dateKey.split("-")
+  const isoString = `${year}-${month}-${day}` 
+  const d = new Date(isoString)
+  if (isNaN(d.getTime())) return "Invalid Date"
   const weekday = new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(d)
   const md = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(d)
   return `${weekday}, ${md}`
 }
 
+// Convert 24-hour to 12-hour format
+function formatTime12Hour(time24: string) {
+  const [hourStr, min] = time24.split(":");
+  let hour = parseInt(hourStr, 10);
+  const ampm = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12 || 12;
+  return `${hour}:${min} ${ampm}`;
+}
+
 function statusBadge(status: Slot["status"]) {
   // Keep to 3-5 color system: neutrals + primary + success/warn/danger accents
   switch (status) {
-    case "booked":
+    case "paid":
       return <Badge className="bg-green-600 text-white hover:bg-green-600">Booked</Badge>
     case "cancelled":
       return <Badge className="bg-red-600 text-white hover:bg-red-600">Cancelled</Badge>
-    case "requested":
-      return <Badge className="bg-amber-500 text-white hover:bg-amber-500">Requested</Badge>
     default:
       return <Badge variant="outline">Available</Badge>
   }
@@ -54,6 +59,7 @@ export default function SlotsTab({ slots }: { slots: Slot[] }) {
   return (
     <>
       <div className="space-y-8">
+        
         {dayKeys.map((dk) => (
           <section key={dk} aria-labelledby={`day-${dk}`} className="rounded-lg border">
             <div className="flex items-center justify-between border-b p-4">
@@ -71,8 +77,9 @@ export default function SlotsTab({ slots }: { slots: Slot[] }) {
                     <CardContent className="flex items-center justify-between gap-4 p-4">
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-foreground">
-                          {fmtTimeRange(slot.startISO, slot.endISO)}
+                          {formatTime12Hour(slot.startISO )} - {formatTime12Hour(slot.endISO)}
                         </p>
+                        
                         <div className="mt-1">{statusBadge(slot.status)}</div>
                       </div>
 
@@ -98,7 +105,7 @@ export default function SlotsTab({ slots }: { slots: Slot[] }) {
 
       <Separator className="my-6" />
 
-    
+
 
       <StudentDetailsDialog slot={selectedSlot} onOpenChange={(open) => !open && setSelectedSlot(null)} />
     </>

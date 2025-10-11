@@ -137,6 +137,29 @@ import { EmployeeCourseController } from '../../controllers/employee/employee.co
 import { IStudentTeacherService } from '../interfaces/services/student/IStudentTeacherService';
 import { StudentTeacherService } from '../../services/student/student.teacher.service';
 import { StudentTeacherController } from '../../controllers/student/student.teacher.controller';
+import { TeacherCallRequestController } from '../../controllers/teacher/teacher.call.request.controller';
+import { ITeacherCallRequestService } from '../interfaces/services/teacher/ITeacherCallRequestService';
+import { TeacherCallRequestService } from '../../services/teacher/teacher.call.request.service';
+import { IChatRepository } from '../interfaces/repositories/IChatRepository';
+import { ChatRepository } from '../../repositories/ChatRepository';
+import { IChatService } from '../interfaces/services/student/IStudentChatService';
+import { ChatService } from '../../services/student/student.chat.service';
+import { ChatController } from '../../controllers/student/student.chat.controller';
+import { IStudentNotificationController } from '../interfaces/controllers/student/IStudentNotificationController';
+import { IStudentNotificationRepository } from '../interfaces/repositories/IStudentNotification';
+import { IStudentNotificationService } from '../interfaces/services/student/IStudentNotificationService';
+import { StudentNotificationController } from '../../controllers/student/student.notification.controller';
+import { StudentNotificationRepository } from '../../repositories/StudentNotificationRepository';
+import { StudentNotificationService } from '../../services/student/student.notification.service';
+import { SharedController } from '../../controllers/shared/shared.controller';
+import { INotificationRepository } from '../interfaces/repositories/INotificationRepository';
+import { NotificationRepository } from '../../repositories/NotificationRepository';
+import { NotificationController } from '../../controllers/shared/notification.controller';
+import { INotificationService } from '../interfaces/services/shared/INotificationService';
+import { NotificationService } from '../../services/shared/notification.service';
+import { TeacherChatController } from '../../controllers/teacher/teacher.chat.controller';
+import { TeacherChatService } from '../../services/teacher/teacher.chat.service';
+import { ITeacherChatService } from '../interfaces/services/teacher/ITeacherChatService';
 
 
 
@@ -166,6 +189,16 @@ container.bind<IOrderRepository>(TYPES.OrderRepository).to(OrderRepository);
 container.bind<ICompanyOrderRepository>(TYPES.CompanyOrderRepository).to(CompanyOrderRepository);
 container.bind<ITeacherAvailabilityRepository>(TYPES.TeacherAvailabilityRepository).to(TeacherAvailabilityRepository);
 container.bind<IStudentBookingRepository>(TYPES.StudentBookingRepository).to(StudentBookingRepository);
+
+
+container.bind<IChatRepository>(TYPES.ChatRepository).to(ChatRepository);
+container.bind<IChatService>(TYPES.ChatService).to(ChatService);
+container.bind<ChatController>(TYPES.ChatController).to(ChatController);
+container.bind<TeacherChatController>(TYPES.TeacherChatController).to(TeacherChatController);
+container.bind<ITeacherChatService>(TYPES.TeacherChatService).to(TeacherChatService);
+
+
+
 
 // ===== Bind Services =====
 container.bind<IStudentAuthService>(TYPES.StudentAuthService).to(StudentAuthService);
@@ -199,6 +232,7 @@ container.bind<ITeacherAuthService>(TYPES.TeacherAuthService).to(TeacherAuthServ
 container.bind<ITeacherCourseService>(TYPES.TeacherCourseService).to(TeacherCourseService);
 container.bind<ITeacherProfileService>(TYPES.TeacherProfileService).to(TeacherProfileService);
 container.bind<ITeacherAvailabilityService>(TYPES.TeacherAvailabilityService).to(TeacherAvailabilityService);
+container.bind<ITeacherCallRequestService>(TYPES.TeacherCallRequestService).to(TeacherCallRequestService);
 
 container.bind<IEmployeeAuthService>(TYPES.EmployeeAuthService).to(EmployeeAuthService);
 container.bind<IEmployeeProfileService>(TYPES.EmployeeProfileService).to(EmployeeProfileService);
@@ -240,11 +274,28 @@ container.bind<TeacherAuthController>(TYPES.TeacherAuthController).to(TeacherAut
 container.bind<TeacherCourseController>(TYPES.TeacherCourseController).to(TeacherCourseController);
 container.bind<TeacherProfileController>(TYPES.TeacherProfileController).to(TeacherProfileController);
 container.bind<TeacherAvailabilityController>(TYPES.TeacherAvailabilityController).to(TeacherAvailabilityController);
+container.bind<TeacherCallRequestController>(TYPES.TeacherCallRequestController).to(TeacherCallRequestController);
 
 container.bind<EmployeeProfileController>(TYPES.EmployeeProfileController).to(EmployeeProfileController);
 container.bind<EmployeeAuthController>(TYPES.EmployeeAuthController).to(EmployeeAuthController);
 container.bind<EmployeeCompanyController>(TYPES.EmployeeCompanyController).to(EmployeeCompanyController);
 container.bind<EmployeeCourseController>(TYPES.EmployeeCourseController).to(EmployeeCourseController);
+
+
+container.bind<IStudentNotificationRepository>(TYPES.StudentNotificationRepository).to(StudentNotificationRepository);
+container.bind<IStudentNotificationService>(TYPES.StudentNotificationService).to(StudentNotificationService);
+container.bind<StudentNotificationController>(TYPES.StudentNotificationController).to(StudentNotificationController);
+
+
+container.bind<SharedController>(TYPES.SharedController).to(SharedController);
+
+
+
+container.bind<INotificationRepository>(TYPES.NotificationRepository).to(NotificationRepository);
+container.bind<NotificationController>(TYPES.NotificationController).to(NotificationController);
+container.bind<INotificationService>(TYPES.NotificationService).to(NotificationService);
+
+
 
 
 export default container;

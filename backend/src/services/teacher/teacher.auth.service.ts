@@ -63,7 +63,7 @@ export class TeacherAuthService implements ITeacherAuthService {
 
     const token = generateAccessToken(teacherId, 'Teacher');
     const refreshToken = generateRefreshToken(teacherId, 'Teacher');
-    return { token, refreshToken, user: { id: teacherId, role: 'Teacher', email: teacher.email, name: teacher.name } };
+    return { token, refreshToken, user: { id: teacherId, role: 'teacher', email: teacher.email, name: teacher.name } };
   }
 
   async login(email: string, password: string) {
@@ -74,9 +74,9 @@ export class TeacherAuthService implements ITeacherAuthService {
     if (teacher.isBlocked) throwError(MESSAGES.ACCOUNT_BLOCKED, STATUS_CODES.FORBIDDEN);
     const teacherId = teacher?._id.toString();
 
-    const token = generateAccessToken(teacherId, 'Teacher');
-    const refreshToken = generateRefreshToken(teacherId, 'Teacher');
-    return { token, refreshToken, user: { id: teacherId, role: 'Teacher', email: teacher.email, name: teacher.name } };
+    const token = generateAccessToken(teacherId, 'teacher');
+    const refreshToken = generateRefreshToken(teacherId, 'teacher');
+    return { token, refreshToken, user: { id: teacherId, role: 'teacher', email: teacher.email, name: teacher.name } };
   }
 
   // async googleAuth(profile: GooglePayLoad) {
@@ -86,11 +86,11 @@ export class TeacherAuthService implements ITeacherAuthService {
   //   if (!user) {
   //     user = await this._teacherRepo.create({
   //       name: profile.username, email: profile.email, googleId: profile.googleId, profilePicture: profile.image,
-  //       role: "Teacher", googleUser: true, isVerified: true
+  //       role: "teacher", googleUser: true, isVerified: true
   //     });
   //   } else if (!user.googleUser) {
   //     user = await this._teacherRepo.updateById(user.id, {
-  //       name: profile.username, email: profile.email, googleId: profile.googleId, role: "Teacher", googleUser: true, isVerified: true
+  //       name: profile.username, email: profile.email, googleId: profile.googleId, role: "teacher", googleUser: true, isVerified: true
   //     });
   //   }
   //   if (user.isBlocked) throwError(MESSAGES.ACCOUNT_BLOCKED, STATUS_CODES.FORBIDDEN);

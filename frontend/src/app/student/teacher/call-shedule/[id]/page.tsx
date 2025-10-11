@@ -33,6 +33,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { showSuccessToast } from "@/utils/Toast";
+import { sendNotification } from "@/lib/socket";
 
 interface Slot {
   start: string; // e.g., "14:30"
@@ -170,7 +171,12 @@ export default function StudentTeacherSlotPage() {
       };
 
       const res = await studentBookingApi.slotBooking(bookingPayload);
-      if (res.ok){
+      if (res.ok) {
+        sendNotification({
+          receiverId: teacherId,
+          title: "New Booking Request",
+          message: `A student booked a slot on ${selectedSlot.date} (${selectedSlot.start} - ${selectedSlot.end})`,
+        });
         showSuccessToast("Booking requested successfully")
         setIsModalOpen(false);
         setSelectedSlot(null);
@@ -179,7 +185,7 @@ export default function StudentTeacherSlotPage() {
       }
 
 
-        
+
     } catch (err: any) {
       setError(err.message || "Booking failed");
     }

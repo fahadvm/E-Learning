@@ -1,5 +1,8 @@
 import { Response } from 'express';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv'
+dotenv.config()
+
 
 const SECRET_KEY = process.env.JWT_SECRET || 'yourAccessSecret';
 const REFRESH_KEY = process.env.REFRESH_SECRET || 'yourRefreshSecret';
@@ -11,6 +14,7 @@ export interface TokenPayload {
 }
 export const generateAccessToken = (id: string, role: string): string => {
   const payload: TokenPayload = { id, role };
+  console.log('secret key:',SECRET_KEY)
   return jwt.sign(payload, SECRET_KEY, { expiresIn: ACCESS_EXPIRES_IN });
 };
 export const generateRefreshToken = (id: string, role: string): string => {

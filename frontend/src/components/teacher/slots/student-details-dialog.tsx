@@ -23,24 +23,24 @@ export default function StudentDetailsDialog({
 }) {
   const open = !!slot
 
-  const when = useMemo(() => {
-    if (!slot) return ""
-    const s = new Date(slot.startISO)
-    const e = new Date(slot.endISO)
-    const d = new Intl.DateTimeFormat("en-US", {
-      weekday: "long",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }).format(s)
-    const t = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(s)
-    const te = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(e)
-    return `${d} • ${t} – ${te}`
-  }, [slot])
+  // const when = useMemo(() => {
+  //   if (!slot) return ""
+  //   const s = new Date(slot.startISO)
+  //   const e = new Date(slot.endISO)
+  //   const d = new Intl.DateTimeFormat("en-US", {
+  //     weekday: "long",
+  //     month: "short",
+  //     day: "numeric",
+  //     year: "numeric",
+  //   }).format(s)
+  //   const t = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(s)
+  //   const te = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(e)
+  //   return `${d} • ${t} – ${te}`
+  // }, [slot])
 
   function statusBadge(status: Slot["status"]) {
     switch (status) {
-      case "booked":
+      case "paid":
         return <Badge className="bg-green-600 text-white hover:bg-green-600">Booked</Badge>
       case "cancelled":
         return <Badge className="bg-red-600 text-white hover:bg-red-600">Cancelled</Badge>
@@ -70,8 +70,12 @@ export default function StudentDetailsDialog({
 
             <div className="grid grid-cols-1 gap-3 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">When</span>
-                <span className="font-medium text-foreground">{when}</span>
+                <span className="text-muted-foreground">Date</span>
+                <span className="font-medium text-foreground"> {slot.dateKey.split("-").reverse().join("-")}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Time</span>
+                <span className="font-medium text-foreground">{slot.startISO} - {slot.endISO}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Student</span>
@@ -79,18 +83,18 @@ export default function StudentDetailsDialog({
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Email</span>
-                <span className="font-medium text-foreground">{slot.student?.email ?? "-"}</span>
+                <span className="font-medium text-foreground">{slot.student?.email?? "-"}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Course</span>
-                <span className="font-medium text-foreground">{slot.student?.course ?? "-"}</span>
+                <span className="font-medium text-foreground">{slot.course?.title?? "-"}</span>
               </div>
             </div>
           </div>
         )}
 
-        <DialogFooter className="gap-2 sm:gap-0">
-          {slot?.status === "booked" ? (
+        <DialogFooter className="gap-5 sm:gap-2">
+          {slot?.status === "paid" ? (
             <Button variant="destructive" onClick={() => alert("Cancel booking (wire to API)")}>
               Cancel Booking
             </Button>

@@ -95,10 +95,10 @@ const formatDate = (date?: string) =>
 const formatCurrency = (amount?: number) =>
   typeof amount === 'number'
     ? new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-        maximumFractionDigits: 0
-      }).format(amount)
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(amount)
     : '₹0'
 
 // === Constants ===
@@ -175,7 +175,7 @@ export default function MyCoursesPage() {
   return (
     <>
       <Header />
-      <main className="bg-gray-100 min-h-screen p-6 md:p-10">
+      <main className="container mx-auto bg-gray-100 min-h-screen p-6 md:p-10">
         {/* Top Bar */}
         <div className="flex justify-between items-center flex-wrap gap-4 mb-6">
           <h1 className="text-3xl font-bold text-gray-800">
@@ -344,7 +344,7 @@ export default function MyCoursesPage() {
 
                   {/* Actions */}
                   <div className="flex space-x-2 pt-4 border-t">
-                   
+
                     <Button variant="outline" size="sm" className="flex-1">
                       <BarChart3 className="h-4 w-4 mr-1" />
                       Analytics

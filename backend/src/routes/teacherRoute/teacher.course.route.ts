@@ -17,10 +17,10 @@ const teacherCourseController = container.get<TeacherCourseController>(TYPES.Tea
 
 router
     .route('/')
-    .get(authMiddleware('Teacher'), asyncHandler(teacherCourseController.getMyCourses.bind(teacherCourseController)))
-    .post(authMiddleware('Teacher'), upload.any(), asyncHandler(teacherCourseController.addCourse.bind(teacherCourseController)));
+    .get(authMiddleware('teacher'), asyncHandler(teacherCourseController.getMyCourses.bind(teacherCourseController)))
+    .post(authMiddleware('teacher'), upload.any(), asyncHandler(teacherCourseController.addCourse.bind(teacherCourseController)));
 router.route('/:courseId')
-    .get(authMiddleware('Teacher'), asyncHandler(teacherCourseController.getCourseById.bind(teacherCourseController)))
-    .patch(authMiddleware('Teacher'), asyncHandler(teacherCourseController.getCourseById.bind(teacherCourseController)));
+    .get(authMiddleware('teacher'), asyncHandler(teacherCourseController.getCourseById.bind(teacherCourseController)))
+    .patch(authMiddleware('teacher'), asyncHandler(teacherCourseController.getCourseById.bind(teacherCourseController)));
 
 export default router;

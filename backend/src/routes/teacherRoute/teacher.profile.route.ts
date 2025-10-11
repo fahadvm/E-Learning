@@ -11,9 +11,9 @@ const teacherProfileController = container.get<TeacherProfileController>(TYPES.T
 // Profile Routes
 router
   .route('/')
-  .get(authMiddleware('Teacher'), asyncHandler(teacherProfileController.getProfile.bind(teacherProfileController)))
-  .post(authMiddleware('Teacher'), asyncHandler(teacherProfileController.createProfile.bind(teacherProfileController)))
-  .patch(authMiddleware('Teacher'), asyncHandler(teacherProfileController.updateProfile.bind(teacherProfileController)));
+  .get(authMiddleware('teacher'), asyncHandler(teacherProfileController.getProfile.bind(teacherProfileController)))
+  .post(authMiddleware('teacher'), asyncHandler(teacherProfileController.createProfile.bind(teacherProfileController)))
+  .patch(authMiddleware('teacher'), asyncHandler(teacherProfileController.updateProfile.bind(teacherProfileController)));
 
 export default router;
   

@@ -10,10 +10,12 @@ export interface IBooking extends Document {
   teacherId: Types.ObjectId;
   courseId: Types.ObjectId;
   date: string;
+  paymentOrderId : string;
   day: string;
+  rejectionReason?: string;
   slot: ITimeSlot;
   note?: string;
-  status: "pending" | "approved" | "paid" | "cancelled";
+  status: "pending" | "approved" | "paid" | "cancelled" | "rejected";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -31,13 +33,15 @@ const bookingSchema = new Schema<IBooking>(
     studentId: { type: Schema.Types.ObjectId, ref: "Student", required: true },
     teacherId: { type: Schema.Types.ObjectId, ref: "Teacher", required: true },
     courseId: { type: Schema.Types.ObjectId, ref: "Course", required: true },
+    paymentOrderId: { type: String,  },
     date: { type: String, required: true },
     day: { type: String, required: true },
+    rejectionReason: { type: String, required: false },
     slot: { type: timeSlotSchema, required: true },
     note: { type: String, default: "" },
     status: {
       type: String,
-      enum: ["pending", "approved", "paid", "cancelled"],
+      enum: ["pending", "approved", "paid", "cancelled" ,"rejected"],
       default: "pending",
     },
   },

@@ -1,33 +1,60 @@
 export enum MESSAGES {
- COMPANY_FETCHED= "Company fetched",
-  COMPANY_FOUND= "Company found",
-  REQUEST_SENT= "Request sent",
-  REQUEST_CANCELLED= "Request cancelled",
-  LEFT_COMPANY= "Left company",
-  REQUESTED_EMPLOYEES_FETCHED=  "Requested employees fetched successfully",
-  EMPLOYEE_REQUEST_APPROVED=  "Employee request approved successfully",
-  EMPLOYEE_REQUEST_REJECTED=  "Employee request rejected",
+  COMPANY_FETCHED = "Company fetched",
+  COMPANY_FOUND = "Company found",
+  REQUEST_SENT = "Request sent",
+  REQUEST_CANCELLED = "Request cancelled",
+  LEFT_COMPANY = "Left company",
+  REQUESTED_EMPLOYEES_FETCHED = "Requested employees fetched successfully",
+  EMPLOYEE_REQUEST_APPROVED = "Employee request approved successfully",
+  EMPLOYEE_REQUEST_REJECTED = "Employee request rejected",
   GOOGLE_TOKEN_INVALID = "Invalid Google token",
-GOOGLE_TOKEN_MISSING_FIELDS = "Google token missing required fields",
-USER_NOT_LINKED_GOOGLE = "User is not linked to Google",
-  ALREADY_REQUESTED_COMPANY= "You have already requested a company",
-  NO_REQUEST_FOUND= "No request found",
-  NOT_PART_OF_COMPANY= "Not part of any company",
-  ORDERS_NOT_FOUND= "No orders found",
-  COMPANY_ORDERS_FETCHED= "Company orders fetched successfully",
-  STUDENT_ORDERS_FETCHED= "Student orders fetched successfully",
-  AVAILABILITY_FETCHED= "Teacher availability fetched successfully.",
-  BOOKING_CREATED= "Booking created successfully.",
-  BOOKING_CANCELLED= "Booking cancelled successfully.",
-  BOOKING_APPROVED= "Booking approved successfully.",
-  PAYMENT_SUCCESS= "Payment processed successfully.",
-  HISTORY_FETCHED= "Booking history fetched successfully.",
-  TEACHER_AVAILABILITY_FETCHED= "Teacher availability fetched successfully.",
-  TEACHER_AVAILABILITY_NOT_FOUND= "Teacher availability not found.",
+  GOOGLE_TOKEN_MISSING_FIELDS = "Google token missing required fields",
+  USER_NOT_LINKED_GOOGLE = "User is not linked to Google",
+  ALREADY_REQUESTED_COMPANY = "You have already requested a company",
+  NO_REQUEST_FOUND = "No request found",
+  NOT_PART_OF_COMPANY = "Not part of any company",
+  ORDERS_NOT_FOUND = "No orders found",
+  COMPANY_ORDERS_FETCHED = "Company orders fetched successfully",
+  STUDENT_ORDERS_FETCHED = "Student orders fetched successfully",
+  AVAILABILITY_FETCHED = "Teacher availability fetched successfully.",
+  BOOKING_CREATED = "Booking created successfully.",
+  BOOKING_CANCELLED = "Booking cancelled successfully.",
+  BOOKING_APPROVED = "Booking approved successfully.",
+  PAYMENT_SUCCESS = "Payment processed successfully.",
+  HISTORY_FETCHED = "Booking history fetched successfully.",
+  TEACHER_AVAILABILITY_FETCHED = "Teacher availability fetched successfully.",
+  TEACHER_AVAILABILITY_NOT_FOUND = "Teacher availability not found.",
   AVAILABLE_SLOTS_FETCHED = "Teacher available slots fetched successfully.",
+  COMPLETD_LESSON_MARKED = "Lesson completed marked successfully.",
 
 
 
+  NOTIFICATION_MARKED_AS_READ= "Notification marked as read successfully.",
+  NOTIFICATION_ID_REQUIRED= "Notification ID is required.",
+
+
+
+
+
+
+
+
+
+  NOTIFICATIONS_FETCHED = "Notifications fetched successfully.",
+  NOTIFICATION_MARKED_READ = "Notification marked as read.",
+  NOTIFICATION_DELETED = "Notification deleted successfully.",
+  NOTIFICATION_CREATED = "New notification created.",
+  NOTIFICATION_NOT_FOUND = "Notification not found.",
+
+
+  //------------------ CALL REQUEST ---------------------
+  CALL_REQUESTS_FETCHED = "Call requests fetched successfully",
+  CALL_REQUEST_DETAILS_FETCHED = "Call request details fetched successfully",
+  CALL_REQUEST_APPROVED = "Call request approved successfully",
+  CALL_REQUEST_REJECTED = "Call request rejected successfully",
+  ACCEPTED_CALL_REQUESTS_FETCHED = "Accepted call requests fetched successfully",
+  CALL_REQUEST_NOT_FOUND = "Call request not found",
+  CALL_REQUEST_ALREADY_PROCESSED = "This call request has already been processed",
 
 
 
@@ -87,6 +114,7 @@ USER_NOT_LINKED_GOOGLE = "User is not linked to Google",
   PASSWORD_RESET_SUCCESS = 'Password reset successful',
   REGISTER_SUCCESS = 'Registration successful',
   TOKEN_EXPIRED = 'Authentication token has expired',
+  TOKEN_REFRESHED = 'Tokens refreshed successfully',
   TOKEN_INVALID = 'Authentication token is invalid',
   TOKEN_MISSING = 'Authentication token is missing',
 
@@ -246,6 +274,6 @@ USER_NOT_LINKED_GOOGLE = "User is not linked to Google",
 
 
   //order
-    ORDER_CREATED_SUCCESSFULLY= "Order created successfully",
+  ORDER_CREATED_SUCCESSFULLY = "Order created successfully",
 
 }

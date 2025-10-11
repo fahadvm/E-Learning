@@ -7,10 +7,14 @@ import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { IStudentCourseDTO, StudentCourseDTO, PaginatedCourseDTO, GetStudentCoursesRequestDTO } from '../../core/dtos/student/Student.course.Dto';
+import { IStudentRepository } from '../../core/interfaces/repositories/IStudentRepository';
 
 @injectable()
 export class StudentCourseService implements IStudentCourseService {
-  constructor(@inject(TYPES.CourseRepository) private readonly _courseRepo: ICourseRepository) { }
+  constructor(
+    @inject(TYPES.CourseRepository) private readonly _courseRepo: ICourseRepository,
+    @inject(TYPES.StudentRepository) private readonly _studentRepo: IStudentRepository)
+     { }
 
   async getAllCourses(filters: GetStudentCoursesRequestDTO): Promise<PaginatedCourseDTO> {
     const { search, category, level, language, sort, order, page, limit } = filters;
@@ -39,11 +43,47 @@ export class StudentCourseService implements IStudentCourseService {
   };
 
 
-  async getCourseDetail(courseId: string):Promise<IStudentCourseDTO > {
-  if (!courseId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
-  const course = await this._courseRepo.findById(courseId);
-  if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-  return StudentCourseDTO(course);
-}
+  async getCourseDetail(courseId: string): Promise<IStudentCourseDTO> {
+    if (!courseId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
+    const course = await this._courseRepo.findById(courseId);
+    if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    return StudentCourseDTO(course);
+  }
+
+   async markLessonComplete(
+    studentId: string,
+    courseId: string,
+    moduleIndex: number,
+    lessonIndex: number
+  ) {
+    const course = await this._courseRepo.findById(courseId);
+    if (!course) {
+      return { ok: false, message: "Course not found" };
+    }
+
+    const module = course.modules[moduleIndex];
+    if (!module) {
+      return { ok: false, message: "Module not found" };
+    }
+
+    const lesson = module.lessons[lessonIndex];
+    if (!lesson) {
+      return { ok: false, message: "Lesson not found" };
+    }
+
+    const progress = await this._studentRepo.updateStudentProgress(
+      studentId,
+      courseId,
+      lesson._id.toString(),
+    );
+
+    return {
+      ok: true,
+      data: progress,
+    };
+  }
+
+
+
 }
 

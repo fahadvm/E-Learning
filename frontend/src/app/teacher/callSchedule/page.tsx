@@ -51,7 +51,7 @@ export default function Page() {
                   </TabsTrigger>
                 </TabsList>
 
-                <div className="flex items-center gap-3">
+                {/* <div className="flex items-center gap-3">
                   <div className="inline-flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">Received Requests</span>
                     <Badge variant="secondary" aria-label="Received requests count">
@@ -59,7 +59,7 @@ export default function Page() {
                     </Badge>
                   </div>
                   <Button variant="outline">View All Requests</Button>
-                </div>
+                </div> */}
               </div>
 
               <TabsContent value="requests" className="mt-6">

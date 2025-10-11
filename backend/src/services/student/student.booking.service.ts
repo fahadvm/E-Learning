@@ -10,14 +10,24 @@ import { MESSAGES } from "../../utils/ResponseMessages";
 import { Types } from "mongoose";
 import dayjs from "dayjs";
 import { ITeacherAvailabilityRepository } from "../../core/interfaces/repositories/ITeacherAvailabilityRepository";
+import { IBooking } from "../../models/Booking";
+import Razorpay from "razorpay";
+import { INotificationRepository } from "../../core/interfaces/repositories/INotificationRepository";
 
 
 @injectable()
 export class StudentBookingService implements IStudentBookingService {
+  private _razorpay: Razorpay;
   constructor(
     @inject(TYPES.StudentBookingRepository) private readonly _bookingRepo: IStudentBookingRepository,
-    @inject(TYPES.TeacherAvailabilityRepository) private readonly _availibilityRepo: ITeacherAvailabilityRepository
-  ) { }
+    @inject(TYPES.TeacherAvailabilityRepository) private readonly _availibilityRepo: ITeacherAvailabilityRepository,
+    @inject(TYPES.NotificationRepository) private readonly _notificationRepo: INotificationRepository
+  ) {
+    this._razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID!,
+      key_secret: process.env.RAZORPAY_KEY_SECRET!,
+    });
+  }
 
   async getAvailability(teacherId: string): Promise<IBookingDTO[]> {
     if (!teacherId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
@@ -28,14 +38,14 @@ export class StudentBookingService implements IStudentBookingService {
   async bookSlot(studentId: string, teacherId: string, courseId: string, date: string, day: string, startTime: string, endTime: string, note: string): Promise<IBookingDTO> {
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
     console.log("here everything is fine iam from service")
-    
+
     if (!teacherId || !courseId || !date || !day || !startTime || !endTime) throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
-    console.log(teacherId,courseId ,studentId)
+    console.log(teacherId, courseId, studentId)
     const studentIdObj = new Types.ObjectId(studentId);
     const teacherIdObj = new Types.ObjectId(teacherId);
     const courseIdObj = new Types.ObjectId(courseId);
 
-    console.log(studentIdObj,teacherIdObj ,courseIdObj)
+    console.log(studentIdObj, teacherIdObj, courseIdObj)
     const booking = await this._bookingRepo.createBooking({
       studentId: studentIdObj,
       teacherId: teacherIdObj,
@@ -64,10 +74,49 @@ export class StudentBookingService implements IStudentBookingService {
     return bookingDto(approved);
   }
 
-  async payBooking(bookingId: string, paymentDetails: any): Promise<IBookingDTO> {
-    if (!bookingId || !paymentDetails) throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
-    const paid = await this._bookingRepo.updateBookingStatus(bookingId, "paid");
-    return bookingDto(paid);
+  async initiatePayment(bookingId: string, amount: number): Promise<{ razorpayOrderId: string, booking: IBooking | null }> {
+    if (!bookingId || !amount) throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
+
+    const options = {
+      amount: amount * 100,
+      currency: "INR",
+      receipt: `receipt_${Date.now()}`,
+      notes: { bookingId },
+    };
+
+    const razorpayOrder = await this._razorpay.orders.create(options);
+
+    const updated = await this._bookingRepo.updateBookingOrderId(bookingId, razorpayOrder.id);
+
+    return { razorpayOrderId: razorpayOrder.id, booking: updated };
+  }
+
+
+  async verifyPayment(razorpay_order_id: string, razorpay_payment_id: string, razorpay_signature: string): Promise<IBooking | null> {
+    const crypto = await import("crypto");
+    const body = razorpay_order_id + "|" + razorpay_payment_id;
+
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
+      .update(body.toString())
+      .digest("hex");
+
+    if (expectedSignature !== razorpay_signature)
+      throwError("Payment verification failed", STATUS_CODES.BAD_REQUEST);
+
+    const updated = await this._bookingRepo.verifyAndMarkPaid(razorpay_order_id);
+    if(!!updated){
+      await this._notificationRepo.createNotification(
+      updated.teacherId.toString(),
+      "New Booking Confirmed!",
+      ` booked a paid session for .`,
+      "booking",
+      "teacher"
+    );
+    }
+    
+
+    return updated;
   }
 
   async getHistory(studentId: string): Promise<IBookingDTO[]> {
@@ -75,6 +124,22 @@ export class StudentBookingService implements IStudentBookingService {
     const history = await this._bookingRepo.getBookingsByStudent(studentId);
     return bookingsDto(history);
   }
+  async getScheduledCalls(studentId: string): Promise<IBookingDTO[]> {
+    if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+    const scheduledCalls = await this._bookingRepo.getScheduledCalls(studentId);
+    return bookingsDto(scheduledCalls);
+  }
+  async getBookingDetails(bookingId: string): Promise<IBooking> {
+    const details = await this._bookingRepo.findById(bookingId)
+    if (!details) throw new Error("Booking not found");
+    return details
+  }
+
+
+  
+
+
+   
 
   async getAvailableSlots(teacherId: string): Promise<any[]> {
     const availability = await this._availibilityRepo.getAvailabilityByTeacherId(teacherId);
@@ -93,28 +158,33 @@ export class StudentBookingService implements IStudentBookingService {
       if (!dayAvailability) continue;
 
       for (const slot of dayAvailability.slots) {
-        const slotStart = dayjs(`${currentDate.format("DD-MM-YYYY")} ${slot.start}`);
+        const slotStart = dayjs(`${currentDate.format("YYYY-MM-DD")}T${slot.start}`);
 
         slotsForWeek.push({
-          date: currentDate.format("DD-MM-YYYY"),
+          date: currentDate.format("YYYY-MM-DD"),
           day: dayName,
           start: slot.start,
           end: slot.end,
-          slot: slotStart.toDate()
+          slot: slotStart.toDate(),
         });
       }
     }
 
+
+
     // fetch bookings for next 7 days
     const bookings = await this._bookingRepo.findBookedSlots(
       teacherId,
-      today.toDate(),
-      nextWeek.toDate()
+      today.format("YYYY-MM-DD"),
+      nextWeek.format("YYYY-MM-DD")
     );
 
-    const bookedSlots = new Set(bookings.map(b => dayjs(b.slot).toISOString()));
+    // convert booked slots into ISO strings
+    const bookedSlots = new Set(
+      bookings.map(b => dayjs(`${b.date}T${b.slot.start}`).toISOString())
+    );
 
-    // remove already booked
+    // filter out already booked slots
     const availableSlots = slotsForWeek.filter(
       s => !bookedSlots.has(dayjs(s.slot).toISOString())
     );
@@ -124,7 +194,7 @@ export class StudentBookingService implements IStudentBookingService {
       new Map(availableSlots.map(s => [`${s.date}-${s.start}-${s.end}`, s])).values()
     );
 
-    console.log("the final from controller is ", uniqueSlots);
+    console.log("Available slots:", uniqueSlots);
 
     return uniqueSlots;
   }

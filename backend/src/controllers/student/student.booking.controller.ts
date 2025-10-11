@@ -8,13 +8,14 @@ import { AuthRequest } from "../../types/AuthenticatedRequest";
 import { sendResponse, throwError } from "../../utils/ResANDError";
 import { STATUS_CODES } from "../../utils/HttpStatuscodes";
 import { MESSAGES } from "../../utils/ResponseMessages";
+import { Message } from "../../models/message";
 
 @injectable()
 export class StudentBookingController implements IStudentBookingController {
   constructor(
     @inject(TYPES.StudentBookingService)
     private readonly _bookingService: IStudentBookingService
-  ) {}
+  ) { }
 
   getAvailability = async (req: AuthRequest, res: Response) => {
     const { teacherId } = req.params;
@@ -28,11 +29,20 @@ export class StudentBookingController implements IStudentBookingController {
     const studentId = req.user?.id;
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
     console.log("booked data ", req.body)
-    const { teacherId, courseId, date, day, startTime, endTime, note  } = req.body;
-    if (!teacherId || !courseId|| !date|| !day|| !startTime|| !endTime )
+    const { teacherId, courseId, date, day, startTime, endTime, note } = req.body;
+    if (!teacherId || !courseId || !date || !day || !startTime || !endTime)
       throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
 
-    const booking = await this._bookingService.bookSlot(studentId ,teacherId, courseId, date, day, startTime, endTime, note);
+    const booking = await this._bookingService.bookSlot(studentId, teacherId, courseId, date, day, startTime, endTime, note);
+    return sendResponse(res, STATUS_CODES.CREATED, MESSAGES.BOOKING_CREATED, true, booking);
+  };
+
+  bookingDetails = async (req: AuthRequest, res: Response) => {
+    const bookingId = req.params.bookingId
+    if (!bookingId)
+      throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
+
+    const booking = await this._bookingService.getBookingDetails(bookingId);
     return sendResponse(res, STATUS_CODES.CREATED, MESSAGES.BOOKING_CREATED, true, booking);
   };
 
@@ -53,15 +63,35 @@ export class StudentBookingController implements IStudentBookingController {
   };
 
   payBooking = async (req: AuthRequest, res: Response) => {
+    console.log("paybooking is working")
     const studentId = req.user?.id;
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
-    const { bookingId, paymentDetails } = req.body;
-    if (!bookingId || !paymentDetails)
+    const { bookingId, amount } = req.body;
+    console.log(req.body)
+    if (!bookingId || !amount)
       throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
 
-    const result = await this._bookingService.payBooking(bookingId, paymentDetails);
+    const result = await this._bookingService.initiatePayment(bookingId, amount);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.PAYMENT_SUCCESS, true, result);
+  };
+
+  verifyPayment = async (req: AuthRequest, res: Response) => {
+    console.log("verification  of payment is working ", req.body)
+    const studentId = req.user?.id
+    if (!studentId) {
+      throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED)
+    }
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST)
+    }
+
+    const verified = await this._bookingService.verifyPayment(razorpay_order_id, razorpay_payment_id, razorpay_signature);
+    if (!!verified) {
+      return sendResponse(res, STATUS_CODES.OK, MESSAGES.PAYMENT_VERIFIED_SUCCESSFULLY, true, verified)
+    }
+    return sendResponse(res, STATUS_CODES.BAD_REQUEST, MESSAGES.PAYMENT_VERIFICATION_FAILED, false, verified);
   };
 
   getHistory = async (req: AuthRequest, res: Response) => {
@@ -72,10 +102,20 @@ export class StudentBookingController implements IStudentBookingController {
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.HISTORY_FETCHED, true, history);
   };
 
-  AvailableBookingSlots = async (req:AuthRequest , res: Response) =>{
-     const { teacherId } = req.params;
-     const slots = await this._bookingService.getAvailableSlots(teacherId);
-     return sendResponse(res,STATUS_CODES.OK, MESSAGES.AVAILABLE_SLOTS_FETCHED, true, slots )
+  ScheduledCalls = async(req: AuthRequest, res: Response) => {
+     const studentId = req.user?.id;
+    if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+    const schedules = await this._bookingService.getScheduledCalls(studentId);
+    console.log("upcoming schedules", schedules)
+    return sendResponse(res, STATUS_CODES.OK, MESSAGES.CALL_REQUESTS_FETCHED, true, schedules);
+  };
+  
+
+
+  AvailableBookingSlots = async (req: AuthRequest, res: Response) => {
+    const { teacherId } = req.params;
+    const slots = await this._bookingService.getAvailableSlots(teacherId);
+    return sendResponse(res, STATUS_CODES.OK, MESSAGES.AVAILABLE_SLOTS_FETCHED, true, slots)
 
   }
 }

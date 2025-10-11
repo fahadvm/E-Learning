@@ -16,6 +16,10 @@ export const TYPES = {
     CompanyOrderRepository: Symbol.for('CompanyOrderRepsitory'),
     TeacherAvailabilityRepository: Symbol.for('TeacherAvailabilityRepository'),
     StudentBookingRepository: Symbol.for('StudentBookingRepository'),
+    ChatRepository: Symbol.for('ChatRepository'),
+    NotificationRepository: Symbol.for('NotificationRepository'),
+
+
     // Services
     StudentAuthService: Symbol.for('StudentAuthService'),
     StudentProfileService: Symbol.for('StudentProfileService'),
@@ -47,8 +51,9 @@ export const TYPES = {
     EmployeeAuthService: Symbol.for('EmployeeAuthService'),
     TeacherAuthService: Symbol.for('TeacherAuthService'),
     TeacherProfileService: Symbol.for('TeacherProfileService'),
-    TeacherCourseService: Symbol.for('TeacherCourseService'),
     TeacherAvailabilityService: Symbol.for('TeacherAvailabilityService'),
+    TeacherCourseService: Symbol.for('TeacherCourseService'),
+    TeacherCallRequestService: Symbol.for('TeacherCallRequestService'),
     CourseService: Symbol.for('CourseService'),
     SubscriptionPlanService: Symbol.for('SubscriptionPlanService'),
 
@@ -56,7 +61,7 @@ export const TYPES = {
     EmployeeCompanyService: Symbol.for('EmployeeCompanyService'),
     EmployeeCourseService: Symbol.for('EmployeeCourseService'),
     
-
+    ChatService: Symbol.for('ChatService'),
 
     // Controllers
     StudentAuthController: Symbol.for('StudentAuthController'),
@@ -90,11 +95,24 @@ export const TYPES = {
     TeacherCourseController: Symbol.for('TeacherCourseController'),
     TeacherProfileController: Symbol.for('TeacherProfileController'),
     TeacherAvailabilityController: Symbol.for('TeacherAvailabilityController'),
+    TeacherCallRequestController: Symbol.for('TeacherCallRequestController'),
     EmployeeAuthController: Symbol.for('EmployeeAuthController'),
     EmployeeProfileController: Symbol.for('EmployeeProfileController'),
     EmployeeCompanyController: Symbol.for('EmployeeCompanyController'),
-    EmployeeCourseController: Symbol.for('EmployeeCourseController')
-        
+    
+    EmployeeCourseController: Symbol.for('EmployeeCourseController'),
+    ChatController: Symbol.for('ChatController'),
+    StudentNotificationController: Symbol.for('StudentNotificationController'),
+    StudentNotificationService: Symbol.for('StudentNotificationService'),
+    StudentNotificationRepository: Symbol.for('StudentNotificationRepository'),
+    SharedController: Symbol.for('SharedController'),
+
+
+
+    NotificationService: Symbol.for('NotificationService'),
+    NotificationController: Symbol.for('NotificationController'),
+    TeacherChatService: Symbol.for('TeacherChatService'),
+    TeacherChatController: Symbol.for('TeacherChatController'),
         
         
     

@@ -1,33 +1,24 @@
-// import { Request, Response } from "express";
-// import {
-//   handleControllerError,
-//   sendResponse,
-// } from "../../utils/ResANDError";
-// // import { ISharedController } from "../../core/interfaces/controllers/shared/ISharedController";
-// import { refreshAccessToken, setTokensInCookies } from "../../utils/JWTtoken";
+// src/controllers/shared/shared.controller.ts
+import { Request, Response } from "express";
+import { inject, injectable } from "inversify";
+import { ISharedController } from "../../core/interfaces/controllers/shared/ISharedController";
+import { sendResponse, throwError } from "../../utils/ResANDError";
+import { refreshAccessToken, setTokensInCookies } from "../../utils/JWTtoken";
+import { STATUS_CODES } from "../../utils/HttpStatuscodes";
+import { MESSAGES } from "../../utils/ResponseMessages";
 
-// export class SharedController implements ISharedController {
+@injectable()
+export class SharedController implements ISharedController {
 
-//   async refeshToken(req: Request, res: Response): Promise<void> {
-//     try {
-//       const tokens = refreshAccessToken(req.cookies.refreshToken);
+    constructor() { }
 
-//       if (!tokens) {
-//         sendResponse(
-//           res,
-//           StatusCode.UNAUTHORIZED,
-//           Messages.SHARED.INVALID_TOKEN,
-//           false
-//         );
-//         return;
-//       }
-//       setTokensInCookies(res, tokens.accessToken, tokens.refreshToken);
-//       sendResponse(res, StatusCode.OK, Messages.SHARED.TOKENS_REFRESHED, true);
-//       return;
-//     } catch (error) {
-//       handleControllerError(res, error, StatusCode.UNAUTHORIZED);
-//       return;
-//     }
-//   }
-
-// }
+    refreshToken = async (req: Request, res: Response): Promise<void> => {
+        const tokens = refreshAccessToken(req.cookies.refreshToken);
+        if (!tokens) {
+            throwError(MESSAGES.TOKEN_INVALID, STATUS_CODES.UNAUTHORIZED);
+        }
+        setTokensInCookies(res, tokens.accessToken, tokens.refreshToken);
+        sendResponse(res, STATUS_CODES.OK,MESSAGES.TOKEN_REFRESHED, true);
+ 
+    }
+}

@@ -24,6 +24,7 @@ export const studentCourseApi = {
   getCourseDetailById: (courseId: string) => get(`/student/courses/${courseId}`),
   getMyCourses: () => get(`/student/purchase/enrolled`),
   getMyCourseDetails: (courseId: string) => get(`/student/purchase/enrolled/${courseId}`),
+  markLessonComplete:(courseId  : string, moduleIndex: number, lessonIndex: number)=> get(`/student/purchase/${courseId}/module/${moduleIndex}/lesson/${lessonIndex}/complete`),
 };
 
 export const studentProfileApi = {
@@ -38,11 +39,14 @@ export const studentTeacherApi = {
 };
 export const studentBookingApi = {
   getAvailableSlots: (teacherId: string) => get(`/student/bookings/${teacherId}/available-slots`),
-  slotBooking:(data: { teacherId: string; endTime:string; courseId?: string,date:string , day:string , startTime:string ,note: string }) => post(`/student/bookings`,data),
+  slotBooking: (data: { teacherId: string; endTime: string; courseId?: string, date: string, day: string, startTime: string, note: string }) => post(`/student/bookings`, data),
   cancelBooking: (teacherId: string) => get(`/student/bookings/availability/${teacherId}`),
   approveBooking: (teacherId: string) => get(`/student/bookings/availability/${teacherId}`),
-  getBookingHistory: (teacherId: string) => get(`/student/bookings/availability/${teacherId}`),
-  payingBooking: (teacherId: string) => get(`/student/bookings/availability/${teacherId}`),
+  getBookingHistory: () => get(`/student/bookings/history`),
+  payingBooking: (teacherId: string) => get(`/student/bookings/payments/${teacherId}`),
+  getBookingDetails: (bookingId: string) => get(`/student/bookings/${bookingId}/details`),
+  getScheduledCalls: () => get(`/student/bookings/ScheduledCall`),
+
 };
 
 export const studentWishlistApi = {
@@ -59,25 +63,31 @@ export const studentCartApi = {
 };
 
 export const paymentApi = {
-  createOrder: (data: { amount: number; courses: string[] }) =>
-    post("/student/purchase/create-order", data),
-  verifyPayment: (data: {
-    razorpay_order_id: string;
-    razorpay_payment_id: string;
-    razorpay_signature: string;
-  }) => post("/student/purchase/verify-payment", data),
+  createOrder: (data: { amount: number; courses: string[] }) => post("/student/purchase/create-order", data),
+  verifyPayment: (data: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string; }) => post("/student/purchase/verify-payment", data),
+  bookingPayment: (data: { amount: number; bookingId: string }) => post("/student/bookings/payments", data),
+  verifyBookingPayment: (data: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string; }) => post("/student/bookings/payments/verify", data),
+
 };
 
 export const studentSubscriptionApi = {
   getAllPlans: () => get('/student/subscriptions/'),
-  createOrder: (planId: string) =>
-    post('/student/subscriptions/create-order', { planId }),
-  verifyPayment: (payload: {
-    planId: string;
-    razorpay_order_id: string;
-    razorpay_payment_id: string;
-    razorpay_signature: string;
-  }) => post('/student/subscriptions/verify-payment', payload),
-  activateFreePlan: (planId: string) =>
-    post('/student/subscriptions/activate-free', { planId }),
+  createOrder: (planId: string) => post('/student/subscriptions/create-order', { planId }),
+  verifyPayment: (payload: { planId: string; razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string; }) => post('/student/subscriptions/verify-payment', payload),
+  activateFreePlan: (planId: string) => post('/student/subscriptions/activate-free', { planId }),
 };
+export const studentChatApi = {
+  getmessages: (chatId: string) => get(`/student/chat/messages/${chatId}`),
+  getChatInfo: (chatId: string) => get(`/student/chat/${chatId}`),
+  getuserchat: () => get(`/student/chat`),
+  startChat: (data: { studentId: string; teacherId: string }) => post('/student/chat/start', data),
+
+};
+
+
+
+
+
+
+
+

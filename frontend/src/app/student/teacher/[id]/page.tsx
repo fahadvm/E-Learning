@@ -68,7 +68,7 @@ export default function StudentTeacherProfilePage() {
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
     : "0";
 
-  const handleChat = () => router.push(`/messages?teacherId=${teacher.id}`);
+  const handleChat = () => router.push(`/student/chat/${teacherId}`);
   const handleBookSession = () => router.push(`/student/teacher/call-shedule/${teacherId}?courseId=${courseId}`);
   const hasValidCourse = !!courseId; 
 
@@ -88,7 +88,7 @@ export default function StudentTeacherProfilePage() {
             <aside className="space-y-6">
               <div className="bg-white rounded-xl shadow-md p-6 text-center bg-gradient-to-r from-white to-gray-50">
                 <Image
-                  src={teacher.profilePicture || "/placeholder.png"}
+                  src={teacher.profilePicture || "/gallery/avatar.jpg"}
                   alt="Teacher Profile"
                   width={128}
                   height={128}

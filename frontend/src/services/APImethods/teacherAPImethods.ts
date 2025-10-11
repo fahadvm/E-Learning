@@ -33,7 +33,37 @@ export const teacherCourseApi = {
 };
 
 export const teacherAvailabilityApi = {
-    getAvailability: async () =>get(`/teacher/availability`),
+    getAvailability: async () => get(`/teacher/availability`),
     saveAvailability: async (data: any) => post("/teacher/availability", data),
 
 }
+
+export const teacherCallRequestApi = {
+    getslotsList: async () => get(`/teacher/call-request`),
+    getPendingRequests: async () => get(`/teacher/call-request/pending`),
+    getConfirmedRequests: async () => get(`/teacher/call-request/confirmed`),
+    getRequestDetails: async (bookingId: string) => get(`/teacher/call-request/${bookingId}`),
+    approveRequests: async (bookingId: string) => patch(`/teacher/call-request/${bookingId}/approve`, { status: "approved" }),
+    rejectRequests: async (bookingId: string, data: { status: string, reason: string }) => patch(`/teacher/call-request/${bookingId}/reject`, data),
+    tester: async (userId : string) => get(`/teacher/call-request/notifications/testing/${userId}`),
+    testerMark: async (data :{notificationId : string}) => post(`/teacher/call-request/notifications/testing/markread`,data),
+}
+
+
+export const teacherChatApi = {
+  getmessages: (chatId: string) => get(`/teacher/chat/messages/${chatId}`),
+  getChatInfo: (chatId: string) => get(`/teacher/chat/${chatId}`),
+  getuserchat: () => get(`/teacher/chat`),
+
+};
+
+
+export const teacherNotificationApi = {
+    getNotifications: (userId: string) =>{ console.log("userId in fetching of getnotifications") ,get(`/shared/notification/${userId}`)},
+    markAsRead: (userId: string) =>{ console.log("userId in fetching of getnotifications") ,get(`/shared/notification/${userId}`)},
+}
+
+
+
+
+

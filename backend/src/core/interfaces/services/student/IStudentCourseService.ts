@@ -3,6 +3,16 @@ import { GetStudentCoursesRequestDTO, IStudentCourseDTO ,PaginatedCourseDTO} fro
 export interface IStudentCourseService {
   getAllCourses(filters: GetStudentCoursesRequestDTO): Promise<PaginatedCourseDTO>;
   getCourseDetail(courseId: string): Promise<IStudentCourseDTO>;
+   markLessonComplete(
+    studentId: string,
+    courseId: string,
+    moduleIndex: number,
+    lessonIndex: number
+  ): Promise<{
+    ok: boolean;
+    message?: string;
+    data?: any;
+  }>;
 }
 
 export interface CourseFilters {

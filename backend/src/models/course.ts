@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 import { ObjectId } from 'mongodb';
 
 export interface ILesson {
+  _id : ObjectId
   title: string;
   description?: string;
   videoFile?: string;
@@ -50,7 +51,7 @@ const LessonSchema = new Schema<ILesson>(
     thumbnail: { type: String },
     duration: { type: Number }, // store in minutes
   },
-  { _id: false }
+  { _id: true }
 );
 
 const ModuleSchema = new Schema<IModule>(
@@ -59,7 +60,7 @@ const ModuleSchema = new Schema<IModule>(
     description: { type: String },
     lessons: { type: [LessonSchema], default: [] },
   },
-  { _id: false }
+  { _id: true }
 );
 
 const CourseSchema = new Schema<ICourse>(
