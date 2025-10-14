@@ -54,12 +54,12 @@ export class StudentPurchaseController implements IStudentPurchaseController {
   }
 
   getMyCourseDetails = async (req: AuthRequest, res: Response) => {
-
+    const studentId = req.user?.id
     const courseId  = req.params.courseId;
      
-    if (!courseId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.NOT_FOUND);
+    if (!courseId || !studentId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.NOT_FOUND);
     
-    const course = await this._PurchaseService.getPurchasedCourseDetails(courseId);
+    const course = await this._PurchaseService.getPurchasedCourseDetails(courseId,studentId);
 
 
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, course);

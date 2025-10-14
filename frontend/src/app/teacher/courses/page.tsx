@@ -110,7 +110,7 @@ export default function MyCoursesPage() {
   const [filteredCourses, setFilteredCourses] = useState<ICourse[]>([])
   const [loading, setLoading] = useState(true)
   const { teacher } = useTeacher()
-
+  const [showModal, setShowModal] = useState(false)
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
   const [sort, setSort] = useState<'asc' | 'desc'>('desc')
@@ -182,15 +182,19 @@ export default function MyCoursesPage() {
             My Courses ({filteredCourses.length})
           </h1>
 
-          {teacher.isVerified ? (
-            <Link href="/teacher/courses/create">
-              <button className="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-lg hover:scale-105 transition">
-                + Add New Course
-              </button>
-            </Link>
-          ) : (
-            ''
-          )}
+          <button
+            onClick={() => {
+              if (teacher.verificationStatus === "verified") {
+                window.location.href = "/teacher/courses/create";
+              } else {
+                setShowModal(true);
+              }
+            }}
+            className="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-lg hover:scale-105 transition"
+          >
+            + Add New Course
+          </button>
+
         </div>
 
         {/* Filters */}
@@ -385,6 +389,35 @@ export default function MyCoursesPage() {
             >
               Next
             </button>
+          </div>
+        )}
+
+        {showModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-lg p-6 w-[90%] max-w-md text-center">
+              <h2 className="text-xl font-semibold text-gray-800 mb-3">
+                Verification Pending
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Your verification is not yet completed. Please complete your profile verification
+                to create and publish courses.
+              </p>
+
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
+                >
+                  Close
+                </button>
+                <Link
+                  href="/teacher/profile"
+                  className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition"
+                >
+                  Complete Verification
+                </Link>
+              </div>
+            </div>
           </div>
         )}
       </main>

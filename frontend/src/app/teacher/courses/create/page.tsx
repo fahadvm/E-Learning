@@ -12,8 +12,7 @@ import Navigation from '@/components/teacher/course/addCourse/Navigation';
 import { Button } from '@/components/ui/button';
 import { showErrorToast, showSuccessToast } from '@/utils/Toast';
 import { ArrowLeft } from 'lucide-react';
-import axios from 'axios';
-import { teacherAuthApi, teacherCourseApi } from '@/services/APImethods/teacherAPImethods';
+import { teacherCourseApi } from '@/services/APImethods/teacherAPImethods';
 
 interface CourseLesson {
   id: string;
@@ -76,28 +75,9 @@ export default function CreateCoursePage() {
     isPublished: false,
     allowDiscounts: true,
     totalDuration: 0,
-
   });
 
-  const [modules, setModules] = useState<CourseModule[]>([
-    {
-      id: '1',
-      title: 'Introduction',
-      lessons: [
-        {
-          id: '1',
-          title: 'Welcome to the Course',
-          description: 'Course overview and what you\'ll learn',
-          type: 'video',
-          duration: 5,
-          isFree: true,
-          videoFile: null,
-          thumbnail: null,
-        },
-      ],
-    },
-  ]);
-
+  const [modules, setModules] = useState<CourseModule[]>([]); // Empty initial state
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const getTotalDuration = () => {
@@ -113,14 +93,34 @@ export default function CreateCoursePage() {
   };
 
   const canProceed = () => {
+    console.log('canProceed called, currentStep:', currentStep);
+    console.log('Modules state:', modules);
+
     switch (currentStep) {
       case 1:
         return courseData.title && courseData.description && courseData.category && courseData.coverImage;
-      case 2:
-        return (
-          modules.length > 0 &&
-          modules.every(module => module.lessons.length > 0 && module.lessons.every(lesson => lesson.videoFile))
-        );
+      case 2: {
+        if (modules.length !== 7) {
+          console.log('Validation failed: modules.length !== 7', modules.length);
+          // showErrorToast('You must have exactly 7 days in the curriculum.');
+          return false;
+        }
+        const emptyModules = modules.filter(module => module.lessons.length === 0);
+        if (emptyModules.length > 0) {
+          console.log('Validation failed: empty modules', emptyModules);
+          // showErrorToast('Each day must have at least one lesson.');
+          return false;
+        }
+        const lessonsWithoutVideo = modules
+          .flatMap(module => module.lessons)
+          .filter(lesson => !lesson.videoFile);
+        if (lessonsWithoutVideo.length > 0) {
+          console.log('Validation failed: lessons without video', lessonsWithoutVideo);
+          // showErrorToast('All lessons must have a video file uploaded.');
+          return false;
+        }
+        return true;
+      }
       case 3:
         return courseData.price >= 0;
       case 4:
@@ -132,7 +132,7 @@ export default function CreateCoursePage() {
 
   const handleSubmit = async () => {
     if (!canProceed()) {
-      showErrorToast('Please complete all required fields, including video files for all lessons.');
+      console.log('handleSubmit: canProceed returned false');
       return;
     }
 
@@ -155,34 +155,25 @@ export default function CreateCoursePage() {
       formData.append('learningOutcomes', JSON.stringify(courseData.learningOutcomes.filter(outcome => outcome.trim())));
       formData.append('requirements', JSON.stringify(courseData.requirements.filter(req => req.trim())));
 
-      // Append modules as JSON string to match backend parsing
+      // Append modules as JSON string
       formData.append('modules', JSON.stringify(modules));
 
       // Append files
       if (courseData.coverImage) {
         formData.append('coverImage', courseData.coverImage);
-        console.log('Appending coverImage:', courseData.coverImage.name);
       }
       modules.forEach((module, moduleIndex) => {
         module.lessons.forEach((lesson, lessonIndex) => {
           if (lesson.videoFile) {
             formData.append(`modules[${moduleIndex}][lessons][${lessonIndex}][videoFile]`, lesson.videoFile);
-            console.log(`Appending videoFile for module ${moduleIndex}, lesson ${lessonIndex}:`, lesson.videoFile.name);
-          } else {
-            console.warn(`No videoFile for module ${moduleIndex}, lesson ${lessonIndex}`);
           }
           if (lesson.thumbnail) {
             formData.append(`modules[${moduleIndex}][lessons][${lessonIndex}][thumbnail]`, lesson.thumbnail);
-            console.log(`Appending thumbnail for module ${moduleIndex}, lesson ${lessonIndex}:`, lesson.thumbnail.name);
           }
         });
       });
 
-      // Log FormData
-      for (const [key, value] of formData.entries()) {
-        console.log(`FormData: ${key}`, value instanceof File ? value.name : value);
-      }
-      const res = await teacherCourseApi.addCourse(formData)
+      const res = await teacherCourseApi.addCourse(formData);
 
       if (res.ok) {
         showSuccessToast('Course created successfully!');
@@ -249,7 +240,7 @@ export default function CreateCoursePage() {
         <Navigation
           currentStep={currentStep}
           setCurrentStep={setCurrentStep}
-          canProceed={canProceed()}
+          canProceed={canProceed}
           isSubmitting={isSubmitting}
           handleSubmit={handleSubmit}
           isPublished={courseData.isPublished}

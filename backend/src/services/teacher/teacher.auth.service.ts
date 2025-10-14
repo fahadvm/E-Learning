@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { ITeacherAuthService } from '../../core/interfaces/services/teacher/ITeacherAuthService';
 import { ITeacherRepository } from '../../core/interfaces/repositories/ITeacherRepository';
 import { IOtpRepository } from '../../core/interfaces/repositories/admin/IOtpRepository';
-import { ITeacher } from '../../models/Teacher';
+import { ITeacher, VerificationStatus } from '../../models/Teacher';
 import { throwError } from '../../utils/ResANDError';
 import { generateAccessToken, generateRefreshToken } from '../../utils/JWTtoken';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
@@ -56,13 +56,13 @@ export class TeacherAuthService implements ITeacherAuthService {
     if (!record.tempUserData) throwError(MESSAGES.TEMP_USER_DATA_MISSING, STATUS_CODES.BAD_REQUEST);
 
     const { name, password } = record.tempUserData;
-    const teacher = await this._teacherRepo.create({ name, email, password, isVerified: true, isBlocked: false });
+    const teacher = await this._teacherRepo.create({ name, email, password,  isBlocked: false });
     await this._otpRepository.deleteByEmail(email);
     const teacherId = teacher?._id.toString();
 
 
-    const token = generateAccessToken(teacherId, 'Teacher');
-    const refreshToken = generateRefreshToken(teacherId, 'Teacher');
+    const token = generateAccessToken(teacherId, 'teacher');
+    const refreshToken = generateRefreshToken(teacherId, 'teacher');
     return { token, refreshToken, user: { id: teacherId, role: 'teacher', email: teacher.email, name: teacher.name } };
   }
 
@@ -70,7 +70,6 @@ export class TeacherAuthService implements ITeacherAuthService {
     const teacher = await this._teacherRepo.findByEmail(email);
     if (!teacher) throwError(MESSAGES.INVALID_CREDENTIALS, STATUS_CODES.BAD_REQUEST);
     if (teacher.password && !(await bcrypt.compare(password, teacher.password))) throwError(MESSAGES.INVALID_CREDENTIALS, STATUS_CODES.BAD_REQUEST);
-    if (!teacher.isVerified) throwError(MESSAGES.TEACHER_NOT_VERIFIED, STATUS_CODES.UNAUTHORIZED);
     if (teacher.isBlocked) throwError(MESSAGES.ACCOUNT_BLOCKED, STATUS_CODES.FORBIDDEN);
     const teacherId = teacher?._id.toString();
 
@@ -136,5 +135,6 @@ export class TeacherAuthService implements ITeacherAuthService {
     await this._otpRepository.deleteByEmail(email);
   }
 
+ 
 
 }

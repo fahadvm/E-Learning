@@ -23,6 +23,7 @@ export const teacherProfileApi = {
     getProfile: () => get("/teacher/profile/"),
     createProfile: (data: any) => post("/teacher/profile/", data),
     editProfile: (data: any) => patch("/teacher/profile/", data),
+    sendVerificationRequest: (data:any) => post("/teacher/profile/verify",data),
 };
 
 export const teacherCourseApi = {

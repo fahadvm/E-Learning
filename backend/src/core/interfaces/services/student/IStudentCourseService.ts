@@ -1,4 +1,5 @@
 import { GetStudentCoursesRequestDTO, IStudentCourseDTO ,PaginatedCourseDTO} from '../../../../core/dtos/student/Student.course.Dto';
+import { ICourseProgress } from '../../../../models/Student';
 
 export interface IStudentCourseService {
   getAllCourses(filters: GetStudentCoursesRequestDTO): Promise<PaginatedCourseDTO>;
@@ -6,13 +7,8 @@ export interface IStudentCourseService {
    markLessonComplete(
     studentId: string,
     courseId: string,
-    moduleIndex: number,
-    lessonIndex: number
-  ): Promise<{
-    ok: boolean;
-    message?: string;
-    data?: any;
-  }>;
+    lessonId: string
+  ): Promise<ICourseProgress>;
 }
 
 export interface CourseFilters {

@@ -1,5 +1,5 @@
 // core/interfaces/repositories/student/IStudentRepository.ts
-import { IStudent ,ICourseProgress} from '../../../models/Student';
+import { IStudent, ICourseProgress } from '../../../models/Student';
 import { FilterQuery } from 'mongoose';
 
 export interface IStudentRepository {
@@ -13,9 +13,6 @@ export interface IStudentRepository {
   updateByEmail(email: string, updateData: Partial<IStudent>): Promise<IStudent | null>;
   updateProfile(studentId: string, profileData: Partial<IStudent>): Promise<IStudent | null>;
   count(search?: string): Promise<number>;
-   updateStudentProgress(
-  studentId: string,
-  courseId: string,
-  lessonId: string
-): Promise<ICourseProgress>;
+  updateStudentProgress(studentId: string,courseId: string,lessonId: string): Promise<ICourseProgress>;
+  getOrCreateCourseProgress(studentId: string,courseId: string): Promise<ICourseProgress>
 }

@@ -12,7 +12,7 @@ interface Step {
 interface NavigationProps {
   currentStep: number;
   setCurrentStep: React.Dispatch<React.SetStateAction<number>>;
-  canProceed: any;
+  canProceed: () => boolean; 
   isSubmitting: boolean;
   handleSubmit: () => void;
   isPublished: boolean;
@@ -28,6 +28,16 @@ export default function Navigation({
   isPublished,
   steps,
 }: NavigationProps) {
+  const handleNext = () => {
+    console.log('Next button clicked, currentStep:', currentStep);
+    if (canProceed()) {
+      console.log('canProceed returned true, advancing to step', currentStep + 1);
+      setCurrentStep(prev => prev + 1);
+    } else {
+      console.log('canProceed returned false, staying on step', currentStep);
+    }
+  };
+
   return (
     <div className="flex items-center justify-between">
       <Button
@@ -42,8 +52,8 @@ export default function Navigation({
       <div className="flex items-center space-x-2">
         {currentStep < 4 ? (
           <Button
-            onClick={() => setCurrentStep(prev => prev + 1)}
-            disabled={!canProceed}
+            onClick={handleNext}
+            disabled={!canProceed()}
             data-testid="button-next-step"
           >
             Next: {steps[currentStep]?.title}
@@ -51,7 +61,7 @@ export default function Navigation({
         ) : (
           <Button
             onClick={handleSubmit}
-            disabled={isSubmitting || !canProceed}
+            disabled={isSubmitting || !canProceed()}
             data-testid="button-create-course"
           >
             {isSubmitting

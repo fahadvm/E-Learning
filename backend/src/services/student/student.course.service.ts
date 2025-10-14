@@ -8,6 +8,7 @@ import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { IStudentCourseDTO, StudentCourseDTO, PaginatedCourseDTO, GetStudentCoursesRequestDTO } from '../../core/dtos/student/Student.course.Dto';
 import { IStudentRepository } from '../../core/interfaces/repositories/IStudentRepository';
+import { ICourseProgress } from '../../models/Student';
 
 @injectable()
 export class StudentCourseService implements IStudentCourseService {
@@ -53,34 +54,14 @@ export class StudentCourseService implements IStudentCourseService {
    async markLessonComplete(
     studentId: string,
     courseId: string,
-    moduleIndex: number,
-    lessonIndex: number
-  ) {
+    lessonId: string
+  ):Promise<ICourseProgress> {
+    console.log( "lessonIndex", courseId)
+    
     const course = await this._courseRepo.findById(courseId);
-    if (!course) {
-      return { ok: false, message: "Course not found" };
-    }
-
-    const module = course.modules[moduleIndex];
-    if (!module) {
-      return { ok: false, message: "Module not found" };
-    }
-
-    const lesson = module.lessons[lessonIndex];
-    if (!lesson) {
-      return { ok: false, message: "Lesson not found" };
-    }
-
-    const progress = await this._studentRepo.updateStudentProgress(
-      studentId,
-      courseId,
-      lesson._id.toString(),
-    );
-
-    return {
-      ok: true,
-      data: progress,
-    };
+    if (!course) throwError( MESSAGES.COURSE_NOT_FOUND ,STATUS_CODES.NOT_FOUND )
+    const progress = await this._studentRepo.updateStudentProgress(studentId,courseId,lessonId);
+    return progress
   }
 
 

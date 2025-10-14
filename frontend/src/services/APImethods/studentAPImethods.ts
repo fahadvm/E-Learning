@@ -24,7 +24,7 @@ export const studentCourseApi = {
   getCourseDetailById: (courseId: string) => get(`/student/courses/${courseId}`),
   getMyCourses: () => get(`/student/purchase/enrolled`),
   getMyCourseDetails: (courseId: string) => get(`/student/purchase/enrolled/${courseId}`),
-  markLessonComplete:(courseId  : string, moduleIndex: number, lessonIndex: number)=> get(`/student/purchase/${courseId}/module/${moduleIndex}/lesson/${lessonIndex}/complete`),
+  markLessonComplete:(courseId  : string, lessonIndex: string)=> get(`/student/courses/${courseId}/lesson/${lessonIndex}/complete`),
 };
 
 export const studentProfileApi = {

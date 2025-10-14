@@ -47,11 +47,14 @@ export class StudentCourseController implements IStudentCourseController {
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, course);
   };
   markLessonComplete = async (req: AuthRequest, res: Response) => {
-    const  studentId  = req.user?.id;
-    const { courseId, moduleIndex, lessonIndex } = req.params;
+    const studentId = req.user?.id;
+    const { courseId, lessonIndex } = req.params;
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
-    const result = await this._courseService.markLessonComplete(
-        studentId,courseId,Number(moduleIndex), Number(lessonIndex));
-    return sendResponse(res, STATUS_CODES.OK, MESSAGES.COMPLETD_LESSON_MARKED, true, result);
+    if (!lessonIndex) throwError("Lesson ID is required", STATUS_CODES.BAD_REQUEST);
+    console.log(studentId,courseId,lessonIndex)
+    const result = await this._courseService.markLessonComplete(studentId,courseId,lessonIndex);
+    console.log("here controller will show the final result ", result)
+    return sendResponse(res,STATUS_CODES.OK,MESSAGES.COMPLETD_LESSON_MARKED,true,result);
   };
+
 }

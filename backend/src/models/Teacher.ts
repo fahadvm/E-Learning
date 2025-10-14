@@ -1,4 +1,11 @@
-import mongoose, { Schema, Document ,Types} from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
+
+export enum VerificationStatus {
+  UNVERIFIED = "unverified",
+  PENDING = "pending",
+  VERIFIED = "verified",
+  REJECTED = "rejected",
+}
 
 export interface Education {
   degree: string;
@@ -26,11 +33,11 @@ export interface SocialLinks {
 }
 
 export interface ITeacher extends Document {
-  _id: Types.ObjectId; 
+  _id: Types.ObjectId;
   name: string;
   email: string;
   password?: string;
-  isVerified: boolean;
+  verificationStatus: VerificationStatus;
   isRejected: boolean;
   isBlocked: boolean;
   otp?: string;
@@ -43,6 +50,7 @@ export interface ITeacher extends Document {
   location: string;
   phone: string;
   website: string;
+  resumeUrl: string;
   social_links: SocialLinks;
   education: Education[];
   experiences: Experience[];
@@ -101,7 +109,7 @@ const TeacherSchema = new Schema<ITeacher>(
     },
     googleId: { type: String },
     role: { type: String, default: 'Teacher' },
-    isVerified: { type: Boolean, default: false },
+    verificationStatus: { type: String, enum: Object.values(VerificationStatus), default: VerificationStatus.UNVERIFIED },
     isRejected: { type: Boolean, default: false },
     isBlocked: { type: Boolean, default: false },
     googleUser: { type: Boolean, default: false },
@@ -112,6 +120,7 @@ const TeacherSchema = new Schema<ITeacher>(
     location: { type: String, default: '' },
     phone: { type: String, default: '' },
     website: { type: String, default: '' },
+    resumeUrl: { type: String, default: '' },
     social_links: { type: SocialLinksSchema, default: {} },
     education: { type: [EducationSchema], default: [] },
     experiences: { type: [ExperienceSchema], default: [] },

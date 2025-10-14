@@ -1,13 +1,15 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { BookOpen, Plus, Trash2, Video, Upload, X } from 'lucide-react';
+import { BookOpen, Plus, Trash2, Video, Upload, X, AlertCircle } from 'lucide-react';
 import Cropper, { Area } from 'react-easy-crop';
 import 'react-easy-crop/react-easy-crop.css';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { showErrorToast } from '@/utils/Toast';
 
 interface CourseLesson {
   id: string;
@@ -39,16 +41,18 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
   const [showCropper, setShowCropper] = useState(false);
   const [currentLessonId, setCurrentLessonId] = useState<string | null>(null);
   const [currentModuleId, setCurrentModuleId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('1');
 
-  // Add a new module
-  const addModule = () => {
-    const newModule: CourseModule = {
-      id: Date.now().toString(),
-      title: 'New Module',
-      lessons: [],
-    };
-    setModules(prev => [...prev, newModule]);
-  };
+  useEffect(() => {
+    if (modules.length === 0) {
+      const initialModules: CourseModule[] = Array.from({ length: 7 }, (_, index) => ({
+        id: (index + 1).toString(),
+        title: `Day ${index + 1}`,
+        lessons: [],
+      }));
+      setModules(initialModules);
+    }
+  }, [modules, setModules]);
 
   // Add a new lesson
   const addLesson = (moduleId: string) => {
@@ -88,11 +92,11 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
     const file = e.target.files?.[0];
     if (file) {
       if (!file.type.startsWith('video/')) {
-        alert('Please upload a video file');
+        showErrorToast('Please upload a video file');
         return;
       }
-      if (file.size > 100 * 1024 * 1024) { // 100MB limit
-        alert('Video size must be less than 100MB');
+      if (file.size > 100 * 1024 * 1024) {
+        showErrorToast('Video size must be less than 100MB');
         return;
       }
       setModules(prev =>
@@ -115,11 +119,11 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
     const file = e.target.files?.[0];
     if (file) {
       if (!file.type.startsWith('image/')) {
-        alert('Please upload an image file');
+        showErrorToast('Please upload an image file');
         return;
       }
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        alert('Image size must be less than 5MB');
+      if (file.size > 5 * 1024 * 1024) {
+        showErrorToast('Image size must be less than 5MB');
         return;
       }
       const reader = new FileReader();
@@ -198,7 +202,7 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
         setCurrentLessonId(null);
       } catch (error) {
         console.error('Error cropping image:', error);
-        alert('Failed to crop thumbnail. Please try again.');
+        showErrorToast('Failed to crop thumbnail. Please try again.');
       }
     }
   };
@@ -220,28 +224,27 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
             {getTotalLessons()} lessons • {Math.floor(getTotalDuration() / 60)}h {getTotalDuration() % 60}m total
           </p>
         </div>
-        <Button onClick={addModule} data-testid="button-add-module">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Module
-        </Button>
       </div>
 
-      <div className="space-y-4">
-        {modules.map((module, moduleIndex) => (
-          <Card key={module.id} data-testid={`module-${module.id}`}>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <Input
-                  value={module.title}
-                  onChange={(e) =>
-                    setModules(prev =>
-                      prev.map(s => (s.id === module.id ? { ...s, title: e.target.value } : s))
-                    )
-                  }
-                  className="text-lg font-medium border-0 p-0 h-auto bg-transparent"
-                  data-testid={`input-module-title-${module.id}`}
-                />
-                <div className="flex items-center space-x-2">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-7">
+          {modules.map((module) => (
+            <TabsTrigger
+              key={module.id}
+              value={module.id}
+              data-testid={`tab-day-${module.id}`}
+            >
+              {module.title}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+
+        {modules.map((module) => (
+          <TabsContent key={module.id} value={module.id}>
+            <Card data-testid={`module-${module.id}`}>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <h4 className="text-lg font-medium">{module.title}</h4>
                   <Button
                     variant="outline"
                     size="sm"
@@ -251,190 +254,184 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
                     <Plus className="h-4 w-4 mr-1" />
                     Add Lesson
                   </Button>
-                  {modules.length > 1 && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setModules(prev => prev.filter(s => s.id !== module.id))}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {module.lessons.map((lesson, lessonIndex) => (
-                  <div
-                    key={lesson.id}
-                    className="flex items-start space-x-3 p-3 border rounded-lg"
-                    data-testid={`lesson-${lesson.id}`}
-                  >
-                    <div className="flex-shrink-0">
-                      <Video className="h-5 w-5 text-blue-500" />
-                    </div>
-                    <div className="flex-1 grid grid-cols-1 md:grid-cols-5 gap-2">
-                      <div className="md:col-span-2 space-y-2">
-                        <Input
-                          value={lesson.title}
-                          onChange={(e) =>
-                            setModules(prev =>
-                              prev.map(s =>
-                                s.id === module.id
-                                  ? {
-                                      ...s,
-                                      lessons: s.lessons.map(l =>
-                                        l.id === lesson.id ? { ...l, title: e.target.value } : l
-                                      ),
-                                    }
-                                  : s
-                              )
-                            )
-                          }
-                          placeholder="Lesson title"
-                          data-testid={`input-lesson-title-${lesson.id}`}
-                        />
-                        <Input
-                          value={lesson.description}
-                          onChange={(e) =>
-                            setModules(prev =>
-                              prev.map(s =>
-                                s.id === module.id
-                                  ? {
-                                      ...s,
-                                      lessons: s.lessons.map(l =>
-                                        l.id === lesson.id ? { ...l, description: e.target.value } : l
-                                      ),
-                                    }
-                                  : s
-                              )
-                            )
-                          }
-                          placeholder="Lesson description"
-                          data-testid={`input-lesson-description-${lesson.id}`}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Video File</Label>
-                        <Input
-                          type="file"
-                          accept="video/*"
-                          onChange={(e) => handleVideoUpload(module.id, lesson.id, e)}
-                          className="text-sm"
-                          data-testid={`input-video-${lesson.id}`}
-                        />
-                        {lesson.videoFile && (
-                          <p className="text-sm text-muted-foreground">{lesson.videoFile.name}</p>
-                        )}
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Thumbnail</Label>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleThumbnailUpload(module.id, lesson.id, e)}
-                          className="text-sm"
-                          data-testid={`input-thumbnail-${lesson.id}`}
-                        />
-                        {lesson.thumbnail && (
-                          <img
-                            src={URL.createObjectURL(lesson.thumbnail)}
-                            alt="Lesson thumbnail"
-                            className="max-w-[100px] rounded-md object-cover"
-                            style={{ aspectRatio: '16/9' }}
-                          />
-                        )}
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Input
-                          type="number"
-                          value={lesson.duration}
-                          onChange={(e) =>
-                            setModules(prev =>
-                              prev.map(s =>
-                                s.id === module.id
-                                  ? {
-                                      ...s,
-                                      lessons: s.lessons.map(l =>
-                                        l.id === lesson.id
-                                          ? { ...l, duration: parseInt(e.target.value) || 0 }
-                                          : l
-                                      ),
-                                    }
-                                  : s
-                              )
-                            )
-                          }
-                          placeholder="Duration"
-                          className="w-20"
-                          data-testid={`input-duration-${lesson.id}`}
-                        />
-                        <span className="text-xs text-muted-foreground">min</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <label className="flex items-center space-x-1 text-sm">
-                        <input
-                          type="checkbox"
-                          checked={lesson.isFree}
-                          onChange={(e) =>
-                            setModules(prev =>
-                              prev.map(s =>
-                                s.id === module.id
-                                  ? {
-                                      ...s,
-                                      lessons: s.lessons.map(l =>
-                                        l.id === lesson.id ? { ...l, isFree: e.target.checked } : l
-                                      ),
-                                    }
-                                  : s
-                              )
-                            )
-                          }
-                          data-testid={`checkbox-free-${lesson.id}`}
-                        />
-                        <span>Free</span>
-                      </label>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {module.lessons.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <BookOpen className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                      <p className="flex items-center justify-center text-red-500">
+                        <AlertCircle className="h-5 w-5 mr-2" />
+                        This day requires at least one lesson
+                      </p>
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() =>
-                          setModules(prev =>
-                            prev.map(s =>
-                              s.id === module.id
-                                ? { ...s, lessons: s.lessons.filter(l => l.id !== lesson.id) }
-                                : s
-                            )
-                          )
-                        }
-                        data-testid={`button-delete-lesson-${lesson.id}`}
+                        onClick={() => addLesson(module.id)}
+                        className="mt-2"
+                        data-testid={`button-add-first-lesson-${module.id}`}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        Add First Lesson
                       </Button>
                     </div>
-                  </div>
-                ))}
-                {module.lessons.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <BookOpen className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                    <p>No lessons in this module yet</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => addLesson(module.id)}
-                      className="mt-2"
-                      data-testid={`button-add-first-lesson-${module.id}`}
+                  )}
+                  {module.lessons.map((lesson, lessonIndex) => (
+                    <div
+                      key={lesson.id}
+                      className="flex items-start space-x-3 p-3 border rounded-lg"
+                      data-testid={`lesson-${lesson.id}`}
                     >
-                      Add First Lesson
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                      <div className="flex-shrink-0">
+                        <Video className="h-5 w-5 text-blue-500" />
+                      </div>
+                      <div className="flex-1 grid grid-cols-1 md:grid-cols-5 gap-2">
+                        <div className="md:col-span-2 space-y-2">
+                          <Input
+                            value={lesson.title}
+                            onChange={(e) =>
+                              setModules((prev) =>
+                                prev.map((s) =>
+                                  s.id === module.id
+                                    ? {
+                                        ...s,
+                                        lessons: s.lessons.map((l) =>
+                                          l.id === lesson.id ? { ...l, title: e.target.value } : l
+                                        ),
+                                      }
+                                    : s
+                                )
+                              )
+                            }
+                            placeholder="Lesson title"
+                            data-testid={`input-lesson-title-${lesson.id}`}
+                          />
+                          <Input
+                            value={lesson.description}
+                            onChange={(e) =>
+                              setModules((prev) =>
+                                prev.map((s) =>
+                                  s.id === module.id
+                                    ? {
+                                        ...s,
+                                        lessons: s.lessons.map((l) =>
+                                          l.id === lesson.id ? { ...l, description: e.target.value } : l
+                                        ),
+                                      }
+                                    : s
+                                )
+                              )
+                            }
+                            placeholder="Lesson description"
+                            data-testid={`input-lesson-description-${lesson.id}`}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Video File</Label>
+                          <Input
+                            type="file"
+                            accept="video/*"
+                            onChange={(e) => handleVideoUpload(module.id, lesson.id, e)}
+                            className="text-sm"
+                            data-testid={`input-video-${lesson.id}`}
+                          />
+                          {lesson.videoFile && (
+                            <p className="text-sm text-muted-foreground">{lesson.videoFile.name}</p>
+                          )}
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Thumbnail</Label>
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleThumbnailUpload(module.id, lesson.id, e)}
+                            className="text-sm"
+                            data-testid={`input-thumbnail-${lesson.id}`}
+                          />
+                          {lesson.thumbnail && (
+                            <img
+                              src={URL.createObjectURL(lesson.thumbnail)}
+                              alt="Lesson thumbnail"
+                              className="max-w-[100px] rounded-md object-cover"
+                              style={{ aspectRatio: '16/9' }}
+                            />
+                          )}
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Input
+                            type="number"
+                            value={lesson.duration}
+                            onChange={(e) =>
+                              setModules((prev) =>
+                                prev.map((s) =>
+                                  s.id === module.id
+                                    ? {
+                                        ...s,
+                                        lessons: s.lessons.map((l) =>
+                                          l.id === lesson.id
+                                            ? { ...l, duration: parseInt(e.target.value) || 0 }
+                                            : l
+                                        ),
+                                      }
+                                    : s
+                                )
+                              )
+                            }
+                            placeholder="Duration"
+                            className="w-20"
+                            data-testid={`input-duration-${lesson.id}`}
+                          />
+                          <span className="text-xs text-muted-foreground">min</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <label className="flex items-center space-x-1 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={lesson.isFree}
+                            onChange={(e) =>
+                              setModules((prev) =>
+                                prev.map((s) =>
+                                  s.id === module.id
+                                    ? {
+                                        ...s,
+                                        lessons: s.lessons.map((l) =>
+                                          l.id === lesson.id ? { ...l, isFree: e.target.checked } : l
+                                        ),
+                                      }
+                                    : s
+                                )
+                              )
+                            }
+                            data-testid={`checkbox-free-${lesson.id}`}
+                          />
+                          <span>Free</span>
+                        </label>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            setModules((prev) =>
+                              prev.map((s) =>
+                                s.id === module.id
+                                  ? { ...s, lessons: s.lessons.filter((l) => l.id !== lesson.id) }
+                                  : s
+                              )
+                            )
+                          }
+                          data-testid={`button-delete-lesson-${lesson.id}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         ))}
-      </div>
+      </Tabs>
 
       {showCropper && imageSrc && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

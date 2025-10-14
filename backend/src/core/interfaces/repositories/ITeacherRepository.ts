@@ -1,4 +1,4 @@
-import { ITeacher } from '../../../models/Teacher';
+import { ITeacher, VerificationStatus } from '../../../models/Teacher';
 
 export interface ITeacherRepository {
   create(teacher: Partial<ITeacher>): Promise<ITeacher>;
@@ -21,4 +21,7 @@ export interface ITeacherRepository {
   verifyTeacherById(id: string): Promise<ITeacher | null>;
   rejectTeacherById(id: string): Promise<ITeacher | null>;
   updateStatus(teacherId: string, updates: Partial<ITeacher>): Promise<ITeacher | null>;
+  sendVerificationRequest(id: string, status: VerificationStatus ,resumeUrl:string): Promise<ITeacher | null>
+  updateVerificationStatus(id: string, status: VerificationStatus): Promise<ITeacher | null>
+  isProfileComplete(id: string): Promise<boolean>
 }

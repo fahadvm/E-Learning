@@ -41,7 +41,7 @@ export interface ITeacher {
   userId: string;
   name: string;
   email: string;
-  isVerified: boolean;
+  verificationStatus: string;
   isBlocked: boolean;
   role: string;
   googleId?: string;

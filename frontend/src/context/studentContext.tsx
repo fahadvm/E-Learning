@@ -17,6 +17,15 @@ export interface SocialLinks {
   twitter: string;
   instagram: string;
 }
+export interface IcoursesProgress {
+  _id:string;
+  courseId: string;
+  completedLessons: string[];
+  completedModules: string[];
+  percentage:number;
+  lastVisitedLesson:string
+}
+
 
 export interface IStudent {
   _id?: string;
@@ -37,6 +46,7 @@ export interface IStudent {
   isPremium: boolean;
   createdAt: Date;
   updatedAt: Date;
+  coursesProgress : IcoursesProgress[]
 }
 
 interface StudentContextType {

@@ -16,11 +16,10 @@ import {
   Send,
   Trash2,
   UserRound,
-  VideoIcon
-
+  VideoIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -28,18 +27,29 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { studentCourseApi } from "@/services/APImethods/studentAPImethods";
+import { showSuccessToast, showErrorToast } from "@/utils/Toast";
+import React from "react";
 
 interface Lesson {
-  id: string;
+  _id: string;
   title: string;
   duration: number;
-  completed?: boolean;
   videoFile?: string;
+  completed: boolean;
 }
 
 interface Module {
+  _id: string;
   title: string;
   lessons: Lesson[];
+}
+
+interface CourseProgress {
+  courseId: string;
+  completedLessons: string[];
+  completedModules: string[];
+  percentage: number;
+  lastVisitedLesson?: string;
 }
 
 interface Course {
@@ -61,19 +71,40 @@ interface Course {
   modules?: Module[];
 }
 
-export default function CoursePage({ params }: { params: { id: string } }) {
-  const courseId = params?.id as string;
+interface StudentCourseResponse {
+  course: Course;
+  progress: CourseProgress;
+}
+
+export default function CoursePage({ params }: { params: Promise<{ id: string }> }) {
+  const [courseId, setCourseId] = useState<string>("");
   const [course, setCourse] = useState<Course | null>(null);
+  const [progress, setProgress] = useState<CourseProgress | null>(null);
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
-  const [notes, setNotes] = useState<string>(() => localStorage.getItem(`notes_${courseId}`) || "");
-  const [comments, setComments] = useState<string[]>(() => JSON.parse(localStorage.getItem(`comments_${courseId}`) || "[]"));
+  const [notes, setNotes] = useState<string>("");
+  const [comments, setComments] = useState<string[]>([]);
   const [newComment, setNewComment] = useState("");
   const [code, setCode] = useState("// Try some code here!");
   const [output, setOutput] = useState("");
 
   useEffect(() => {
-    fetchCourse();
+  const fetchParams = async () => {
+    const resolvedParams = await params;
+    if (resolvedParams?.id) {
+      setCourseId(resolvedParams.id);
+      setNotes(localStorage.getItem(`notes_${resolvedParams.id}`) || "");
+      setComments(
+        JSON.parse(localStorage.getItem(`comments_${resolvedParams.id}`) || "[]")
+      );
+    }
+  };
+
+  fetchParams();
+}, [params]);
+
+  useEffect(() => {
+    if (courseId) fetchCourse();
   }, [courseId]);
 
   const fetchCourse = async () => {
@@ -81,62 +112,125 @@ export default function CoursePage({ params }: { params: { id: string } }) {
       setLoading(true);
       const res = await studentCourseApi.getMyCourseDetails(courseId);
       if (res.ok) {
-        const courseData = res.data;
-        console.log("course details:", courseData)
-        setCourse(courseData);
-        const firstLesson = courseData.modules?.[0]?.lessons?.[0] || null;
-        setCurrentLesson(firstLesson);
+        const { course: courseData, progress: progressData }: StudentCourseResponse = res.data;
+
+        // Map module and lesson IDs and completion status
+        const updatedModules = courseData.modules?.map((module, moduleIndex) => ({
+          ...module,
+          id: module._id ,
+          completed: progressData.completedModules?.includes(module._id) || false,
+          lessons: module.lessons.map((lesson, lessonIndex) => ({
+            ...lesson,
+            id: lesson._id ,
+            completed: progressData.completedLessons?.includes(lesson._id) || false,
+          })),
+        }));
+
+        setCourse({ ...courseData, modules: updatedModules });
+        setProgress(progressData);
+
+        // Set current lesson to last visited or first lesson
+        const lastVisitedLessonId = progressData.lastVisitedLesson;
+        const firstLesson = updatedModules?.[0]?.lessons?.[0] || null;
+        const lastVisitedLesson = lastVisitedLessonId
+          ? updatedModules
+              ?.flatMap((m) => m.lessons)
+              .find((l) => l._id === lastVisitedLessonId) || firstLesson
+          : firstLesson;
+        setCurrentLesson(lastVisitedLesson);
       } else {
-        console.error("Failed to fetch course:", res.message);
+        showErrorToast(res.message);
       }
     } catch (err) {
-      console.error("Error fetching course:", err);
+      showErrorToast("Failed to fetch course");
     } finally {
       setLoading(false);
     }
   };
 
-  const calculateAverageRating = (reviews?: { rating: number }[]) => {
-    if (!reviews || reviews.length === 0) return "No rating";
-    const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
-    return avg.toFixed(1);
-  };
+  const totalLessonsCount = course?.modules?.flatMap((m) => m.lessons).length || 0;
+  const completedLessonsCount = progress?.completedLessons?.length || 0;
 
-  const completedLessonsCount =
-    course?.modules?.flatMap((m) => m.lessons).filter((l) => l.completed).length || 0;
-  const totalLessonsCount =
-    course?.modules?.flatMap((m) => m.lessons).length || 0;
-  const progress = totalLessonsCount > 0 ? (completedLessonsCount / totalLessonsCount) * 100 : 0;
-
-  const markLessonComplete = async (moduleIndex: number, lessonIndex: number) => {
-    if (!course) return;
-    const lesson = course.modules![moduleIndex].lessons[lessonIndex];
-    if (lesson.completed) return;
+  const markLessonComplete = async (lessonId: string) => {
+    if (!course || !progress || progress.completedLessons?.includes(lessonId)) return;
 
     try {
-      const res = await studentCourseApi.markLessonComplete(course._id, moduleIndex, lessonIndex);
+      // Optimistically update the UI
+      const updatedProgress = {
+        ...progress,
+        completedLessons: [...progress.completedLessons, lessonId],
+        percentage: ((progress.completedLessons.length + 1) / totalLessonsCount) * 100,
+      };
+
+      setProgress(updatedProgress);
+
+      // Update course and current lesson states based on the new progress
+      setCourse((prev) => {
+        if (!prev) return prev;
+        const updatedModules = prev.modules?.map((mod) => ({
+          ...mod,
+          completed: updatedProgress.completedModules?.includes(mod._id) || false,
+          lessons: mod.lessons.map((les) => ({
+            ...les,
+            completed: updatedProgress.completedLessons.includes(les._id),
+          })),
+        }));
+        return { ...prev, modules: updatedModules };
+      });
+
+      setCurrentLesson((prev) => (prev && prev._id === lessonId ? { ...prev, completed: true } : prev));
+
+      // Make API call to mark lesson complete
+      const res = await studentCourseApi.markLessonComplete(course._id, lessonId);
       if (res.ok) {
+        console.log("server progress is ",res.data)
+        // Update with server response to ensure consistency
+        const serverProgress: CourseProgress = res.data;
+
+        // Ensure completedLessons is an array
+        if (!Array.isArray(serverProgress.completedLessons)) {
+          console.error("Invalid server response: completedLessons is not an array", serverProgress);
+          await fetchCourse(); // Re-fetch to restore correct state
+          showErrorToast("Invalid server response");
+          return;
+        }
+
+        setProgress(serverProgress);
+
+        // Re-sync course and current lesson with server data
         setCourse((prev) => {
           if (!prev) return prev;
-          const updatedModules = prev.modules?.map((mod, mIdx) => {
-            if (mIdx !== moduleIndex) return mod;
-            const updatedLessons = mod.lessons.map((les, lIdx) => {
-              if (lIdx !== lessonIndex) return les;
-              return { ...les, completed: true };
-            });
-            return { ...mod, lessons: updatedLessons };
-          });
+          const updatedModules = prev.modules?.map((mod) => ({
+            ...mod,
+            completed: serverProgress.completedModules?.includes(mod._id) || false,
+            lessons: mod.lessons.map((les) => ({
+              ...les,
+              completed: serverProgress.completedLessons.includes(les._id),
+            })),
+          }));
           return { ...prev, modules: updatedModules };
         });
-        setCurrentLesson((prev) => prev && { ...prev, completed: true });
+
+        setCurrentLesson((prev) =>
+          prev && prev._id === lessonId ? { ...prev, completed: serverProgress.completedLessons.includes(lessonId) } : prev
+        );
+
+        showSuccessToast("Lesson marked as complete");
+      } else {
+        // Revert optimistic update on failure
+        await fetchCourse(); // Re-fetch to restore correct state
+        showErrorToast(res.message);
       }
     } catch (err) {
-      console.error("Error marking lesson complete:", err);
+      // Revert optimistic update on error
+      await fetchCourse(); // Re-fetch to restore correct state
+      showErrorToast("Failed to mark lesson complete");
     }
   };
 
   const handleNotesSave = () => {
     localStorage.setItem(`notes_${courseId}`, notes);
+    showSuccessToast("Notes saved");
   };
 
   const handleAddComment = () => {
@@ -145,6 +239,7 @@ export default function CoursePage({ params }: { params: { id: string } }) {
     setComments(updated);
     localStorage.setItem(`comments_${courseId}`, JSON.stringify(updated));
     setNewComment("");
+    showSuccessToast("Comment added");
   };
 
   const handleRunCode = async () => {
@@ -157,7 +252,7 @@ export default function CoursePage({ params }: { params: { id: string } }) {
           clientSecret: "YOUR_JDOODLE_CLIENT_SECRET",
           script: code,
           language: "nodejs",
-          versionIndex: "4"
+          versionIndex: "4",
         }),
       });
       const data = await res.json();
@@ -174,7 +269,7 @@ export default function CoursePage({ params }: { params: { id: string } }) {
       </div>
     );
 
-  if (!course)
+  if (!course || !progress)
     return (
       <div className="flex justify-center items-center h-screen text-lg">
         Course not found
@@ -194,7 +289,6 @@ export default function CoursePage({ params }: { params: { id: string } }) {
           </Link>
           <div className="flex items-center space-x-4">
             <Badge variant="secondary">{course.category}</Badge>
-
           </div>
         </div>
       </div>
@@ -209,15 +303,7 @@ export default function CoursePage({ params }: { params: { id: string } }) {
                   className="w-full aspect-video"
                   controls
                   src={currentLesson.videoFile}
-                  onEnded={() => {
-                    const m = course.modules!.findIndex((x) =>
-                      x.lessons.includes(currentLesson)
-                    );
-                    const l = course.modules![m].lessons.findIndex(
-                      (x) => x.id === currentLesson.id
-                    );
-                    markLessonComplete(m, l);
-                  }}
+                  onEnded={() => markLessonComplete(currentLesson._id)}
                 />
               ) : (
                 <div className="aspect-video bg-muted flex justify-center items-center text-muted-foreground">
@@ -241,15 +327,13 @@ export default function CoursePage({ params }: { params: { id: string } }) {
             <TabsContent value="overview">
               <Card className="rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 border border-gray-200">
                 <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 ">
-                    <UserRound className="w-5 h-5 " />
+                  <CardTitle className="flex items-center gap-2">
+                    <UserRound className="w-5 h-5" />
                     About Instructor
                   </CardTitle>
                 </CardHeader>
-
                 <CardContent>
                   <div className="flex items-center gap-4">
-                    {/* Instructor Profile Picture */}
                     <div className="w-14 h-14 rounded-full overflow-hidden border border-gray-300 shadow-sm">
                       <img
                         src={course.teacherId?.profilePicture || "/gallery/avatar.jpg"}
@@ -257,21 +341,16 @@ export default function CoursePage({ params }: { params: { id: string } }) {
                         className="object-cover w-full h-full"
                       />
                     </div>
-
-                    {/* Instructor Info */}
                     <div className="flex flex-col flex-1">
                       <div className="flex items-center justify-between flex-wrap gap-2">
                         <div className="flex items-center gap-2">
-
                           <Link
                             href={`/student/teacher/${course.teacherId?._id}?courseId=${course._id}`}
-                            className="font-medium  "
+                            className="font-medium"
                           >
                             {course.teacherId?.name || "Unknown Instructor"}
                           </Link>
                         </div>
-
-                        {/* Buttons */}
                         <div className="flex items-center gap-2">
                           {course.teacherId && (
                             <Link href={`/student/chat/${course.teacherId._id}`}>
@@ -284,7 +363,6 @@ export default function CoursePage({ params }: { params: { id: string } }) {
                               </Button>
                             </Link>
                           )}
-
                           <Link
                             href={`/student/teacher/call-shedule/${course.teacherId?._id}?courseId=${course._id}`}
                           >
@@ -298,8 +376,6 @@ export default function CoursePage({ params }: { params: { id: string } }) {
                           </Link>
                         </div>
                       </div>
-
-                      {/* About Instructor */}
                       <p className="text-sm text-gray-600 mt-1 leading-snug max-w-xl">
                         {course.teacherId?.about
                           ? course.teacherId.about.length > 90
@@ -311,8 +387,6 @@ export default function CoursePage({ params }: { params: { id: string } }) {
                   </div>
                 </CardContent>
               </Card>
-
-
               <Card className="mt-3">
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -331,19 +405,9 @@ export default function CoursePage({ params }: { params: { id: string } }) {
                         {Math.floor(course.totalDuration / 60)}h {course.totalDuration % 60}m
                       </span>
                     </div>
-
-                    {/* <div>
-                      <p className="text-muted-foreground">Rating</p>
-                      <p className="font-medium flex items-center">
-                        <Star className="w-4 h-4 mr-1 fill-yellow-400 text-yellow-400" />
-                        {calculateAverageRating(course.reviews)}
-                      </p>
-                    </div> */}
-
                   </div>
                 </CardContent>
               </Card>
-
             </TabsContent>
 
             {/* Notes Tab */}
@@ -371,7 +435,8 @@ export default function CoursePage({ params }: { params: { id: string } }) {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <Code2 className="w-5 h-5 mr-2" /> Online Compiler
+                    <Code2 className="w-5 h-5 mr-2" />
+                    Online Compiler
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -404,7 +469,7 @@ export default function CoursePage({ params }: { params: { id: string } }) {
                     )}
                     {comments.map((msg, i) => (
                       <div
-                        key={i}
+                        key={`comment-${i}`}
                         className="flex items-start justify-between bg-muted p-3 rounded"
                       >
                         <p>{msg}</p>
@@ -478,14 +543,13 @@ export default function CoursePage({ params }: { params: { id: string } }) {
               <CardTitle>Your Progress</CardTitle>
             </CardHeader>
             <CardContent>
-              <Progress value={progress} className="h-2 mb-3" />
+              <Progress value={progress.percentage} className="h-2 mb-3" />
               <p className="text-sm text-muted-foreground">
                 {completedLessonsCount}/{totalLessonsCount} lessons completed
               </p>
             </CardContent>
           </Card>
 
-          {/* Lessons List */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Course Content</CardTitle>
@@ -499,8 +563,8 @@ export default function CoursePage({ params }: { params: { id: string } }) {
                     </div>
                     {module.lessons.map((lesson, lessonIndex) => (
                       <div
-                        key={lesson.id}
-                        className={`flex items-center p-4 cursor-pointer hover:bg-muted transition-colors ${currentLesson?.id === lesson.id ? "bg-muted border-r-2 border-primary" : ""}`}
+                        key={lesson._id}
+                        className={`flex items-center p-4 cursor-pointer hover:bg-muted transition-colors ${currentLesson?._id === lesson._id ? "bg-muted border-r-2 border-primary" : ""}`}
                         onClick={() => setCurrentLesson(lesson)}
                       >
                         <div className="flex items-center space-x-3 flex-1">
@@ -510,7 +574,7 @@ export default function CoursePage({ params }: { params: { id: string } }) {
                             ) : (
                               <div className="w-5 h-5 rounded-full border-2 border-muted-foreground" />
                             )}
-                          </div>
+                          </ div>
                           <div className="flex-1 min-w-0">
                             <p className={`text-sm font-medium truncate ${lesson.completed ? "text-foreground" : "text-muted-foreground"}`}>
                               {moduleIndex + 1}.{lessonIndex + 1}. {lesson.title}
@@ -521,7 +585,7 @@ export default function CoursePage({ params }: { params: { id: string } }) {
                             </div>
                           </div>
                         </div>
-                        {currentLesson?.id === lesson.id && <Play className="w-4 h-4 text-primary" />}
+                        {currentLesson?._id === lesson._id && <Play className="w-4 h-4 text-primary" />}
                       </div>
                     ))}
                   </div>

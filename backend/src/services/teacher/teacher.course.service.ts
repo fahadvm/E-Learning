@@ -116,7 +116,6 @@ export class TeacherCourseService implements ITeacherCourseService {
     }
 
 
-    console.log("here just printing the req/bpdu :", req.body)
 
     // Construct course DTO
     const courseData: CourseCreateDTO = {

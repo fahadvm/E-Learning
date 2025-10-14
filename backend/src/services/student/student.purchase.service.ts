@@ -1,7 +1,7 @@
 
 import Razorpay from "razorpay";
 import crypto from "crypto";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { inject, injectable } from "inversify";
 import { IOrderRepository } from "../../core/interfaces/repositories/IOrderRepository";
 import { IOrder } from "../../models/Order";
@@ -14,6 +14,8 @@ import { MESSAGES } from '../../utils/ResponseMessages';
 import { ICourseRepository } from "../../core/interfaces/repositories/ICourseRepository";
 import { ICartRepository } from "../../core/interfaces/repositories/ICartRepository";
 import { ISubscriptionPlanRepository } from "../../core/interfaces/repositories/ISubscriptionPlanRepository";
+import { ICourseProgress } from "../../models/Student";
+import { IStudentRepository } from "../../core/interfaces/repositories/IStudentRepository";
 
 @injectable()
 export class StudentPurchaseService implements IStudentPurchaseService {
@@ -23,6 +25,7 @@ export class StudentPurchaseService implements IStudentPurchaseService {
     @inject(TYPES.OrderRepository) private readonly _orderRepo: IOrderRepository,
     @inject(TYPES.CourseRepository) private readonly _courseRepo: ICourseRepository,
     @inject(TYPES.CartRepository) private readonly _cartRepo: ICartRepository,
+    @inject(TYPES.StudentRepository) private readonly _studentRepo: IStudentRepository,
     @inject(TYPES.SubscriptionPlanRepository) private readonly _subscriptionRepo: ISubscriptionPlanRepository
   ) {
     this._razorpay = new Razorpay({
@@ -94,9 +97,9 @@ export class StudentPurchaseService implements IStudentPurchaseService {
     return { success: isValid };
   }
 
-  async getPurchasedCourses(studentId: string): Promise<IOrder[] |  ICourse[] >{
+  async getPurchasedCourses(studentId: string): Promise<IOrder[] | ICourse[]> {
     const ispremium = await this._subscriptionRepo.findActiveSubscription(studentId)
-    if(ispremium){
+    if (ispremium) {
       // const courses = await this._courseRepo.getPremiumCourses();  
       // return courses
     }
@@ -104,10 +107,13 @@ export class StudentPurchaseService implements IStudentPurchaseService {
     return orders;
   }
 
-  async getPurchasedCourseDetails(courseId: string): Promise<ICourse> {
-    if (!courseId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
+  async getPurchasedCourseDetails(courseId: string, studentId: string): Promise<{ course: ICourse; progress: ICourseProgress }> {
+    if (!courseId || !studentId) throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
     const course = await this._courseRepo.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    return course;
+    const student = await this._studentRepo.findById(studentId);
+    if (!student) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    const progress = await this._studentRepo.getOrCreateCourseProgress(studentId, courseId);
+    return { course, progress };
   }
 }

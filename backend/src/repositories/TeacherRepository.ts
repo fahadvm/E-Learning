@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import { ITeacherRepository } from '../core/interfaces/repositories/ITeacherRepository';
-import { ITeacher, Teacher } from '../models/Teacher';
+import { ITeacher, Teacher, VerificationStatus } from '../models/Teacher';
 import { FilterQuery } from 'mongoose';
 
 
@@ -20,8 +20,8 @@ export class TeacherRepository implements ITeacherRepository {
   }
 
   async findOne(filter: FilterQuery<ITeacher>): Promise<ITeacher | null> {
-  return Teacher.findOne(filter).lean();
-}
+    return Teacher.findOne(filter).lean();
+  }
 
   async findByEmail(email: string): Promise<ITeacher | null> {
     return Teacher.findOne({ email }).lean();
@@ -87,4 +87,31 @@ export class TeacherRepository implements ITeacherRepository {
   async updateStatus(teacherId: string, updates: Partial<ITeacher>): Promise<ITeacher | null> {
     return Teacher.findByIdAndUpdate(teacherId, updates, { new: true }).lean();
   }
+
+  async updateVerificationStatus(id: string, status: VerificationStatus): Promise<ITeacher | null> {
+    return Teacher.findByIdAndUpdate(id, { verificationStatus: status }, { new: true });
+  }
+
+  async isProfileComplete(id: string): Promise<boolean> {
+    const teacher = await Teacher.findById(id);
+    if (!teacher) return false;
+
+    const requiredFields = [
+      teacher.about,
+      teacher.profilePicture,
+      teacher.location,
+      teacher.phone,
+      teacher.education?.length,
+      teacher.experiences?.length,
+      teacher.skills?.length,
+    ];
+    console.log("required fields are" , requiredFields)
+
+    return requiredFields.every((f) => f && f !== "" && f !== 0);
+  }
+
+    sendVerificationRequest(id: string, status: VerificationStatus ,resumeUrl:string): Promise<ITeacher | null>{
+    return Teacher.findByIdAndUpdate(id, { verificationStatus: status ,resumeUrl  }, { new: true });
+  }
+  
 }

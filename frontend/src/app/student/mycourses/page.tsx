@@ -2,13 +2,23 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Play, Clock, Users, Star, Download, BookOpen, ArrowLeft, TrendingUp, Award, Calendar } from "lucide-react"
+import {
+  Play,
+  Clock,
+  Users,
+  Star,
+  Download,
+  BookOpen,
+  ArrowLeft,
+  TrendingUp,
+  Award,
+  Calendar
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { studentCourseApi } from "@/services/APImethods/studentAPImethods"
-// import { showErrorToast } from "@/utils/Toast"
+import { studentCourseApi, studentProfileApi } from "@/services/APImethods/studentAPImethods"
 
 interface Review {
   rating: number
@@ -24,7 +34,7 @@ interface Course {
   totalStudents?: number
   reviews?: Review[]
   createdAt?: string
-  progress?: number // Added progress field for better UX
+  progress?: number
 }
 
 interface Order {
@@ -41,8 +51,22 @@ interface ApiResponse {
   data: Order[]
 }
 
+interface CourseProgress {
+  courseId: string
+  percentage: number
+}
+
+interface StudentProfile {
+    name: string
+    email: string
+    coursesProgress: CourseProgress[]
+
+  
+}
+
 export default function MyCourses() {
   const [courses, setCourses] = useState<Course[]>([])
+  const [student, setStudent] = useState<StudentProfile | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -53,8 +77,22 @@ export default function MyCourses() {
     try {
       setLoading(true)
       const res: ApiResponse = await studentCourseApi.getMyCourses()
+      const studentRes =  await studentProfileApi.getProfile()
+      const studentData: StudentProfile = studentRes.data
+      setStudent(studentRes)
+      console.log("student res", studentRes.data)
+
       const allCourses = res.data.flatMap((order) => order.courses)
-      setCourses(allCourses)
+      const mergedCourses = allCourses.map((course) => {
+        const progressData = studentData.coursesProgress?.find(
+          (p) => p.courseId === course._id
+        )
+      return {
+        ...course,
+        progress: progressData ? progressData.percentage : 50
+      }
+    })
+      setCourses(mergedCourses)
     } catch (error) {
       console.error("Failed to fetch courses:", error)
     } finally {
@@ -69,12 +107,13 @@ export default function MyCourses() {
   }
 
   const getProgressColor = (progress: number) => {
-    if (progress >= 80) return "bg-primary"
-    if (progress >= 50) return "bg-secondary"
+    if (progress >= 80) return "bg-white"
+    if (progress >= 50) return "bg-white"
     return "bg-muted-foreground"
   }
 
   const getProgressStatus = (progress: number) => {
+    if (progress >= 100) return "Completed"
     if (progress >= 80) return "Almost Complete"
     if (progress >= 50) return "In Progress"
     if (progress > 0) return "Started"
@@ -83,6 +122,7 @@ export default function MyCourses() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Header Section */}
       <div className="bg-card border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-start justify-between mb-6">
@@ -100,10 +140,15 @@ export default function MyCourses() {
           </div>
 
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-foreground mb-2 text-balance">My Learning Journey</h1>
-            <p className="text-muted-foreground text-lg">Continue building your skills with your enrolled courses</p>
+            <h1 className="text-4xl font-bold text-foreground mb-2">
+              My Learning Journey
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              Continue building your skills with your enrolled courses
+            </p>
           </div>
 
+          {/* Stats Section */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="border-border hover:shadow-md transition-shadow">
               <CardContent className="p-6">
@@ -115,7 +160,10 @@ export default function MyCourses() {
                     <p className="text-sm text-muted-foreground">Total Progress</p>
                     <p className="text-2xl font-bold text-foreground">
                       {courses.length > 0
-                        ? Math.round(courses.reduce((acc, course) => acc + (course.progress || 0), 0) / courses.length)
+                        ? Math.round(
+                          courses.reduce((acc, c) => acc + (c.progress || 0), 0) /
+                          courses.length
+                        )
                         : 0}
                       %
                     </p>
@@ -133,7 +181,10 @@ export default function MyCourses() {
                   <div>
                     <p className="text-sm text-muted-foreground">Total Hours</p>
                     <p className="text-2xl font-bold text-foreground">
-                      {Math.round(courses.reduce((acc, course) => acc + course.totalDuration, 0) / 60)}h
+                      {Math.round(
+                        courses.reduce((acc, c) => acc + c.totalDuration, 0) / 60
+                      )}
+                      h
                     </p>
                   </div>
                 </div>
@@ -149,7 +200,7 @@ export default function MyCourses() {
                   <div>
                     <p className="text-sm text-muted-foreground">Completed</p>
                     <p className="text-2xl font-bold text-foreground">
-                      {courses.filter((course) => (course.progress || 0) >= 100).length}
+                      {courses.filter((c) => (c.progress || 0) >= 100).length}
                     </p>
                   </div>
                 </div>
@@ -159,6 +210,7 @@ export default function MyCourses() {
         </div>
       </div>
 
+      {/* Course List Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {loading ? (
           <div className="flex items-center justify-center py-12">
@@ -171,8 +223,10 @@ export default function MyCourses() {
           <div className="text-center py-16">
             <div className="max-w-md mx-auto">
               <BookOpen className="w-20 h-20 text-muted-foreground mx-auto mb-6" />
-              <h3 className="text-2xl font-semibold text-foreground mb-3">Start Your Learning Journey</h3>
-              <p className="text-muted-foreground mb-8 text-balance">
+              <h3 className="text-2xl font-semibold text-foreground mb-3">
+                Start Your Learning Journey
+              </h3>
+              <p className="text-muted-foreground mb-8">
                 Discover thousands of courses and begin building new skills today
               </p>
               <Link href="/student/courses">
@@ -216,10 +270,15 @@ export default function MyCourses() {
 
                   <div className="absolute bottom-4 left-4 right-4">
                     <div className="flex items-center justify-between text-white text-sm mb-2">
-                      <span className="font-medium">{getProgressStatus(course.progress || 0)}</span>
+                      <span className="font-medium">
+                        {getProgressStatus(course.progress || 0)}
+                      </span>
                       <span>{course.progress || 0}%</span>
                     </div>
-                    <Progress value={course.progress || 0} className="h-2 bg-white/20" />
+                    <Progress
+                      value={course.progress || 0}
+                      className={`h-2 ${getProgressColor(course.progress || 0)}`}
+                    />
                   </div>
                 </div>
 
@@ -227,9 +286,6 @@ export default function MyCourses() {
                   <h3 className="text-xl font-semibold text-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors">
                     {course.title}
                   </h3>
-                  <p className="text-muted-foreground mb-4 flex items-center">
-                    {/* <span>by {course.teacherId?"unk" || "Unknown"}</span> */}
-                  </p>
 
                   <div className="flex items-center justify-between text-sm text-muted-foreground mb-6">
                     <div className="flex items-center space-x-4">
@@ -244,14 +300,21 @@ export default function MyCourses() {
                     </div>
                     <div className="flex items-center">
                       <Star className="w-4 h-4 mr-1 fill-yellow-400 text-yellow-400" />
-                      <span className="font-medium">{calculateAverageRating(course.reviews)}</span>
+                      <span className="font-medium">
+                        {calculateAverageRating(course.reviews)}
+                      </span>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Calendar className="w-4 h-4 mr-1" />
-                      <span>Started {course.createdAt ? new Date(course.createdAt).toLocaleDateString() : ""}</span>
+                      <span>
+                        Started{" "}
+                        {course.createdAt
+                          ? new Date(course.createdAt).toLocaleDateString()
+                          : ""}
+                      </span>
                     </div>
                     <div className="flex space-x-2">
                       <Button variant="outline" size="sm" className="hover:bg-muted bg-transparent">

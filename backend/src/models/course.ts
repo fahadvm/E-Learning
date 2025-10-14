@@ -11,6 +11,7 @@ export interface ILesson {
 }
 
 export interface IModule {
+   _id : ObjectId
   title: string;
   description?: string;
   lessons: ILesson[];
@@ -45,6 +46,7 @@ export interface ICourse extends Document {
 
 const LessonSchema = new Schema<ILesson>(
   {
+    
     title: { type: String, required: true },
     description: { type: String },
     videoFile: { type: String },
