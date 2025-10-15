@@ -22,9 +22,11 @@ export const studentCourseApi = {
   getAllCourses: (params?: Record<string, any>) => get('/student/courses/', params),
   getRecommendedCourses: () => get('/student/courses'),
   getCourseDetailById: (courseId: string) => get(`/student/courses/${courseId}`),
+  codeRunner: (data:{language:string,code: string}) => post(`/student/courses/compiler/run`,data),
   getMyCourses: () => get(`/student/purchase/enrolled`),
   getMyCourseDetails: (courseId: string) => get(`/student/purchase/enrolled/${courseId}`),
   markLessonComplete:(courseId  : string, lessonIndex: string)=> get(`/student/courses/${courseId}/lesson/${lessonIndex}/complete`),
+  saveNotes:(data:{courseId:string,notes:string})=> post(`/student/courses/notes`,data),
 };
 
 export const studentProfileApi = {

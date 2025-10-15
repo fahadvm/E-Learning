@@ -14,8 +14,7 @@ import { ICourseProgress } from '../../models/Student';
 export class StudentCourseService implements IStudentCourseService {
   constructor(
     @inject(TYPES.CourseRepository) private readonly _courseRepo: ICourseRepository,
-    @inject(TYPES.StudentRepository) private readonly _studentRepo: IStudentRepository)
-     { }
+    @inject(TYPES.StudentRepository) private readonly _studentRepo: IStudentRepository) { }
 
   async getAllCourses(filters: GetStudentCoursesRequestDTO): Promise<PaginatedCourseDTO> {
     const { search, category, level, language, sort, order, page, limit } = filters;
@@ -51,17 +50,25 @@ export class StudentCourseService implements IStudentCourseService {
     return StudentCourseDTO(course);
   }
 
-   async markLessonComplete(
+  async markLessonComplete(
     studentId: string,
     courseId: string,
     lessonId: string
-  ):Promise<ICourseProgress> {
-    console.log( "lessonIndex", courseId)
-    
+  ): Promise<ICourseProgress> {
+
     const course = await this._courseRepo.findById(courseId);
-    if (!course) throwError( MESSAGES.COURSE_NOT_FOUND ,STATUS_CODES.NOT_FOUND )
-    const progress = await this._studentRepo.updateStudentProgress(studentId,courseId,lessonId);
+    if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND)
+    const progress = await this._studentRepo.updateStudentProgress(studentId, courseId, lessonId);
     return progress
+  }
+
+  async saveNotes(studentId: string, courseId: string, notes: string): Promise<ICourseProgress> {
+    if (!notes) notes = "// Write your thoughts or doubts here";
+    if (!courseId) throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.NOT_FOUND);
+    const course = await this._courseRepo.findById(courseId);
+    if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    const saving = await this._studentRepo.saveNotes(studentId, courseId, notes);
+    return saving
   }
 
 

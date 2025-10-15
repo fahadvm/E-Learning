@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -50,6 +50,7 @@ interface CourseProgress {
   completedModules: string[];
   percentage: number;
   lastVisitedLesson?: string;
+  notes: string
 }
 
 interface Course {
@@ -85,23 +86,25 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
   const [notes, setNotes] = useState<string>("");
   const [comments, setComments] = useState<string[]>([]);
   const [newComment, setNewComment] = useState("");
-  const [code, setCode] = useState("// Try some code here!");
-  const [output, setOutput] = useState("");
+  const [code, setCode] = useState("// Try some code here!"); // Fixed: Removed duplicate declaration
+  const [language, setLanguage] = useState("javascript");
+  const [output, setOutput] = useState(""); // Fixed: Removed duplicate declaration
+
+
 
   useEffect(() => {
-  const fetchParams = async () => {
-    const resolvedParams = await params;
-    if (resolvedParams?.id) {
-      setCourseId(resolvedParams.id);
-      setNotes(localStorage.getItem(`notes_${resolvedParams.id}`) || "");
-      setComments(
-        JSON.parse(localStorage.getItem(`comments_${resolvedParams.id}`) || "[]")
-      );
-    }
-  };
+    const fetchParams = async () => {
+      const resolvedParams = await params;
+      if (resolvedParams?.id) {
+        setCourseId(resolvedParams.id);
+        setComments(
+          JSON.parse(localStorage.getItem(`comments_${resolvedParams.id}`) || "[]")
+        );
+      }
+    };
 
-  fetchParams();
-}, [params]);
+    fetchParams();
+  }, [params]);
 
   useEffect(() => {
     if (courseId) fetchCourse();
@@ -117,25 +120,26 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
         // Map module and lesson IDs and completion status
         const updatedModules = courseData.modules?.map((module, moduleIndex) => ({
           ...module,
-          id: module._id ,
+          id: module._id,
           completed: progressData.completedModules?.includes(module._id) || false,
           lessons: module.lessons.map((lesson, lessonIndex) => ({
             ...lesson,
-            id: lesson._id ,
+            id: lesson._id,
             completed: progressData.completedLessons?.includes(lesson._id) || false,
           })),
         }));
 
         setCourse({ ...courseData, modules: updatedModules });
         setProgress(progressData);
+        setNotes(progressData.notes)
 
         // Set current lesson to last visited or first lesson
         const lastVisitedLessonId = progressData.lastVisitedLesson;
         const firstLesson = updatedModules?.[0]?.lessons?.[0] || null;
         const lastVisitedLesson = lastVisitedLessonId
           ? updatedModules
-              ?.flatMap((m) => m.lessons)
-              .find((l) => l._id === lastVisitedLessonId) || firstLesson
+            ?.flatMap((m) => m.lessons)
+            .find((l) => l._id === lastVisitedLessonId) || firstLesson
           : firstLesson;
         setCurrentLesson(lastVisitedLesson);
       } else {
@@ -183,21 +187,17 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
       // Make API call to mark lesson complete
       const res = await studentCourseApi.markLessonComplete(course._id, lessonId);
       if (res.ok) {
-        console.log("server progress is ",res.data)
-        // Update with server response to ensure consistency
         const serverProgress: CourseProgress = res.data;
 
-        // Ensure completedLessons is an array
         if (!Array.isArray(serverProgress.completedLessons)) {
           console.error("Invalid server response: completedLessons is not an array", serverProgress);
-          await fetchCourse(); // Re-fetch to restore correct state
+          await fetchCourse();
           showErrorToast("Invalid server response");
           return;
         }
 
         setProgress(serverProgress);
 
-        // Re-sync course and current lesson with server data
         setCourse((prev) => {
           if (!prev) return prev;
           const updatedModules = prev.modules?.map((mod) => ({
@@ -217,21 +217,41 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
 
         showSuccessToast("Lesson marked as complete");
       } else {
-        // Revert optimistic update on failure
-        await fetchCourse(); // Re-fetch to restore correct state
+        await fetchCourse();
         showErrorToast(res.message);
       }
     } catch (err) {
-      // Revert optimistic update on error
-      await fetchCourse(); // Re-fetch to restore correct state
+      await fetchCourse();
       showErrorToast("Failed to mark lesson complete");
     }
   };
 
-  const handleNotesSave = () => {
-    localStorage.setItem(`notes_${courseId}`, notes);
-    showSuccessToast("Notes saved");
-  };
+  const saveTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (!courseId) return;
+
+    if (saveTimeout.current) clearTimeout(saveTimeout.current);
+
+    saveTimeout.current = setTimeout(async () => {
+      try {
+        if (!courseId) return;
+        const res = await studentCourseApi.saveNotes({ courseId, notes });
+        if (res.ok) {
+          setProgress((prev) => prev ? { ...prev, notes: notes } : prev);
+        } else {
+          showErrorToast(res.message);
+        }
+      } catch (err) {
+        showErrorToast("Failed to save notes");
+      }
+    }, 1000);
+
+    return () => {
+      if (saveTimeout.current) clearTimeout(saveTimeout.current);
+    };
+  }, [notes, courseId]);
+
 
   const handleAddComment = () => {
     if (!newComment.trim()) return;
@@ -243,22 +263,17 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
   };
 
   const handleRunCode = async () => {
+    if (!code.trim()) {
+      setOutput("Error: No code to execute.");
+      return;
+    }
+    setOutput("Running...");
     try {
-      const res = await fetch("https://api.jdoodle.com/v1/execute", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clientId: "YOUR_JDOODLE_CLIENT_ID",
-          clientSecret: "YOUR_JDOODLE_CLIENT_SECRET",
-          script: code,
-          language: "nodejs",
-          versionIndex: "4",
-        }),
-      });
-      const data = await res.json();
-      setOutput(data.output || "No output");
-    } catch (error) {
-      setOutput("Error running code.");
+      const res = await studentCourseApi.codeRunner({ language, code });
+      console.log("res of output:", res)
+      setOutput(res.data);
+    } catch (err) {
+      setOutput("Error running code");
     }
   };
 
@@ -332,6 +347,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                     About Instructor
                   </CardTitle>
                 </CardHeader>
+
                 <CardContent>
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 rounded-full overflow-hidden border border-gray-300 shadow-sm">
@@ -422,10 +438,12 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                     onChange={(e) => setNotes(e.target.value)}
                     rows={8}
                     placeholder="Write your thoughts or doubts here..."
+                    maxLength={1000}
                   />
-                  <div className="flex justify-end mt-3">
-                    <Button onClick={handleNotesSave}>Save Notes</Button>
-                  </div>
+                  <p style={{ textAlign: "right", fontSize: "0.9em", color: "#666" }}>
+                    {notes.length}/1000
+                  </p>
+
                 </CardContent>
               </Card>
             </TabsContent>
@@ -438,19 +456,67 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                     <Code2 className="w-5 h-5 mr-2" />
                     Online Compiler
                   </CardTitle>
+                  <select
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                    className="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-500 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-gray-500"
+                  >
+                    <option value="python">Python</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="cpp">C++</option>
+                    <option value="java">Java</option>
+                    <option value="c">C</option>
+                    <option value="csharp">C#</option>
+                    <option value="php">PHP</option>
+                    <option value="go">Go</option>
+                    <option value="ruby">Ruby</option>
+                    <option value="sql">SQL</option>
+                  </select>
                 </CardHeader>
                 <CardContent>
                   <Textarea
+                    spellCheck={false}
+                    autoCorrect="off"
+                    autoCapitalize="off"
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
                     rows={10}
                     className="font-mono text-sm"
                   />
                   <div className="flex justify-between items-center mt-3">
-                    <Button onClick={handleRunCode}>Run Code</Button>
+                    <Button onClick={handleRunCode} disabled={loading}>
+                      {loading ? "Running..." : "Run Code"}
+                    </Button>
                   </div>
-                  <div className="bg-muted mt-4 p-3 rounded text-sm whitespace-pre-wrap">
-                    {output || "Output will appear here..."}
+                  <div className="bg-muted mt-4 p-3 rounded text-sm whitespace-pre-wrap overflow-auto">
+                    {language === "sql" && output.trim() ? (() => {
+                      const rows = output.trim().split("\n").map(r => r.split("|"));
+                      const headers = rows.shift();
+                      if (!headers) return <p>No output</p>;
+
+                      return (
+                        <table className="border-collapse border border-gray-600 text-sm w-full text-left">
+                          <thead>
+                            <tr>
+                              {headers.map((h, i) => (
+                                <th key={i} className="border border-gray-600 p-2 bg-gray-200 dark:bg-gray-800">{h}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {rows.map((row, i) => (
+                              <tr key={i}>
+                                {row.map((col, j) => (
+                                  <td key={j} className="border border-gray-600 p-2">{col}</td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      );
+                    })() : (
+                      <div>{output || "Output will appear here..."}</div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -574,7 +640,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                             ) : (
                               <div className="w-5 h-5 rounded-full border-2 border-muted-foreground" />
                             )}
-                          </ div>
+                          </div>
                           <div className="flex-1 min-w-0">
                             <p className={`text-sm font-medium truncate ${lesson.completed ? "text-foreground" : "text-muted-foreground"}`}>
                               {moduleIndex + 1}.{lessonIndex + 1}. {lesson.title}

@@ -15,4 +15,5 @@ export interface IStudentRepository {
   count(search?: string): Promise<number>;
   updateStudentProgress(studentId: string,courseId: string,lessonId: string): Promise<ICourseProgress>;
   getOrCreateCourseProgress(studentId: string,courseId: string): Promise<ICourseProgress>
+  saveNotes(studentId: string, courseId: string, notes: string): Promise<ICourseProgress>
 }

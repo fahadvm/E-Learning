@@ -29,6 +29,8 @@ export enum MESSAGES {
   TEACHER_AVAILABILITY_NOT_FOUND = "Teacher availability not found.",
   AVAILABLE_SLOTS_FETCHED = "Teacher available slots fetched successfully.",
   COMPLETD_LESSON_MARKED = "Lesson completed marked successfully.",
+  CODE_RUN_SUCCESSFULLY = "Code completed run successfully.",
+  NOTE_SAVED_SUCCESSFULLY = "Note saved successfully.",
 
 
 

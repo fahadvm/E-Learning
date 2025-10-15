@@ -11,6 +11,8 @@ const studentCourseCtrl = container.get<StudentCourseController>(TYPES.StudentCo
 
 router.get('/', authMiddleware('student'), asyncHandler(studentCourseCtrl.getAllCourses.bind(studentCourseCtrl)));
 router.get('/:courseId', authMiddleware('student'), asyncHandler(studentCourseCtrl.getCourseDetailById.bind(studentCourseCtrl)));
+router.post('/compiler/run', authMiddleware('student'), asyncHandler(studentCourseCtrl.codecompiler.bind(studentCourseCtrl)));
+router.post('/notes', authMiddleware('student'), asyncHandler(studentCourseCtrl.noteSaving.bind(studentCourseCtrl)));
 router.get( '/:courseId/lesson/:lessonIndex/complete', authMiddleware('student'), asyncHandler(studentCourseCtrl.markLessonComplete.bind(studentCourseCtrl)));
 
 export default router;

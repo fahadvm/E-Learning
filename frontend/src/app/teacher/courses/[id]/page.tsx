@@ -6,6 +6,8 @@ import axios from 'axios'
 import Header from '@/components/teacher/header'
 import { teacherCourseApi } from '@/services/APImethods/teacherAPImethods'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Plus  } from 'lucide-react'
 
 interface ILesson {
   title: string
@@ -118,6 +120,10 @@ export default function CourseDetailPage() {
               {/* <button className="px-4 py-2 bg-cyan-500 text-white rounded-md">
                 Edit
               </button> */}
+              <Button variant="outline" size="sm" className="hover:bg-muted bg-transparent">
+                <Plus className="w-4 h-4 mr-1" />
+                Resources
+              </Button>
             </div>
           </div>
 
