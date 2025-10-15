@@ -35,7 +35,7 @@ interface ICourse {
 }
 
 export default function CourseDetailPage() {
-  const { id } = useParams()
+  const { courseId } = useParams()
   const [course, setCourse] = useState<ICourse | null>(null)
   const [loading, setLoading] = useState(true)
   const [openModules, setOpenModules] = useState<boolean[]>([])
@@ -44,7 +44,7 @@ export default function CourseDetailPage() {
 
   const fetchCourse = async () => {
     try {
-      const res = await teacherCourseApi.getCourseDetailById(id as string)
+      const res = await teacherCourseApi.getCourseDetailById(courseId as string)
       setCourse(res.data)
       setOpenModules(new Array(res.data.modules.length).fill(false))
     } catch (err) {
@@ -55,8 +55,8 @@ export default function CourseDetailPage() {
   }
 
   useEffect(() => {
-    if (id) fetchCourse()
-  }, [id])
+    if (courseId) fetchCourse()
+  }, [courseId])
 
   const toggleModule = (index: number) => {
     setOpenModules(prev => {

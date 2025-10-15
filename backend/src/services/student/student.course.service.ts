@@ -9,11 +9,14 @@ import { MESSAGES } from '../../utils/ResponseMessages';
 import { IStudentCourseDTO, StudentCourseDTO, PaginatedCourseDTO, GetStudentCoursesRequestDTO } from '../../core/dtos/student/Student.course.Dto';
 import { IStudentRepository } from '../../core/interfaces/repositories/IStudentRepository';
 import { ICourseProgress } from '../../models/Student';
+import { ICourseResource } from '../../models/CourseResource';
+import { ICourseResourceRepository } from '../../core/interfaces/repositories/ICourseResourceRepository';
 
 @injectable()
 export class StudentCourseService implements IStudentCourseService {
   constructor(
     @inject(TYPES.CourseRepository) private readonly _courseRepo: ICourseRepository,
+    @inject(TYPES.CourseResourceRepository) private readonly _resourceRepository: ICourseResourceRepository,
     @inject(TYPES.StudentRepository) private readonly _studentRepo: IStudentRepository) { }
 
   async getAllCourses(filters: GetStudentCoursesRequestDTO): Promise<PaginatedCourseDTO> {
@@ -70,7 +73,9 @@ export class StudentCourseService implements IStudentCourseService {
     const saving = await this._studentRepo.saveNotes(studentId, courseId, notes);
     return saving
   }
-
+  async getResources(courseId: string): Promise<ICourseResource[]> {
+    return this._resourceRepository.getResourcesByCourse(courseId);
+  }
 
 
 }

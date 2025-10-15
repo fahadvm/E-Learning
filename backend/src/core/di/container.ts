@@ -160,6 +160,8 @@ import { NotificationService } from '../../services/shared/notification.service'
 import { TeacherChatController } from '../../controllers/teacher/teacher.chat.controller';
 import { TeacherChatService } from '../../services/teacher/teacher.chat.service';
 import { ITeacherChatService } from '../interfaces/services/teacher/ITeacherChatService';
+import { ICourseResourceRepository } from '../interfaces/repositories/ICourseResourceRepository';
+import { CourseResourceRepository } from '../../repositories/CourseResourceRepository';
 
 
 
@@ -189,6 +191,7 @@ container.bind<IOrderRepository>(TYPES.OrderRepository).to(OrderRepository);
 container.bind<ICompanyOrderRepository>(TYPES.CompanyOrderRepository).to(CompanyOrderRepository);
 container.bind<ITeacherAvailabilityRepository>(TYPES.TeacherAvailabilityRepository).to(TeacherAvailabilityRepository);
 container.bind<IStudentBookingRepository>(TYPES.StudentBookingRepository).to(StudentBookingRepository);
+container.bind<ICourseResourceRepository>(TYPES.CourseResourceRepository).to(CourseResourceRepository);
 
 
 container.bind<IChatRepository>(TYPES.ChatRepository).to(ChatRepository);

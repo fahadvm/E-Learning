@@ -17,6 +17,7 @@ import {
   Trash2,
   UserRound,
   VideoIcon,
+   FileText, 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -77,6 +78,14 @@ interface StudentCourseResponse {
   progress: CourseProgress;
 }
 
+interface Resource {
+  _id: string;
+  title: string;
+  fileUrl: string;
+  fileType: string;
+  fileSize?: number;
+}
+
 export default function CoursePage({ params }: { params: Promise<{ id: string }> }) {
   const [courseId, setCourseId] = useState<string>("");
   const [course, setCourse] = useState<Course | null>(null);
@@ -86,9 +95,11 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
   const [notes, setNotes] = useState<string>("");
   const [comments, setComments] = useState<string[]>([]);
   const [newComment, setNewComment] = useState("");
-  const [code, setCode] = useState("// Try some code here!"); // Fixed: Removed duplicate declaration
+  const [code, setCode] = useState("// Try some code here!");
   const [language, setLanguage] = useState("javascript");
-  const [output, setOutput] = useState(""); // Fixed: Removed duplicate declaration
+  const [output, setOutput] = useState("");
+  const [resources, setResources] = useState<Resource[]>([]);
+
 
 
 
@@ -151,6 +162,52 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
       setLoading(false);
     }
   };
+  const handleDownload = async (fileUrl: string) => {
+    try {
+      const res = await fetch(fileUrl);
+      const blob = await res.blob();
+
+      // Extract filename from Cloudinary URL
+      const urlParts = fileUrl.split("/");
+      console.log("original name is :", urlParts)
+      let originalFilename = urlParts[urlParts.length - 1]; // e.g., 1760538617694_Naveen.pdf
+
+      // Ensure it keeps the correct extension
+      if (!originalFilename.includes(".")) {
+        // fallback: use extension from fileUrl query if present, or default pdf
+        originalFilename += ".pdf";
+      }
+
+      // Create download link
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = originalFilename; // force proper name with extension
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error("Download failed:", err);
+    }
+  };
+
+
+  useEffect(() => {
+    const fetchResources = async () => {
+      try {
+        setLoading(true);
+        const response = await studentCourseApi.getCourseResources(courseId);
+        setResources(response.data || []);
+      } catch (err) {
+        showErrorToast("Failed to load course resources");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (courseId) fetchResources();
+  }, [courseId]);
 
   const totalLessonsCount = course?.modules?.flatMap((m) => m.lessons).length || 0;
   const completedLessonsCount = progress?.completedLessons?.length || 0;
@@ -331,11 +388,30 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
           {/* Tabs Section */}
           <Tabs defaultValue="overview">
             <TabsList className="grid grid-cols-5 w-full">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="notes">Notes</TabsTrigger>
-              <TabsTrigger value="compiler">Compiler</TabsTrigger>
-              <TabsTrigger value="community">Community</TabsTrigger>
-              <TabsTrigger value="resources">Resources</TabsTrigger>
+              <TabsTrigger value="overview" className="flex items-center gap-2">
+                <BookOpen className="w-4 h-4" />
+                Overview
+              </TabsTrigger>
+
+              <TabsTrigger value="notes" className="flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                Notes
+              </TabsTrigger>
+
+              <TabsTrigger value="compiler" className="flex items-center gap-2">
+                <Code2 className="w-4 h-4" />
+                Compiler
+              </TabsTrigger>
+
+              <TabsTrigger value="community" className="flex items-center gap-2">
+                <MessageSquare className="w-4 h-4" />
+                Community
+              </TabsTrigger>
+
+              <TabsTrigger value="resources" className="flex items-center gap-2">
+                <Download className="w-4 h-4" />
+                Resources
+              </TabsTrigger>
             </TabsList>
 
             {/* Overview Tab */}
@@ -574,28 +650,35 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 border border-border rounded-lg">
-                      <div>
-                        <p className="font-medium">Course Materials.pdf</p>
-                        <p className="text-sm text-muted-foreground">2.4 MB</p>
-                      </div>
-                      <Button size="sm" variant="outline">
-                        <Download className="w-4 h-4 mr-1" />
-                        Download
-                      </Button>
+                  {loading ? (
+                    <p>Loading resources...</p>
+                  ) : resources.length === 0 ? (
+                    <p className="text-muted-foreground">No resources uploaded yet.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {resources.map((res) => (
+                        <div
+                          key={res._id}
+                          className="flex items-center justify-between p-3 border border-border rounded-lg"
+                        >
+                          <div>
+                            <p className="font-medium">{res.title}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {res.fileType.toUpperCase()}
+                            </p>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDownload(res.fileUrl)}
+                          >
+                            <Download className="w-4 h-4 mr-1" />
+                            Download
+                          </Button>
+                        </div>
+                      ))}
                     </div>
-                    <div className="flex items-center justify-between p-3 border border-border rounded-lg">
-                      <div>
-                        <p className="font-medium">Source Code.zip</p>
-                        <p className="text-sm text-muted-foreground">15.7 MB</p>
-                      </div>
-                      <Button size="sm" variant="outline">
-                        <Download className="w-4 h-4 mr-1" />
-                        Download
-                      </Button>
-                    </div>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>

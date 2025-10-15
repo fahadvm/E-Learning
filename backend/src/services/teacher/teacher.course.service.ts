@@ -7,12 +7,16 @@ import { MESSAGES } from '../../utils/ResponseMessages';
 import { TYPES } from '../../core/di/types';
 import cloudinary from '../../config/cloudinary';
 import { CourseCreateDTO, ModuleDTO } from '../../core/dtos/teacher/TeacherDTO';
+import { ICourseResource } from '../../models/CourseResource';
+import { ICourseResourceRepository } from '../../core/interfaces/repositories/ICourseResourceRepository';
+import { Types } from 'mongoose';
+import { UploadApiOptions } from 'cloudinary';
 
 @injectable()
 export class TeacherCourseService implements ITeacherCourseService {
   constructor(
-    @inject(TYPES.CourseRepository)
-    private readonly _courseRepository: ICourseRepository
+    @inject(TYPES.CourseRepository) private readonly _courseRepository: ICourseRepository,
+    @inject(TYPES.CourseResourceRepository) private readonly _resourceRepository: ICourseResourceRepository,
   ) { }
 
   async createCourse(req: any): Promise<CourseCreateDTO> {
@@ -160,4 +164,62 @@ export class TeacherCourseService implements ITeacherCourseService {
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     return course;
   }
+
+async uploadResource(courseId: string, title: string, file: Express.Multer.File): Promise<ICourseResource> {
+  if (!file) throwError(MESSAGES.FILE_REQUIRED, STATUS_CODES.BAD_REQUEST);
+
+  const fileType = file.originalname.split(".").pop() || "unknown";
+
+  const uploadOptions: UploadApiOptions = {
+    resource_type: fileType === "pdf"? "raw" : "auto",
+    folder: "course_resources",
+    public_id: `${Date.now()}_${file.originalname.split(".")[0]}`,
+  };
+
+  const uploaded = await new Promise<any>((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
+      if (error) reject(error);
+      else resolve(result);
+    });
+    stream.end(file.buffer);
+  });
+
+
+  const resource = await this._resourceRepository.uploadResource({
+    courseId: new Types.ObjectId(courseId),
+    title,
+    fileUrl: uploaded.secure_url,
+    fileType,
+  });
+
+  return resource;
+}
+
+
+  async getResources(courseId: string): Promise<ICourseResource[]> {
+    const  resources = await this._resourceRepository.getResourcesByCourse(courseId);
+    return resources
+  }
+
+  async deleteResource( resourceId: string): Promise<void> {
+    await this._resourceRepository.deleteResource(resourceId);
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

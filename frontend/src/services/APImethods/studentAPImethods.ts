@@ -27,6 +27,8 @@ export const studentCourseApi = {
   getMyCourseDetails: (courseId: string) => get(`/student/purchase/enrolled/${courseId}`),
   markLessonComplete:(courseId  : string, lessonIndex: string)=> get(`/student/courses/${courseId}/lesson/${lessonIndex}/complete`),
   saveNotes:(data:{courseId:string,notes:string})=> post(`/student/courses/notes`,data),
+  getCourseResources :(courseId:string) => get(`/student/courses/resources/${courseId}`),
+
 };
 
 export const studentProfileApi = {

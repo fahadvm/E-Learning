@@ -9,6 +9,7 @@ export const TYPES = {
     TeacherRepository: Symbol.for('TeacherRepository'),
     OtpRepository: Symbol.for('OtpRepository'),
     CourseRepository: Symbol.for('CourseRepository'),
+    CourseResourceRepository: Symbol.for('CourseResourceRepository'),
     SubscriptionPlanRepository: Symbol.for('SubscriptionPlanRepository'),
     WishlistRepository: Symbol.for('WishlistRepository'),
     CartRepository: Symbol.for('CartRepository'),

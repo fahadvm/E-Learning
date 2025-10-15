@@ -14,5 +14,9 @@ router.get('/:courseId', authMiddleware('student'), asyncHandler(studentCourseCt
 router.post('/compiler/run', authMiddleware('student'), asyncHandler(studentCourseCtrl.codecompiler.bind(studentCourseCtrl)));
 router.post('/notes', authMiddleware('student'), asyncHandler(studentCourseCtrl.noteSaving.bind(studentCourseCtrl)));
 router.get( '/:courseId/lesson/:lessonIndex/complete', authMiddleware('student'), asyncHandler(studentCourseCtrl.markLessonComplete.bind(studentCourseCtrl)));
+router.get( '/resources/:courseId', authMiddleware('student'), asyncHandler(studentCourseCtrl.getCourseResources.bind(studentCourseCtrl)));
+
+
+
 
 export default router;

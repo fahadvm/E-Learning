@@ -117,6 +117,12 @@ export class StudentCourseController implements IStudentCourseController {
     const saving = await this._courseService.saveNotes(studentId, courseId, notes)
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.NOTE_SAVED_SUCCESSFULLY, true, saving);
   }
+  getCourseResources = async (req: AuthRequest, res: Response) => {
+    const {courseId}  = req.params
+    if (!courseId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST)
+    const resources = await this._courseService.getResources(courseId)
+    return sendResponse(res, STATUS_CODES.OK, MESSAGES.RESOURCES_FETCHED, true, resources);
+  }
 
 
 

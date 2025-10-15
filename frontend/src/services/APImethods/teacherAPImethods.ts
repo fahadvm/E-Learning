@@ -1,10 +1,11 @@
 import axios from "axios"
-import { getRequest, patchRequest, postRequest } from "../api"
+import { deleteRequest, getRequest, patchRequest, postRequest } from "../api"
 import { baseURL } from "../AxiosInstance"
 
 const get = getRequest;
 const post = postRequest;
 const patch = patchRequest;
+const del = deleteRequest;
 
 
 export const teacherAuthApi = {
@@ -31,6 +32,10 @@ export const teacherCourseApi = {
     getCourseDetailById: (courseId: string) => get(`/teacher/courses/${courseId}`),
     addCourse: (data: FormData) => post("/teacher/courses/", data),
     updateCourse: (courseId: string, data: any) => patch(`/teacher/courses/${courseId}`, data),
+
+    uploadCourseResource: (courseId: string, data: any) => post(`/teacher/courses/${courseId}/resources`, data),
+    fetchCourseResources: (courseId: string) => get(`/teacher/courses/${courseId}/resources`),
+    deleteCourseResource: (resourceId:string) => del(`/teacher/courses/${resourceId}/resources`),
 };
 
 export const teacherAvailabilityApi = {
