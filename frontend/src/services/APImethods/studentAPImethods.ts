@@ -28,6 +28,9 @@ export const studentCourseApi = {
   markLessonComplete:(courseId  : string, lessonIndex: string)=> get(`/student/courses/${courseId}/lesson/${lessonIndex}/complete`),
   saveNotes:(data:{courseId:string,notes:string})=> post(`/student/courses/notes`,data),
   getCourseResources :(courseId:string) => get(`/student/courses/resources/${courseId}`),
+  getCourseComments :(courseId:string) => get(`/student/courses/comment/${courseId}`),
+  addCourseComment :(courseId:string ,data:{ content: string }) => post(`/student/courses/comment/${courseId}`,data),
+  deleteCourseComment :(commentId:string) => del(`/student/courses/comment/${commentId}`),
 
 };
 

@@ -162,6 +162,11 @@ import { TeacherChatService } from '../../services/teacher/teacher.chat.service'
 import { ITeacherChatService } from '../interfaces/services/teacher/ITeacherChatService';
 import { ICourseResourceRepository } from '../interfaces/repositories/ICourseResourceRepository';
 import { CourseResourceRepository } from '../../repositories/CourseResourceRepository';
+import { IStudentCommentService } from '../interfaces/services/student/IStudentCommentService';
+import { StudentCommentService } from '../../services/student/student.comment.service';
+import { ICommentRepository } from '../interfaces/repositories/ICommentRepository';
+import { CommentRepository } from '../../repositories/CommentRepository';
+import { StudentCommentController } from '../../controllers/student/student.comment.controller';
 
 
 
@@ -199,6 +204,9 @@ container.bind<IChatService>(TYPES.ChatService).to(ChatService);
 container.bind<ChatController>(TYPES.ChatController).to(ChatController);
 container.bind<TeacherChatController>(TYPES.TeacherChatController).to(TeacherChatController);
 container.bind<ITeacherChatService>(TYPES.TeacherChatService).to(TeacherChatService);
+container.bind<IStudentCommentService>(TYPES.StudentCommentService).to(StudentCommentService);
+container.bind<ICommentRepository>(TYPES.CommentRepository).to(CommentRepository);
+container.bind<StudentCommentController>(TYPES.StudentCommentController).to(StudentCommentController);
 
 
 

@@ -17,7 +17,8 @@ import {
   Trash2,
   UserRound,
   VideoIcon,
-   FileText, 
+  FileText,
+  MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -43,6 +44,17 @@ interface Module {
   _id: string;
   title: string;
   lessons: Lesson[];
+}
+
+interface Comment {
+  _id: string;
+  content: string;
+  userId: {
+    _id: string;
+    name: string;
+    profilePicture?: string;
+  };
+  createdAt: string;
 }
 
 interface CourseProgress {
@@ -93,7 +105,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
   const [notes, setNotes] = useState<string>("");
-  const [comments, setComments] = useState<string[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [code, setCode] = useState("// Try some code here!");
   const [language, setLanguage] = useState("javascript");
@@ -108,14 +120,59 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
       const resolvedParams = await params;
       if (resolvedParams?.id) {
         setCourseId(resolvedParams.id);
-        setComments(
-          JSON.parse(localStorage.getItem(`comments_${resolvedParams.id}`) || "[]")
-        );
       }
     };
 
     fetchParams();
   }, [params]);
+
+
+  useEffect(() => {
+    if (!courseId) return;
+    const fetchComments = async () => {
+      try {
+        const res = await studentCourseApi.getCourseComments(courseId);
+        console.log("res in comment",res.data)
+        if (res.ok) setComments(res.data);
+        else showErrorToast(res.message);
+      } catch {
+        showErrorToast("Failed to load comments");
+      }
+    };
+    fetchComments();
+  }, [courseId]);
+
+  const handleAddComment = async () => {
+    if (!newComment.trim()) return;
+    try {
+      const res = await studentCourseApi.addCourseComment(courseId, { content: newComment });
+      if (res.ok) {
+        setComments((prev) => [...prev, res.data]);
+        setNewComment("");
+        showSuccessToast("Comment added");
+      } else {
+        showErrorToast(res.message);
+      }
+    } catch {
+      showErrorToast("Failed to add comment");
+    }
+  };
+
+  // Delete comment
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      const res = await studentCourseApi.deleteCourseComment( commentId);
+      if (res.ok) {
+        setComments((prev) => prev.filter((c) => c._id !== commentId));
+        showSuccessToast("Comment deleted");
+      } else {
+        showErrorToast(res.message);
+      }
+    } catch {
+      showErrorToast("Failed to delete comment");
+    }
+  };
+
 
   useEffect(() => {
     if (courseId) fetchCourse();
@@ -310,14 +367,6 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
   }, [notes, courseId]);
 
 
-  const handleAddComment = () => {
-    if (!newComment.trim()) return;
-    const updated = [...comments, newComment];
-    setComments(updated);
-    localStorage.setItem(`comments_${courseId}`, JSON.stringify(updated));
-    setNewComment("");
-    showSuccessToast("Comment added");
-  };
 
   const handleRunCode = async () => {
     if (!code.trim()) {
@@ -609,19 +658,28 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                     {comments.length === 0 && (
                       <p className="text-muted-foreground">No messages yet. Start the conversation!</p>
                     )}
-                    {comments.map((msg, i) => (
+                    {comments.map((comment) => (
                       <div
-                        key={`comment-${i}`}
+                        key={comment._id}
                         className="flex items-start justify-between bg-muted p-3 rounded"
                       >
-                        <p>{msg}</p>
+                        <div className="flex items-start gap-3">
+                          <img
+                            src={comment.userId?.profilePicture || "/gallery/avatar.jpg"}
+                            alt="User"
+                            className="w-8 h-8 rounded-full object-cover"
+                          />
+                          <div>
+                            <p className="font-medium text-sm">{comment.userId?.name || "Anonymous"}</p>
+                            <p className="text-sm text-gray-700">{comment.content}</p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {new Date(comment.createdAt).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
                         <Trash2
                           className="w-4 h-4 cursor-pointer text-muted-foreground hover:text-red-500"
-                          onClick={() => {
-                            const updated = comments.filter((_, idx) => idx !== i);
-                            setComments(updated);
-                            localStorage.setItem(`comments_${courseId}`, JSON.stringify(updated));
-                          }}
+                          onClick={() => handleDeleteComment(comment._id)}
                         />
                       </div>
                     ))}
@@ -743,6 +801,13 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      // here i need impliment chat with ai 
+      <div className="fixed bottom-6 right-6">
+        <Button className="rounded-full w-14 h-14 shadow-lg bg-primary hover:bg-primary/90">
+          <MessageCircle className="w-6 h-6" />
+        </Button>
       </div>
     </div>
   );

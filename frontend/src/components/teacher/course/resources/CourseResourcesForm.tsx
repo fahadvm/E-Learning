@@ -61,11 +61,11 @@ export default function CourseResourcesForm({ courseId }: Props) {
         }
     };
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = async (resourceId: string) => {
         try {
-            await teacherCourseApi.deleteCourseResource(courseId, { resourceId: id });
+            await teacherCourseApi.deleteCourseResource(resourceId);
             showSuccessToast("Resource deleted");
-            setResources(resources.filter((r) => r._id !== id));
+            setResources(resources.filter((r) => r._id !== resourceId));
         } catch {
             showErrorToast("Delete failed");
         }
