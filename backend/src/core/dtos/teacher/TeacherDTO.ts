@@ -7,7 +7,7 @@ export const teacherProfileDto = (teacher: ITeacher) => ({
   name: teacher.name,
   email: teacher.email,
   role: teacher.role,
-  isVerified: teacher.isVerified,
+  verificationStatus: teacher.verificationStatus,
   isRejected: teacher.isRejected,
   isBlocked: teacher.isBlocked,
   googleUser: teacher.googleUser,
@@ -36,6 +36,7 @@ export interface LessonDTO {
 
 export interface ModuleDTO {
   title: string;
+  description: string;
   lessons: LessonDTO[];
 }
 

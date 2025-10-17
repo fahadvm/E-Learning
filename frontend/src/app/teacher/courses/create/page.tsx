@@ -28,6 +28,7 @@ interface CourseLesson {
 interface CourseModule {
   id: string;
   title: string;
+  description: string;
   lessons: CourseLesson[];
 }
 

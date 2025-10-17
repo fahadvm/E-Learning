@@ -90,6 +90,11 @@ export const studentChatApi = {
   startChat: (data: { studentId: string; teacherId: string }) => post('/student/chat/start', data),
 
 };
+export const studentAiApi = {
+  aiAssistant: (courseId: string,data:{prompt: string}) => post(`/shared/ai/message/${courseId}`,data),
+
+
+};
 
 
 

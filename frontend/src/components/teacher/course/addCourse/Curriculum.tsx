@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { BookOpen, Plus, Trash2, Video, Upload, X, AlertCircle } from 'lucide-react';
+import { BookOpen, Plus, Trash2, Video, X, AlertCircle } from 'lucide-react';
 import Cropper, { Area } from 'react-easy-crop';
 import 'react-easy-crop/react-easy-crop.css';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -25,6 +25,7 @@ interface CourseLesson {
 interface CourseModule {
   id: string;
   title: string;
+  description: string;
   lessons: CourseLesson[];
 }
 
@@ -48,6 +49,7 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
       const initialModules: CourseModule[] = Array.from({ length: 7 }, (_, index) => ({
         id: (index + 1).toString(),
         title: `Day ${index + 1}`,
+        description: `Introduction to Day ${index + 1}`,
         lessons: [],
       }));
       setModules(initialModules);
@@ -229,11 +231,7 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-7">
           {modules.map((module) => (
-            <TabsTrigger
-              key={module.id}
-              value={module.id}
-              data-testid={`tab-day-${module.id}`}
-            >
+            <TabsTrigger key={module.id} value={module.id}>
               {module.title}
             </TabsTrigger>
           ))}
@@ -241,21 +239,31 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
 
         {modules.map((module) => (
           <TabsContent key={module.id} value={module.id}>
-            <Card data-testid={`module-${module.id}`}>
+            <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <h4 className="text-lg font-medium">{module.title}</h4>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => addLesson(module.id)}
-                    data-testid={`button-add-lesson-${module.id}`}
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Add Lesson
+                  <Button variant="outline" size="sm" onClick={() => addLesson(module.id)}>
+                    <Plus className="h-4 w-4 mr-1" /> Add Lesson
                   </Button>
                 </div>
+                {/* 🆕 New Module Description Field */}
+                <div className="mt-3">
+                  <Label className="text-sm font-medium">Module Description</Label>
+                  <Input
+                    placeholder="Write a short description for this module..."
+                    value={module.description}
+                    onChange={(e) =>
+                      setModules((prev) =>
+                        prev.map((m) =>
+                          m.id === module.id ? { ...m, description: e.target.value } : m
+                        )
+                      )
+                    }
+                  />
+                </div>
               </CardHeader>
+
               <CardContent>
                 <div className="space-y-3">
                   {module.lessons.length === 0 && (
@@ -265,22 +273,16 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
                         <AlertCircle className="h-5 w-5 mr-2" />
                         This day requires at least one lesson
                       </p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => addLesson(module.id)}
-                        className="mt-2"
-                        data-testid={`button-add-first-lesson-${module.id}`}
-                      >
+                      <Button variant="outline" size="sm" onClick={() => addLesson(module.id)} className="mt-2">
                         Add First Lesson
                       </Button>
                     </div>
                   )}
-                  {module.lessons.map((lesson, lessonIndex) => (
+                  {/* Lesson List */}
+                  {module.lessons.map((lesson) => (
                     <div
                       key={lesson.id}
                       className="flex items-start space-x-3 p-3 border rounded-lg"
-                      data-testid={`lesson-${lesson.id}`}
                     >
                       <div className="flex-shrink-0">
                         <Video className="h-5 w-5 text-blue-500" />
@@ -304,7 +306,6 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
                               )
                             }
                             placeholder="Lesson title"
-                            data-testid={`input-lesson-title-${lesson.id}`}
                           />
                           <Input
                             value={lesson.description}
@@ -323,31 +324,16 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
                               )
                             }
                             placeholder="Lesson description"
-                            data-testid={`input-lesson-description-${lesson.id}`}
                           />
                         </div>
                         <div className="space-y-2">
                           <Label>Video File</Label>
-                          <Input
-                            type="file"
-                            accept="video/*"
-                            onChange={(e) => handleVideoUpload(module.id, lesson.id, e)}
-                            className="text-sm"
-                            data-testid={`input-video-${lesson.id}`}
-                          />
-                          {lesson.videoFile && (
-                            <p className="text-sm text-muted-foreground">{lesson.videoFile.name}</p>
-                          )}
+                          <Input type="file" accept="video/*" onChange={(e) => handleVideoUpload(module.id, lesson.id, e)} />
+                          {lesson.videoFile && <p className="text-sm text-muted-foreground">{lesson.videoFile.name}</p>}
                         </div>
                         <div className="space-y-2">
                           <Label>Thumbnail</Label>
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleThumbnailUpload(module.id, lesson.id, e)}
-                            className="text-sm"
-                            data-testid={`input-thumbnail-${lesson.id}`}
-                          />
+                          <Input type="file" accept="image/*" onChange={(e) => handleThumbnailUpload(module.id, lesson.id, e)} />
                           {lesson.thumbnail && (
                             <img
                               src={URL.createObjectURL(lesson.thumbnail)}
@@ -379,7 +365,6 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
                             }
                             placeholder="Duration"
                             className="w-20"
-                            data-testid={`input-duration-${lesson.id}`}
                           />
                           <span className="text-xs text-muted-foreground">min</span>
                         </div>
@@ -403,7 +388,6 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
                                 )
                               )
                             }
-                            data-testid={`checkbox-free-${lesson.id}`}
                           />
                           <span>Free</span>
                         </label>
@@ -419,7 +403,6 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
                               )
                             )
                           }
-                          data-testid={`button-delete-lesson-${lesson.id}`}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -433,12 +416,13 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
         ))}
       </Tabs>
 
+      {/* Thumbnail Cropper Modal */}
       {showCropper && imageSrc && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-background p-6 rounded-lg max-w-lg w-full">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold">Crop Thumbnail</h3>
-              <Button variant="ghost" onClick={handleCancelCrop} data-testid="button-cancel-crop">
+              <Button variant="ghost" onClick={handleCancelCrop}>
                 <X className="h-5 w-5" />
               </Button>
             </div>
@@ -458,9 +442,7 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
               <Button variant="outline" onClick={handleCancelCrop}>
                 Cancel
               </Button>
-              <Button onClick={handleCrop} data-testid="button-crop-image">
-                Crop & Save
-              </Button>
+              <Button onClick={handleCrop}>Crop & Save</Button>
             </div>
           </div>
         </div>

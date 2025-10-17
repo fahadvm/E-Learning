@@ -167,6 +167,9 @@ import { StudentCommentService } from '../../services/student/student.comment.se
 import { ICommentRepository } from '../interfaces/repositories/ICommentRepository';
 import { CommentRepository } from '../../repositories/CommentRepository';
 import { StudentCommentController } from '../../controllers/student/student.comment.controller';
+import { AiTutorController } from '../../controllers/shared/ai.controller';
+import { IStudentAiTutorService } from '../interfaces/services/shared/IAiService';
+import { StudentAiTutorService } from '../../services/shared/ai.service';
 
 
 
@@ -299,6 +302,8 @@ container.bind<StudentNotificationController>(TYPES.StudentNotificationControlle
 
 
 container.bind<SharedController>(TYPES.SharedController).to(SharedController);
+container.bind<AiTutorController>(TYPES.AiTutorController).to(AiTutorController);
+container.bind<IStudentAiTutorService>(TYPES.StudentAiTutorService).to(StudentAiTutorService);
 
 
 

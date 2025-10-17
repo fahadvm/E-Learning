@@ -21,8 +21,10 @@ export const TYPES = {
     NotificationRepository: Symbol.for('NotificationRepository'),
     CommentRepository: Symbol.for('CommentRepository'),
     StudentCommentController: Symbol.for('StudentCommentController'),
-    StudentCommentService: Symbol.for('StudentCommentService'),
     
+    StudentCommentService: Symbol.for('StudentCommentService'),
+    StudentAiTutorService: Symbol.for('StudentAiTutorService'),
+    AiTutorController: Symbol.for('AiTutorController'),
 
     // Services
     StudentAuthService: Symbol.for('StudentAuthService'),

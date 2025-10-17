@@ -89,7 +89,7 @@ export default function MyCourses() {
         )
       return {
         ...course,
-        progress: progressData ? progressData.percentage : 50
+        progress: progressData ? progressData.percentage : 0
       }
     })
       setCourses(mergedCourses)

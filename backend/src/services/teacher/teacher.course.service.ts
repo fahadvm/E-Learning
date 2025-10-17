@@ -43,6 +43,7 @@ export class TeacherCourseService implements ITeacherCourseService {
     for (const [moduleIndex, module] of modulesBody.entries()) {
       const newModule: ModuleDTO = {
         title: module.title,
+        description: module.description, 
         lessons: [],
       };
 

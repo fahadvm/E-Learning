@@ -31,6 +31,7 @@ import { Input } from "@/components/ui/input";
 import { studentCourseApi } from "@/services/APImethods/studentAPImethods";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";
 import React from "react";
+import AiTutorChat from "@/components/student/aiBot/AiTutorChat";
 
 interface Lesson {
   _id: string;
@@ -43,6 +44,7 @@ interface Lesson {
 interface Module {
   _id: string;
   title: string;
+  description: string;
   lessons: Lesson[];
 }
 
@@ -132,7 +134,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     const fetchComments = async () => {
       try {
         const res = await studentCourseApi.getCourseComments(courseId);
-        console.log("res in comment",res.data)
+        console.log("res in comment", res.data)
         if (res.ok) setComments(res.data);
         else showErrorToast(res.message);
       } catch {
@@ -161,7 +163,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
   // Delete comment
   const handleDeleteComment = async (commentId: string) => {
     try {
-      const res = await studentCourseApi.deleteCourseComment( commentId);
+      const res = await studentCourseApi.deleteCourseComment(commentId);
       if (res.ok) {
         setComments((prev) => prev.filter((c) => c._id !== commentId));
         showSuccessToast("Comment deleted");
@@ -765,8 +767,8 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
               <div className="space-y-1">
                 {course.modules?.map((module, moduleIndex) => (
                   <div key={module.title} className="border-b border-border last:border-b-0">
-                    <div className="p-4 bg-muted/50 font-medium text-sm">
-                      Module {moduleIndex + 1}: {module.title}
+                    <div className="p-4 bg-muted/50 font-medium text-sm" >
+                      {module.title} : <span className="text-muted-foreground font-normal">{module.description}</span>
                     </div>
                     {module.lessons.map((lesson, lessonIndex) => (
                       <div
@@ -803,11 +805,11 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
         </div>
       </div>
 
-      // here i need impliment chat with ai 
+      // here i need impliment chat with ai
       <div className="fixed bottom-6 right-6">
-        <Button className="rounded-full w-14 h-14 shadow-lg bg-primary hover:bg-primary/90">
-          <MessageCircle className="w-6 h-6" />
-        </Button>
+        <div className="fixed bottom-6 right-6">
+          <AiTutorChat courseId={courseId} />
+        </div>
       </div>
     </div>
   );

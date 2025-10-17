@@ -20,7 +20,6 @@ export class StudentProfileController implements IStudentProfileController{
     if (!decoded?.id) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
     const student = await this._studentProfileService.getProfile(decoded.id);
     if (!student) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    console.log("the profile is ",student)
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.STUDENT_DETAILS_FETCHED, true, student);
   };
 

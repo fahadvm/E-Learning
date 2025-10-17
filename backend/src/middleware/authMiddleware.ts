@@ -7,7 +7,7 @@ import { STATUS_CODES } from '../utils/HttpStatuscodes';
 export const authMiddleware = (role: 'student' | 'teacher' | 'company' | 'Admin' | 'employee') => {
   return (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies?.token ;
-    console.log(' authMiddleware token is :', token);
+    // console.log(' authMiddleware token is :', token);
 
     if (!token) {
       return throwError('No token provided', STATUS_CODES.UNAUTHORIZED);
@@ -15,7 +15,7 @@ export const authMiddleware = (role: 'student' | 'teacher' | 'company' | 'Admin'
 
     try {
       const decoded = verifyAccessToken(token);
-          console.log(' authMiddleware decoded is :', decoded);
+          // console.log(' authMiddleware decoded is :', decoded);
 
 
       if (decoded?.role !== role) {
@@ -26,7 +26,7 @@ export const authMiddleware = (role: 'student' | 'teacher' | 'company' | 'Admin'
         id: decoded?.id,
         role: decoded?.role,
       };
-      console.log('req.user from middleware:' ,req.user);
+      // console.log('req.user from middleware:' ,req.user);
 
       next();
     } catch {
