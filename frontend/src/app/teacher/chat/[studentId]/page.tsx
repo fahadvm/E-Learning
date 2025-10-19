@@ -3,8 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useTeacher } from "@/context/teacherContext";
-import { initSocket, sendMessage, disconnectSocket } from "@/lib/socket";
+import { initSocket, sendMessage, sendTyping, sendReadMessage, sendMessageReaction, disconnectSocket } from "@/lib/socket";
 import { teacherChatApi } from "@/services/APImethods/teacherAPImethods";
+import { SmilePlus } from "lucide-react";
+
 
 // ---------- ChatHeader ----------
 const ChatHeader = ({ studentName, studentAvatar, isOnline }: { studentName: string; studentAvatar?: string; isOnline: boolean }) => {
@@ -29,21 +31,38 @@ const ChatHeader = ({ studentName, studentAvatar, isOnline }: { studentName: str
 };
 
 // ---------- ChatMessages ----------
-const ChatMessages = ({ messages, teacherId, studentAvatar }: { messages: any[]; teacherId: string; studentAvatar?: string }) => {
+const ChatMessages = ({
+  messages,
+  teacherId,
+  studentAvatar,
+  isTyping,
+  markMessagesAsRead,
+  handleReaction
+}: {
+  messages: any[];
+  teacherId: string;
+  studentAvatar?: string;
+  isTyping: boolean;
+  markMessagesAsRead: (messages: any[]) => void;
+  handleReaction: (messageId: string, reaction: string) => void;
+}) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [showReactionPicker, setShowReactionPicker] = useState<string | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    markMessagesAsRead(messages);
+  }, [messages, markMessagesAsRead]);
+
+  const reactions = ["👍", "❤️", "😂", "😊"];
 
   return (
     <div className="flex-1 overflow-y-auto px-6 py-6 bg-slate-50">
       <div className="space-y-6">
         {messages.map((msg, idx) => (
           <div
-            key={idx}
-            className={`flex items-start gap-3 ${msg.senderId === teacherId ? "flex-row-reverse" : "flex-row"
-              }`}
+            key={msg._id || idx}
+            className={`flex items-start gap-3 ${msg.senderId === teacherId ? "flex-row-reverse" : "flex-row"}`}
           >
             {msg.senderId !== teacherId && (
               <img
@@ -53,24 +72,116 @@ const ChatMessages = ({ messages, teacherId, studentAvatar }: { messages: any[];
               />
             )}
 
+
             <div
               className={`flex flex-col ${msg.senderId === teacherId ? "items-end" : "items-start"
-                } max-w-md`}
+                } max-w-md relative group`} // added 'group' for hover effect
             >
+              {/* Message bubble */}
               <div
-                className={`px-4 py-3 rounded-2xl shadow-sm ${msg.senderId === teacherId
+                className={`px-4 py-3 rounded-2xl shadow-sm relative ${msg.senderId === teacherId
                   ? "bg-blue-600 text-white rounded-tr-sm"
                   : "bg-white text-slate-800 rounded-tl-sm"
                   }`}
               >
                 <p className="text-sm leading-relaxed">{msg.message}</p>
+
+                {/* Reaction button - shown only on hover */}
+                <button
+                  className={`absolute ${msg.senderId === teacherId ? "-left-7" : "-right-7"
+                    } top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 
+                 transition-opacity duration-200`}
+                  onClick={() =>
+                    setShowReactionPicker(showReactionPicker === msg._id ? null : msg._id)
+                  }
+                >
+                  <SmilePlus className="w-5 h-5 text-gray-400 hover:text-yellow-500" />
+                </button>
               </div>
-              <span className="text-xs text-slate-500 mt-1.5 px-1">
-                {new Date(msg.createdAt || Date.now()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-              </span>
+
+              {/* Time + read status */}
+              <div className="flex items-center gap-1 text-xs text-slate-500 mt-1.5 px-1">
+                <span>
+                  {new Date(msg.createdAt || Date.now()).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+                {msg.senderId === teacherId && (
+                  <span className="flex items-center">
+                    {msg.read ? (
+                      <svg
+                        className="w-4 h-4 text-blue-500"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" />
+                        <path d="M8 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l8-8a1 1 0 00-1.414-1.414L8 12.586z" />
+                      </svg>
+                    ) : (
+                      <svg
+                        className="w-4 h-4 text-gray-400"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" />
+                      </svg>
+                    )}
+                  </span>
+                )}
+              </div>
+
+              {/* Show existing reactions */}
+              {msg.reactions?.length > 0 && (
+                <div className="flex gap-2 mt-1">
+                  {msg.reactions.map(
+                    (reaction: { userId: string; reaction: string }, idx: number) => (
+                      <span key={idx} className="text-sm">
+                        {reaction.reaction}
+                      </span>
+                    )
+                  )}
+                </div>
+              )}
+
+              {/* Reaction Picker */}
+              {showReactionPicker === msg._id && (
+                <div
+                  className={`absolute z-10 bg-white border border-slate-200 rounded-lg p-2 flex gap-2 mt-2 shadow-md ${msg.senderId === teacherId ? "right-0" : "left-0"
+                    }`}
+                >
+                  {reactions.map((reaction) => (
+                    <button
+                      key={reaction}
+                      className="text-lg hover:bg-slate-100 rounded p-1"
+                      onClick={() => {
+                        handleReaction(msg._id, reaction);
+                        setShowReactionPicker(null);
+                      }}
+                    >
+                      {reaction}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
+
           </div>
         ))}
+        {isTyping && (
+          <div className="flex items-start gap-3">
+            <img
+              src={studentAvatar || "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100"}
+              alt="Student Avatar"
+              className="w-10 h-10 rounded-full object-cover flex-shrink-0 ring-2 ring-slate-100"
+            />
+            <div className="flex items-start max-w-md">
+              <div className="px-4 py-3 rounded-2xl shadow-sm bg-white text-slate-800 rounded-tl-sm">
+                <p className="text-sm text-slate-500 italic">Typing...</p>
+              </div>
+            </div>
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
     </div>
@@ -78,7 +189,7 @@ const ChatMessages = ({ messages, teacherId, studentAvatar }: { messages: any[];
 };
 
 // ---------- ChatInput ----------
-const ChatInput = ({ input, setInput, handleSend }: { input: string; setInput: (val: string) => void; handleSend: () => void }) => {
+const ChatInput = ({ input, setInput, handleSend, handleTyping }: { input: string; setInput: (val: string) => void; handleSend: () => void; handleTyping: () => void }) => {
   return (
     <div className="bg-white border-t border-slate-200 px-6 py-4 flex items-center gap-3">
       <input
@@ -86,7 +197,10 @@ const ChatInput = ({ input, setInput, handleSend }: { input: string; setInput: (
         placeholder="Type a message..."
         className="w-full px-4 py-3 bg-slate-100 rounded-full text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all duration-200"
         value={input}
-        onChange={(e) => setInput(e.target.value)}
+        onChange={(e) => {
+          setInput(e.target.value);
+          handleTyping();
+        }}
         onKeyDown={(e) => e.key === "Enter" && handleSend()}
       />
       <button
@@ -101,7 +215,7 @@ const ChatInput = ({ input, setInput, handleSend }: { input: string; setInput: (
   );
 };
 
-// ---------- Main TeacherChat Page ----------
+// --- Main TeacherChat Page ---
 export default function TeacherChat() {
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
@@ -110,6 +224,8 @@ export default function TeacherChat() {
   const params = useParams();
   const searchParams = useSearchParams();
   const [isOnline, setIsOnline] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const teacherId = teacher?._id;
   const studentId = params?.studentId as string;
@@ -150,33 +266,101 @@ export default function TeacherChat() {
   useEffect(() => {
     if (!teacherId) return;
 
-    const socket = initSocket(teacherId, (data) => {
-      setMessages((prev) => [...prev, data]);
-    });
+    const socket = initSocket(
+      teacherId,
+      (data) => {
+        setMessages((prev) => [...prev, data]);
+        setIsTyping(false); // Stop typing indicator when a message is received
+      },
+      (data) => {
+        if (data.senderId === studentId) {
+          setIsTyping(true);
+          // Clear previous timeout
+          if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+          // Set timeout to stop typing indicator after 3 seconds of no typing event
+          typingTimeoutRef.current = setTimeout(() => setIsTyping(false), 3000);
+        }
+      },
+      (data) => {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg._id === data.messageId && msg.chatId === data.chatId ? { ...msg, read: true } : msg
+          )
+        );
+      },
+      (data) => {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg._id === data.messageId && msg.chatId === data.chatId
+              ? { ...msg, reactions: [...(msg.reactions || []), { userId: data.userId, reaction: data.reaction }] }
+              : msg
+          )
+        );
+      }
+    );
 
     socket.on("onlineUsers", (users: string[]) => {
       setIsOnline(users.includes(studentId));
     });
 
     return () => {
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
       disconnectSocket();
     };
   }, [teacherId, studentId]);
 
   const handleSend = () => {
-    if (!input || !teacherId || !studentId) return;
+    if (!input || !teacherId || !studentId || !chatId) return;
 
     const msg = { senderId: teacherId, receiverId: studentId, message: input, chatId };
     sendMessage(msg);
-    setMessages((prev) => [...prev, msg]);
+    setMessages((prev) => [...prev, { ...msg, read: false, createdAt: new Date(), reactions: [] }]);
     setInput("");
+  };
+
+  const handleTyping = () => {
+    if (!teacherId || !studentId) return;
+    sendTyping({ senderId: teacherId, receiverId: studentId });
+  };
+
+  const handleReaction = (messageId: string, reaction: string) => {
+    if (!teacherId || !studentId || !chatId) return;
+    sendMessageReaction({
+      chatId,
+      messageId,
+      userId: teacherId,
+      reaction,
+      receiverId: studentId,
+    });
+  };
+
+  const markMessagesAsRead = (messages: any[]) => {
+    if (!teacherId || !studentId || !chatId) return;
+
+    messages.forEach((msg) => {
+      if (msg.senderId === studentId && !msg.read) {
+        sendReadMessage({
+          chatId,
+          messageId: msg._id,
+          senderId: studentId,
+          receiverId: teacherId,
+        });
+      }
+    });
   };
 
   return (
     <div className="flex flex-col h-screen">
       <ChatHeader studentName={studentInfo?.name || "Student"} studentAvatar={studentInfo?.profilePicture} isOnline={isOnline} />
-      <ChatMessages messages={messages} teacherId={teacherId!} studentAvatar={studentInfo?.profilePicture} />
-      <ChatInput input={input} setInput={setInput} handleSend={handleSend} />
+      <ChatMessages
+        messages={messages}
+        teacherId={teacherId!}
+        studentAvatar={studentInfo?.profilePicture}
+        isTyping={isTyping}
+        markMessagesAsRead={markMessagesAsRead}
+        handleReaction={handleReaction}
+      />
+      <ChatInput input={input} setInput={setInput} handleSend={handleSend} handleTyping={handleTyping} />
     </div>
   );
 }

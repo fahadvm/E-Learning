@@ -3,11 +3,14 @@ import container from "../core/di/container";
 import { TYPES } from "../core/di/types";
 import { IChatService } from "../core/interfaces/services/student/IStudentChatService";
 import { IStudentNotificationService } from "../core/interfaces/services/student/IStudentNotificationService";
+import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
+const SECRET_KEY = process.env.JWT_SECRET || "devnext_jwt_secret";
 
 const chatService = container.get<IChatService>(TYPES.ChatService);
+const notificationService = container.get<IStudentNotificationService>(TYPES.StudentNotificationService);
 
 export interface TokenPayload {
   id: string;
@@ -48,11 +51,55 @@ export function initSocket(server: any) {
     });
 
     // Listen for messages
-    socket.on("send_message", (data: { senderId: string; receiverId: string; message: string }) => {
+    socket.on("send_message", async (data: { senderId: string; receiverId: string; message: string; chatId: string }) => {
+      const receiverSocketId = onlineUsers.get(data.receiverId);
+      const messageData = { ...data, read: false, createdAt: new Date(), reactions: [] };
+      await chatService.sendMessage(data.senderId, data.receiverId, data.message, data.chatId);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("receive_message", messageData);
+      }
+    });
+
+    // Listen for typing events
+    socket.on("typing", (data: { senderId: string; receiverId: string }) => {
       const receiverSocketId = onlineUsers.get(data.receiverId);
       if (receiverSocketId) {
-        io.to(receiverSocketId).emit("receive_message", data);
-        chatService.sendMessage(data.senderId, data.receiverId, data.message);
+        io.to(receiverSocketId).emit("typing", { senderId: data.senderId });
+      }
+    });
+
+    // Listen for read message events
+    socket.on("read_message", async (data: { chatId: string; messageId: string; senderId: string; receiverId: string }) => {
+      try {
+        // Update message read status in the database
+        await chatService.markMessageAsRead(data.chatId, data.messageId);
+        // Notify the sender that the message was read
+        const senderSocketId = onlineUsers.get(data.senderId);
+        if (senderSocketId) {
+          io.to(senderSocketId).emit("message_read", { messageId: data.messageId, chatId: data.chatId });
+        }
+      } catch (err) {
+        console.error("Error marking message as read:", err);
+      }
+    });
+
+    // Listen for message reaction events
+    socket.on("react_message", async (data: { chatId: string; messageId: string; userId: string; reaction: string; receiverId: string }) => {
+      try {
+        // Update message with reaction in the database
+        await chatService.addReaction(data.chatId, data.messageId, data.userId, data.reaction);
+        // Notify the receiver of the reaction
+        const receiverSocketId = onlineUsers.get(data.receiverId);
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit("message_reaction", {
+            messageId: data.messageId,
+            chatId: data.chatId,
+            userId: data.userId,
+            reaction: data.reaction,
+          });
+        }
+      } catch (err) {
+        console.error("Error adding reaction:", err);
       }
     });
 

@@ -1,5 +1,10 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
+export interface IReaction {
+  userId: Types.ObjectId;
+  reaction: string; 
+}
+
 export interface IMessage extends Document {
   chatId: Types.ObjectId;
   senderId: Types.ObjectId;
@@ -11,7 +16,17 @@ export interface IMessage extends Document {
   delivered: boolean;
   createdAt: Date;
   updatedAt: Date;
+  reaction: IReaction[];
 }
+
+
+const reactionSchema = new Schema<IReaction>(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: "Student", required: true },
+    reaction: { type: String, required: true },
+  },
+  { _id: false } 
+);
 
 const messageSchema = new Schema<IMessage>(
   {
@@ -23,6 +38,7 @@ const messageSchema = new Schema<IMessage>(
     fileUrl: { type: String },
     isRead: { type: Boolean, default: false },
     delivered: { type: Boolean, default: false },
+     reaction: [reactionSchema],
   },
   {
     timestamps: true, 
