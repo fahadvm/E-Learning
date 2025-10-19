@@ -3,16 +3,11 @@ import container from "../core/di/container";
 import { TYPES } from "../core/di/types";
 import { IChatService } from "../core/interfaces/services/student/IStudentChatService";
 import { IStudentNotificationService } from "../core/interfaces/services/student/IStudentNotificationService";
-import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
-const SECRET_KEY = process.env.JWT_SECRET || "devnext_jwt_secret";
 
 const chatService = container.get<IChatService>(TYPES.ChatService);
-const notificationService = container.get<IStudentNotificationService>(TYPES.StudentNotificationService);
-
-
 
 export interface TokenPayload {
   id: string;
@@ -33,40 +28,23 @@ export function initSocket(server: any) {
     },
   });
 
-  //  JWT AUTH
-  // io.use((socket: Socket, next) => {
-  //   const cookies = socket.handshake.headers.cookie;
-  //   if (!cookies) return next(new Error("Authentication error: No cookies"));
-
-  //   const tokenMatch = cookies.match(/(^|;)\s*token=([^;]+)/);
-  //   const token = tokenMatch ? tokenMatch[2] : null;
-  //   if (!token) return next(new Error("Authentication error: No token found"));
-
-  //   try {
-  //     const payload: TokenPayload = jwt.verify(token, SECRET_KEY) as TokenPayload;
-  //     (socket as AuthenticatedSocket).userId = payload.id;
-  //     (socket as AuthenticatedSocket).role = payload.role;
-  //     next();
-  //   } catch (err) {
-  //     console.error("JWT verification error:", err);
-  //     next(new Error("Authentication error: Invalid token"));
-  //   }
-  // });
-
-  // server.ts
-
-
   // Map to track online users
   const onlineUsers = new Map<string, string>(); // userId -> socketId
 
+  // Broadcast online users to all clients
+  const broadcastOnlineUsers = () => {
+    const users = Array.from(onlineUsers.keys());
+    io.emit("onlineUsers", users);
+  };
+
   io.on("connection", (socket) => {
     console.log("New socket connected:", socket.id);
-
 
     // When user joins with their ID
     socket.on("join", (userId: string) => {
       onlineUsers.set(userId, socket.id);
       console.log("Online users:", Array.from(onlineUsers.keys()));
+      broadcastOnlineUsers(); // Broadcast updated online users
     });
 
     // Listen for messages
@@ -74,7 +52,7 @@ export function initSocket(server: any) {
       const receiverSocketId = onlineUsers.get(data.receiverId);
       if (receiverSocketId) {
         io.to(receiverSocketId).emit("receive_message", data);
-        chatService.sendMessage(data.senderId, data.receiverId, data.message)
+        chatService.sendMessage(data.senderId, data.receiverId, data.message);
       }
     });
 
@@ -85,8 +63,10 @@ export function initSocket(server: any) {
       onlineUsers.forEach((value, key) => {
         if (value === socket.id) onlineUsers.delete(key);
       });
+      broadcastOnlineUsers(); // Broadcast updated online users
     });
-  })
+  });
+
+  // Periodically broadcast online users every 10 seconds
+  setInterval(broadcastOnlineUsers, 10000);
 }
-
-
