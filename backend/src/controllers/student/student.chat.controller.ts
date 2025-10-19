@@ -15,10 +15,11 @@ export class ChatController {
 
     getMessages = async (req: Request, res: Response) => {
         const { chatId } = req.params;
-        console.log("input of getmessages")
+        const limit = parseInt(req.query.limit as string) || 20;
+        const before = req.query.before as string ;
 
-        const messages = await this._chatService.getMessages(chatId);
-        console.log("output of getmessages", messages)
+
+        const messages = await this._chatService.getMessages(chatId ,limit, before);
         sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, messages);
     };
     getChatDetails = async (req: Request, res: Response) => {
@@ -29,21 +30,20 @@ export class ChatController {
     };
 
     getUserChats = async (req: AuthRequest, res: Response) => {
-        const userId  = req.user?.id;
-        console.log("this controller is working",userId)
-        if(!userId){
-            throwError( MESSAGES.UNAUTHORIZED ,STATUS_CODES.UNAUTHORIZED)
+        console.log("student chat history fetching........")
+        const userId = req.user?.id;
+        if (!userId) {
+            throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED)
         }
         const chats = await this._chatService.getUserChats(userId);
-        console.log("chats",chats)
-        sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, chats);
+        if (chats.length > 1) console.log(chats, "student chat history fetched........", chats)
+        sendResponse(res, STATUS_CODES.OK, MESSAGES.CHAT_LIST_FETCHED, true, chats);
 
     };
 
 
     startChat = async (req: Request, res: Response) => {
         const { studentId, teacherId } = req.body
-        console.log("input of chats", studentId, teacherId )
 
 
         let chat = await Chat.findOne({
@@ -53,12 +53,11 @@ export class ChatController {
         if (!chat) {
             chat = await Chat.create({
                 participants: [studentId, teacherId],
-                studentId ,
+                studentId,
                 teacherId
             })
         }
 
-        console.log("output of chats", chat)
         sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, chat);
 
     };

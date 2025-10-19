@@ -84,10 +84,11 @@ export const studentSubscriptionApi = {
   activateFreePlan: (planId: string) => post('/student/subscriptions/activate-free', { planId }),
 };
 export const studentChatApi = {
-  getmessages: (chatId: string) => get(`/student/chat/messages/${chatId}`),
+  // getmessages: (chatId: string, limit: number, before :string ) => get(`/student/chat/messages/${chatId}?limit=${limit}&before=${before}`,),
+  getmessages: (chatId: string ) => get(`/student/chat/messages/${chatId}`,),
   getChatInfo: (chatId: string) => get(`/student/chat/${chatId}`),
   getuserchat: () => get(`/student/chat`),
-  startChat: (data: { studentId: string; teacherId: string }) => post('/student/chat/start', data),
+  startChat: (data: { studentId: string; teacherId: any }) => post('/student/chat/start', data),
 
 };
 export const studentAiApi = {

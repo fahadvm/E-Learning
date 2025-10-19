@@ -26,7 +26,6 @@ export class TeacherChatService implements ITeacherChatService {
 
   async getUserChats(userId: string): Promise<IChat[]> {
     const chat = await this.chatRepository.getTeacherChats(userId );
-    console.log("iam from getuserchats service", chat) 
     return chat
   }
 }

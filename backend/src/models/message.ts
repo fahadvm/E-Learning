@@ -4,22 +4,30 @@ export interface IMessage extends Document {
   chatId: Types.ObjectId;
   senderId: Types.ObjectId;
   receiverId: Types.ObjectId;
-  message: string;  // Renamed from 'content' for consistency with schema
+  message: string;
   type: 'text' | 'image' | 'file';
   fileUrl?: string;
   isRead: boolean;
   delivered: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const messageSchema = new Schema<IMessage>({
-  chatId: { type: Schema.Types.ObjectId, ref: 'Chat', required: true, index: true },
-  senderId: { type: Schema.Types.ObjectId, ref: 'Student', required: true },
-  receiverId: { type: Schema.Types.ObjectId, ref: 'Teacher', required: true },
-  message: { type: String, required: true },
-  type: { type: String, enum: ['text', 'image', 'file'], default: 'text' },
-  fileUrl: { type: String },
-  isRead: { type: Boolean, default: false },
-  delivered: { type: Boolean, default: false },
-}, { timestamps: true }); 
+const messageSchema = new Schema<IMessage>(
+  {
+    chatId: { type: Schema.Types.ObjectId, ref: 'Chat', required: true, index: true },
+    senderId: { type: Schema.Types.ObjectId, ref: 'Student', required: true },
+    receiverId: { type: Schema.Types.ObjectId, ref: 'Teacher', required: true },
+    message: { type: String, required: true },
+    type: { type: String, enum: ['text', 'image', 'file'], default: 'text' },
+    fileUrl: { type: String },
+    isRead: { type: Boolean, default: false },
+    delivered: { type: Boolean, default: false },
+  },
+  {
+    timestamps: true, 
+    versionKey: false, 
+  }
+);
 
 export const Message = model<IMessage>('Message', messageSchema);

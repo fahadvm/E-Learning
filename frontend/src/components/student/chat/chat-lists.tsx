@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 
 interface Conversation {
-  id: string
+  _id: string
   lastMessage: string
   teacherId: {
     _id: string
@@ -40,18 +40,20 @@ export function formatTimeDifference(updatedAt: string | Date): string {
 export function ChatLists({ conversations, selectedChatId }: ChatListProps) {
   if (conversations.length === 0) {
     return <p className="p-4 text-muted-foreground">No conversations found.</p>
+  }else{
+    console.log("chat list of props ",conversations)
   }
 
   return (
     <div className="divide-y divide-border">
       {conversations.map((conversation) => {
         const teacher = conversation.teacherId
-        const isSelected = selectedChatId === conversation.id
+        const isSelected = selectedChatId === conversation._id
 
         return (
           <Link
-            key={conversation.id}
-            href={`/student/chat/${teacher._id}`}
+            key={conversation._id}
+            href={`/student/chat/${teacher._id}?chatId=${conversation._id}`}
             className={`block hover:bg-muted/50 transition-colors ${isSelected ? "bg-muted/20" : ""}`}
             aria-label={`Chat with ${teacher.name}`}
           >

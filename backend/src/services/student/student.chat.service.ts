@@ -9,15 +9,17 @@ import { IChat } from "../../models/chat";  // Adjust path
 export class ChatService implements IChatService {
   constructor(
     @inject(TYPES.ChatRepository) private chatRepository: IChatRepository
-  ) {}
+  ) { }
 
   async sendMessage(senderId: string, receiverId: string, message: string): Promise<IMessage> {  // Updated param to 'message'
-    console.log("senderid and reciever id in service",senderId, receiverId)
     return this.chatRepository.saveMessage(senderId, receiverId, message);
   }
 
-  async getMessages(chatId: string): Promise<IMessage[]> {
-    return this.chatRepository.getStudentMessages(chatId);
+  async getMessages(chatId: string, limit: number, before: string): Promise<IMessage[]> {
+    let beforeDate = new Date(before)
+
+
+    return this.chatRepository.getStudentMessages(chatId, limit, beforeDate);
   }
 
   async getChatDetails(chatId: string): Promise<IChat | null> {
@@ -25,8 +27,7 @@ export class ChatService implements IChatService {
   }
 
   async getUserChats(userId: string): Promise<IChat[]> {
-    const chat = await this.chatRepository.getStudentChats(userId );
-    console.log("iam from getuserchats service", chat) 
+    const chat = await this.chatRepository.getStudentChats(userId);
     return chat
   }
 }

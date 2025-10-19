@@ -15,10 +15,10 @@ export class TeacherChatController {
 
     getMessages = async (req: Request, res: Response) => {
         const { chatId } = req.params;
-        console.log("input of getmessages")
+        // console.log("input of getmessages")
 
         const messages = await this._chatService.getMessages(chatId);
-        console.log("output of getmessages", messages)
+        // console.log("output of getmessages", messages)
         sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, messages);
     };
     getChatDetails = async (req: Request, res: Response) => {
@@ -30,12 +30,11 @@ export class TeacherChatController {
 
     getUserChats = async (req: AuthRequest, res: Response) => {
         const userId  = req.user?.id;
-        console.log("this controller is working",userId)
+        // console.log("this controller is working",userId)
         if(!userId){
             throwError( MESSAGES.UNAUTHORIZED ,STATUS_CODES.UNAUTHORIZED)
         }
         const chats = await this._chatService.getUserChats(userId);
-        console.log("chats",chats)
         sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, chats);
 
     };
@@ -43,7 +42,7 @@ export class TeacherChatController {
 
     startChat = async (req: Request, res: Response) => {
         const { studentId, teacherId } = req.body
-        console.log("input of chats", studentId, teacherId )
+        // console.log("input of chats", studentId, teacherId )
 
 
         let chat = await Chat.findOne({
@@ -58,7 +57,7 @@ export class TeacherChatController {
             })
         }
 
-        console.log("output of chats", chat)
+        // console.log("output of chats", chat)
         sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, chat);
 
     };

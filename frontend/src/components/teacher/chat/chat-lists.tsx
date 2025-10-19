@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 
 interface Conversation {
-  id: string
+  _id: string
   lastMessage: string
   studentId: {
     _id: string
@@ -46,12 +46,12 @@ export function ChatLists({ conversations, selectedChatId }: ChatListProps) {
     <div className="divide-y divide-border">
       {conversations.map((conversation) => {
         const student = conversation.studentId
-        const isSelected = selectedChatId === conversation.id
+        const isSelected = selectedChatId === conversation._id
 
         return (
           <Link
-            key={conversation.id}
-            href={`/teacher/chat/${student._id}`}
+            key={conversation._id}
+            href={`/teacher/chat/${student._id}?chatId=${conversation._id}`} 
             className={`block hover:bg-muted/50 transition-colors ${isSelected ? "bg-muted/20" : ""}`}
             aria-label={`Chat with ${student.name}`}
           >

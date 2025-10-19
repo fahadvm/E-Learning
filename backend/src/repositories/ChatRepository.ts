@@ -10,7 +10,7 @@ export class ChatRepository implements IChatRepository {
     // Convert string IDs to ObjectId
     const participantIds = participants.map(id => new Types.ObjectId(id));
     const chat = await Chat.findOne({ participants: { $all: participantIds } });
-    console.log("found one of most chat i got ",chat)
+    // console.log("found one of most chat i got ",chat)
     if (chat) return chat;
 
     const newChat = await Chat.create({ participants: participantIds });
@@ -18,9 +18,9 @@ export class ChatRepository implements IChatRepository {
   }
 
   async saveMessage(senderId: string, receiverId: string, content: string) {
-    console.log("here the saving message with :",senderId,receiverId)
+    // console.log("here the saving message with :",senderId,receiverId)
     const chat = await this.findOrCreateChat([senderId, receiverId]);
-    console.log("founded chat is" ,chat )
+    // console.log("founded chat is" ,chat )
     const message = await Message.create({
       chatId: chat._id,
       senderId: new Types.ObjectId(senderId),
@@ -31,10 +31,18 @@ export class ChatRepository implements IChatRepository {
     return message;
   }
 
-  async getStudentMessages(chatId: string) {
+  async getStudentMessages(chatId: string  , limit: number, before?: Date) {
+    console.log("off set is working now :  ",before)
+    const query: any = { chatId: new Types.ObjectId(chatId) };
+    if (before) {
+      
+      query.createdAt = { $lt: before };
+      
+    }
     return Message.find({ chatId: new Types.ObjectId(chatId) }).populate(`receiverId`, "name email profilePicture").sort({ createdAt: 1 });
   }
-  async getTeacherMessages(chatId: string) {
+  async getTeacherMessages(chatId: string ) {
+    
     return Message.find({ chatId: new Types.ObjectId(chatId) }).populate(`receiverId`, "name email profilePicture").sort({ createdAt: 1 });
   }
  async getChatDetails(chatId: string): Promise<IChat | null> {

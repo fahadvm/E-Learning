@@ -3,7 +3,7 @@ import { IChat } from "../../../../models/chat";
 
 export interface IChatService {
   sendMessage(senderId: string, receiverId: string, content: string): Promise<IMessage>;
-  getMessages(chatId: string): Promise<IMessage[]>;
+  getMessages(chatId: string,limit : number, before:string): Promise<IMessage[]>;
   getUserChats(userId: string): Promise<IChat[]>;
   getChatDetails(chatId: string): Promise<IChat | null>
 }

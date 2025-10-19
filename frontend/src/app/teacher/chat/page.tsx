@@ -1,11 +1,14 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
 import { ChatLists } from "@/components/teacher/chat/chat-lists";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
 import Header from "@/components/teacher/header";
-import { teacherChatApi } from "@/services/APImethods/teacherAPImethods"; 
+import { Input } from "@/components/ui/input";
+import { teacherChatApi } from "@/services/APImethods/teacherAPImethods";
+import { Search } from "lucide-react";
+import { useEffect, useState } from "react";
+
+
+
 
 export default function MessagesPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,13 +33,12 @@ export default function MessagesPage() {
   }, []);
 
   const filteredConversations = conversations.filter((c) =>
-    c.teacherId.name.toLowerCase().includes(searchTerm.toLowerCase())
+    c.studentId.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="h-screen bg-background flex flex-col">
-      <Header />
-
+        <Header/>
       {/* Header */}
       <div className="border-b border-border bg-card p-4">
         <div className="flex items-center justify-between mb-4">
