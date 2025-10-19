@@ -7,7 +7,7 @@ import { initSocket, sendMessage, disconnectSocket } from "@/lib/socket";
 import { studentChatApi } from "@/services/APImethods/studentAPImethods";
 
 // ---------- ChatHeader Component ----------
-const ChatHeader = ({ teacherName, teacherAvatar }: { teacherName: string; teacherAvatar?: string }) => {
+const ChatHeader = ({ teacherName, teacherAvatar, isOnline }: { teacherName: string; teacherAvatar?: string; isOnline: boolean }) => {
   return (
     <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
       <div className="flex items-center gap-4">
@@ -17,11 +17,11 @@ const ChatHeader = ({ teacherName, teacherAvatar }: { teacherName: string; teach
             alt="Teacher avatar"
             className="w-12 h-12 rounded-full object-cover ring-2 ring-slate-100"
           />
-          <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white"></div>
+          <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 ${isOnline ? "bg-green-500" : "bg-gray-400"} rounded-full border-2 border-white`}></div>
         </div>
         <div>
           <h2 className="text-lg font-semibold text-slate-800">{teacherName}</h2>
-          <p className="text-sm text-slate-500">Active now</p>
+          <p className="text-sm text-slate-500">{isOnline ? "Active now" : "Offline"}</p>
         </div>
       </div>
     </div>
@@ -111,14 +111,12 @@ export default function StudentChat() {
   const searchParams = useSearchParams();
   const [isOnline, setIsOnline] = useState(false);
 
-
   const teacherId = params?.teacherId as string;
   const studentId = student?._id;
   const chatId = searchParams.get("chatId");
 
-
   useEffect(() => {
-    if (!chatId) return
+    if (!chatId) return;
 
     const fetchTeacher = async () => {
       try {
@@ -155,21 +153,13 @@ export default function StudentChat() {
       setMessages((prev) => [...prev, data]);
     });
 
-    return () => {
-      disconnectSocket();
-    };
-  }, [studentId]);
-
-  useEffect(() => {
-    if (!studentId) return;
-
-    const socket = initSocket(studentId, (data) => setMessages((prev) => [...prev, data]));
-
     socket.on("onlineUsers", (users: string[]) => {
       setIsOnline(users.includes(teacherId));
     });
 
-    return () => disconnectSocket();
+    return () => {
+      disconnectSocket();
+    };
   }, [studentId, teacherId]);
 
   const handleSend = () => {
@@ -183,7 +173,7 @@ export default function StudentChat() {
 
   return (
     <div className="flex flex-col h-screen">
-      <ChatHeader teacherName={teachertInfo?.name || "Teacher"} teacherAvatar={teachertInfo?.profilePicture} />
+      <ChatHeader teacherName={teachertInfo?.name || "Teacher"} teacherAvatar={teachertInfo?.profilePicture} isOnline={isOnline} />
       <ChatMessages messages={messages} studentId={studentId!} teacherAvatar={teachertInfo?.profilePicture} />
       <ChatInput input={input} setInput={setInput} handleSend={handleSend} />
     </div>
