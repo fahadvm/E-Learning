@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge"
+import { convertTo12Hour, formatDateToDDMMYYYY } from "@/utils/timeConverter";
 
 type Booking = {
     studentId: { name: string };
@@ -16,8 +17,8 @@ export default function BookingSummary({ booking }: { booking: Booking }) {
                 <Item label="Student Name" value={booking.studentId?.name} />
                 <Item label="Teacher Name" value={booking.teacherId?.name} />
                 <Item label="Course Name" value={booking.courseId?.title} />
-                <Item label="Date" value={booking.date} />
-                <Item label="Time" value={`${booking.slot.start} - ${booking.slot.end}`} />
+                <Item label="Date" value={formatDateToDDMMYYYY(booking.date)} />
+                <Item label="Time" value={`${convertTo12Hour(booking.slot.start)} - ${convertTo12Hour(booking.slot.end)}`} />
                 <Item label="Fee" value={`₹100`} />
             </dl>
 

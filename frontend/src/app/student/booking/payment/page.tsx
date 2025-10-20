@@ -6,9 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import BookingSummary from "@/components/student/payment/booking-summary"
 import PaymentPanel from "@/components/student/payment/payment-panel"
 import { studentBookingApi } from "@/services/APImethods/studentAPImethods"
+import { useStudent } from "@/context/studentContext";
 
 interface Booking {
-    studentId: { name: string };
+    studentId: { name: string , email : string , phone:string};
     teacherId: { name: string };
     courseId: { title: string };
     date: string;
@@ -22,6 +23,7 @@ export default function PaymentPage() {
 
     const [booking, setBooking] = useState<Booking | null>(null);
     const [loading, setLoading] = useState(true);
+    const {student} = useStudent()
 
     useEffect(() => {
         if (!bookingId) return;
@@ -55,6 +57,12 @@ export default function PaymentPage() {
     if (!booking) {
         return <div className="text-center py-20 text-red-500">Booking not found.</div>
     }
+    if (!bookingId) {
+         return <div className="text-center py-20 text-red-500">Booking ID not found.</div>
+    };
+    if (!student) {
+         return <div className="text-center py-20 text-red-500">student details not found.</div>
+    };
 
     return (
         <main className="min-h-[100svh] bg-background">
@@ -81,7 +89,7 @@ export default function PaymentPage() {
                             <CardTitle className="text-xl">Payment</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <PaymentPanel paymentMethods={paymentMethods} fee={100} note={booking.note} bookingId={bookingId} />
+                            <PaymentPanel student={student} paymentMethods={paymentMethods} fee={100} note={booking.note} bookingId={bookingId} />
                         </CardContent>
                     </Card>
                 </div>

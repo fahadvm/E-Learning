@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/dialog";
 import { showSuccessToast } from "@/utils/Toast";
 import { sendNotification } from "@/lib/socket";
+import { formatDateToDDMMYYYY } from "@/utils/timeConverter";
 
 interface Slot {
   start: string; // e.g., "14:30"
@@ -171,6 +172,7 @@ export default function StudentTeacherSlotPage() {
       };
 
       const res = await studentBookingApi.slotBooking(bookingPayload);
+      console.log("res of booking confirmation ",res.ok)
       if (res.ok) {
         sendNotification({
           receiverId: teacherId,
@@ -283,7 +285,7 @@ export default function StudentTeacherSlotPage() {
                     <h3 className="font-serif text-xl font-semibold text-foreground" style={{ fontFamily: "var(--font-playfair)" }}>
                       {day.day}
                     </h3>
-                    <p className="mt-1 text-sm text-muted-foreground">{day.date}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{formatDateToDDMMYYYY(day.date)}</p>
                   </div>
                   <Badge variant="default">{day.slots.length}</Badge>
                 </div>

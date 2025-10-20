@@ -1,3 +1,4 @@
+import { showSuccessToast } from "@/utils/Toast";
 import { io, Socket } from "socket.io-client";
 
 let socket: Socket | null = null;
@@ -35,6 +36,11 @@ export const initSocket = (
 
   // Listen for message edit events
   socket.on("message_edited", onMessageEdited);
+
+  socket.on("receive_notification", (data) => {
+  console.log("🔔 Notification received:", data);
+  showSuccessToast(`${data.title}: ${data.message}`);
+});
 
   return socket;
 };
@@ -74,6 +80,13 @@ export const sendEditMessage = (data: { chatId: string; messageId: string; sende
     socket.emit("edit_message", data);
   }
 };
+export const sendNotification = (data: {receiverId: string ; title: string; message: string;}) => {
+  if (socket) {
+    socket.emit("send_notification", data);
+  }
+};
+
+
 
 export const disconnectSocket = () => {
   if (socket) {

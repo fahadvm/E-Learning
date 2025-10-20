@@ -11,17 +11,17 @@ export class StudentBookingRepository implements IStudentBookingRepository {
   }
 
   async getScheduledCalls(studentId: string): Promise<IBooking[]> {
-  const today = new Date().toISOString().split("T")[0]; 
+    const today = new Date().toISOString().split("T")[0];
 
-  return Booking.find({
-    studentId,
-    status: "paid",
-    date: { $gte: today }
-  })
-    .populate("teacherId", "name email profilePicture")
-    .populate("courseId", "title")
-    .sort({ date: 1 }); 
-}
+    return Booking.find({
+      studentId,
+      status: "paid",
+      date: { $gte: today }
+    })
+      .populate("teacherId", "name email profilePicture")
+      .populate("courseId", "title")
+      .sort({ date: 1 });
+  }
 
   async createBooking(booking: Partial<IBooking>): Promise<IBooking> {
     const newBooking = new Booking(booking);
@@ -29,7 +29,7 @@ export class StudentBookingRepository implements IStudentBookingRepository {
 
   }
 
-  
+
 
   async findByTeacherDateSlot(
     teacherId: string,
@@ -46,18 +46,54 @@ export class StudentBookingRepository implements IStudentBookingRepository {
     }).populate("studentId  courseId");;
   }
 
-  async updateBookingStatus(bookingId: string, status: "pending" | "approved" | "paid" | "cancelled"): Promise<IBooking | null> {
-    return await Booking.findByIdAndUpdate(
-      bookingId,
-      { status },
-      { new: true }
-    ).populate("studentId teacherId courseId");
+  async updateBookingStatus(bookingId: string, status: "pending" | "approved" | "paid" | "cancelled", reason?: string): Promise<IBooking | null> {
+
+    if (status == "cancelled" && reason) {
+      return await Booking.findByIdAndUpdate(
+        bookingId,
+        { status, cancellationReason: reason},
+        { new: true }
+      ).populate("studentId teacherId courseId");
+    } else {
+      return await Booking.findByIdAndUpdate(
+        bookingId,
+        { status },
+        { new: true }
+      ).populate("studentId teacherId courseId");
+    }
+
   }
 
-  async getBookingsByStudent(studentId: string): Promise<IBooking[]> {
-    return await Booking.find({ studentId: new Types.ObjectId(studentId) })
-      .populate("teacherId courseId")
-      .sort({ createdAt: -1 }); 
+  async getBookingsByStudent(studentId: string, page: number, limit: number, status?: string, teacher?: string): Promise<any> {
+    const query: any = { studentId };
+
+    if (status) query.status = status;
+
+    // If filtering by teacher name
+    let teacherFilter: any = {};
+    if (teacher) {
+      teacherFilter = {
+        "teacherId.name": { $regex: teacher, $options: "i" },
+      };
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      Booking.find({ ...query })
+        .populate("teacherId")
+        .populate("courseId")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Booking.countDocuments(query),
+    ]);
+    return {
+      data,
+      total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+    };
   }
 
   async findBookedSlots(teacherId: string, today: string, nextWeek: string): Promise<IBooking[]> {
@@ -105,6 +141,22 @@ export class StudentBookingRepository implements IStudentBookingRepository {
       { status: "paid" }, { new: true }
     );
   }
+
+
+  async getHistory(filter: any, skip: number, limit: number): Promise<IBooking[]> {
+    return Booking.find(filter)
+      .populate("studentId", "name email")
+      .populate("courseId", "title")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+  }
+
+  async countHistory(filter: any): Promise<number> {
+    return Booking.countDocuments(filter);
+  }
+
+
 
 
 

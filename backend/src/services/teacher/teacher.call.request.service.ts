@@ -6,6 +6,7 @@ import { TYPES } from "../../core/di/types"
 import dayjs from "dayjs";
 import { ITeacherAvailabilityRepository } from "../../core/interfaces/repositories/ITeacherAvailabilityRepository"
 import { INotificationRepository } from "../../core/interfaces/repositories/INotificationRepository"
+import { IPaginationResponse } from "../../core/dtos/teacher/TeacherDTO"
 
 
 @injectable()
@@ -86,5 +87,25 @@ export class TeacherCallRequestService implements ITeacherCallRequestService {
 
     async rejectRequest(bookingId: string, reason: string): Promise<IBooking | null> {
         return this._callRequestRepo.rejectBooking(bookingId, reason)
+    }
+
+    async getHistory(teacherId: string, page: number, limit: number, status?: string) : Promise<IPaginationResponse<IBooking>> {
+        const skip = (page - 1) * limit;
+
+        const filter: any = { teacherId };
+        if (status) filter.status = status;
+
+        const [records, total] = await Promise.all([
+            this._callRequestRepo.getHistory(filter, skip, limit),
+            this._callRequestRepo.countHistory(filter),
+        ]);
+
+        return {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+            data: records,
+        };
     }
 }

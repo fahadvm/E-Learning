@@ -46,6 +46,7 @@ export const teacherAvailabilityApi = {
 
 export const teacherCallRequestApi = {
     getslotsList: async () => get(`/teacher/call-request`),
+    getRequestHistory: async (params:{page: number, limit: number, status?: string}) => get(`/teacher/call-request/history`,params),
     getPendingRequests: async () => get(`/teacher/call-request/pending`),
     getConfirmedRequests: async () => get(`/teacher/call-request/confirmed`),
     getRequestDetails: async (bookingId: string) => get(`/teacher/call-request/${bookingId}`),

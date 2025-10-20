@@ -62,9 +62,9 @@ export class StudentBookingService implements IStudentBookingService {
     return bookingDto(booking);
   }
 
-  async cancelBooking(bookingId: string): Promise<IBookingDTO> {
+  async cancelBooking(bookingId: string , reason : string): Promise<IBookingDTO> {
     if (!bookingId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
-    const cancelled = await this._bookingRepo.updateBookingStatus(bookingId, "cancelled");
+    const cancelled = await this._bookingRepo.updateBookingStatus(bookingId, "cancelled" , reason);
     return bookingDto(cancelled);
   }
 
@@ -119,10 +119,12 @@ export class StudentBookingService implements IStudentBookingService {
     return updated;
   }
 
-  async getHistory(studentId: string): Promise<IBookingDTO[]> {
+  async getHistory(studentId: string , page: number, limit: number, status?: string, teacher?: string): Promise<any> {
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
-    const history = await this._bookingRepo.getBookingsByStudent(studentId);
-    return bookingsDto(history);
+
+    console.log("getting history is working well ",page, limit, status, teacher )
+    const history = await this._bookingRepo.getBookingsByStudent(studentId ,page, limit, status, teacher);
+    return history;
   }
   async getScheduledCalls(studentId: string): Promise<IBookingDTO[]> {
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);

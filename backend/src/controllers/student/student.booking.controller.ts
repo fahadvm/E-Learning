@@ -28,7 +28,6 @@ export class StudentBookingController implements IStudentBookingController {
   bookSlot = async (req: AuthRequest, res: Response) => {
     const studentId = req.user?.id;
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
-    console.log("booked data ", req.body)
     const { teacherId, courseId, date, day, startTime, endTime, note } = req.body;
     if (!teacherId || !courseId || !date || !day || !startTime || !endTime)
       throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
@@ -48,9 +47,12 @@ export class StudentBookingController implements IStudentBookingController {
 
   cancelBooking = async (req: AuthRequest, res: Response) => {
     const { bookingId } = req.params;
+    const {reason} = req.body
+    console.log("cancel booking is working  now" ,reason ,bookingId )
     if (!bookingId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
 
-    const result = await this._bookingService.cancelBooking(bookingId);
+    const result = await this._bookingService.cancelBooking(bookingId , reason);
+     
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.BOOKING_CANCELLED, true, result);
   };
 
@@ -63,12 +65,10 @@ export class StudentBookingController implements IStudentBookingController {
   };
 
   payBooking = async (req: AuthRequest, res: Response) => {
-    console.log("paybooking is working")
     const studentId = req.user?.id;
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
     const { bookingId, amount } = req.body;
-    console.log(req.body)
     if (!bookingId || !amount)
       throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
 
@@ -77,7 +77,6 @@ export class StudentBookingController implements IStudentBookingController {
   };
 
   verifyPayment = async (req: AuthRequest, res: Response) => {
-    console.log("verification  of payment is working ", req.body)
     const studentId = req.user?.id
     if (!studentId) {
       throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED)
@@ -96,20 +95,21 @@ export class StudentBookingController implements IStudentBookingController {
 
   getHistory = async (req: AuthRequest, res: Response) => {
     const studentId = req.user?.id;
+    const { page = 1, limit = 5, status } = req.query;
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
-    const history = await this._bookingService.getHistory(studentId);
+    const history = await this._bookingService.getHistory(studentId , Number(page), Number(limit), status as string );
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.HISTORY_FETCHED, true, history);
   };
 
-  ScheduledCalls = async(req: AuthRequest, res: Response) => {
-     const studentId = req.user?.id;
+  ScheduledCalls = async (req: AuthRequest, res: Response) => {
+    const studentId = req.user?.id;
+    console.log("req.query :",req.query)
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
     const schedules = await this._bookingService.getScheduledCalls(studentId);
-    console.log("upcoming schedules", schedules)
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.CALL_REQUESTS_FETCHED, true, schedules);
   };
-  
+
 
 
   AvailableBookingSlots = async (req: AuthRequest, res: Response) => {

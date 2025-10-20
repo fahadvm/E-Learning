@@ -137,6 +137,23 @@ export function initSocket(server: any) {
       }
     });
 
+    socket.on("send_notification", async (data: { receiverId: string; title: string; message: string; }) => {
+      try {
+        // Update message content in the database
+        await notificationService.createNotification(data.receiverId, data.title, data.message, "general");
+        // Notify the receiver of the updated message
+        const receiverSocketId = onlineUsers.get(data.receiverId);
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit("receive_notification", {
+            title: data.title,
+            message: data.message,
+          });
+        }
+      } catch (err) {
+        console.error("Error sending  notification:", err);
+      }
+    });
+
     // Handle disconnect
     socket.on("disconnect", () => {
       console.log("Socket disconnected:", socket.id);

@@ -22,15 +22,15 @@ export const studentCourseApi = {
   getAllCourses: (params?: Record<string, any>) => get('/student/courses/', params),
   getRecommendedCourses: () => get('/student/courses'),
   getCourseDetailById: (courseId: string) => get(`/student/courses/${courseId}`),
-  codeRunner: (data:{language:string,code: string}) => post(`/student/courses/compiler/run`,data),
+  codeRunner: (data: { language: string, code: string }) => post(`/student/courses/compiler/run`, data),
   getMyCourses: () => get(`/student/purchase/enrolled`),
   getMyCourseDetails: (courseId: string) => get(`/student/purchase/enrolled/${courseId}`),
-  markLessonComplete:(courseId  : string, lessonIndex: string)=> get(`/student/courses/${courseId}/lesson/${lessonIndex}/complete`),
-  saveNotes:(data:{courseId:string,notes:string})=> post(`/student/courses/notes`,data),
-  getCourseResources :(courseId:string) => get(`/student/courses/resources/${courseId}`),
-  getCourseComments :(courseId:string) => get(`/student/courses/comment/${courseId}`),
-  addCourseComment :(courseId:string ,data:{ content: string }) => post(`/student/courses/comment/${courseId}`,data),
-  deleteCourseComment :(commentId:string) => del(`/student/courses/comment/${commentId}`),
+  markLessonComplete: (courseId: string, lessonIndex: string) => get(`/student/courses/${courseId}/lesson/${lessonIndex}/complete`),
+  saveNotes: (data: { courseId: string, notes: string }) => post(`/student/courses/notes`, data),
+  getCourseResources: (courseId: string) => get(`/student/courses/resources/${courseId}`),
+  getCourseComments: (courseId: string) => get(`/student/courses/comment/${courseId}`),
+  addCourseComment: (courseId: string, data: { content: string }) => post(`/student/courses/comment/${courseId}`, data),
+  deleteCourseComment: (commentId: string) => del(`/student/courses/comment/${commentId}`),
 
 };
 
@@ -47,12 +47,12 @@ export const studentTeacherApi = {
 export const studentBookingApi = {
   getAvailableSlots: (teacherId: string) => get(`/student/bookings/${teacherId}/available-slots`),
   slotBooking: (data: { teacherId: string; endTime: string; courseId?: string, date: string, day: string, startTime: string, note: string }) => post(`/student/bookings`, data),
-  cancelBooking: (teacherId: string) => get(`/student/bookings/availability/${teacherId}`),
+  cancelBooking: (bookingId: string , data:{reason : string}) => patch(`/student/bookings/${bookingId}/cancel`, data),
   approveBooking: (teacherId: string) => get(`/student/bookings/availability/${teacherId}`),
-  getBookingHistory: () => get(`/student/bookings/history`),
+  getBookingHistory: (params?: { page?: number; limit?: number; status?: string; teacher?: string }) => get("/student/bookings/history",  params ),
   payingBooking: (teacherId: string) => get(`/student/bookings/payments/${teacherId}`),
   getBookingDetails: (bookingId: string) => get(`/student/bookings/${bookingId}/details`),
-  getScheduledCalls: () => get(`/student/bookings/ScheduledCall`),
+  getScheduledCalls: (params:{page:number , limit : number}) => get(`/student/bookings/ScheduledCall`,params ),
 
 };
 
@@ -85,14 +85,14 @@ export const studentSubscriptionApi = {
 };
 export const studentChatApi = {
   // getmessages: (chatId: string, limit: number, before :string ) => get(`/student/chat/messages/${chatId}?limit=${limit}&before=${before}`,),
-  getmessages: (chatId: string ) => get(`/student/chat/messages/${chatId}`,),
+  getmessages: (chatId: string) => get(`/student/chat/messages/${chatId}`,),
   getChatInfo: (chatId: string) => get(`/student/chat/${chatId}`),
   getuserchat: () => get(`/student/chat`),
-  startChat: (data: { studentId: string; teacherId: any }) => post('/student/chat/start', data),
+  createOrGetChat: (data: { studentId: string; teacherId: string }) => post('/student/chat/start', data),
 
 };
 export const studentAiApi = {
-  aiAssistant: (courseId: string,data:{prompt: string}) => post(`/shared/ai/message/${courseId}`,data),
+  aiAssistant: (courseId: string, data: { prompt: string }) => post(`/shared/ai/message/${courseId}`, data),
 
 
 };

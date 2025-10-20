@@ -13,6 +13,7 @@ export interface IBooking extends Document {
   paymentOrderId : string;
   day: string;
   rejectionReason?: string;
+  cancellationReason?: string;
   slot: ITimeSlot;
   note?: string;
   status: "pending" | "approved" | "paid" | "cancelled" | "rejected";
@@ -37,6 +38,7 @@ const bookingSchema = new Schema<IBooking>(
     date: { type: String, required: true },
     day: { type: String, required: true },
     rejectionReason: { type: String, required: false },
+    cancellationReason: { type: String, required: false },
     slot: { type: timeSlotSchema, required: true },
     note: { type: String, default: "" },
     status: {

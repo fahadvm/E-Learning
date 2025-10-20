@@ -57,3 +57,11 @@ export interface CourseCreateDTO {
   teacherId?: mongoose.Types.ObjectId;
 }
 
+export interface IPaginationResponse<T> {
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+  data: T[]
+}
+

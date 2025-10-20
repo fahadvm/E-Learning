@@ -4,8 +4,8 @@ import { IBooking } from "../../../models/Booking";
 export interface IStudentBookingRepository {
   getAvailability(teacherId: string): Promise<any>;
   createBooking(booking: Partial<IBooking>): Promise<IBooking>;
-  updateBookingStatus(bookingId: string, status: string): Promise<IBooking | null>;
-  getBookingsByStudent(studentId: string): Promise<IBooking[]>;
+  updateBookingStatus(bookingId: string, status: string ,reason? : string): Promise<IBooking | null>;
+  getBookingsByStudent(studentId: string , page: number, limit: number, status?: string, teacher?: string): Promise<IBooking[]>;
   findBookedSlots(teacherId: string, today: string, nextWeek: string): Promise<IBooking[]>
   findPending(): Promise<IBooking[]>
   findConfirmed(): Promise<IBooking[]>
@@ -20,5 +20,7 @@ export interface IStudentBookingRepository {
   updateBookingOrderId(bookingId: string, orderId: string): Promise<IBooking | null>
   findByOrderId(orderId: string): Promise<IBooking | null>
   verifyAndMarkPaid(orderId: string): Promise<IBooking | null>
+  getHistory(filter: any, skip: number, limit: number): Promise<IBooking[]>
+  countHistory(filter: any): Promise<number>
 
 }

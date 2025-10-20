@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams ,useRouter} from "next/navigation";
 import { useStudent } from "@/context/studentContext";
 import { initSocket, sendMessage, sendTyping, sendReadMessage, sendMessageReaction, sendDeleteMessage, sendEditMessage, disconnectSocket } from "@/lib/socket";
 import { studentChatApi } from "@/services/APImethods/studentAPImethods";
@@ -69,12 +69,12 @@ const ChatHeader = ({ teacherName, teacherAvatar, isOnline }: { teacherName: str
 };
 
 // ---------- ChatMessages Component ----------
-const ChatMessages = ({ 
-  messages, 
-  studentId, 
-  teacherAvatar, 
-  isTyping, 
-  markMessagesAsRead, 
+const ChatMessages = ({
+  messages,
+  studentId,
+  teacherAvatar,
+  isTyping,
+  markMessagesAsRead,
   handleReaction,
   handleDelete,
   handleEdit,
@@ -89,10 +89,10 @@ const ChatMessages = ({
   confirmDeleteMessageId,
   confirmEditMessageId,
   setEditingMessageId,
-}: { 
-  messages: any[]; 
-  studentId: string; 
-  teacherAvatar?: string; 
+}: {
+  messages: any[];
+  studentId: string;
+  teacherAvatar?: string;
   isTyping: boolean;
   markMessagesAsRead: (messages: any[]) => void;
   handleReaction: (messageId: string, reaction: string) => void;
@@ -167,9 +167,8 @@ const ChatMessages = ({
               ) : (
                 <>
                   <div
-                    className={`px-4 py-3 rounded-2xl shadow-sm ${
-                      msg.senderId === studentId ? "bg-blue-600 text-white rounded-tr-sm" : "bg-white text-slate-800 rounded-tl-sm"
-                    }`}
+                    className={`px-4 py-3 rounded-2xl shadow-sm ${msg.senderId === studentId ? "bg-blue-600 text-white rounded-tr-sm" : "bg-white text-slate-800 rounded-tl-sm"
+                      }`}
                   >
                     <p className="text-sm leading-relaxed">{msg.message}</p>
                     {msg.edited && (
@@ -245,7 +244,7 @@ const ChatMessages = ({
             </div>
           </div>
         ))}
-         
+
         <div ref={messagesEndRef} />
       </div>
       <ConfirmationDialog
@@ -307,6 +306,7 @@ export default function StudentChat() {
   const { student } = useStudent();
   const params = useParams();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [isOnline, setIsOnline] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
@@ -319,7 +319,24 @@ export default function StudentChat() {
 
   const teacherId = params?.teacherId as string;
   const studentId = student?._id;
-  const chatId = searchParams.get("chatId");
+  const [chatId, setChatId] = useState<string | null>(searchParams.get("chatId"));
+
+
+  useEffect(() => {
+    if (!studentId || !teacherId || chatId) return;
+    const createOrFetchChat = async () => {
+      try {
+        const res = await studentChatApi.createOrGetChat({ studentId, teacherId });
+        const newChatId = res.data._id;
+        setChatId(newChatId);
+        router.replace(`/student/chat/${teacherId}?chatId=${newChatId}`); // optional URL sync
+      } catch (err) {
+        console.error("Error creating/fetching chat:", err);
+      }
+    };
+
+    createOrFetchChat();
+  }, [studentId, teacherId, chatId]);
 
   useEffect(() => {
     if (!chatId) return;
@@ -489,10 +506,10 @@ export default function StudentChat() {
   return (
     <div className="flex flex-col h-screen">
       <ChatHeader teacherName={teachertInfo?.name || "Teacher"} teacherAvatar={teachertInfo?.profilePicture} isOnline={isOnline} />
-      <ChatMessages 
-        messages={messages} 
-        studentId={studentId!} 
-        teacherAvatar={teachertInfo?.profilePicture} 
+      <ChatMessages
+        messages={messages}
+        studentId={studentId!}
+        teacherAvatar={teachertInfo?.profilePicture}
         isTyping={isTyping}
         markMessagesAsRead={markMessagesAsRead}
         handleReaction={handleReaction}

@@ -1,4 +1,5 @@
 import { IBooking } from "../../../../models/Booking";
+import { IPaginationResponse } from "../../../dtos/teacher/TeacherDTO";
 
 export interface ITeacherCallRequestService {
     getPendingRequests(): Promise<IBooking[]>
@@ -7,4 +8,6 @@ export interface ITeacherCallRequestService {
     approveRequest(bookingId: string): Promise<IBooking | null>
     rejectRequest(bookingId: string, reason: string): Promise<IBooking | null>
     getTeacherSlots(teacherId: string) : Promise<any[] | null>
+    // cancelRequest(bookingId: string,reason: string,teacherId: string ) : Promise<IBooking >
+    getHistory(teacherId: string, page: number, limit: number, status?: string) : Promise<IPaginationResponse<IBooking>>
 }

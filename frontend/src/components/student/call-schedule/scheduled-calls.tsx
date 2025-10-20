@@ -5,9 +5,34 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Video, Clock, CalendarIcon } from "lucide-react";
-import { studentBookingApi } from "@/services/APImethods/studentAPImethods";
+import {
+  Video,
+  Clock,
+  CalendarIcon,
+  MoreVertical,
+  MessageSquare,
+  XCircle,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { convertTo12Hour } from "@/utils/timeConverter";
+import { studentBookingApi } from "@/services/APImethods/studentAPImethods";
+import { showSuccessToast } from "@/utils/Toast";
 
 interface Booking {
   id: string;
@@ -17,7 +42,7 @@ interface Booking {
     _id: string;
     name: string;
     email: string;
-    profilePicture?: string; // base64 string
+    profilePicture?: string;
   };
   courseId: {
     _id: string;
@@ -34,36 +59,69 @@ interface Booking {
 export function ScheduledCalls() {
   const [scheduledCalls, setScheduledCalls] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [selectedCall, setSelectedCall] = useState<Booking | null>(null);
+  const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
+
+  const fetchScheduledCalls = async () => {
+    try {
+      setLoading(true);
+      const res = await studentBookingApi.getScheduledCalls({
+        page,
+        limit: 5,
+      });
+
+      if (res.ok && res.data) {
+        setScheduledCalls(res.data.data || res.data);
+        setTotalPages(res.data.totalPages || 1);
+      } else {
+        setScheduledCalls([]);
+      }
+    } catch (err) {
+      console.error("Error fetching scheduled calls:", err);
+      setScheduledCalls([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchScheduledCalls = async () => {
-      try {
-        setLoading(true);
-        const res = await studentBookingApi.getScheduledCalls();
-        if (res.ok && res.data) {
-          setScheduledCalls(res.data);
-        } else {
-          setScheduledCalls([]);
-        }
-      } catch (err) {
-        console.error("Error fetching scheduled calls:", err);
-        setScheduledCalls([]);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchScheduledCalls();
-  }, []);
+  }, [page]);
 
   const handleJoinCall = (meetingLink?: string) => {
     if (!meetingLink) return;
     window.open(meetingLink, "_blank");
   };
 
+  const handleCancelCall = async (callId: string, reason: string) => {
+    try {
+      const res = await studentBookingApi.cancelBooking(callId, { reason });
+
+      if (res.ok) {
+        setScheduledCalls((prev) => prev.filter((b) => b.id !== callId));
+        showSuccessToast(res.message);
+      }
+    } catch (err) {
+      console.error("Error cancelling session:", err);
+      alert("Failed to cancel session.");
+    } finally {
+      setConfirmCancelOpen(false);
+      setSelectedCall(null);
+      setCancelReason("");
+    }
+  };
+
+  const handleChat = (teacherId: string) => {
+    window.location.href = `/student/chat/${teacherId}`;
+  };
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-semibold text-foreground">
             Scheduled Video Calls
@@ -72,15 +130,8 @@ export function ScheduledCalls() {
             Your upcoming paid and confirmed sessions
           </p>
         </div>
-        {!loading && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span className="font-medium">{scheduledCalls.length}</span>
-            <span>Upcoming Calls</span>
-          </div>
-        )}
       </div>
 
-      {/* Loading Skeleton */}
       {loading ? (
         <div className="grid gap-4">
           {[1, 2, 3].map((i) => (
@@ -113,61 +164,193 @@ export function ScheduledCalls() {
           </div>
         </Card>
       ) : (
-        <div className="grid gap-4">
-          {scheduledCalls.map((call) => (
-            <Card key={call.id} className="p-6 hover:shadow-md transition-shadow">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-start gap-4 flex-1">
-                  <Avatar className="h-12 w-12 border-2 border-border">
-                    {call.teacherId.profilePicture ? (
-                      <AvatarImage src={call.teacherId.profilePicture} alt={call.teacherId.name} />
-                    ) : (
-                      <AvatarFallback>
-                        {call.teacherId.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    )}
-                  </Avatar>
+        <>
+          <div className="grid gap-4">
+            {scheduledCalls.map((call) => (
+              <Card
+                key={call.id}
+                className="p-6 hover:shadow-md transition-shadow"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-start gap-4 flex-1">
+                    <Avatar className="h-12 w-12 border-2 border-border">
+                      {call.teacherId.profilePicture ? (
+                        <AvatarImage
+                          src={call.teacherId.profilePicture}
+                          alt={call.teacherId.name}
+                        />
+                      ) : (
+                        <AvatarFallback>
+                          {call.teacherId.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-foreground">{call.teacherId.name}</h3>
-                      <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">
-                        {call.status === "paid" ? "Paid" : "Pending"}
-                      </Badge>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3
+                            onClick={() =>
+                              (window.location.href = `/student/teacher/${call.teacherId._id}`)
+                            }
+                            className="font-semibold text-foreground cursor-pointer hover:underline"
+                          >
+                            {call.teacherId.name}
+                          </h3>
+                          <Badge
+                            variant="outline"
+                            className="bg-green-50 text-green-600 border-green-200"
+                          >
+                            {call.status === "paid"
+                              ? "Paid"
+                              : call.status === "cancelled"
+                              ? "Cancelled"
+                              : "Booked"}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {call.courseId.title}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <CalendarIcon className="h-3.5 w-3.5" />
+                          {call.date.split("-").reverse().join("-")}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3.5 w-3.5" />
+                          {convertTo12Hour(call.slot.start)} -{" "}
+                          {convertTo12Hour(call.slot.end)}
+                        </span>
+                        <span>Duration: 30 min</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Booked on {new Date(call.createdAt).toLocaleString()}
+                      </p>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-2">{call.courseId.title}</p>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <CalendarIcon className="h-3.5 w-3.5" />
-                        {call.date.split("-").reverse().join("-")}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3.5 w-3.5" />
-                        {call.slot.start} - {call.slot.end}
-                      </span>
-                      <span>Duration: 30 min</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Booking created at {new Date(call.createdAt).toLocaleString()}
-                    </p>
+                  </div>
+
+                  <div className="gap-5 flex items-center">
+                    <Button
+                      onClick={() => handleJoinCall(call.meetingLink)}
+                      className="bg-primary hover:bg-primary/90 min-w-[140px]"
+                    >
+                      <Video className="h-4 w-4 mr-2" />
+                      Join
+                    </Button>
+
+                    <DropdownMenu
+                      open={dropdownOpen === call.id}
+                      onOpenChange={(open) =>
+                        setDropdownOpen(open ? call.id : null)
+                      }
+                    >
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setDropdownOpen(null);
+                            handleChat(call.teacherId._id);
+                          }}
+                        >
+                          <MessageSquare className="mr-2 h-4 w-4" /> Chat
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onClick={() => {
+                            setDropdownOpen(null);
+                            // Delay opening dialog until dropdown fully closes
+                            setTimeout(() => {
+                              setSelectedCall(call);
+                              setCancelReason("");
+                              setConfirmCancelOpen(true);
+                            }, 50);
+                          }}
+                        >
+                          <XCircle className="mr-2 h-4 w-4" /> Cancel
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
+              </Card>
+            ))}
+          </div>
 
-                <Button
-                  onClick={() => handleJoinCall(call.meetingLink)}
-                  className="flex-1 sm:flex-none bg-primary hover:bg-primary/90 min-w-[140px]"
-                >
-                  <Video className="h-4 w-4 mr-2" />
-                  Join
-                </Button>
-              </div>
-            </Card>
-          ))}
-        </div>
+          {/* Pagination */}
+          <div className="flex justify-center items-center gap-3 mt-6">
+            <Button
+              variant="outline"
+              disabled={page === 1}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              Previous
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              Page {page} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              disabled={page === totalPages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </>
       )}
+
+      {/* Cancel Confirmation Dialog */}
+      <AlertDialog open={confirmCancelOpen} onOpenChange={setConfirmCancelOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Session</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to cancel this session? <br />
+              <strong className="text-red-500">
+                Refund is not available after cancellation.
+              </strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <div className="mt-4 space-y-2">
+            <label htmlFor="cancelReason" className="text-sm font-medium">
+              Reason for cancellation
+            </label>
+            <textarea
+              id="cancelReason"
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              placeholder="Write your reason here..."
+              className="w-full border border-input rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              rows={3}
+            />
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Back</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive hover:bg-destructive/90"
+              disabled={!cancelReason.trim()}
+              onClick={() =>
+                selectedCall &&
+                handleCancelCall(selectedCall.id, cancelReason)
+              }
+            >
+              Yes, Cancel
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

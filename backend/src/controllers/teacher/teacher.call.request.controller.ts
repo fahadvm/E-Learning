@@ -79,4 +79,28 @@ export class TeacherCallRequestController implements ITeacherCallRequestControll
         const updatedNotification = await this._notificationService.markAsRead(notificationId);
         sendResponse(res, STATUS_CODES.OK, MESSAGES.NOTIFICATION_MARKED_AS_READ, true, updatedNotification);
     }
+
+    async getRequestHistory(req: AuthRequest, res: Response): Promise<void> {
+        const { page = 1, limit = 5, status } = req.query;
+        const teacherId = req.user?.id
+        if (!teacherId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+        const result = await this._callRequestService.getHistory(teacherId, Number(page), Number(limit), status as string);
+        sendResponse(res, STATUS_CODES.OK, "Booking history fetched suceessfully", true, result);
+    }
+
+
+    async cancelRequest(req: AuthRequest, res: Response): Promise<void> {
+        const { bookingId } = req.params;
+        const { reason } = req.body;
+        const teacherId = req.user?.id;
+        if (!teacherId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+        const result = "Fdsaf"
+
+        // const result = await this._callRequestService.cancelRequest(
+        //     bookingId,
+        //     reason,
+        //     teacherId
+        // );
+        sendResponse(res, STATUS_CODES.OK, "Session cancelled successfully", true, result);
+    }
 }

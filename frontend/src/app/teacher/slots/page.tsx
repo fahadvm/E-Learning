@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import SlotsTab from "@/components/teacher/slots/slots-tab"
 import UpcomingTab from "@/components/teacher/slots/upcoming-tab"
+import HistoryTab from "@/components/teacher/slots/history-tab"
 import Header from "@/components/teacher/header"
 import { teacherCallRequestApi } from "@/services/APImethods/teacherAPImethods"
 
@@ -14,6 +15,7 @@ export type Student = {
   name: string
   email: string
 }
+
 export type Course = {
   title: string
 }
@@ -28,52 +30,48 @@ export type Slot = {
   course?: Course
 }
 
-// Backend item type (for clarity; optional but recommended)
 type BackendSlot = {
   date: string
   day: string
   slot: {
-    start: string  // "HH:MM"
-    end: string    // "HH:MM"
+    start: string
+    end: string
     _id: string
   }
   status: SlotStatus
-  student?: Student  // Optional; present only in "booked"
-  course?: Student  // Optional; present only in "booked"
+  student?: Student
+  course?: Course
 }
 
 export default function Page() {
   const [allSlots, setAllSlots] = useState<Slot[]>([])
   const [loading, setLoading] = useState(true)
+  const [history, setHistory] = useState<any[]>([])
+  const [page, setPage] = useState(1)
+  const [limit] = useState(12)
+  const [totalPages, setTotalPages] = useState(1)
+  const [statusFilter, setStatusFilter] = useState<string | undefined>()
 
+  // Fetch available + upcoming slots
   useEffect(() => {
-    async function fetchSlots() {
+    async function fetchAllSlots() {
       try {
         const res = await teacherCallRequestApi.getslotsList()
-        console.log("respomses in slot page is ", res.data)
+        console.log("Slots response:", res.data)
 
-        // Transform backend data to Slot[]
         const transformedSlots: Slot[] = res.data.map((item: BackendSlot) => {
-          const date = item.date
-          const startTime = item.slot.start
-          const endTime = item.slot.end
-
-          // Combine date + time into ISO strings (assume local TZ, add :00 seconds)
-          const startISO = startTime
-          const endISO = endTime
-
+          const { date, slot, status, student, course } = item
           return {
-            id: item.slot._id,
+            id: slot._id,
             dateKey: date,
-            startISO,
-            endISO,
-            status: item.status,
-            student: item.student,  // Undefined for "available"; assume backend adds for "booked"
-            course: item.course  // Undefined for "available"; assume backend adds for "booked"
+            startISO: slot.start,
+            endISO: slot.end,
+            status,
+            student,
+            course
           }
         })
 
-        console.log("Transformed slots:", transformedSlots)  // Debug: Verify structure
         setAllSlots(transformedSlots)
       } catch (err) {
         console.error("Failed to load slots", err)
@@ -81,8 +79,28 @@ export default function Page() {
         setLoading(false)
       }
     }
-    fetchSlots()
+
+    fetchAllSlots()
   }, [])
+
+  // Fetch history slots
+  useEffect(() => {
+    async function fetchHistory() {
+      try {
+        const res = await teacherCallRequestApi.getRequestHistory({page, limit, status: statusFilter})
+        console.log("Paginated history:", res.data)
+
+        setHistory(res.data.data)
+        setTotalPages(res.data.totalPages)
+      } catch (err) {
+        console.error("Failed to load history", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchHistory()
+  }, [page, statusFilter])
 
   const bookedUpcoming = allSlots.filter((s) => s.status === "paid")
 
@@ -111,9 +129,10 @@ export default function Page() {
               <p>Loading slots...</p>
             ) : (
               <Tabs defaultValue="slots" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="slots">Slots</TabsTrigger>
                   <TabsTrigger value="upcoming">Booked Slots (Upcoming)</TabsTrigger>
+                  <TabsTrigger value="history">History</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="slots" className="mt-6">
@@ -123,6 +142,16 @@ export default function Page() {
                 <TabsContent value="upcoming" className="mt-6">
                   <UpcomingTab slots={bookedUpcoming} />
                 </TabsContent>
+
+                <TabsContent value="history" className="mt-6">
+                  <HistoryTab
+                    slots={history}
+                    currentPage={page}
+                    totalPages={totalPages}
+                    onFilterChange={setStatusFilter}
+                    onPageChange={setPage}
+                  />
+                </TabsContent>
               </Tabs>
             )}
           </CardContent>
@@ -130,4 +159,4 @@ export default function Page() {
       </main>
     </>
   )
-} 
+}
