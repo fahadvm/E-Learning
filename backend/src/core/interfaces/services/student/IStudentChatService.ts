@@ -8,17 +8,9 @@ export interface IChatService {
   getChatDetails(chatId: string): Promise<IChat | null>
   markMessageAsRead(chatId: string, messageId: string): Promise<void>;
   addReaction(chatId: string, messageId: string, userId: string, reaction: string): Promise<void>;
+  deleteMessage(chatId: string, messageId: string, senderId: string): Promise<void>;
+  editMessage(chatId: string, messageId: string, senderId: string, newMessage: string): Promise<void>;
+ 
 }
 
-
-// markMessageAsRead(chatId: string, messageId: string): Promise<IMessage>;
-//   addReaction(chatId: string, messageId: string, userId: string, reaction: string): Promise<IMessage>;
-// async addReaction(chatId: string, messageId: string, userId: string, reaction: string) {
-//   await MessageModel.updateOne(
-//     { _id: messageId, chatId },
-//     { $push: { reactions: { userId, reaction } } }
-//   );
-// }
-// async markMessageAsRead(chatId: string, messageId: string) {
-//   await MessageModel.updateOne({ _id: messageId, chatId }, { $set: { read: true } });
-// }
+ 

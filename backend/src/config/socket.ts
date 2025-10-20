@@ -103,6 +103,40 @@ export function initSocket(server: any) {
       }
     });
 
+    // Listen for message deletion events
+    socket.on("delete_message", async (data: { chatId: string; messageId: string; senderId: string; receiverId: string }) => {
+      try {
+        // Delete message from the database
+        await chatService.deleteMessage(data.chatId, data.messageId, data.senderId);
+        // Notify the receiver to remove the message
+        const receiverSocketId = onlineUsers.get(data.receiverId);
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit("message_deleted", { messageId: data.messageId, chatId: data.chatId });
+        }
+      } catch (err) {
+        console.error("Error deleting message:", err);
+      }
+    });
+
+    // Listen for message edit events
+    socket.on("edit_message", async (data: { chatId: string; messageId: string; senderId: string; newMessage: string; receiverId: string }) => {
+      try {
+        // Update message content in the database
+        await chatService.editMessage(data.chatId, data.messageId, data.senderId, data.newMessage);
+        // Notify the receiver of the updated message
+        const receiverSocketId = onlineUsers.get(data.receiverId);
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit("message_edited", {
+            messageId: data.messageId,
+            chatId: data.chatId,
+            newMessage: data.newMessage,
+          });
+        }
+      } catch (err) {
+        console.error("Error editing message:", err);
+      }
+    });
+
     // Handle disconnect
     socket.on("disconnect", () => {
       console.log("Socket disconnected:", socket.id);

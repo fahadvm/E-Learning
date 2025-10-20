@@ -44,4 +44,15 @@ async addReaction(chatId: string, messageId: string, userId: string, reaction: s
 async markMessageAsRead(chatId: string, messageId: string):Promise<void> {
   await Message.updateOne({ _id: messageId, chatId }, { $set: { isRead: true } });
 }
+
+
+
+async deleteMessage(chatId: string, messageId: string, senderId: string):Promise<void> {
+  await Message.findByIdAndDelete(messageId);
+}
+async editMessage(chatId: string, messageId: string, senderId: string, newMessage: string):Promise<void> {
+  await Message.findByIdAndUpdate(messageId,{ $set: { message: newMessage, edited: true } });
+}
+
+
 }

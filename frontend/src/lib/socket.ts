@@ -7,7 +7,9 @@ export const initSocket = (
   onMessageReceived: (data: any) => void,
   onTypingReceived: (data: { senderId: string }) => void,
   onMessageRead: (data: { messageId: string; chatId: string }) => void,
-  onMessageReaction: (data: { messageId: string; chatId: string; userId: string; reaction: string }) => void
+  onMessageReaction: (data: { messageId: string; chatId: string; userId: string; reaction: string }) => void,
+  onMessageDeleted: (data: { messageId: string; chatId: string }) => void,
+  onMessageEdited: (data: { messageId: string; chatId: string; newMessage: string }) => void
 ) => {
   if (!socket) {
     socket = io("http://localhost:8000"); // backend URL
@@ -27,6 +29,12 @@ export const initSocket = (
 
   // Listen for message reaction events
   socket.on("message_reaction", onMessageReaction);
+
+  // Listen for message deletion events
+  socket.on("message_deleted", onMessageDeleted);
+
+  // Listen for message edit events
+  socket.on("message_edited", onMessageEdited);
 
   return socket;
 };
@@ -52,6 +60,18 @@ export const sendReadMessage = (data: { chatId: string; messageId: string; sende
 export const sendMessageReaction = (data: { chatId: string; messageId: string; userId: string; reaction: string; receiverId: string }) => {
   if (socket) {
     socket.emit("react_message", data);
+  }
+};
+
+export const sendDeleteMessage = (data: { chatId: string; messageId: string; senderId: string; receiverId: string }) => {
+  if (socket) {
+    socket.emit("delete_message", data);
+  }
+};
+
+export const sendEditMessage = (data: { chatId: string; messageId: string; senderId: string; newMessage: string; receiverId: string }) => {
+  if (socket) {
+    socket.emit("edit_message", data);
   }
 };
 
