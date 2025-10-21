@@ -8,6 +8,7 @@ import UpcomingTab from "@/components/teacher/slots/upcoming-tab"
 import HistoryTab from "@/components/teacher/slots/history-tab"
 import Header from "@/components/teacher/header"
 import { teacherCallRequestApi } from "@/services/APImethods/teacherAPImethods"
+import RequestCallList from "@/components/teacher/callSchedule/callRequests"
 
 type SlotStatus = "booked" | "cancelled" | "requested" | "available" | "approved" | "paid"
 
@@ -51,6 +52,8 @@ export default function Page() {
   const [limit] = useState(12)
   const [totalPages, setTotalPages] = useState(1)
   const [statusFilter, setStatusFilter] = useState<string | undefined>()
+  const [upcomingPage, setUpcomingPage] = useState(1)
+  const [upcomingLimit] = useState(6)
 
   // Fetch available + upcoming slots
   useEffect(() => {
@@ -87,7 +90,7 @@ export default function Page() {
   useEffect(() => {
     async function fetchHistory() {
       try {
-        const res = await teacherCallRequestApi.getRequestHistory({page, limit, status: statusFilter})
+        const res = await teacherCallRequestApi.getRequestHistory({ page, limit, status: statusFilter })
         console.log("Paginated history:", res.data)
 
         setHistory(res.data.data)
@@ -102,7 +105,13 @@ export default function Page() {
     fetchHistory()
   }, [page, statusFilter])
 
+
+
   const bookedUpcoming = allSlots.filter((s) => s.status === "paid")
+  const paginatedUpcoming = bookedUpcoming.slice((upcomingPage - 1) * upcomingLimit, upcomingPage * upcomingLimit)
+  const upcomingTotalPages = Math.ceil(bookedUpcoming.length / upcomingLimit)
+
+
 
   return (
     <>
@@ -129,9 +138,10 @@ export default function Page() {
               <p>Loading slots...</p>
             ) : (
               <Tabs defaultValue="slots" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="slots">Slots</TabsTrigger>
-                  <TabsTrigger value="upcoming">Booked Slots (Upcoming)</TabsTrigger>
+                  <TabsTrigger value="Requests">Requests</TabsTrigger>
+                  <TabsTrigger value="upcoming">Booked</TabsTrigger>
                   <TabsTrigger value="history">History</TabsTrigger>
                 </TabsList>
 
@@ -139,8 +149,17 @@ export default function Page() {
                   <SlotsTab slots={allSlots} />
                 </TabsContent>
 
+                <TabsContent value="Requests" className="mt-6">
+                  <RequestCallList/>
+                </TabsContent>
+
                 <TabsContent value="upcoming" className="mt-6">
-                  <UpcomingTab slots={bookedUpcoming} />
+                  <UpcomingTab
+                    slots={paginatedUpcoming}
+                    currentPage={upcomingPage}
+                    totalPages={upcomingTotalPages}
+                    onPageChange={setUpcomingPage}
+                  />
                 </TabsContent>
 
                 <TabsContent value="history" className="mt-6">

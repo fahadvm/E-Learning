@@ -51,7 +51,7 @@ export class StudentBookingRepository implements IStudentBookingRepository {
     if (status == "cancelled" && reason) {
       return await Booking.findByIdAndUpdate(
         bookingId,
-        { status, cancellationReason: reason},
+        { status, cancellationReason: reason },
         { new: true }
       ).populate("studentId teacherId courseId");
     } else {
@@ -104,8 +104,26 @@ export class StudentBookingRepository implements IStudentBookingRepository {
     })
   }
 
-  async findPending(): Promise<IBooking[]> {
-    return Booking.find({ status: "pending" }).populate("studentId courseId")
+  async findPending(page: number, limit: number): Promise<any> {
+    const skip = (page - 1) * limit
+
+    const [requests, totalCount] = await Promise.all([
+      Booking.find({ status: "pending" })
+        .populate("studentId", "name profilePicture")
+        .populate("courseId", "title")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Booking.countDocuments({ status: "pending" }),
+    ])
+
+    const totalPages = Math.ceil(totalCount / limit)
+
+    return {
+      requests,
+      totalPages,
+      currentPage: page,
+    }
   }
 
   async findConfirmed(): Promise<IBooking[]> {

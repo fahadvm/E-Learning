@@ -58,7 +58,7 @@ export class ChatController {
             })
         }
 
-        sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, chat);
+        sendResponse(res, STATUS_CODES.OK, MESSAGES.CHAT_LIST_FETCHED, true, chat);
 
     };
 

@@ -17,7 +17,10 @@ export class TeacherCallRequestController implements ITeacherCallRequestControll
     ) { }
 
     async getPendingRequests(req: AuthRequest, res: Response): Promise<void> {
-        const requests = await this._callRequestService.getPendingRequests()
+        console.log("pendings :" ,req.query)
+        const page = Number(req.query.page) || 1
+        const limit = Number(req.query.limit) || 10
+        const requests = await this._callRequestService.getPendingRequests(page, limit)
         console.log("the result is :", requests)
         sendResponse(res, STATUS_CODES.OK, MESSAGES.CALL_REQUESTS_FETCHED, true, requests)
     }

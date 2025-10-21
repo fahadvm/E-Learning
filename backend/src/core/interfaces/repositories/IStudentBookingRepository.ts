@@ -7,7 +7,7 @@ export interface IStudentBookingRepository {
   updateBookingStatus(bookingId: string, status: string ,reason? : string): Promise<IBooking | null>;
   getBookingsByStudent(studentId: string , page: number, limit: number, status?: string, teacher?: string): Promise<IBooking[]>;
   findBookedSlots(teacherId: string, today: string, nextWeek: string): Promise<IBooking[]>
-  findPending(): Promise<IBooking[]>
+  findPending(page: number, limit: number): Promise<any>
   findConfirmed(): Promise<IBooking[]>
   findById(id: string): Promise<IBooking | null>
   rejectBooking(bookingId: string, reason: string): Promise<IBooking | null>

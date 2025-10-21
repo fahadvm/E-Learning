@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import StudentDetailsDialog from "./student-details-dialog"
+import { convertTo12Hour } from "@/utils/timeConverter"
 
 type Grouped = Record<string, Slot[]>
 
@@ -22,14 +23,7 @@ function fmtDayTitle(dateKey: string) {
   return `${weekday}, ${md}`
 }
 
-// Convert 24-hour to 12-hour format
-function formatTime12Hour(time24: string) {
-  const [hourStr, min] = time24.split(":");
-  let hour = parseInt(hourStr, 10);
-  const ampm = hour >= 12 ? "PM" : "AM";
-  hour = hour % 12 || 12;
-  return `${hour}:${min} ${ampm}`;
-}
+
 
 function statusBadge(status: Slot["status"]) {
   // Keep to 3-5 color system: neutrals + primary + success/warn/danger accents
@@ -77,7 +71,7 @@ export default function SlotsTab({ slots }: { slots: Slot[] }) {
                     <CardContent className="flex items-center justify-between gap-4 p-4">
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-foreground">
-                          {formatTime12Hour(slot.startISO )} - {formatTime12Hour(slot.endISO)}
+                          {convertTo12Hour(slot.startISO )} - {convertTo12Hour(slot.endISO)}
                         </p>
                         
                         <div className="mt-1">{statusBadge(slot.status)}</div>

@@ -2,7 +2,11 @@ import { IBooking } from "../../../../models/Booking";
 import { IPaginationResponse } from "../../../dtos/teacher/TeacherDTO";
 
 export interface ITeacherCallRequestService {
-    getPendingRequests(): Promise<IBooking[]>
+    getPendingRequests(page : number, limit: number): Promise<{
+    requests: IBooking[]
+    totalPages: number
+    currentPage: number
+  }>
     getConfirmedRequests(): Promise<IBooking[]>
     getRequestDetails(bookingId: string): Promise<IBooking | null>
     approveRequest(bookingId: string): Promise<IBooking | null>

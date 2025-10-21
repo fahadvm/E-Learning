@@ -17,8 +17,12 @@ export class TeacherCallRequestService implements ITeacherCallRequestService {
         @inject(TYPES.NotificationRepository) private _notificationRepo: INotificationRepository
     ) { }
 
-    async getPendingRequests(): Promise<IBooking[]> {
-        return this._callRequestRepo.findPending()
+    async getPendingRequests(page: number, limit: number): Promise<{
+        requests: IBooking[]
+        totalPages: number
+        currentPage: number
+    }> {
+        return this._callRequestRepo.findPending(page, limit)
     }
 
     async getConfirmedRequests(): Promise<IBooking[]> {
@@ -89,7 +93,7 @@ export class TeacherCallRequestService implements ITeacherCallRequestService {
         return this._callRequestRepo.rejectBooking(bookingId, reason)
     }
 
-    async getHistory(teacherId: string, page: number, limit: number, status?: string) : Promise<IPaginationResponse<IBooking>> {
+    async getHistory(teacherId: string, page: number, limit: number, status?: string): Promise<IPaginationResponse<IBooking>> {
         const skip = (page - 1) * limit;
 
         const filter: any = { teacherId };

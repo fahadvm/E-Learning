@@ -33,6 +33,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { convertTo12Hour } from "@/utils/timeConverter";
 import { studentBookingApi } from "@/services/APImethods/studentAPImethods";
 import { showSuccessToast } from "@/utils/Toast";
+import { useRouter } from "next/navigation";
 
 interface Booking {
   id: string;
@@ -57,6 +58,7 @@ interface Booking {
 }
 
 export function ScheduledCalls() {
+  const router = useRouter()
   const [scheduledCalls, setScheduledCalls] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -116,7 +118,7 @@ export function ScheduledCalls() {
   };
 
   const handleChat = (teacherId: string) => {
-    window.location.href = `/student/chat/${teacherId}`;
+    router.push(`/student/chat/${teacherId}`);
   };
 
   return (
