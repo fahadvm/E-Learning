@@ -16,6 +16,7 @@ export class CompanyPurchaseController implements ICompanyPurchaseController {
 
     async createCheckoutSession(req: AuthRequest, res: Response) {
         const { courses , amount} = req.body;
+        console.log("courses ids in controller,",courses)
         const companyId = req.user?.id;
 
         const session = await this._purchaseService.createCheckoutSession(courses, companyId as string , amount);

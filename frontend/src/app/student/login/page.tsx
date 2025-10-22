@@ -8,6 +8,7 @@ export default  function StudentLogin() {
     <ReusableLoginPage
       role="student"
       apiEndpoint = {studentAuthApi.login} 
+      googleSignup = {studentAuthApi.googleSignup} 
       redirectPath="/student/home"
       signupPath="/student/signup"
       forgotPasswordPath="/student/forgetPassword"

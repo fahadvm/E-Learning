@@ -78,4 +78,7 @@ export class CompanyEmployeeController implements ICompanyEmployeeController {
     const employees = await this._employeeService.rejectingEmployee(employeeId);
     sendResponse(res, STATUS_CODES.OK, MESSAGES.EMPLOYEE_REQUEST_REJECTED, true, employees);
   }
+
+
+  
 }

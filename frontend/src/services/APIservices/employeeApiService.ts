@@ -29,8 +29,8 @@ export const employeeApiMethods = {
   findCompany: (data: { companycode: string }) => post(EMPLOYEE_ROUTES.company.find, data),
   sendCompanyRequest: (data: { companyId: string }) => post(EMPLOYEE_ROUTES.company.sendRequest, data),
   getRequestedCompany: () => get(EMPLOYEE_ROUTES.company.requestedCompany),
-  cancelCompanyRequest: (data: { companyId: string }) => post(EMPLOYEE_ROUTES.company.cancelRequest, data),
-  // leaveCompany: () => post(EMPLOYEE_ROUTES.company.leaveCompany, {}),
+  cancelCompanyRequest: () => get(EMPLOYEE_ROUTES.company.cancelRequest),
+  leaveCompany: () => post(EMPLOYEE_ROUTES.company.leaveCompany, {}),
 
   // Courses
   getMyCourses: () => get(EMPLOYEE_ROUTES.courses.enrolled),

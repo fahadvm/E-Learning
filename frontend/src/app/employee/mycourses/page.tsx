@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService"
+import Header from "@/components/employee/Header"
 // import { showErrorToast } from "@/utils/Toast"
 
 interface Review {
@@ -27,18 +28,19 @@ interface Course {
   progress?: number // Added progress field for better UX
 }
 
-interface Order {
-  _id: string
-  companyId: string
-  courses: Course[]
-  stripeSessionId: string
-  amount: number
-}
+
 
 interface ApiResponse {
   ok: boolean
   message: string
-  data: Order[]
+  data: Employee
+}
+
+interface Employee {
+  _id: string
+  name?: string
+  email?: string
+  coursesAssigned: Course[]
 }
 
 export default function MyCourses() {
@@ -52,8 +54,9 @@ export default function MyCourses() {
   const fetchCourses = async () => {
     try {
       setLoading(true)
-      const res: ApiResponse = await employeeApiMethods.getMyCourses() 
-      const allCourses = res.data.flatMap((order) => order.courses)
+      const res: ApiResponse = await employeeApiMethods.getMyCourses()
+      console.log("the response", res)
+      const allCourses = res.data.coursesAssigned
       setCourses(allCourses)
     } catch (error) {
       console.error("Failed to fetch courses:", error)
@@ -83,6 +86,7 @@ export default function MyCourses() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Header />
       <div className="bg-card border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-start justify-between mb-6">
@@ -175,11 +179,6 @@ export default function MyCourses() {
               <p className="text-muted-foreground mb-8 text-balance">
                 Discover thousands of courses and begin building new skills today
               </p>
-              <Link href="/employee/courses">
-                <Button size="lg" className="bg-primary hover:bg-primary/90">
-                  Browse Courses
-                </Button>
-              </Link>
             </div>
           </div>
         ) : (

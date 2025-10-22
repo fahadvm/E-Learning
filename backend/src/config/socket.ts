@@ -38,12 +38,12 @@ export function initSocket(server: HTTPServer) {
   };
 
   io.on('connection', (socket) => {
-    logger.info('New socket connected:', socket.id);
+    // logger.info('New socket connected:', socket.id);
 
     // When user joins with their ID
     socket.on('join', (userId: string) => {
       onlineUsers.set(userId, socket.id);
-      logger.info('Online users:', Array.from(onlineUsers.keys()));
+      // logger.info('Online users:', Array.from(onlineUsers.keys()));
       broadcastOnlineUsers(); // Broadcast updated online users
     });
 
@@ -153,7 +153,7 @@ export function initSocket(server: HTTPServer) {
 
     // Handle disconnect
     socket.on('disconnect', () => {
-      logger.info('Socket disconnected:', socket.id);
+      // logger.info('Socket disconnected:', socket.id);
       // Remove from online users
       onlineUsers.forEach((value, key) => {
         if (value === socket.id) onlineUsers.delete(key);

@@ -18,14 +18,19 @@ import {
 import { adminApiMethods } from '@/services/APIservices/adminApiService';
 import { showSuccessToast } from '@/utils/Toast';
 
-interface SubscriptionPlan {
+export interface Feature {
+  name: string;
+  description: string;
+}
+
+export interface SubscriptionPlan {
   _id: string;
   name: string;
   price: number | 'Free' | 'Custom';
   description: string;
-  features: string[];
+  features: Feature[];
   popular?: boolean;
-  planFor: string;
+  planFor: 'company' | 'student';
 }
 
 export default function AdminSubscriptionsPage() {
@@ -164,7 +169,9 @@ export default function AdminSubscriptionsPage() {
 
                   <ul className="list-disc list-inside text-xs sm:text-sm text-gray-700 space-y-1 flex-1">
                     {plan.features.map((feature, idx) => (
-                      <li key={idx}>{feature}</li>
+                      <li key={idx}>
+                        <span className="font-medium">{feature.name}:</span> {feature.description}
+                      </li>
                     ))}
                   </ul>
                 </div>

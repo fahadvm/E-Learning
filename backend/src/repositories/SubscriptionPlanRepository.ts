@@ -5,6 +5,7 @@ import { FilterQuery } from 'mongoose';
 import { ISubscriptionPlanRepository } from '../core/interfaces/repositories/ISubscriptionPlanRepository';
 import { ISubscriptionPlan, SubscriptionPlan } from '../models/subscriptionPlan';
 import { IStudentSubscription, StudentSubscription } from '../models/StudentSubscription';
+import logger from '../utils/logger';
 
 
 @injectable()
@@ -44,11 +45,11 @@ export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
   }
 
   async findAllForStudents(): Promise<ISubscriptionPlan[]> {
-    return await SubscriptionPlan.find({ planFor: 'student' });
+    return await SubscriptionPlan.find({ planFor: 'Student' });
   }
 
   async findAllForCompany(): Promise<ISubscriptionPlan[]> {
-    return await SubscriptionPlan.find({ planFor: 'company' });
+    return await SubscriptionPlan.find({ planFor: 'Company' });
   }
 
   async findAllPlans(): Promise<ISubscriptionPlan[]> {

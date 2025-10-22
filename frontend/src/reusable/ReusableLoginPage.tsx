@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { FcGoogle } from "react-icons/fc";
 import { showInfoToast, showSuccessToast } from "@/utils/Toast";
 import { GoogleLoginButton } from "@/components/student/googleLogin";
 
@@ -9,16 +8,19 @@ import { GoogleLoginButton } from "@/components/student/googleLogin";
 interface LoginPageProps<TData = { email: string; password: string }, TResult = any> {
   role: "student" | "company" | "employee" | "teacher";
   apiEndpoint: (data: TData) => Promise<TResult>;
+  googleSignup?: (userData: any) => Promise<any>;
   redirectPath: string;
   signupPath: string;
   forgotPasswordPath: string;
   bannerTitle: string;
   bannerImage: string;
+
 }
 
 export default function ReusableLoginPage({
   role,
   apiEndpoint,
+  googleSignup,
   redirectPath,
   signupPath,
   forgotPasswordPath,
@@ -66,16 +68,16 @@ export default function ReusableLoginPage({
     return validateField("email", email) && validateField("password", password);
   };
 
-   const handleGoogleSuccess = (user: any) => {
-      showSuccessToast("Google signup successful!");
-      router.push("/student/home");
-    };
-    
-  
-    const handleGoogleError = (error: any) => {
-      console.error("Google login error:", error);
-      showInfoToast("Google login failed. Please try again.");
-    };
+  const handleGoogleSuccess = (user: any) => {
+    showSuccessToast("Google signup successful!");
+    router.push(redirectPath);
+  };
+
+
+  const handleGoogleError = (error: any) => {
+    console.error("Google login error:", error);
+    showInfoToast("Google login failed. Please try again.");
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,7 +89,7 @@ export default function ReusableLoginPage({
     try {
       const res = await apiEndpoint({ email, password });
       showSuccessToast(res?.message);
-      setTimeout(() => router.push(redirectPath), 1500);
+      router.push(redirectPath);
     } catch (err: any) {
       const msg = err?.response?.data?.message || "Login failed.";
       setMessage(msg);
@@ -105,12 +107,15 @@ export default function ReusableLoginPage({
         </h1>
 
         {/* Google Signup */}
-        <div className="flex items-center space-x-4 mb-6">
-          <GoogleLoginButton
-            onLoginSuccess={handleGoogleSuccess}
-            onLoginError={handleGoogleError}
-          />
-        </div>
+        {googleSignup && (
+          <div className="flex items-center space-x-4 mb-6">
+            <GoogleLoginButton
+              onLoginSuccess={handleGoogleSuccess}
+              onLoginError={handleGoogleError}
+              apiRouter={googleSignup} 
+            />
+          </div>
+        )}
 
         <p className="text-gray-500 font-medium mb-4">OR</p>
 
@@ -142,7 +147,7 @@ export default function ReusableLoginPage({
               className="absolute right-3 top-3 cursor-pointer text-gray-600"
               onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ?(
+              {showPassword ? (
                 <svg
                   className="w-5 h-5"
                   fill="none"

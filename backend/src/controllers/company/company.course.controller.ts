@@ -48,11 +48,23 @@ export class CompanyCourseController implements ICompanyCourseController {
     sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, course);
   }
 
+  async assignCourseToEmployee(req: Request, res: Response): Promise<void> {
+    const { courseId, employeeId } = req.body;
+    if (!courseId || !employeeId) {
+     throwError( MESSAGES.ID_REQUIRED , STATUS_CODES.BAD_REQUEST);
+    }
+    const course = await this._courseService.assignCourseToEmployee(courseId, employeeId);
+    sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, course);
+  }
+
   async getMyCourses(req: AuthRequest, res: Response): Promise<void> {
+    console.log("controller of get courses")
     const companyId = req.user?.id;
     if (!companyId) { throwError(MESSAGES.ALL_FIELDS_REQUIRED, STATUS_CODES.BAD_REQUEST); }
     const courses = await this._courseService.getMycoursesById(companyId);
     if (!courses) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    console.log("controller of get courses completed", courses)
+
     sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, courses);
 
   }

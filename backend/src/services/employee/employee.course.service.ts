@@ -9,6 +9,7 @@ import { ICourse } from '../../models/Course';
 import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
+import { IEmployee } from '../../models/Employee';
 
 @injectable()
 export class EmployeeCourseService implements IEmployeeCourseService {
@@ -18,12 +19,13 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     @inject(TYPES.CourseRepository) private _courseRepo: ICourseRepository
   ) {}
 
-  async getMyCourses(employeeId: string): Promise<ICompanyOrder[] | null> {
+  async getMyCourses(employeeId: string): Promise<IEmployee | null> {
     const employee = await this._employeeRepo.findById(employeeId);
     if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     if (!employee.companyId) throwError(MESSAGES.NOT_PART_OF_COMPANY, STATUS_CODES.CONFLICT);
 
-    const orders = await this._companyOrderRepo.getOrdersByCompanyId(employee.companyId.toString());
+    const orders = await this._employeeRepo.getAssignedCourses(employeeId);
+    console.log("order in service page ",orders)
     if (!orders) throwError(MESSAGES.ORDER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     return orders;
   }

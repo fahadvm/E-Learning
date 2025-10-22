@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 import { ObjectId } from 'mongodb';
 
 export interface IEmployee extends Document {

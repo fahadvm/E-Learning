@@ -8,12 +8,15 @@ import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { ICompanyOrder } from '../../models/CompanyOrder';
 import { ICompanyOrderRepository } from '../../core/interfaces/repositories/ICompanyOrderRepository';
+import { IEmployeeRepository } from '../../core/interfaces/repositories/IEmployeeRepository';
+import { IEmployee } from '../../models/Employee';
 
 @injectable()
 export class CompanyCourseService implements ICompanyCourseService {
   constructor(
     @inject(TYPES.CourseRepository) private readonly _courseRepository: ICourseRepository,
-    @inject(TYPES.CompanyOrderRepository) private readonly _companyOrderRepository: ICompanyOrderRepository
+    @inject(TYPES.CompanyOrderRepository) private readonly _companyOrderRepository: ICompanyOrderRepository,
+    @inject(TYPES.EmployeeRepository) private readonly _employeeRepo: IEmployeeRepository
   ) { }
 
   async getAllCourses(filters: {
@@ -36,10 +39,23 @@ export class CompanyCourseService implements ICompanyCourseService {
     return course;
   }
 
-  
+  async assignCourseToEmployee(courseId: string, employeeId: string): Promise<void> {
+
+    const employee = await this._employeeRepo.findById(employeeId)
+    if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND);
+
+
+    const course = await this._courseRepository.findById(courseId);
+    if (!course) throwError(MESSAGES.COURSE_NOT_FOUND);
+
+
+    return await this._employeeRepo.assignCourseToEmployee(courseId, employeeId)
+
+  }
 
   async getMycoursesById(companyId: string): Promise<ICompanyOrder[] | null> {
     const orders = await this._companyOrderRepository.getOrdersByCompanyId(companyId);
+    console.log("orders in service", orders)
     return orders;
   }
   async getMycourseDetailsById(companyId: string, courseId: string): Promise<ICourse | null> {

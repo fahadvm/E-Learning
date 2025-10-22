@@ -3,8 +3,7 @@
 import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import { Mail, Phone, Globe, Linkedin, Instagram, Twitter, Star, Book, MessageSquare, GraduationCap, Briefcase } from "lucide-react";
+import { Mail, Phone, Globe, Linkedin, Instagram, Github, Star, Book, MessageSquare, GraduationCap, Briefcase } from "lucide-react";
 import { studentTeacherApi } from "@/services/APIservices/studentApiservice";
 import Header from "@/components/student/header";
 import { useSearchParams } from "next/navigation";
@@ -95,9 +94,9 @@ export default function StudentTeacherProfilePage() {
                   className="w-32 h-32 mx-auto rounded-full object-cover border-2 border-blue-200"
                 />
                 <h2 className="text-xl font-semibold mt-4 text-gray-800">{teacher.name || "N/A"}</h2>
-                <p className={`text-sm ${teacher.isVerified ? "text-blue-600" : "text-red-500"}`}>
+                {/* <p className={`text-sm ${teacher.isVerified ? "text-blue-600" : "text-red-500"}`}>
                   {teacher.isVerified ? "Verified Teacher" : "Unverified"}
-                </p>
+                </p> */}
                 <div className="mt-4 flex justify-center items-center gap-2">
                   <div className="flex">
                     {[...Array(5)].map((_, idx) => (
@@ -119,7 +118,7 @@ export default function StudentTeacherProfilePage() {
                       <MessageSquare size={18} /> Chat
                     </button>
                   ) : (
-                    <p className="text-xs text-gray-400 italic">Chat available after course purchase</p>
+                    <p className="text-xs text-gray-400 italic"></p>
                   )}
                 </div>
 
@@ -176,7 +175,7 @@ export default function StudentTeacherProfilePage() {
                 <ul className="space-y-3 text-sm">
                   {teacher.social_links?.linkedin && <li className="flex items-center gap-2 text-blue-700"><Linkedin size={16} /><a href={teacher.social_links.linkedin} target="_blank" rel="noopener noreferrer" className="hover:underline">LinkedIn</a></li>}
                   {teacher.social_links?.instagram && <li className="flex items-center gap-2 text-pink-600"><Instagram size={16} /><a href={teacher.social_links.instagram} target="_blank" rel="noopener noreferrer" className="hover:underline">Instagram</a></li>}
-                  {teacher.social_links?.twitter && <li className="flex items-center gap-2 text-sky-500"><Twitter size={16} /><a href={teacher.social_links.twitter} target="_blank" rel="noopener noreferrer" className="hover:underline">Twitter</a></li>}
+                  {teacher.social_links?.twitter && <li className="flex items-center gap-2 text-sky-500"><Github size={16} /><a href={teacher.social_links.twitter} target="_blank" rel="noopener noreferrer" className="hover:underline">GitHub</a></li>}
                 </ul>
               </div>
             </aside>

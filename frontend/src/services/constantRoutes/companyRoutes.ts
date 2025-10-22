@@ -27,6 +27,7 @@ export const COMPANY_ROUTES = {
   courses: {
     base: COMPANY_COURSES,
     get: (id: string) => `${COMPANY_COURSES}/${id}`,
+    assign: `${COMPANY_COURSES}/assign-course`,
   },
 
   employees: {

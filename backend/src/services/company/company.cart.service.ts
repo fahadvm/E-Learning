@@ -14,17 +14,14 @@ export class CompanyCartService implements ICompanyCartService {
     @inject(TYPES.WishlistRepository) private readonly _wishlistRepo: IWishlistRepository
   ) {}
 
-  async getCart(userId: string): Promise<ICompanyCartDTO> {
+  async getCart(userId: string): Promise<{courses :ICourse[], total:number}> {
   const cart = await this._cartRepo.getCart(userId);
-
   if (!cart || cart.courses.length === 0) {
     return { courses: [], total: 0 };
   }
-
   const courses = cart.courses as ICourse[];
   const total = courses.reduce((sum, course) => sum + (course.price ?? 0), 0);
-
-  return companyCartDto(courses, total);
+  return {courses, total};
 }
 
 

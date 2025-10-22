@@ -1,6 +1,9 @@
 import { injectable } from 'inversify';
 import { IEmployeeRepository } from '../core/interfaces/repositories/IEmployeeRepository';
 import { IEmployee, Employee } from '../models/Employee';
+import { Course } from '../models/Course';
+import { throwError } from '../utils/ResANDError';
+import { MESSAGES } from '../utils/ResponseMessages';
 
 @injectable()
 export class EmployeeRepository implements IEmployeeRepository {
@@ -26,7 +29,12 @@ export class EmployeeRepository implements IEmployeeRepository {
         return await Employee.findById(employeeId).lean().exec();
     }
 
-
+    async getAssignedCourses(employeeId: string): Promise<IEmployee | null> {
+        const employee = await Employee.findById(employeeId)
+            .populate("coursesAssigned") 
+            .lean();
+        return employee;
+    }
 
 
     async findByCompanyId(
@@ -122,20 +130,38 @@ export class EmployeeRepository implements IEmployeeRepository {
         });
     }
 
-    async findEmployeeAndApprove (companyId: string , employeeId :string): Promise<IEmployee | null> {
-         return await Employee.findByIdAndUpdate(employeeId, {
+    async findEmployeeAndApprove(companyId: string, employeeId: string): Promise<IEmployee | null> {
+        return await Employee.findByIdAndUpdate(employeeId, {
             status: 'approved',
             companyId,
             $unset: { requestedCompanyId: '' },
         });
     }
 
-    async findEmployeeAndReject ( employeeId :string): Promise<IEmployee | null> {
+    async findEmployeeAndReject(employeeId: string): Promise<IEmployee | null> {
 
-         return await Employee.findByIdAndUpdate(employeeId, {
+        return await Employee.findByIdAndUpdate(employeeId, {
             status: 'notRequested',
             $unset: { requestedCompanyId: '' },
         });
+    }
+
+    async assignCourseToEmployee(courseId: string, employeeId: string): Promise<void> {
+        const employee = await Employee.findById(employeeId);
+        if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND);
+
+        const courseExists = await Course.exists({ _id: courseId });
+        if (!courseExists) throwError(MESSAGES.COURSE_NOT_FOUND);
+
+        const alreadyAssigned = employee.coursesAssigned?.some(
+            (id) => id.toString() === courseId.toString()
+        );
+        if (alreadyAssigned) return;
+
+        await Employee.updateOne(
+            { _id: employeeId },
+            { $push: { coursesAssigned: courseId } }
+        );
     }
 
 }

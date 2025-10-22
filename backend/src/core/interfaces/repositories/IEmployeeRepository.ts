@@ -6,8 +6,8 @@ export interface IEmployeeRepository {
   updateByEmail(email: string, updateData: Partial<IEmployee>): Promise<IEmployee | null>;
   findAll(): Promise<IEmployee[]>;
   findById(employeeId: string): Promise<IEmployee | null>;
-  findByCompanyId(companyId: string,skip: number,limit: number,search: string,sortField?: string,sortOrder? : string): Promise<IEmployee[]>;
-  getEmployeesByCompany(companyId: string,skip: number,limit: number,search: string): Promise<IEmployee[]>;
+  findByCompanyId(companyId: string, skip: number, limit: number, search: string, sortField?: string, sortOrder?: string): Promise<IEmployee[]>;
+  getEmployeesByCompany(companyId: string, skip: number, limit: number, search: string): Promise<IEmployee[]>;
   countEmployeesByCompany(companyId: string, search: string): Promise<number>;
   updateById(employeeId: string, data: Partial<IEmployee>): Promise<IEmployee | null>;
   updateCancelRequestById(employeeId: string): Promise<IEmployee | null>;
@@ -18,4 +18,7 @@ export interface IEmployeeRepository {
   findRequestedEmployees(companyId: string): Promise<IEmployee[]>
   findEmployeeAndApprove(companyId: string, employeeId: string): Promise<IEmployee | null>
   findEmployeeAndReject(employeeId: string): Promise<IEmployee | null>
+  assignCourseToEmployee(courseId: string, employeeId: string): Promise<void>
+  getAssignedCourses(employeeId: string): Promise<IEmployee | null> 
+
 }

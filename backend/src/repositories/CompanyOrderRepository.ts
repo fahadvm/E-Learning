@@ -1,7 +1,7 @@
 import { ICompanyOrderRepository } from '../core/interfaces/repositories/ICompanyOrderRepository';
 import { ICompanyOrder, CompanyOrderModel } from '../models/CompanyOrder';
 import { injectable } from 'inversify';
-import { ICourse  } from '../models/Course';
+import { ICourse ,Course } from '../models/Course';
 
 @injectable()
 export class CompanyOrderRepository implements ICompanyOrderRepository {

@@ -34,8 +34,8 @@ router.post(
   asyncHandler(employeeCompanyCtrl.sendRequest.bind(employeeCompanyCtrl))
 );
 
-router.post(
-  '/cancelrequest',
+router.get(
+  '/cancelRequest',
   authMiddleware('employee'),
   asyncHandler(employeeCompanyCtrl.cancelRequest.bind(employeeCompanyCtrl))
 );

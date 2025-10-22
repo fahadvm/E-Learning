@@ -47,7 +47,7 @@ export class StudentAuthController implements IStudentAuthController {
 
   googleAuth = async (req: Request, res: Response) => {
     const {  tokenId  } = req.body;
-    logger.info('tokenId',tokenId);
+    // console.log('tokenId',tokenId);
     if (!tokenId) throwError(MESSAGES.GOOGLE_AUTH_REQUIRED, STATUS_CODES.BAD_REQUEST);
     const result = await this._studentAuthService.googleAuth(tokenId);
     setTokensInCookies(res, result.token, result.refreshToken);

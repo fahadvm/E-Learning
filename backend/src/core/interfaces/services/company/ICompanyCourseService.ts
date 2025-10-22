@@ -1,5 +1,6 @@
 import { ICourse } from '../../../../models/Course';
 import { ICompanyOrder } from '../../../../models/CompanyOrder';
+import { IEmployee } from '../../../../models/Employee';
 
 export interface ICompanyCourseService {
   getAllCourses(filters: {
@@ -15,5 +16,6 @@ export interface ICompanyCourseService {
   getCourseDetail(courseId: string): Promise<ICourse | null>;
   getMycoursesById(companyId: string): Promise<ICompanyOrder[] | null>;
   getMycourseDetailsById(companyId: string, courseId: string): Promise<ICourse | null>
+  assignCourseToEmployee(courseId: string, employeeId: string):Promise<void>
 
 }

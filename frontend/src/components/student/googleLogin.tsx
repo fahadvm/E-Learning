@@ -1,10 +1,10 @@
 // import api
-import { studentAuthApi } from '@/services/APIservices/studentApiservice';
 import React, { useEffect, useRef } from 'react';
 
 interface GoogleLoginButtonProps {
   onLoginSuccess: (user: any) => void; // can also include token if needed
   onLoginError?: (error: any) => void;
+  apiRouter: (data: { tokenId: string }) => Promise<any>;
 }
 
 declare global {
@@ -18,6 +18,8 @@ const CLIENT_ID = '1009449170165-l51vq71vru9hqefmkl570nf782455uf1.apps.googleuse
 export const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
   onLoginSuccess,
   onLoginError,
+  apiRouter
+
 }) => {
   const googleButtonRef = useRef<HTMLDivElement>(null);
 
@@ -68,7 +70,7 @@ export const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
       const idToken = response.credential;
 
       // Correct API call: send { tokenId } object
-      const res = await studentAuthApi.googleSignup({ tokenId: idToken });
+      const res = await apiRouter({ tokenId: idToken });
       console.log("res  in google signup",res)
       
 

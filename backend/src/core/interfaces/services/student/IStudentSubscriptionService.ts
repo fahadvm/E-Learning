@@ -4,7 +4,6 @@ import { RazorpayOrderResponse, RazorpayVerifyPayload } from '../../../../types/
 
 export interface IStudentSubscriptionService {
   getAllForStudent(): Promise<ISubscriptionPlan[]>;
-  getAllPlans(): Promise<ISubscriptionPlan[]>;
   createOrder(studentId: string, planId: string): Promise<RazorpayOrderResponse>;
   verifyPayment(studentId: string, payload: RazorpayVerifyPayload): Promise<void>;
   activateFreePlan(studentId: string, planId: string): Promise<void>;

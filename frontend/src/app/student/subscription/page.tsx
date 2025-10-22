@@ -9,12 +9,17 @@ import Header from '@/components/student/header';
 import { studentSubscriptionApi } from '@/services/APIservices/studentApiservice';
 import { useStudent } from '@/context/studentContext';
 
+interface Feature {
+    name: string;
+    description: string;
+}
+
 interface Plan {
     _id?: string;
     name: string;
     price: string | number;
     description: string;
-    features: string[];
+    features: Feature[];
     popular?: boolean;
 }
 
@@ -97,7 +102,7 @@ export default function SubscriptionPlansPage() {
                     handler: async (response: any) => {
                         try {
                             const verifyResponse = await studentSubscriptionApi.verifyPayment({
-                                planId: plan._id?plan._id:"",
+                                planId: plan._id ? plan._id : "",
                                 razorpay_order_id: response.razorpay_order_id,
                                 razorpay_payment_id: response.razorpay_payment_id,
                                 razorpay_signature: response.razorpay_signature,
@@ -162,7 +167,13 @@ export default function SubscriptionPlansPage() {
                 {loading ? (
                     <p className="text-center text-gray-500">Loading plans...</p>
                 ) : (
-                    <div className="grid gap-8 grid-cols-1 md:grid-cols-3 max-w-6xl mx-auto">
+                    <div className={`max-w-6xl mx-auto gap-8 ${plans.length === 1
+                        ? 'flex justify-center'
+                        : plans.length === 2
+                            ? 'grid grid-cols-1 md:grid-cols-2'
+                            : 'grid grid-cols-1 md:grid-cols-3'
+                        }`}
+                    >
                         {plans.map((plan, index) => {
                             const isCenter = index === 1;
                             return (
@@ -182,15 +193,18 @@ export default function SubscriptionPlansPage() {
                                     )}
                                     <h2 className="text-2xl font-bold text-gray-800 mb-2">{plan.name}</h2>
                                     <p className="text-3xl font-bold text-indigo-600 mb-2">
-                                        {typeof plan.price === 'number' ? `₹${plan.price}/mo` : plan.price}
+                                        {typeof plan.price? `₹${plan.price}/Year` : plan.price}
                                     </p>
                                     <p className="text-gray-600 mb-6">{plan.description}</p>
 
                                     <ul className="space-y-3 mb-6">
                                         {plan.features?.map((feature, idx) => (
-                                            <li key={idx} className="flex items-start text-sm text-gray-700">
-                                                <Check className="text-green-500 w-5 h-5 mt-0.5 mr-2" />
-                                                {feature}
+                                            <li key={idx} className="flex flex-col text-sm text-gray-700">
+                                                <div className="flex items-start">
+                                                    <Check className="text-green-500 w-5 h-5 mt-0.5 mr-2" />
+                                                    <span className="font-semibold">{feature.name}</span>
+                                                </div>
+                                                <p className="ml-7 text-gray-600">{feature.description}</p>
                                             </li>
                                         ))}
                                     </ul>

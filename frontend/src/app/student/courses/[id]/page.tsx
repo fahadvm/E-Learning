@@ -3,8 +3,9 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import Link from "next/link"
 import {
-  Star, Users, Clock, Globe, Award, Download, Smartphone,
+  Clock, Globe, Award, Download, Smartphone,
   Shield, ChevronDown, ChevronUp, Play, Lock, Heart,
   ShoppingCart, Share2, MessageCircle
 } from "lucide-react"
@@ -12,15 +13,17 @@ import Header from "@/components/student/header"
 import { studentCartApi, studentCourseApi } from "@/services/APIservices/studentApiservice"
 import { useParams } from "next/navigation"
 import { studentWishlistApi } from "@/services/APIservices/studentApiservice"
-import { showErrorToast, showSuccessToast } from "@/utils/Toast"
+import { showSuccessToast } from "@/utils/Toast"
+import { formatMinutesToHours } from "@/utils/timeConverter"
+import { Course, Module, Review } from "@/types/student/studentTypes"
 
 export default function CourseDetailPage() {
   const params = useParams();
   const id = params?.id as string;
   const [expandedModules, setExpandedModules] = useState<number[]>([])
-  const [courseData, setCourseData] = useState<any>(null)
-  const [modules, setModules] = useState<any[]>([])
-  const [reviews, setReviews] = useState<any[]>([])
+  const [courseData, setCourseData] = useState<Course | null>(null)
+  const [modules, setModules] = useState<Module[]>([])
+  const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(false);
 
 
@@ -101,7 +104,11 @@ export default function CourseDetailPage() {
                     className="w-10 h-10 rounded-full"
                   />
                   <div>
-                    <p className="font-semibold text-foreground">{courseData.teacherId.name}</p>
+                    <Link href={`/student/teacher/${courseData.teacherId._id}`}>
+                      <p className="font-semibold text-foreground hover:underline cursor-pointer">
+                        {courseData.teacherId.name}
+                      </p>
+                    </Link>
                     <p className="text-sm text-muted-foreground">Instructor</p>
                   </div>
                 </div>
@@ -119,10 +126,10 @@ export default function CourseDetailPage() {
                   {/* <span className="text-muted-foreground">({courseData.reviewCount.toLocaleString()} reviews)</span> */}
                 </div>
 
-                <div className="flex items-center gap-1 text-muted-foreground">
+                {/* <div className="flex items-center gap-1 text-muted-foreground">
                   <Users className="w-4 h-4" />
                   <span>{courseData.enrolledStudents ? courseData.enrolledStudents.toLocaleString() : 0} students</span>
-                </div>
+                </div> */}
               </div>
 
 
@@ -136,16 +143,7 @@ export default function CourseDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid md:grid-cols-2 gap-4">
-                    {[
-                      "Build responsive websites with HTML, CSS, and JavaScript",
-                      "Master React.js and modern frontend development",
-                      "Create full-stack applications with Node.js and Express",
-                      "Work with databases using MongoDB and SQL",
-                      "Deploy applications to production environments",
-                      "Implement user authentication and security best practices",
-                      "Use Git and GitHub for version control",
-                      "Build RESTful APIs and work with third-party APIs",
-                    ].map((outcome, index) => (
+                    {courseData.learningOutcomes.map((outcome, index) => (
                       <div key={index} className="flex items-start gap-2">
                         <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                         <span className="text-foreground">{outcome}</span>
@@ -204,7 +202,7 @@ export default function CourseDetailPage() {
                                     </Badge>
                                   )}
                                 </div>
-                                <span className="text-sm text-muted-foreground">{lesson.duration}</span>
+                                <span className="text-sm text-muted-foreground">{lesson.duration}m</span>
                               </div>
                             ))}
                           </div>
@@ -212,6 +210,27 @@ export default function CourseDetailPage() {
                       </div>
                     ))}
                   </div>
+                </CardContent>
+              </Card>
+            </section>
+
+            <section>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-montserrat">What requirements you need</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {courseData.requirements.map((outcome, index) => (
+                      <div key={index} className="flex items-start gap-2">
+                        <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-foreground">{outcome}</span>
+                      </div>
+                    ))}
+                  </div>
+
+
+
                 </CardContent>
               </Card>
             </section>
@@ -225,12 +244,12 @@ export default function CourseDetailPage() {
                 <CardContent>
                   <div className="grid md:grid-cols-2 gap-4">
                     {[
-                      { icon: Clock, text: "42 hours on-demand video" },
+                      { icon: Clock, text: `${formatMinutesToHours(courseData.totalDuration)} hours on-demand video` },
                       { icon: Download, text: "Downloadable resources" },
                       { icon: Award, text: "Certificate of completion" },
                       { icon: Smartphone, text: "Access on mobile and TV" },
                       { icon: Globe, text: "Full lifetime access" },
-                      { icon: Shield, text: "30-day money-back guarantee" },
+                      { icon: Shield, text: "No money-back" },
                     ].map((item, index) => (
                       <div key={index} className="flex items-center gap-3">
                         <item.icon className="w-5 h-5 text-primary" />
@@ -339,7 +358,7 @@ export default function CourseDetailPage() {
                   <div className="space-y-3 text-sm">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Duration:</span>
-                      <span className="text-foreground font-semibold">{courseData.totalDuration}</span>
+                      <span className="text-foreground font-semibold">{formatMinutesToHours(courseData.totalDuration)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Lessons:</span>
@@ -371,7 +390,7 @@ export default function CourseDetailPage() {
                   <div className="mt-4 p-3 bg-muted/50 rounded-lg text-center">
                     <p className="text-sm text-muted-foreground">
                       <Shield className="w-4 h-4 inline mr-1" />
-                      30-day money-back guarantee
+                      Secure payment guarantee
                     </p>
                   </div>
                 </CardContent>
@@ -381,12 +400,7 @@ export default function CourseDetailPage() {
         </div>
       </div>
 
-      {/* Floating Chat Button */}
-      <div className="fixed bottom-6 right-6">
-        <Button className="rounded-full w-14 h-14 shadow-lg bg-primary hover:bg-primary/90">
-          <MessageCircle className="w-6 h-6" />
-        </Button>
-      </div>
+
     </div>
   )
 }

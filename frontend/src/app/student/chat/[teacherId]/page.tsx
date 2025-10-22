@@ -6,7 +6,6 @@ import { useStudent } from "@/context/studentContext";
 import { initSocket, sendMessage, sendTyping, sendReadMessage, sendMessageReaction, sendDeleteMessage, sendEditMessage, disconnectSocket } from "@/lib/socket";
 import { studentChatApi } from "@/services/APIservices/studentApiservice";
 
-// ---------- ConfirmationDialog Component ----------
 const ConfirmationDialog = ({
   isOpen,
   title,
@@ -23,19 +22,19 @@ const ConfirmationDialog = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-lg">
-        <h3 className="text-lg font-semibold text-slate-800 mb-2">{title}</h3>
-        <p className="text-sm text-slate-600 mb-4">{message}</p>
-        <div className="flex justify-end gap-2">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
+      <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl transform animate-in zoom-in-95 duration-200">
+        <h3 className="text-xl font-bold text-slate-900 mb-3">{title}</h3>
+        <p className="text-sm text-slate-600 mb-6 leading-relaxed">{message}</p>
+        <div className="flex justify-end gap-3">
           <button
-            className="px-4 py-2 bg-gray-300 text-slate-800 rounded-lg hover:bg-gray-400 transition-colors"
+            className="px-5 py-2.5 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 active:scale-95 transition-all duration-200 font-medium"
             onClick={onCancel}
           >
             Cancel
           </button>
           <button
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 active:scale-95 transition-all duration-200 font-medium shadow-lg shadow-blue-500/30"
             onClick={onConfirm}
           >
             Confirm
@@ -46,29 +45,30 @@ const ConfirmationDialog = ({
   );
 };
 
-// ---------- ChatHeader Component ----------
 const ChatHeader = ({ teacherName, teacherAvatar, isOnline }: { teacherName: string; teacherAvatar?: string; isOnline: boolean }) => {
   return (
-    <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+    <div className="bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-6 py-4 flex items-center justify-between shadow-sm">
       <div className="flex items-center gap-4">
-        <div className="relative">
+        <div className="relative group">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full blur-md opacity-20 group-hover:opacity-30 transition-opacity"></div>
           <img
             src={teacherAvatar || "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100"}
             alt="Teacher avatar"
-            className="w-12 h-12 rounded-full object-cover ring-2 ring-slate-100"
+            className="relative w-12 h-12 rounded-full object-cover ring-2 ring-white shadow-md"
           />
-          <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 ${isOnline ? "bg-green-500" : "bg-gray-400"} rounded-full border-2 border-white`}></div>
+          <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 ${isOnline ? "bg-emerald-500" : "bg-slate-400"} rounded-full border-2 border-white shadow-sm ${isOnline ? 'animate-pulse' : ''}`}></div>
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-slate-800">{teacherName}</h2>
-          <p className="text-sm text-slate-500">{isOnline ? "Active now" : "Offline"}</p>
+          <h2 className="text-lg font-bold text-slate-900">{teacherName}</h2>
+          <p className={`text-sm font-medium ${isOnline ? "text-emerald-600" : "text-slate-500"}`}>
+            {isOnline ? "Active now" : "Offline"}
+          </p>
         </div>
       </div>
     </div>
   );
 };
 
-// ---------- ChatMessages Component ----------
 const ChatMessages = ({
   messages,
   studentId,
@@ -121,61 +121,71 @@ const ChatMessages = ({
   const reactions = ["👍", "❤️", "😂", "😊"];
 
   return (
-    <div className="flex-1 overflow-y-auto px-6 py-6 bg-slate-50">
+    <div className="flex-1 overflow-y-auto px-6 py-6 bg-gradient-to-b from-slate-50 to-slate-100/50">
       <div className="space-y-6">
         {messages.map((msg, idx) => (
           <div
             key={msg._id || idx}
-            className={`flex items-start gap-3 ${msg.senderId === studentId ? "flex-row-reverse" : "flex-row"}`}
+            className={`flex items-start gap-3 ${msg.senderId === studentId ? "flex-row-reverse" : "flex-row"} animate-in fade-in slide-in-from-bottom-4 duration-300`}
           >
             {msg.senderId !== studentId && (
               <img
                 src={teacherAvatar || "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100"}
                 alt="Teacher Avatar"
-                className="w-10 h-10 rounded-full object-cover flex-shrink-0 ring-2 ring-slate-100"
+                className="w-10 h-10 rounded-full object-cover flex-shrink-0 ring-2 ring-white shadow-md"
               />
             )}
 
             <div
-              className={`flex flex-col ${msg.senderId === studentId ? "items-end" : "items-start"} max-w-md relative`}
+              className={`flex flex-col ${msg.senderId === studentId ? "items-end" : "items-start"} max-w-md relative group`}
             >
               {editingMessageId === msg._id && msg.senderId === studentId ? (
-                <div className="flex items-center gap-2 w-full">
+                <div className="flex items-center gap-2 w-full animate-in fade-in duration-200">
                   <input
                     type="text"
                     value={editInput}
                     onChange={(e) => setEditInput(e.target.value)}
-                    className="w-full px-4 py-2 bg-slate-100 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 bg-white border-2 border-blue-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
                     autoFocus
                   />
                   <button
-                    className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    className="p-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 active:scale-95 transition-all duration-200 shadow-lg shadow-blue-500/30"
                     onClick={() => setShowEditDialog(true)}
                   >
-                    Save
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
                   </button>
                   <button
-                    className="p-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500"
+                    className="p-2.5 bg-slate-200 text-slate-700 rounded-xl hover:bg-slate-300 active:scale-95 transition-all duration-200"
                     onClick={() => {
                       setEditInput("");
                       setEditingMessageId(null);
                     }}
                   >
-                    Cancel
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                   </button>
                 </div>
               ) : (
                 <>
                   <div
-                    className={`px-4 py-3 rounded-2xl shadow-sm ${msg.senderId === studentId ? "bg-blue-600 text-white rounded-tr-sm" : "bg-white text-slate-800 rounded-tl-sm"
-                      }`}
+                    className={`px-5 py-3 rounded-2xl shadow-md transition-all duration-200 hover:shadow-lg ${
+                      msg.senderId === studentId
+                        ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-tr-md"
+                        : "bg-white text-slate-800 rounded-tl-md border border-slate-200"
+                    }`}
                   >
-                    <p className="text-sm leading-relaxed">{msg.message}</p>
+                    <p className="text-[15px] leading-relaxed break-words">{msg.message}</p>
                     {msg.edited && (
-                      <span className="text-xs text-slate-400 italic">(edited)</span>
+                      <span className={`text-xs italic mt-1 block ${msg.senderId === studentId ? 'text-blue-200' : 'text-slate-400'}`}>
+                        (edited)
+                      </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-1 text-xs text-slate-500 mt-1.5 px-1">
+
+                  <div className="flex items-center gap-2 text-xs font-medium text-slate-500 mt-1.5 px-1">
                     <span>{new Date(msg.createdAt || Date.now()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                     {msg.senderId === studentId && (
                       <span className="flex items-center">
@@ -185,50 +195,64 @@ const ChatMessages = ({
                             <path d="M8 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l8-8a1 1 0 00-1.414-1.414L8 12.586z" />
                           </svg>
                         ) : (
-                          <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-4 h-4 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" />
                           </svg>
                         )}
                       </span>
                     )}
                   </div>
+
                   {msg.reactions?.length > 0 && (
-                    <div className="flex gap-2 mt-1">
+                    <div className="flex gap-1 mt-2">
                       {msg.reactions.map((reaction: { userId: string; reaction: string }, idx: number) => (
-                        <span key={idx} className="text-sm">{reaction.reaction}</span>
+                        <span key={idx} className="text-base bg-white border border-slate-200 px-2 py-0.5 rounded-full shadow-sm">
+                          {reaction.reaction}
+                        </span>
                       ))}
                     </div>
                   )}
-                  <div className="flex gap-2 mt-1">
+
+                  <div className="flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     <button
-                      className="text-sm text-slate-500 hover:text-blue-500"
+                      className="p-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 active:scale-95 transition-all duration-200 shadow-sm"
                       onClick={() => setShowReactionPicker(showReactionPicker === msg._id ? null : msg._id)}
+                      title="React"
                     >
-                      😊
+                      <svg className="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
                     </button>
                     {msg.senderId === studentId && (
                       <>
                         <button
-                          className="text-sm text-slate-500 hover:text-blue-500"
+                          className="p-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 active:scale-95 transition-all duration-200 shadow-sm"
                           onClick={() => handleEdit(msg._id, msg.message)}
+                          title="Edit"
                         >
-                          ✏️
+                          <svg className="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
                         </button>
                         <button
-                          className="text-sm text-slate-500 hover:text-red-500"
+                          className="p-1.5 bg-white border border-slate-200 rounded-lg hover:bg-red-50 hover:border-red-300 active:scale-95 transition-all duration-200 shadow-sm group/delete"
                           onClick={() => setShowDeleteDialog(true)}
+                          title="Delete"
                         >
-                          🗑️
+                          <svg className="w-4 h-4 text-slate-600 group-hover/delete:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
                         </button>
                       </>
                     )}
                   </div>
+
                   {showReactionPicker === msg._id && (
-                    <div className="absolute z-10 bg-white border border-slate-200 rounded-lg p-2 flex gap-2 mt-2">
+                    <div className="absolute z-10 bg-white border border-slate-200 rounded-xl p-2 flex gap-1 mt-2 shadow-xl animate-in fade-in zoom-in-95 duration-200">
                       {reactions.map((reaction) => (
                         <button
                           key={reaction}
-                          className="text-lg hover:bg-slate-100 rounded p-1"
+                          className="text-xl hover:bg-slate-100 rounded-lg p-2 active:scale-95 transition-all duration-200"
                           onClick={() => {
                             handleReaction(msg._id, reaction);
                             setShowReactionPicker(null);
@@ -244,6 +268,23 @@ const ChatMessages = ({
             </div>
           </div>
         ))}
+
+        {isTyping && (
+          <div className="flex items-start gap-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <img
+              src={teacherAvatar || "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100"}
+              alt="Teacher Avatar"
+              className="w-10 h-10 rounded-full object-cover flex-shrink-0 ring-2 ring-white shadow-md"
+            />
+            <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-md px-5 py-4 shadow-md">
+              <div className="flex gap-1.5">
+                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div ref={messagesEndRef} />
       </div>
@@ -271,14 +312,13 @@ const ChatMessages = ({
   );
 };
 
-// ---------- ChatInput Component ----------
 const ChatInput = ({ input, setInput, handleSend, handleTyping }: { input: string; setInput: (val: string) => void; handleSend: () => void; handleTyping: () => void }) => {
   return (
-    <div className="bg-white border-t border-slate-200 px-6 py-4 flex items-center gap-3">
+    <div className="bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-6 py-4 flex items-center gap-3 shadow-lg">
       <input
         type="text"
         placeholder="Type a message..."
-        className="w-full px-4 py-3 bg-slate-100 rounded-full text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all duration-200"
+        className="w-full px-5 py-3.5 bg-slate-100 rounded-full text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all duration-200 shadow-sm"
         value={input}
         onChange={(e) => {
           setInput(e.target.value);
@@ -287,8 +327,9 @@ const ChatInput = ({ input, setInput, handleSend, handleTyping }: { input: strin
         onKeyDown={(e) => e.key === "Enter" && handleSend()}
       />
       <button
-        className="p-3 bg-blue-600 hover:bg-blue-700 rounded-full transition-colors duration-200 flex-shrink-0"
+        className="p-3.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-full transition-all duration-200 flex-shrink-0 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
         onClick={handleSend}
+        disabled={!input.trim()}
       >
         <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -298,7 +339,6 @@ const ChatInput = ({ input, setInput, handleSend, handleTyping }: { input: strin
   );
 };
 
-// --- Main StudentChat Page ---
 export default function StudentChat() {
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
@@ -329,7 +369,7 @@ export default function StudentChat() {
         const res = await studentChatApi.createOrGetChat({ studentId, teacherId });
         const newChatId = res.data._id;
         setChatId(newChatId);
-        router.replace(`/student/chat/${teacherId}?chatId=${newChatId}`); // optional URL sync
+        router.replace(`/student/chat/${teacherId}?chatId=${newChatId}`);
       } catch (err) {
         console.error("Error creating/fetching chat:", err);
       }
@@ -352,7 +392,6 @@ export default function StudentChat() {
     fetchTeacher();
   }, [chatId]);
 
-  // Fetch previous messages
   useEffect(() => {
     if (!studentId || !teacherId || !chatId) return;
 
@@ -368,7 +407,6 @@ export default function StudentChat() {
     fetchMessages();
   }, [studentId, teacherId, chatId]);
 
-  // Initialize socket
   useEffect(() => {
     if (!studentId) return;
 
@@ -376,14 +414,12 @@ export default function StudentChat() {
       studentId,
       (data) => {
         setMessages((prev) => [...prev, data]);
-        setIsTyping(false); // Stop typing indicator when a message is received
+        setIsTyping(false);
       },
       (data) => {
         if (data.senderId === teacherId) {
           setIsTyping(true);
-          // Clear previous timeout
           if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-          // Set timeout to stop typing indicator after 3 seconds of no typing event
           typingTimeoutRef.current = setTimeout(() => setIsTyping(false), 3000);
         }
       },
@@ -504,7 +540,7 @@ export default function StudentChat() {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen bg-slate-50">
       <ChatHeader teacherName={teachertInfo?.name || "Teacher"} teacherAvatar={teachertInfo?.profilePicture} isOnline={isOnline} />
       <ChatMessages
         messages={messages}

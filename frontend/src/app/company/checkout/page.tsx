@@ -69,9 +69,9 @@ export default function CheckoutPage() {
 
     try {
       startPayment();
-
+      console.log("courses are",cartData.courses)
       const response = await companyApiMethods.createCheckoutSession({
-        courses: cartData.courses.map((c) => c.id) , amount:total
+        courses: cartData.courses.map((c) => c._id) , amount:total
       });
 
       
@@ -186,7 +186,7 @@ export default function CheckoutPage() {
                 {/* Courses */}
                 <div className="space-y-4">
                   {cartData.courses.map((course) => (
-                    <div key={course.id} className="flex items-center gap-4">
+                    <div key={course._id} className="flex items-center gap-4">
                       <div className="relative">
                         <img
                           src={course.coverImage || "/placeholder.svg"}

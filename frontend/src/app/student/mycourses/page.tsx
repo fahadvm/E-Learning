@@ -128,7 +128,7 @@ export default function MyCourses() {
           <div className="flex items-start justify-between mb-6">
             <div className="flex items-center space-x-4">
               <Link href="/student/home">
-                <Button variant="ghost" size="sm" className="hover:bg-muted">
+                <Button variant="ghost" size="sm" >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to Dashboard
                 </Button>

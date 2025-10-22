@@ -8,6 +8,7 @@ import { AuthRequest } from '../../types/AuthenticatedRequest';
 import { sendResponse, throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import logger from '../../utils/logger';
 
 @injectable()
 export class StudentSubscriptionController implements IStudentSubscriptionController {
@@ -21,10 +22,7 @@ export class StudentSubscriptionController implements IStudentSubscriptionContro
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.SUBSCRIPTION_PLANS_FETCHED, true, plans);
   };
 
-  getAllPlans = async (_req: Request, res: Response) => {
-    const plans = await this._planService.getAllPlans();
-    return sendResponse(res, STATUS_CODES.OK, MESSAGES.SUBSCRIPTION_PLANS_FETCHED, true, plans);
-  };
+
 
   createOrder = async (req: AuthRequest, res: Response) => {
     const studentId = req.user?.id;

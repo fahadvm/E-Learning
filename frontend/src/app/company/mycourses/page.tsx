@@ -48,7 +48,6 @@ interface ApiResponse {
 
 const MyCoursesPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -58,7 +57,8 @@ const MyCoursesPage = () => {
       try {
         const res : ApiResponse = await companyApiMethods.getmycourses()
         console.log("the responce getmycourses is", res)
-        const allCourses = res.data.flatMap((order) => order.courses)
+        const allCourses = res.data.flatMap(order => order.courses);
+        console.log("consoling of all courses",allCourses)
         setCourses(allCourses)
       } catch (error) {
         console.error("Failed to fetch courses:", error);
@@ -89,10 +89,9 @@ const MyCoursesPage = () => {
       course.instructor.toLowerCase().includes(searchTerm.toLowerCase()) ||
       course.category.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesFilter =
-      filterStatus === "all" || course.status === filterStatus;
+    
 
-    return matchesSearch && matchesFilter;
+    return matchesSearch;
   });
 
   return (
@@ -109,7 +108,7 @@ const MyCoursesPage = () => {
         </div>
 
         {/* Stats Section */}
-        <CourseStats stats={stats} />
+        {/* <CourseStats stats={stats} /> */}
 
         {/* Search + Filter */}
         <div className="mb-8 flex flex-col md:flex-row gap-4">
@@ -123,7 +122,7 @@ const MyCoursesPage = () => {
             />
           </div>
           <div className="flex gap-2">
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
+            {/* <Select value={filterStatus} onValueChange={setFilterStatus}>
               <SelectTrigger className="w-[180px] bg-background/50 backdrop-blur-sm border-primary/20">
                 <Filter className="h-4 w-4 mr-2" />
                 <SelectValue placeholder="Filter by status" />
@@ -134,7 +133,7 @@ const MyCoursesPage = () => {
                 <SelectItem value="completed">Completed</SelectItem>
                 <SelectItem value="not-started">Not Started</SelectItem>
               </SelectContent>
-            </Select>
+            </Select> */}
             <Button variant="outline" size="default">
               <TrendingUp className="h-4 w-4 mr-2" />
               View Analytics
@@ -148,7 +147,7 @@ const MyCoursesPage = () => {
         ) : filteredCourses.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCourses.map((course) => (
-              <CourseCard key={course.id} course={course} />
+              <CourseCard key={course._id} course={course} />
             ))}
           </div>
         ) : (

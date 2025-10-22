@@ -31,7 +31,7 @@ export class CompanyCartController implements ICompanyCartController {
     if (!courseId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
 
     const cart = await this._cartService.addToCart(companyId, courseId);
-    return sendResponse(res, STATUS_CODES.OK, MESSAGES.CART_UPDATED, true, cart);
+    return sendResponse(res, STATUS_CODES.OK, MESSAGES.CART_COURSE_ADDED, true, cart);
   };
 
   removeFromCart = async (req: AuthRequest, res: Response) => {

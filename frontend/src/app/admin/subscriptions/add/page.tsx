@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import AdminSidebar from '@/components/admin/sidebar'
-import { Star, Plus, Tag, ChevronLeft } from 'lucide-react'
+import { Star, Tag, ChevronLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { adminApiMethods } from '@/services/APIservices/adminApiService'
 import { showSuccessToast } from '@/utils/Toast'
@@ -10,11 +10,20 @@ import { showSuccessToast } from '@/utils/Toast'
 export default function AddSubscriptionPlanPage() {
   const router = useRouter()
 
+  // Built-in subscription features
+  const builtInFeatures: Record<string, string> = {
+    'Compiler': 'Write and run code directly on the platform.',
+    'Video Call': 'Connect with instructors or peers in real time.',
+    'Chat': 'Instant messaging for questions and discussions.',
+    'AI Bot': 'Get AI-powered guidance and learning support.',
+    'Course Resources': 'Access all course materials and references.',
+  }
+
   const [form, setForm] = useState({
     name: '',
     price: '',
     description: '',
-    features: [''],
+    features: [] as string[], // just store the selected feature names
     popular: false,
     planFor: 'Student',
   })
@@ -22,7 +31,6 @@ export default function AddSubscriptionPlanPage() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
   const [submitting, setSubmitting] = useState(false)
 
-  // Inline validation rules
   const validateField = (field: string, value: any) => {
     let error = ''
     switch (field) {
@@ -40,8 +48,7 @@ export default function AddSubscriptionPlanPage() {
         else if (value.trim().length < 10) error = 'Description must be at least 10 characters'
         break
       case 'features':
-        if (value.length === 0 || value.some((f: string) => !f.trim()))
-          error = 'All features must be filled in'
+        if (value.length === 0) error = 'At least one feature must be selected'
         break
       default:
         break
@@ -52,7 +59,6 @@ export default function AddSubscriptionPlanPage() {
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {}
     Object.keys(form).forEach((key) => {
-      // Skip non-string fields
       if (key === 'popular' || key === 'planFor') return
       const error = validateField(key, (form as any)[key])
       if (error) newErrors[key] = error
@@ -66,31 +72,31 @@ export default function AddSubscriptionPlanPage() {
     setErrors((prev) => ({ ...prev, [field]: validateField(field, value) }))
   }
 
-  const handleFeatureChange = (index: number, value: string) => {
-    const updated = [...form.features]
-    updated[index] = value
-    setForm((prev) => ({ ...prev, features: updated }))
-    setErrors((prev) => ({ ...prev, features: validateField('features', updated) }))
-  }
-
-  const addFeature = () => {
-    setForm((prev) => ({ ...prev, features: [...prev.features, ''] }))
-  }
-
-  const removeFeature = (index: number) => {
-    const updated = form.features.filter((_, i) => i !== index)
-    setForm((prev) => ({ ...prev, features: updated }))
-    setErrors((prev) => ({ ...prev, features: validateField('features', updated) }))
+  const toggleFeature = (feature: string) => {
+    setForm((prev) => {
+      const isSelected = prev.features.includes(feature)
+      const updatedFeatures = isSelected
+        ? prev.features.filter(f => f !== feature)
+        : [...prev.features, feature]
+      return { ...prev, features: updatedFeatures }
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
     if (!validateForm()) return
-    setSubmitting(true)
 
+    setSubmitting(true)
     try {
-      const res = await adminApiMethods.createPlan(form)
+      // Map features to include description for backend
+      const payload = {
+        ...form,
+        features: form.features.map((name) => ({
+          name,
+          description: builtInFeatures[name],
+        })),
+      }
+      const res = await adminApiMethods.createPlan(payload)
       if (res.ok) {
         showSuccessToast(res.message)
         router.push('/admin/subscriptions')
@@ -163,38 +169,20 @@ export default function AddSubscriptionPlanPage() {
 
           {/* Features */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Features</label>
-            <div className="space-y-2 mt-2">
-              {form.features.map((feature, index) => (
-                <div key={index} className="flex items-center gap-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Features</label>
+            <div className="flex flex-wrap gap-3 mt-2">
+              {Object.keys(builtInFeatures).map((feature) => (
+                <label key={feature} className="flex items-center gap-2 text-sm border px-3 py-1 rounded cursor-pointer">
                   <input
-                    type="text"
-                    value={feature}
-                    onChange={(e) => handleFeatureChange(index, e.target.value)}
-                    className="w-full border rounded-lg px-3 py-2"
-                    placeholder={`Feature ${index + 1}`}
+                    type="checkbox"
+                    checked={form.features.includes(feature)}
+                    onChange={() => toggleFeature(feature)}
                   />
-                  {form.features.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeFeature(index)}
-                      className="text-red-500 hover:text-red-700 text-sm"
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
+                  {feature}
+                </label>
               ))}
-              {errors.features && <p className="text-red-500 text-xs mt-1">{errors.features}</p>}
-              <button
-                type="button"
-                onClick={addFeature}
-                className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1"
-              >
-                <Plus className="w-4 h-4" />
-                Add Feature
-              </button>
             </div>
+            {errors.features && <p className="text-red-500 text-xs mt-1">{errors.features}</p>}
           </div>
 
           {/* Plan For */}

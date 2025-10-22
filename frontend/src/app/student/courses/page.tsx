@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Header from "@/components/student/header";
 import { studentCourseApi } from '@/services/APIservices/studentApiservice';
+import { useDebounce } from '@/hooks/useDebounce'
 
 interface ILesson {
   title: string
@@ -44,12 +45,22 @@ export default function CoursesPage() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const debouncedSearch = useDebounce(search, 500)
 
+  const clearFilters = () => {
+    setSearch('')
+    setCategoryFilter('')
+    setLevelFilter('')
+    setLanguageFilter('')
+    setSortField('createdAt')
+    setSortOrder('desc')
+    setPage(1)
+  }
   const fetchCourses = async () => {
     try {
       setLoading(true)
       const res = await studentCourseApi.getAllCourses({
-        search,
+        search: debouncedSearch,
         category: categoryFilter,
         level: levelFilter,
         language: languageFilter,
@@ -58,7 +69,7 @@ export default function CoursesPage() {
         page,
         limit: ITEMS_PER_PAGE,
       })
-      
+
 
       setCourses(res.data.data)
       setTotalPages(res.data.totalPages)
@@ -69,10 +80,10 @@ export default function CoursesPage() {
     }
   }
 
-  // Fetch courses whenever filters, sort, or page changes
   useEffect(() => {
     fetchCourses()
-  }, [search, categoryFilter, levelFilter, languageFilter, sortField, sortOrder, page])
+  }, [debouncedSearch, categoryFilter, levelFilter, languageFilter, sortField, sortOrder, page])
+
 
   return (
     <>
@@ -176,6 +187,13 @@ export default function CoursesPage() {
             <option value="price-asc">Price: Low to High</option>
             <option value="price-desc">Price: High to Low</option>
           </select>
+
+          <button
+            onClick={clearFilters}
+            className="px-5 py-3 bg-red-100 text-red-700 border border-red-300 rounded-full shadow-sm hover:bg-red-200 transition"
+          >
+            Clear Filters
+          </button>
         </div>
 
         {/* Courses Grid */}

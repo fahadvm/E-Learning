@@ -2,16 +2,17 @@
 import ReusableLoginPage from "@/reusable/ReusableLoginPage";
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
 
-export default  function StudentLogin() {
+export default function StudentLogin() {
 
   return (
     <ReusableLoginPage
       role="employee"
-      apiEndpoint = {employeeApiMethods.login} 
+      apiEndpoint={employeeApiMethods.login}
+      googleSignup={employeeApiMethods.googleSignup}
       redirectPath="/employee/home"
       signupPath="/employee/signup"
       forgotPasswordPath="/employee/forgetPassword"
-      bannerTitle="STUDENT LOGIN"
+      bannerTitle="EMPLOYEE LOGIN"
       bannerImage="/employeeLogin.png"
     />
   );

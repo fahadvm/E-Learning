@@ -13,6 +13,7 @@ import { ICourseResource } from '../../models/CourseResource';
 import { ICourseResourceRepository } from '../../core/interfaces/repositories/ICourseResourceRepository';
 import { CourseQuery } from '../../types/filter/fiterTypes';
 import { SortOrder } from 'mongoose';
+import { ICourse } from '../../models/Course';
 
 @injectable()
 export class StudentCourseService implements IStudentCourseService {
@@ -50,11 +51,12 @@ export class StudentCourseService implements IStudentCourseService {
   };
 
 
-  async getCourseDetail(courseId: string): Promise<IStudentCourseDTO> {
+  async getCourseDetail(courseId: string): Promise<ICourse> {
     if (!courseId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
     const course = await this._courseRepo.findById(courseId);
+
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    return StudentCourseDTO(course);
+    return course;
   }
 
   async markLessonComplete(

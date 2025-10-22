@@ -1,9 +1,9 @@
 // interfaces/services/ICartService.ts
 import { ICart } from '../../../../models/Cart';
-import { ICompanyCartDTO } from '../../../dtos/company/Company.Cart.Dto';
+import { ICourse } from '../../../../models/Course';
 
 export interface ICompanyCartService {
-  getCart(userId: string): Promise<ICompanyCartDTO>;
+  getCart(userId: string): Promise<{courses :ICourse[], total:number}>;
   addToCart(userId: string, courseId: string): Promise<ICart>;
   removeFromCart(userId: string, courseId: string): Promise<ICart | null>;
   clearCart(userId: string): Promise<ICart | null>;

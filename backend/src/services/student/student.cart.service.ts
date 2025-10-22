@@ -14,7 +14,7 @@ export class StudentCartService implements IStudentCartService {
     @inject(TYPES.WishlistRepository) private readonly _wishlistRepo: IWishlistRepository
   ) {}
 
-  async getCart(userId: string): Promise<IStudentCartDTO> {
+  async getCart(userId: string): Promise<{courses:ICourse[], total:number}> {
   const cart = await this._cartRepo.getCart(userId);
 
   if (!cart || cart.courses.length === 0) {
@@ -24,7 +24,8 @@ export class StudentCartService implements IStudentCartService {
   const courses = cart.courses as ICourse[];
   const total = courses.reduce((sum, course) => sum + (course.price ?? 0), 0);
 
-  return studentCartDto(courses, total);
+  // return studentCartDto(courses, total);
+  return {courses, total};
 }
 
 

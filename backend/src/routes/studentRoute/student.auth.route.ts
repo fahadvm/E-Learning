@@ -15,7 +15,6 @@ authRouter.post('/logout', asyncHandler(studentAuthCtrl.logout.bind(studentAuthC
 
 // Google Auth
 authRouter.post('/google/signup', asyncHandler(studentAuthCtrl.googleAuth.bind(studentAuthCtrl)));
-authRouter.post('/google/signup', asyncHandler(studentAuthCtrl.googleAuth.bind(studentAuthCtrl)));
 
 // Password Reset Flow
 authRouter.post('/forgot-password', asyncHandler(studentAuthCtrl.sendForgotPasswordOtp.bind(studentAuthCtrl)));

@@ -26,6 +26,7 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
    * Create a Stripe Checkout session for a company
    */
   async createCheckoutSession(courseIds: string[], companyId: string, amount: number) {
+    console.log("creating course ids are ",courseIds)
     const Company = await this._companyRepo.findById(companyId);
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -85,6 +86,8 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
    * Get purchased courses for a company
    */
   async getPurchasedCourses(companyId: string): Promise<(ICompanyOrder & { courses: ICourse[] })[]> {
-    return await this._companyOrderRepo.getOrdersByCompanyId(companyId);
+    const courses = await this._companyOrderRepo.getOrdersByCompanyId(companyId);
+    console.log("course fetched more",courses)
+    return courses
   }
 }

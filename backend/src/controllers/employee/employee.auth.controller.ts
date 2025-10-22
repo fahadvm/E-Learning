@@ -45,8 +45,9 @@ export class EmployeeAuthController implements IEmployeeAuthController {
   };
 
   googleAuth = async (req: Request, res: Response) => {
+    console.log("employee side google login is working")
     const {  tokenId  } = req.body;
-     logger.log('tokenId',tokenId);
+     console.log('tokenId',tokenId);
     if (!tokenId) throwError(MESSAGES.GOOGLE_AUTH_REQUIRED, STATUS_CODES.BAD_REQUEST);
     const result = await this._employeeAuthService.googleAuth(tokenId);
     setTokensInCookies(res, result.token, result.refreshToken);

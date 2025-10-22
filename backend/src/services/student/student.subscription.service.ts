@@ -21,16 +21,15 @@ export class StudentSubscriptionService implements IStudentSubscriptionService {
     return this._planRepo.findAllForStudents();
   }
 
-  async getAllPlans(): Promise<ISubscriptionPlan[]> {
-    return this._planRepo.findAllForStudents();
-  }
+
 
   async createOrder(studentId: string, planId: string): Promise<RazorpayOrderResponse> {
     const plan = await this._planRepo.findPlanById(planId);
     if (!plan) throwError(MESSAGES.SUBSCRIPTION_PLAN_NOT_FOUND);
 
 
-    if (typeof plan.price !== 'number' || plan.price <= 0) {
+    if (plan.price <= 0) {
+      
       throwError(MESSAGES.INVALID_DATA);
     }
 

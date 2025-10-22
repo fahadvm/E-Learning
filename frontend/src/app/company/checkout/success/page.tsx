@@ -57,6 +57,8 @@ export default function PurchaseSuccess() {
     );
   }
 
+  if(!orderId) return
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center p-4">
       <div className="max-w-2xl w-full">
@@ -74,7 +76,7 @@ export default function PurchaseSuccess() {
           <CardContent className="p-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900">Order Confirmation</h2>
-              <span className="text-sm text-gray-500">Order #{orderId}</span>
+              <span className="text-sm text-gray-500">Order #{orderId.slice(-10)}</span>
             </div>
 
             <div className="flex items-center justify-between pt-4 border-t border-gray-200">

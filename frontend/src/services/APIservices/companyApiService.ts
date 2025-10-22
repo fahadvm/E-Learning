@@ -78,4 +78,5 @@ export const companyApiMethods = {
   getmycourses: () => get(COMPANY_ROUTES.purchase.myCourses),
   getmycourseDetails: (courseId: string) =>
     get(COMPANY_ROUTES.purchase.courseDetails(courseId)),
+  assignCourseToEmployee:(data:{courseId:string , employeeId : string}) => post(COMPANY_ROUTES.courses.assign,data)
 };

@@ -30,8 +30,8 @@ export const EMPLOYEE_ROUTES = {
     find: `${EMPLOYEE_COMPANY}/findcompany`,
     sendRequest: `${EMPLOYEE_COMPANY}/sendrequest`,
     requestedCompany: `${EMPLOYEE_COMPANY}/requestedCompany`,
-    cancelRequest: `${EMPLOYEE_COMPANY}/cancelrequest`,
-    // leaveCompany: `${EMPLOYEE_COMPANY}/leavecompany`,
+    cancelRequest: `${EMPLOYEE_COMPANY}/cancelRequest`,
+    leaveCompany: `${EMPLOYEE_COMPANY}/leavecompany`,
   },
 
   courses: {
