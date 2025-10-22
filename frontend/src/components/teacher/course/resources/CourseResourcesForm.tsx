@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { teacherCourseApi } from "@/services/APImethods/teacherAPImethods";
+import { teacherCourseApi } from "@/services/APIservices/teacherApiService";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2, UploadCloud, FileText, FileArchive } from "lucide-react";

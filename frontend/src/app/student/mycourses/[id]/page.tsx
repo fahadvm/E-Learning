@@ -28,7 +28,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { studentCourseApi } from "@/services/APImethods/studentAPImethods";
+import { studentCourseApi } from "@/services/APIservices/studentApiservice";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";
 import React from "react";
 import AiTutorChat from "@/components/student/aiBot/AiTutorChat";

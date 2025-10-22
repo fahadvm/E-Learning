@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
-import { studentAuthApi } from "@/services/APImethods/studentAPImethods";
+import { studentAuthApi } from "@/services/APIservices/studentApiservice";
 import { showInfoToast, showSuccessToast } from "@/utils/Toast";
 
 interface SignupForm {

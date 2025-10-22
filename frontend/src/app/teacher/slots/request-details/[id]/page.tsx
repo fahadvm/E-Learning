@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { teacherCallRequestApi } from "@/services/APImethods/teacherAPImethods"
+import { teacherCallRequestApi } from "@/services/APIservices/teacherApiService"
 import { showSuccessToast } from "@/utils/Toast"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"

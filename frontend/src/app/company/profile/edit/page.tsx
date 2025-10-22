@@ -5,7 +5,7 @@ import { useCompany } from "@/context/companyContext";
 import { useRouter } from "next/navigation";
 import { Mail, Phone, Globe, Linkedin, Instagram, Twitter, Upload } from "lucide-react";
 import Header from "@/components/company/Header";
-import { companyApiMethods } from "@/services/APImethods/companyAPImethods";
+import { companyApiMethods } from "@/services/APIservices/companyApiService";
 import { showSuccessToast } from "@/utils/Toast";
 import dynamic from "next/dynamic";
 

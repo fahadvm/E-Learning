@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { adminApiMethods } from "@/services/APImethods/adminAPImethods";
+import { adminApiMethods } from "@/services/APIservices/adminApiService";
 import { showErrorToast, showSuccessToast } from "@/utils/Toast";
 
 export default function AdminLogin() {

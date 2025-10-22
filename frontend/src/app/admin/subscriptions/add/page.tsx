@@ -4,7 +4,7 @@ import { useState } from 'react'
 import AdminSidebar from '@/components/admin/sidebar'
 import { Star, Plus, Tag, ChevronLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { adminApiMethods } from '@/services/APImethods/adminAPImethods'
+import { adminApiMethods } from '@/services/APIservices/adminApiService'
 import { showSuccessToast } from '@/utils/Toast'
 
 export default function AddSubscriptionPlanPage() {

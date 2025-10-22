@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import axios from "axios";
-import { studentCourseApi } from "@/services/APImethods/studentAPImethods";
+import { studentCourseApi } from "@/services/APIservices/studentApiservice";
 
 export default function Home() {
   const [language, setLanguage] = useState("javascript");

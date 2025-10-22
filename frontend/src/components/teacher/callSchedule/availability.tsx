@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Plus, Trash2 } from "lucide-react"
-import { teacherAvailabilityApi } from "@/services/APImethods/teacherAPImethods"
+import { teacherAvailabilityApi } from "@/services/APIservices/teacherApiService"
 import { showSuccessToast } from "@/utils/Toast"
 import ConfirmationDialog from "@/reusable/ConfirmationDialog"
 

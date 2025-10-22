@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { showSuccessToast } from "@/utils/Toast";
-import { companyApiMethods } from "@/services/APImethods/companyAPImethods";
+import { companyApiMethods } from "@/services/APIservices/companyApiService";
 
 interface EmployeeRequest {
   _id: string;

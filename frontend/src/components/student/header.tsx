@@ -15,11 +15,11 @@ import {
   X,
   MessageCircle,
 } from "lucide-react";
-import { studentAuthApi, } from "@/services/APImethods/studentAPImethods";
+import { studentAuthApi, } from "@/services/APIservices/studentApiservice";
 import { initSocket } from "@/lib/socket";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";
 import { useStudent } from "@/context/studentContext";
-import { teacherCallRequestApi } from "@/services/APImethods/teacherAPImethods";
+import { teacherCallRequestApi } from "@/services/APIservices/teacherApiService";
 
 interface Notification {
   id: string;

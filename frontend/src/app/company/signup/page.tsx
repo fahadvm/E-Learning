@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { companyApiMethods } from "@/services/APImethods/companyAPImethods";
+import { companyApiMethods } from "@/services/APIservices/companyApiService";
 import { showSuccessToast } from "@/utils/Toast";
 
 export default function CompanySignupPage() {

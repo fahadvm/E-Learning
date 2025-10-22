@@ -3,7 +3,7 @@
 import { ChatLists } from "@/components/teacher/chat/chat-lists";
 import Header from "@/components/teacher/header";
 import { Input } from "@/components/ui/input";
-import { teacherChatApi } from "@/services/APImethods/teacherAPImethods";
+import { teacherChatApi } from "@/services/APIservices/teacherApiService";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 

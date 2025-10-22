@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { studentCourseApi, studentProfileApi } from "@/services/APImethods/studentAPImethods"
+import { studentCourseApi, studentProfileApi } from "@/services/APIservices/studentApiservice"
 
 interface Review {
   rating: number

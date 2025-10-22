@@ -7,7 +7,7 @@ import SlotsTab from "@/components/teacher/slots/slots-tab"
 import UpcomingTab from "@/components/teacher/slots/upcoming-tab"
 import HistoryTab from "@/components/teacher/slots/history-tab"
 import Header from "@/components/teacher/header"
-import { teacherCallRequestApi } from "@/services/APImethods/teacherAPImethods"
+import { teacherCallRequestApi } from "@/services/APIservices/teacherApiService"
 import RequestCallList from "@/components/teacher/callSchedule/callRequests"
 
 type SlotStatus = "booked" | "cancelled" | "requested" | "available" | "approved" | "paid"

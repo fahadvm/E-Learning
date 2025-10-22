@@ -2,8 +2,8 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Header from "@/components/company/Header";
-import { studentCartApi } from "@/services/APImethods/studentAPImethods";
-import { companyApiMethods } from "@/services/APImethods/companyAPImethods";
+import { studentCartApi } from "@/services/APIservices/studentApiservice";
+import { companyApiMethods } from "@/services/APIservices/companyApiService";
 
 interface Course {
   _id: string;

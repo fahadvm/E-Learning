@@ -1,6 +1,6 @@
 "use client"
 import ReusableLoginPage from "@/reusable/ReusableLoginPage";
-import { teacherAuthApi } from "@/services/APImethods/teacherAPImethods";
+import { teacherAuthApi } from "@/services/APIservices/teacherApiService";
 
 export default function StudentLogin() {
   return (

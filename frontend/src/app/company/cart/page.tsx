@@ -7,7 +7,7 @@ import { CartItem } from "@/components/company/cart/cart-item"
 import { CartSummary } from "@/components/company/cart/cart-summary"
 import { EmptyCart } from "@/components/company/cart/empty-cart"
 import { CartItemSkeleton, CartSummarySkeleton } from "@/components/company/cart/cart-skeleton"
-import { companyApiMethods } from "@/services/APImethods/companyAPImethods"
+import { companyApiMethods } from "@/services/APIservices/companyApiService"
 import type { CartData, CartSummary as CartSummaryType } from "@/types/company/carts"
 import { useRouter } from "next/navigation"
 

@@ -33,7 +33,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import { studentBookingApi } from "@/services/APImethods/studentAPImethods";
+import { studentBookingApi } from "@/services/APIservices/studentApiservice";
 import { useRouter } from "next/navigation";
 import { convertTo12Hour } from "@/utils/timeConverter";
 import Link from "next/link";

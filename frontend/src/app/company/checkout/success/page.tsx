@@ -7,7 +7,7 @@ import { CheckCircle, ArrowRight, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";
-import { companyApiMethods } from "@/services/APImethods/companyAPImethods";
+import { companyApiMethods } from "@/services/APIservices/companyApiService";
 
 export default function PurchaseSuccess() {
   const params = useSearchParams();

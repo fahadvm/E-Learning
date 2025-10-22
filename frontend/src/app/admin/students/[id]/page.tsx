@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { adminApiMethods } from "@/services/APImethods/adminAPImethods";
+import { adminApiMethods } from "@/services/APIservices/adminApiService";
 import { useParams } from "next/navigation";
 import AdminSidebar from "@/components/admin/sidebar";
 import ConfirmationDialog from '@/reusable/ConfirmationDialog'

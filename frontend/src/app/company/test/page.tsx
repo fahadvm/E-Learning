@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { companyApiMethods } from "@/services/APImethods/companyAPImethods";
+import { companyApiMethods } from "@/services/APIservices/companyApiService";
 
 const Page = () => {
   const [data, setData] = useState<any>(null);

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { CalendarDays, Clock, MessageSquare } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { teacherCallRequestApi } from "@/services/APImethods/teacherAPImethods"
+import { teacherCallRequestApi } from "@/services/APIservices/teacherApiService"
 import { convertTo12Hour } from "@/utils/timeConverter"
 
 type RequestItem = {

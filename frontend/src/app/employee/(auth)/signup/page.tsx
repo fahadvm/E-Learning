@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
-import { employeeApiMethods } from "@/services/APImethods/employeeAPImethods";
+import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
 import { showInfoToast, showSuccessToast } from "@/utils/Toast";
 import { GoogleLoginButton } from "@/components/employee/googleLogin";
 

@@ -11,7 +11,7 @@ import {
   Check,
 } from "lucide-react";
 import Header from "@/components/student/header";
-import { studentBookingApi } from "@/services/APImethods/studentAPImethods";
+import { studentBookingApi } from "@/services/APIservices/studentApiservice";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

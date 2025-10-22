@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useTeacher } from "@/context/teacherContext";
 import { initSocket, sendMessage, sendTyping, sendReadMessage, sendMessageReaction, sendDeleteMessage, sendEditMessage, disconnectSocket } from "@/lib/socket";
-import { teacherChatApi } from "@/services/APImethods/teacherAPImethods";
-import { studentChatApi } from "@/services/APImethods/studentAPImethods";
+import { teacherChatApi } from "@/services/APIservices/teacherApiService";
+import { studentChatApi } from "@/services/APIservices/studentApiservice";
 
 // ---------- ConfirmationDialog Component ----------
 const ConfirmationDialog = ({

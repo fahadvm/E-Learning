@@ -1,5 +1,5 @@
 // import api
-import { employeeApiMethods } from '@/services/APImethods/employeeAPImethods';
+import { employeeApiMethods } from '@/services/APIservices/employeeApiService';
 import React, { useEffect, useRef } from 'react';
 
 interface GoogleLoginButtonProps {

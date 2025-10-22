@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { convertTo12Hour } from "@/utils/timeConverter";
-import { studentBookingApi } from "@/services/APImethods/studentAPImethods";
+import { studentBookingApi } from "@/services/APIservices/studentApiservice";
 import { showSuccessToast } from "@/utils/Toast";
 import { useRouter } from "next/navigation";
 

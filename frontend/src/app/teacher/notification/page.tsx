@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Bell, CheckCircle2, Clock, RefreshCw } from "lucide-react";
 import { showErrorToast, showSuccessToast } from "@/utils/Toast";
-import { teacherCallRequestApi, teacherNotificationApi } from "@/services/APImethods/teacherAPImethods";
+import { teacherCallRequestApi, teacherNotificationApi } from "@/services/APIservices/teacherApiService";
 import { useTeacher } from "@/context/teacherContext";
 
 interface Notification {

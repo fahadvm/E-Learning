@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Header from '@/components/company/Header';
-import { companyApiMethods } from '@/services/APImethods/companyAPImethods';
+import { companyApiMethods } from '@/services/APIservices/companyApiService';
 
 
 interface ILesson {

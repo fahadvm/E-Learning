@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState,useEffect } from 'react';
 import axios from 'axios';
-import { companyApiMethods } from '@/services/APImethods/companyAPImethods';
+import { companyApiMethods } from '@/services/APIservices/companyApiService';
 import { showSuccessToast } from '@/utils/Toast';
 
 export default function ResetPasswordPage() {

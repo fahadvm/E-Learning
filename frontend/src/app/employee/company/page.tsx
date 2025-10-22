@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { companyApiMethods } from "@/services/APImethods/companyAPImethods";
+import { companyApiMethods } from "@/services/APIservices/companyApiService";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { employeeApiMethods } from "@/services/APImethods/employeeAPImethods";
+import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
 
 interface CompanyRequest {
   company: { name: string; logo?: string; code: string };

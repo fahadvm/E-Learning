@@ -9,9 +9,9 @@ import {
   ShoppingCart, Share2, MessageCircle
 } from "lucide-react"
 import Header from "@/components/student/header"
-import { studentCartApi, studentCourseApi } from "@/services/APImethods/studentAPImethods"
+import { studentCartApi, studentCourseApi } from "@/services/APIservices/studentApiservice"
 import { useParams } from "next/navigation"
-import { studentWishlistApi } from "@/services/APImethods/studentAPImethods"
+import { studentWishlistApi } from "@/services/APIservices/studentApiservice"
 import { showErrorToast, showSuccessToast } from "@/utils/Toast"
 
 export default function CourseDetailPage() {

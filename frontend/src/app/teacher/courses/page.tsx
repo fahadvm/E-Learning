@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Header from '@/components/teacher/header'
 import { useTeacher } from '@/context/teacherContext'
-import { teacherCourseApi } from '@/services/APImethods/teacherAPImethods'
+import { teacherCourseApi } from '@/services/APIservices/teacherApiService'
 
 import {
   BookOpen,

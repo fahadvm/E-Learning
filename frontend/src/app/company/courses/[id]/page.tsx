@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Header from "@/components/company/Header";
-import { companyApiMethods } from '@/services/APImethods/companyAPImethods';
+import { companyApiMethods } from '@/services/APIservices/companyApiService';
 import { showSuccessToast } from '@/utils/Toast';
 
 interface ILesson {

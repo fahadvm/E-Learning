@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { adminApiMethods } from '@/services/APImethods/adminAPImethods';
+import { adminApiMethods } from '@/services/APIservices/adminApiService';
 import AdminSidebar from '@/components/admin/sidebar';
 import { Menu, X } from 'lucide-react';
 

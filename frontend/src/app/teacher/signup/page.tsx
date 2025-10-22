@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
 import { signIn } from "next-auth/react";
 import { showErrorToast, showInfoToast, showSuccessToast } from "@/utils/Toast";
-import { teacherAuthApi } from "@/services/APImethods/teacherAPImethods";
+import { teacherAuthApi } from "@/services/APIservices/teacherApiService";
 
 interface SignupForm {
   name: string;

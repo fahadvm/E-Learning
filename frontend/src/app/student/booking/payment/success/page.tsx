@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { CheckCircle, ArrowRight, Download, Calendar, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { studentBookingApi } from "@/services/APImethods/studentAPImethods"; // your existing API layer
+import { studentBookingApi } from "@/services/APIservices/studentApiservice"; // your existing API layer
 
 interface BookingDetails {
     teacherName: string;

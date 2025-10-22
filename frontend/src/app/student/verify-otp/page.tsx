@@ -1,7 +1,7 @@
 // app/student/verifySignupOtp/page.tsx
 
 "use client";
-import { studentAuthApi } from "@/services/APImethods/studentAPImethods";
+import { studentAuthApi } from "@/services/APIservices/studentApiservice";
 import dynamic from "next/dynamic";
 
 const OtpVerificationPage = dynamic(() => import("@/reusable/OtpVerificationPage"), { ssr: false });

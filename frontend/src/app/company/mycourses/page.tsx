@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Search, Filter, BookOpen, TrendingUp } from "lucide-react";
 import axios from "axios";
-import { companyApiMethods } from "@/services/APImethods/companyAPImethods";
+import { companyApiMethods } from "@/services/APIservices/companyApiService";
 
 interface Review {
   rating: number

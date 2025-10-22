@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LayoutDashboard, Building, Users, BookOpen, BarChart2, Settings, Package, Bell, GraduationCap, LogOut } from "lucide-react";
-import { adminApiMethods } from "@/services/APImethods/adminAPImethods";
+import { adminApiMethods } from "@/services/APIservices/adminApiService";
 
 interface SidebarLinkProps { href?: string; onClick?: () => void; icon: React.ReactNode; children: React.ReactNode; }
 function SidebarLink({ href, onClick, icon, children }: SidebarLinkProps) {

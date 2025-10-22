@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { MessageSquare, Video, X } from "lucide-react"
 import { convertTo12Hour } from "@/utils/timeConverter"
 import { useState } from "react"
-import { teacherCallRequestApi } from "@/services/APImethods/teacherAPImethods"
+import { teacherCallRequestApi } from "@/services/APIservices/teacherApiService"
 import { showSuccessToast } from "@/utils/Toast"
 
 export default function UpcomingTab({

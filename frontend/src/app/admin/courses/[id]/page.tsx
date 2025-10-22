@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { adminApiMethods } from '@/services/APImethods/adminAPImethods'
+import { adminApiMethods } from '@/services/APIservices/adminApiService'
 import ConfirmationDialog from '@/reusable/ConfirmationDialog'
 
 

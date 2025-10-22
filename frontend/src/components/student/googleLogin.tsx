@@ -1,5 +1,5 @@
 // import api
-import { studentAuthApi } from '@/services/APImethods/studentAPImethods';
+import { studentAuthApi } from '@/services/APIservices/studentApiservice';
 import React, { useEffect, useRef } from 'react';
 
 interface GoogleLoginButtonProps {

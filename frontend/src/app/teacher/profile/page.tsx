@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { useTeacher } from '@/context/teacherContext';
 import { showSuccessToast, showErrorToast } from '@/utils/Toast';
-import { teacherProfileApi } from '@/services/APImethods/teacherAPImethods';
+import { teacherProfileApi } from '@/services/APIservices/teacherApiService';
 import { useState } from 'react';
 
 // UI Components from shadcn

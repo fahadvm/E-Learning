@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Mail, Phone, Globe, Linkedin, Instagram, Twitter, Star, Book, MessageSquare, GraduationCap, Briefcase } from "lucide-react";
-import { studentTeacherApi } from "@/services/APImethods/studentAPImethods";
+import { studentTeacherApi } from "@/services/APIservices/studentApiservice";
 import Header from "@/components/student/header";
 import { useSearchParams } from "next/navigation";
 

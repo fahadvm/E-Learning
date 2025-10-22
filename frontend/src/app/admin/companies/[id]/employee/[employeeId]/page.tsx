@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import AdminSidebar from '@/components/admin/sidebar';
 import Loader from '@/components/common/Loader';
 import axios from 'axios';
-import { adminApiMethods } from '@/services/APImethods/adminAPImethods';
+import { adminApiMethods } from '@/services/APIservices/adminApiService';
 import { strict } from 'assert';
 
 interface Employee {
@@ -43,7 +43,7 @@ export default function EmployeeProfile() {
   if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader text="Loading..." />
+        <Loader loadingTexts="Loading..." />
       </div>
     );
 

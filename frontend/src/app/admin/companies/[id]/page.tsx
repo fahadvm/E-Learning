@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Loader from "@/components/common/Loader";
 import { useRouter, useParams } from "next/navigation";
-import { adminApiMethods } from "@/services/APImethods/adminAPImethods";
+import { adminApiMethods } from "@/services/APIservices/adminApiService";
 import { CheckIcon, XMarkIcon, PencilIcon } from "@heroicons/react/24/outline";
 import AdminSidebar from "@/components/admin/sidebar";
 
@@ -83,7 +83,7 @@ export default function CompanyProfile() {
   if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader text="Loading..." />
+        <Loader loadingTexts="Loading..." />
       </div>
     );
 

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import AdminSidebar from '@/components/admin/sidebar';
 import DataTable from '@/reusable/DataTable';
 import Link from 'next/link';
-import { adminApiMethods } from '@/services/APImethods/adminAPImethods';
+import { adminApiMethods } from '@/services/APIservices/adminApiService';
 import { useRouter } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 

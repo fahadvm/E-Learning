@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import AdminSidebar from "@/components/admin/sidebar";
-import { adminApiMethods } from "@/services/APImethods/adminAPImethods";
+import { adminApiMethods } from "@/services/APIservices/adminApiService";
 
 type CompanyOrder = {
     _id: string;

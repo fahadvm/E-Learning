@@ -5,7 +5,7 @@ import { ChatLists } from "@/components/student/chat/chat-lists";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import Header from "@/components/student/header";
-import { studentChatApi } from "@/services/APImethods/studentAPImethods"; // your API service
+import { studentChatApi } from "@/services/APIservices/studentApiservice"; // your API service
 
 export default function MessagesPage() {
   const [searchTerm, setSearchTerm] = useState("");

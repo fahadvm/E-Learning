@@ -6,7 +6,7 @@ import { useTeacher } from '@/context/teacherContext';
 import Header from '@/components/teacher/header';
 import dynamic from 'next/dynamic';
 import { showInfoToast, showSuccessToast } from '@/utils/Toast';
-import { teacherProfileApi } from '@/services/APImethods/teacherAPImethods';
+import { teacherProfileApi } from '@/services/APIservices/teacherApiService';
 
 const CropperModal = dynamic(() => import('@/components/common/ImageCropper'), { ssr: false });
 

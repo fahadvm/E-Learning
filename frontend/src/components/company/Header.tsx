@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Menu, X, Bell, Heart, ShoppingCart, LogOut, BookOpen,Users, Route, Compass, User } from "lucide-react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { companyApiMethods } from "@/services/APImethods/companyAPImethods";
+import { companyApiMethods } from "@/services/APIservices/companyApiService";
 
 
 

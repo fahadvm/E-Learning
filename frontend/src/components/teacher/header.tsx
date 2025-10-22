@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Bell, Search, Settings, ChevronDown, LogOut, Menu, X, MessageSquare } from "lucide-react";
-import { teacherAuthApi, teacherCallRequestApi } from "@/services/APImethods/teacherAPImethods";
+import { teacherAuthApi, teacherCallRequestApi } from "@/services/APIservices/teacherApiService";
 import { initSocket } from "@/lib/socket";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";
 import { useTeacher } from "@/context/teacherContext";

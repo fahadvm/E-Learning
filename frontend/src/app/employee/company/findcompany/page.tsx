@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";
-import { employeeApiMethods } from "@/services/APImethods/employeeAPImethods";
+import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
 import { Loader2 } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 

@@ -8,7 +8,7 @@ import { Variants } from 'framer-motion';
 
 import Header from '@/components/company/Header';
 import axios from '@/utils/axios';
-import { companyApiMethods } from '@/services/APImethods/companyAPImethods';
+import { companyApiMethods } from '@/services/APIservices/companyApiService';
 
 interface Plan {
   _id?: string;

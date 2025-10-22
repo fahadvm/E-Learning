@@ -4,7 +4,7 @@ import * as React from "react"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { usePaymentStore } from "@/hooks/usePaymentStore"
-import { paymentApi } from "@/services/APImethods/studentAPImethods"
+import { paymentApi } from "@/services/APIservices/studentApiservice"
 import { showErrorToast, showSuccessToast } from "@/utils/Toast"
 
 type MethodIcon = "card" | "upi" | "wallet" | "bank"

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Header from "@/components/student/header";
-import { studentCourseApi } from '@/services/APImethods/studentAPImethods';
+import { studentCourseApi } from '@/services/APIservices/studentApiservice';
 
 interface ILesson {
   title: string

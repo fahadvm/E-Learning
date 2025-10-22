@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { employeeApiMethods } from "@/services/APImethods/employeeAPImethods"
+import { employeeApiMethods } from "@/services/APIservices/employeeApiService"
 // import { showErrorToast } from "@/utils/Toast"
 
 interface Review {

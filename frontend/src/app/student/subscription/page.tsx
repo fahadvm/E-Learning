@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { showErrorToast, showSuccessToast } from '@/utils/Toast';
 import Header from '@/components/student/header';
-import { studentSubscriptionApi } from '@/services/APImethods/studentAPImethods';
+import { studentSubscriptionApi } from '@/services/APIservices/studentApiservice';
 import { useStudent } from '@/context/studentContext';
 
 interface Plan {

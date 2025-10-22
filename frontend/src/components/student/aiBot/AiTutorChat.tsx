@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { SendHorizonal, Bot, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { studentAiApi } from "@/services/APImethods/studentAPImethods";
+import { studentAiApi } from "@/services/APIservices/studentApiservice";
 import ReactMarkdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
 import type { Components } from "react-markdown";

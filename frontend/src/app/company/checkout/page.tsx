@@ -13,7 +13,7 @@ import { showErrorToast, showSuccessToast } from "@/utils/Toast"
 import { useCompany } from "@/context/companyContext"
 import { usePaymentStore } from "@/hooks/usePaymentStore"
 import { PaymentStatus } from "@/components/company/checkout/paymentStatus"
-import { companyApiMethods } from "@/services/APImethods/companyAPImethods"
+import { companyApiMethods } from "@/services/APIservices/companyApiService"
 import { loadStripe } from "@stripe/stripe-js";
 
 

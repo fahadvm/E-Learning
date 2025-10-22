@@ -1,6 +1,6 @@
 "use client"
 import ReusableLoginPage from "@/reusable/ReusableLoginPage";
-import { employeeApiMethods } from "@/services/APImethods/employeeAPImethods";
+import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
 
 export default  function StudentLogin() {
 

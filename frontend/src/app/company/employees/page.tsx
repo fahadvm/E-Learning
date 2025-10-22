@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { AxiosError } from "axios";
 import Header from "@/components/company/Header";
 import { useRouter } from "next/navigation";
-import { companyApiMethods } from "@/services/APImethods/companyAPImethods";
+import { companyApiMethods } from "@/services/APIservices/companyApiService";
 import { showSuccessToast } from "@/utils/Toast";
 import { useCompany } from "@/context/companyContext";
 import ConfirmationDialog from "@/reusable/ConfirmationDialog";

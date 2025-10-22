@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import BookingSummary from "@/components/student/payment/booking-summary"
 import PaymentPanel from "@/components/student/payment/payment-panel"
-import { studentBookingApi } from "@/services/APImethods/studentAPImethods"
+import { studentBookingApi } from "@/services/APIservices/studentApiservice"
 import { useStudent } from "@/context/studentContext";
 
 interface Booking {

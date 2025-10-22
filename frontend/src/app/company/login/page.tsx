@@ -1,7 +1,7 @@
 // app/company/login/page.tsx
 "use client"
 import ReusableLoginPage from "@/reusable/ReusableLoginPage";
-import { companyApiMethods } from "@/services/APImethods/companyAPImethods";
+import { companyApiMethods } from "@/services/APIservices/companyApiService";
 
 export default function CompanyLogin() {
   return (

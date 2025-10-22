@@ -1,6 +1,6 @@
 // app/company/verifyForgotOtp/page.tsx
 "use client";
-import { companyApiMethods } from "@/services/APImethods/companyAPImethods";
+import { companyApiMethods } from "@/services/APIservices/companyApiService";
 import dynamic from "next/dynamic";
 
 const OtpVerificationPage = dynamic(() => import("@/reusable/OtpVerificationPage"), { ssr: false });

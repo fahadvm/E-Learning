@@ -13,7 +13,7 @@ import 'swiper/css/navigation';
 import { useEffect, useState } from "react";
 import { Book, Clock, GraduationCap, Star } from "lucide-react";
 import axios from "axios";
-import { studentCourseApi, studentTeacherApi } from "@/services/APImethods/studentAPImethods";
+import { studentCourseApi, studentTeacherApi } from "@/services/APIservices/studentApiservice";
 import { useStudent } from '@/context/studentContext';
 
 

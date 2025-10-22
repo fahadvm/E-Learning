@@ -12,7 +12,7 @@ import Navigation from '@/components/teacher/course/addCourse/Navigation';
 import { Button } from '@/components/ui/button';
 import { showErrorToast, showSuccessToast } from '@/utils/Toast';
 import { ArrowLeft } from 'lucide-react';
-import { teacherCourseApi } from '@/services/APImethods/teacherAPImethods';
+import { teacherCourseApi } from '@/services/APIservices/teacherApiService';
 
 interface CourseLesson {
   id: string;
