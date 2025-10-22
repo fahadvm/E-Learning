@@ -58,6 +58,19 @@ let TeacherProfileController = class TeacherProfileController {
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.TEACHER_DETAILS_FETCHED, true, teacher);
         });
     }
+    sendVerificationRequest(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const teacherId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            const file = req.file;
+            if (!file)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.REQUIRED_FIELDS_MISSING, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            if (!teacherId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            const teacher = yield this._teacherservice.sendVerificationRequest(teacherId, file);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.TEACHER_DETAILS_FETCHED, true, teacher);
+        });
+    }
 };
 exports.TeacherProfileController = TeacherProfileController;
 exports.TeacherProfileController = TeacherProfileController = __decorate([

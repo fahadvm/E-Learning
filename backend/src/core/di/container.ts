@@ -145,7 +145,6 @@ import { ChatRepository } from '../../repositories/ChatRepository';
 import { IChatService } from '../interfaces/services/student/IStudentChatService';
 import { ChatService } from '../../services/student/student.chat.service';
 import { ChatController } from '../../controllers/student/student.chat.controller';
-import { IStudentNotificationController } from '../interfaces/controllers/student/IStudentNotificationController';
 import { IStudentNotificationRepository } from '../interfaces/repositories/IStudentNotification';
 import { IStudentNotificationService } from '../interfaces/services/student/IStudentNotificationService';
 import { StudentNotificationController } from '../../controllers/student/student.notification.controller';

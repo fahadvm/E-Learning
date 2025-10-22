@@ -8,10 +8,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { CalendarDays, Clock, MessageSquare } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { teacherCallRequestApi } from "@/services/APImethods/teacherAPImethods"
+import { convertTo12Hour } from "@/utils/timeConverter"
 
 type RequestItem = {
   _id: string
   studentId: {
+    _id : string
     name: string
     profilePicture?: string
   }
@@ -58,6 +60,9 @@ export default function RequestCallList() {
 
   const handleDetails = (id: string) => {
     router.push(`/teacher/slots/request-details/${id}`)
+  }
+  const handleChat = (studentId: string) => {
+    router.push(`/teacher/chat/${studentId}`)
   }
 
   const handlePrevPage = () => {
@@ -114,7 +119,7 @@ export default function RequestCallList() {
                     </span>
                     <span className="inline-flex items-center gap-1 text-muted-foreground">
                       <Clock className="h-4 w-4" aria-hidden="true" />
-                      {req.slot.start} - {req.slot.end}
+                      {convertTo12Hour(req.slot.start)} - {convertTo12Hour(req.slot.end)}
                     </span>
                   </div>
 
@@ -130,7 +135,7 @@ export default function RequestCallList() {
                     </Button>
                     <Button
                       variant="outline"
-                      size="sm"
+                      size="sm" onClick={() => handleChat(req.studentId._id)}
                       className="inline-flex items-center gap-1 bg-transparent"
                     >
                       <MessageSquare className="h-4 w-4" aria-hidden="true" />

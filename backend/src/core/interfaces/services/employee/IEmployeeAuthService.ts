@@ -1,6 +1,5 @@
 // src/core/interfaces/services/employee/IEmployeeAuthService.ts
 import { IEmployee } from '../../../../models/Employee';
-import { GooglePayLoad } from '../../../../types/userTypes';
 
 export interface IEmployeeAuthService {
   sendOtp(data: IEmployee): Promise<void>;

@@ -1,4 +1,4 @@
-import { IComment } from "../../../../models/Comment";
+import { IComment } from '../../../../models/Comment';
 
 export interface IStudentCommentService {
   addComment(comment: IComment): Promise<IComment>;

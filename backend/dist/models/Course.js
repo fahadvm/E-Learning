@@ -41,12 +41,12 @@ const LessonSchema = new mongoose_1.Schema({
     videoFile: { type: String },
     thumbnail: { type: String },
     duration: { type: Number }, // store in minutes
-}, { _id: false });
+}, { _id: true });
 const ModuleSchema = new mongoose_1.Schema({
     title: { type: String, required: true },
     description: { type: String },
     lessons: { type: [LessonSchema], default: [] },
-}, { _id: false });
+}, { _id: true });
 const CourseSchema = new mongoose_1.Schema({
     title: { type: String, required: true },
     subtitle: { type: String, required: true },

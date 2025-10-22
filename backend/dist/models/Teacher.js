@@ -33,8 +33,15 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Teacher = void 0;
+exports.Teacher = exports.VerificationStatus = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
+var VerificationStatus;
+(function (VerificationStatus) {
+    VerificationStatus["UNVERIFIED"] = "unverified";
+    VerificationStatus["PENDING"] = "pending";
+    VerificationStatus["VERIFIED"] = "verified";
+    VerificationStatus["REJECTED"] = "rejected";
+})(VerificationStatus || (exports.VerificationStatus = VerificationStatus = {}));
 const EducationSchema = new mongoose_1.Schema({
     degree: { type: String, required: true },
     description: { type: String, required: true },
@@ -68,7 +75,7 @@ const TeacherSchema = new mongoose_1.Schema({
     },
     googleId: { type: String },
     role: { type: String, default: 'Teacher' },
-    isVerified: { type: Boolean, default: false },
+    verificationStatus: { type: String, enum: Object.values(VerificationStatus), default: VerificationStatus.UNVERIFIED },
     isRejected: { type: Boolean, default: false },
     isBlocked: { type: Boolean, default: false },
     googleUser: { type: Boolean, default: false },
@@ -79,6 +86,7 @@ const TeacherSchema = new mongoose_1.Schema({
     location: { type: String, default: '' },
     phone: { type: String, default: '' },
     website: { type: String, default: '' },
+    resumeUrl: { type: String, default: '' },
     social_links: { type: SocialLinksSchema, default: {} },
     education: { type: [EducationSchema], default: [] },
     experiences: { type: [ExperienceSchema], default: [] },

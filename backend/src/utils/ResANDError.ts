@@ -1,7 +1,8 @@
 import { Response } from 'express';
+import logger from './logger';
 
 export function throwErrorWithRes(res: Response, message: string, statusCode = 400): never {
-  console.error('Throwing error:', message);
+   logger.error('Throwing error:', message);
   res.status(statusCode).json({ message });
   const error = new Error(message) as Error & { statusCode: number };
   error.statusCode = statusCode;
@@ -9,7 +10,7 @@ export function throwErrorWithRes(res: Response, message: string, statusCode = 4
 }
 
 export function throwError(message: string, statusCode = 400): never {
-  console.error('Throwing error:', message);
+   logger.error('Throwing error:', message);
   const error = new Error(message) as Error & { statusCode: number };
   error.statusCode = statusCode;
   throw error;
@@ -22,13 +23,13 @@ export function sendResponse<T = unknown>(
   ok: boolean,
   data?: T
 ) {
-  console.log(message);
+   logger.info(message);
   res.status(status).json({ ok, message, data });
 }
 
 export function handleControllerError(res: Response, error: unknown, defaultStatus = 400): void {
   const err = error as Error & { statusCode?: number };
   const statusCode = err.statusCode || defaultStatus;
-  console.error(err.message);
+   logger.error(err.message);
   sendResponse(res, statusCode, err.message, false);
 }

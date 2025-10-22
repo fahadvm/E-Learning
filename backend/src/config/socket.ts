@@ -1,13 +1,13 @@
-import { Server, Socket } from "socket.io";
-import container from "../core/di/container";
-import { TYPES } from "../core/di/types";
-import { IChatService } from "../core/interfaces/services/student/IStudentChatService";
-import { IStudentNotificationService } from "../core/interfaces/services/student/IStudentNotificationService";
-import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
+import { Server, } from 'socket.io';
+import container from '../core/di/container';
+import { TYPES } from '../core/di/types';
+import { Server as HTTPServer } from 'http';
+import { IChatService } from '../core/interfaces/services/student/IStudentChatService';
+import { IStudentNotificationService } from '../core/interfaces/services/student/IStudentNotificationService';
+import dotenv from 'dotenv';
+import logger from '../utils/logger';
 dotenv.config();
 
-const SECRET_KEY = process.env.JWT_SECRET || "devnext_jwt_secret";
 
 const chatService = container.get<IChatService>(TYPES.ChatService);
 const notificationService = container.get<IStudentNotificationService>(TYPES.StudentNotificationService);
@@ -17,16 +17,13 @@ export interface TokenPayload {
   role: string;
 }
 
-interface AuthenticatedSocket extends Socket {
-  userId: string;
-  role: string;
-}
 
-export function initSocket(server: any) {
+
+export function initSocket(server: HTTPServer) {
   const io = new Server(server, {
     cors: {
-      origin: "http://localhost:3000",
-      methods: ["GET", "POST"],
+      origin: 'http://localhost:3000',
+      methods: ['GET', 'POST'],
       credentials: true,
     },
   });
@@ -37,61 +34,61 @@ export function initSocket(server: any) {
   // Broadcast online users to all clients
   const broadcastOnlineUsers = () => {
     const users = Array.from(onlineUsers.keys());
-    io.emit("onlineUsers", users);
+    io.emit('onlineUsers', users);
   };
 
-  io.on("connection", (socket) => {
-    console.log("New socket connected:", socket.id);
+  io.on('connection', (socket) => {
+    logger.info('New socket connected:', socket.id);
 
     // When user joins with their ID
-    socket.on("join", (userId: string) => {
+    socket.on('join', (userId: string) => {
       onlineUsers.set(userId, socket.id);
-      console.log("Online users:", Array.from(onlineUsers.keys()));
+      logger.info('Online users:', Array.from(onlineUsers.keys()));
       broadcastOnlineUsers(); // Broadcast updated online users
     });
 
     // Listen for messages
-    socket.on("send_message", async (data: { senderId: string; receiverId: string; message: string; chatId: string }) => {
+    socket.on('send_message', async (data: { senderId: string; receiverId: string; message: string; chatId: string }) => {
       const receiverSocketId = onlineUsers.get(data.receiverId);
       const messageData = { ...data, read: false, createdAt: new Date(), reactions: [] };
       await chatService.sendMessage(data.senderId, data.receiverId, data.message, data.chatId);
       if (receiverSocketId) {
-        io.to(receiverSocketId).emit("receive_message", messageData);
+        io.to(receiverSocketId).emit('receive_message', messageData);
       }
     });
 
     // Listen for typing events
-    socket.on("typing", (data: { senderId: string; receiverId: string }) => {
+    socket.on('typing', (data: { senderId: string; receiverId: string }) => {
       const receiverSocketId = onlineUsers.get(data.receiverId);
       if (receiverSocketId) {
-        io.to(receiverSocketId).emit("typing", { senderId: data.senderId });
+        io.to(receiverSocketId).emit('typing', { senderId: data.senderId });
       }
     });
 
     // Listen for read message events
-    socket.on("read_message", async (data: { chatId: string; messageId: string; senderId: string; receiverId: string }) => {
+    socket.on('read_message', async (data: { chatId: string; messageId: string; senderId: string; receiverId: string }) => {
       try {
         // Update message read status in the database
         await chatService.markMessageAsRead(data.chatId, data.messageId);
         // Notify the sender that the message was read
         const senderSocketId = onlineUsers.get(data.senderId);
         if (senderSocketId) {
-          io.to(senderSocketId).emit("message_read", { messageId: data.messageId, chatId: data.chatId });
+          io.to(senderSocketId).emit('message_read', { messageId: data.messageId, chatId: data.chatId });
         }
       } catch (err) {
-        console.error("Error marking message as read:", err);
+         logger.error('Error marking message as read:', err);
       }
     });
 
     // Listen for message reaction events
-    socket.on("react_message", async (data: { chatId: string; messageId: string; userId: string; reaction: string; receiverId: string }) => {
+    socket.on('react_message', async (data: { chatId: string; messageId: string; userId: string; reaction: string; receiverId: string }) => {
       try {
         // Update message with reaction in the database
         await chatService.addReaction(data.chatId, data.messageId, data.userId, data.reaction);
         // Notify the receiver of the reaction
         const receiverSocketId = onlineUsers.get(data.receiverId);
         if (receiverSocketId) {
-          io.to(receiverSocketId).emit("message_reaction", {
+          io.to(receiverSocketId).emit('message_reaction', {
             messageId: data.messageId,
             chatId: data.chatId,
             userId: data.userId,
@@ -99,64 +96,64 @@ export function initSocket(server: any) {
           });
         }
       } catch (err) {
-        console.error("Error adding reaction:", err);
+         logger.error('Error adding reaction:', err);
       }
     });
 
     // Listen for message deletion events
-    socket.on("delete_message", async (data: { chatId: string; messageId: string; senderId: string; receiverId: string }) => {
+    socket.on('delete_message', async (data: { chatId: string; messageId: string; senderId: string; receiverId: string }) => {
       try {
         // Delete message from the database
         await chatService.deleteMessage(data.chatId, data.messageId, data.senderId);
         // Notify the receiver to remove the message
         const receiverSocketId = onlineUsers.get(data.receiverId);
         if (receiverSocketId) {
-          io.to(receiverSocketId).emit("message_deleted", { messageId: data.messageId, chatId: data.chatId });
+          io.to(receiverSocketId).emit('message_deleted', { messageId: data.messageId, chatId: data.chatId });
         }
       } catch (err) {
-        console.error("Error deleting message:", err);
+         logger.error('Error deleting message:', err);
       }
     });
 
     // Listen for message edit events
-    socket.on("edit_message", async (data: { chatId: string; messageId: string; senderId: string; newMessage: string; receiverId: string }) => {
+    socket.on('edit_message', async (data: { chatId: string; messageId: string; senderId: string; newMessage: string; receiverId: string }) => {
       try {
         // Update message content in the database
         await chatService.editMessage(data.chatId, data.messageId, data.senderId, data.newMessage);
         // Notify the receiver of the updated message
         const receiverSocketId = onlineUsers.get(data.receiverId);
         if (receiverSocketId) {
-          io.to(receiverSocketId).emit("message_edited", {
+          io.to(receiverSocketId).emit('message_edited', {
             messageId: data.messageId,
             chatId: data.chatId,
             newMessage: data.newMessage,
           });
         }
       } catch (err) {
-        console.error("Error editing message:", err);
+         logger.error('Error editing message:', err);
       }
     });
 
-    socket.on("send_notification", async (data: { receiverId: string; title: string; message: string; }) => {
+    socket.on('send_notification', async (data: { receiverId: string; title: string; message: string; }) => {
       try {
         // Update message content in the database
-        await notificationService.createNotification(data.receiverId, data.title, data.message, "general");
+        await notificationService.createNotification(data.receiverId, data.title, data.message, 'general');
         // Notify the receiver of the updated message
         const receiverSocketId = onlineUsers.get(data.receiverId);
         if (receiverSocketId) {
-          io.to(receiverSocketId).emit("receive_notification", {
+          io.to(receiverSocketId).emit('receive_notification', {
             title: data.title,
             message: data.message,
           });
         }
       } catch (err) {
-        console.error("Error sending  notification:", err);
+         logger.error('Error sending  notification:', err);
       }
     });
 
     // Handle disconnect
-    socket.on("disconnect", () => {
-      console.log("Socket disconnected:", socket.id);
+    socket.on('disconnect', () => {
+      logger.info('Socket disconnected:', socket.id);
       // Remove from online users
       onlineUsers.forEach((value, key) => {
         if (value === socket.id) onlineUsers.delete(key);

@@ -1,5 +1,5 @@
 
-import { Notification , INotification } from "../../../models/Notification"
+import { INotification } from '../../../models/Notification';
 
 
 export interface  INotificationRepository {

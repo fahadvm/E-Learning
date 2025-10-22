@@ -21,7 +21,14 @@ export const companyApiMethods = {
   resendOtp: (data: any) => post('/company/auth/resend-otp', data),
 
   // Courses
-  getAllCourses: (params?: { page?: number; limit?: number; search?: string }) => get('/company/courses', params),
+  getAllCourses: (params?: {  search?: string;
+    category?: string;
+    level?: string;
+    language?: string;
+    sort?: string;
+    order?: "asc" | "desc";
+    page?: number;
+    limit?: number; }) => get('/company/courses', params),
   getCourseById: (courseId: string) => get(`/company/courses/${courseId}`),
 
 

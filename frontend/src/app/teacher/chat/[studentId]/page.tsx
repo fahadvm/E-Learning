@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useEffect, useRef } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useTeacher } from "@/context/teacherContext";
 import { initSocket, sendMessage, sendTyping, sendReadMessage, sendMessageReaction, sendDeleteMessage, sendEditMessage, disconnectSocket } from "@/lib/socket";
 import { teacherChatApi } from "@/services/APImethods/teacherAPImethods";
+import { studentChatApi } from "@/services/APImethods/studentAPImethods";
 
 // ---------- ConfirmationDialog Component ----------
 const ConfirmationDialog = ({
@@ -324,6 +325,7 @@ export default function TeacherChat() {
   const { teacher } = useTeacher();
   const params = useParams();
   const searchParams = useSearchParams();
+  const router = useRouter()
   const [isOnline, setIsOnline] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
@@ -333,11 +335,26 @@ export default function TeacherChat() {
   const [confirmDeleteMessageId, setConfirmDeleteMessageId] = useState<string | null>(null);
   const [confirmEditMessageId, setConfirmEditMessageId] = useState<string | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
+  const [chatId, setChatId] = useState<string | null>(searchParams.get("chatId"));
   const teacherId = teacher?._id;
   const studentId = params?.studentId as string;
-  const chatId = searchParams.get("chatId");
 
+
+  useEffect(() => {
+    if (!studentId || !teacherId || chatId) return;
+    const createOrFetchChat = async () => {
+      try {
+        const res = await teacherChatApi.createOrGetChat({ studentId, teacherId });
+        const newChatId = res.data._id;
+        setChatId(newChatId);
+        router.replace(`/teacher/chat/${studentId}?chatId=${newChatId}`);
+      } catch (err) {
+        console.error("Error creating/fetching chat:", err);
+      }
+    };
+
+    createOrFetchChat();
+  }, [studentId, teacherId, chatId]);
   useEffect(() => {
     if (!chatId) return;
 
@@ -538,7 +555,7 @@ export default function TeacherChat() {
         }}
         confirmDeleteMessageId={confirmDeleteMessageId}
         confirmEditMessageId={confirmEditMessageId}
-         
+
         setConfirmDeleteMessageId={(value) => {
           setConfirmDeleteMessageId(value);
           if (!value) setConfirmDeleteMessageId(null);
@@ -547,7 +564,7 @@ export default function TeacherChat() {
           setEditingMessageId(value);
           if (!value) setEditingMessageId(null);
         }}
-       
+
       />
       <ChatInput input={input} setInput={setInput} handleSend={handleSend} handleTyping={handleTyping} />
     </div>

@@ -12,8 +12,8 @@ const teacherRouter = Router();
 teacherRouter.use('/auth', authRoutes);
 teacherRouter.use('/profile', profileRoutes);
 teacherRouter.use('/courses', courseRoutes);
-teacherRouter.use('/availability',availabilityRoutes)
-teacherRouter.use('/call-request',callRequestRoutes)
-teacherRouter.use('/chat',chatRoutes)
+teacherRouter.use('/availability',availabilityRoutes);
+teacherRouter.use('/call-request',callRequestRoutes);
+teacherRouter.use('/chat',chatRoutes);
 
 export default teacherRouter;

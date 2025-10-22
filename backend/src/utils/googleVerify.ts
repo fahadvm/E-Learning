@@ -2,6 +2,7 @@ import { OAuth2Client } from 'google-auth-library';
 import { throwError } from './ResANDError';
 import { STATUS_CODES } from './HttpStatuscodes';
 import { GooglePayLoad } from '../types/userTypes';
+import logger from './logger';
 
 // Replace this with your actual Google Client ID from Google Cloud Console
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID || 'your-google-client-id';
@@ -28,7 +29,7 @@ export async function verifyGoogleIdToken(idToken: string): Promise<GooglePayLoa
       image: payload.picture || '',
     };
   } catch (err) {
-    console.error('Google ID token verification failed:', err);
+     logger.error('Google ID token verification failed:', err);
     throwError('Failed to verify Google ID token', STATUS_CODES.UNAUTHORIZED);
   }
 }

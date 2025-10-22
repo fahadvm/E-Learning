@@ -1,8 +1,8 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 import { ObjectId } from 'mongodb';
 
 export interface ILesson {
-  _id : ObjectId
+  _id? : ObjectId
   title: string;
   description?: string;
   videoFile?: string;
@@ -11,14 +11,14 @@ export interface ILesson {
 }
 
 export interface IModule {
-   _id : ObjectId
+   _id? : ObjectId
   title: string;
   description?: string;
   lessons: ILesson[];
 }
 
 export interface ICourse extends Document {
-  _id: ObjectId;
+  _id: Types.ObjectId;          
   title: string;
   subtitle: string;
   description: string;

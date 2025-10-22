@@ -1,65 +1,66 @@
 export enum MESSAGES {
-  COMPANY_FETCHED = "Company fetched",
-  COMPANY_FOUND = "Company found",
-  REQUEST_SENT = "Request sent",
-  REQUEST_CANCELLED = "Request cancelled",
-  LEFT_COMPANY = "Left company",
-  REQUESTED_EMPLOYEES_FETCHED = "Requested employees fetched successfully",
-  EMPLOYEE_REQUEST_APPROVED = "Employee request approved successfully",
-  EMPLOYEE_REQUEST_REJECTED = "Employee request rejected",
-  GOOGLE_TOKEN_INVALID = "Invalid Google token",
-  GOOGLE_TOKEN_MISSING_FIELDS = "Google token missing required fields",
-  USER_NOT_LINKED_GOOGLE = "User is not linked to Google",
-  ALREADY_REQUESTED_COMPANY = "You have already requested a company",
-  ALREADY_REQUESTED_VERIFICATION = "You have already requested verification",
-  COMPLETE_PROFILE = "Please complete your profile details",
-  ALREADY_VERIFIED = "You have already verified",
-  NO_REQUEST_FOUND = "No request found",
-  NOT_PART_OF_COMPANY = "Not part of any company",
-  ORDERS_NOT_FOUND = "No orders found",
-  COMPANY_ORDERS_FETCHED = "Company orders fetched successfully",
-  STUDENT_ORDERS_FETCHED = "Student orders fetched successfully",
-  AVAILABILITY_FETCHED = "Teacher availability fetched successfully.",
-  BOOKING_CREATED = "Booking created successfully.",
-  BOOKING_CANCELLED = "Booking cancelled successfully.",
-  BOOKING_APPROVED = "Booking approved successfully.",
-  PAYMENT_SUCCESS = "Payment processed successfully.",
-  HISTORY_FETCHED = "Booking history fetched successfully.",
-  TEACHER_AVAILABILITY_FETCHED = "Teacher availability fetched successfully.",
-  TEACHER_AVAILABILITY_NOT_FOUND = "Teacher availability not found.",
-  AVAILABLE_SLOTS_FETCHED = "Teacher available slots fetched successfully.",
-  COMPLETD_LESSON_MARKED = "Lesson completed marked successfully.",
-  CODE_RUN_SUCCESSFULLY = "Code completed run successfully.",
-  NOTE_SAVED_SUCCESSFULLY = "Note saved successfully.",
+  COMPANY_FETCHED = 'Company fetched',
+  COMPANY_FOUND = 'Company found',
+  REQUEST_SENT = 'Request sent',
+  REQUEST_CANCELLED = 'Request cancelled',
+  LEFT_COMPANY = 'Left company',
+  REQUESTED_EMPLOYEES_FETCHED = 'Requested employees fetched successfully',
+  EMPLOYEE_REQUEST_APPROVED = 'Employee request approved successfully',
+  EMPLOYEE_REQUEST_REJECTED = 'Employee request rejected',
+  GOOGLE_TOKEN_INVALID = 'Invalid Google token',
+  GOOGLE_TOKEN_MISSING_FIELDS = 'Google token missing required fields',
+  USER_NOT_LINKED_GOOGLE = 'User is not linked to Google',
+  ALREADY_REQUESTED_COMPANY = 'You have already requested a company',
+  ALREADY_REQUESTED_VERIFICATION = 'You have already requested verification',
+  COMPLETE_PROFILE = 'Please complete your profile details',
+  ALREADY_VERIFIED = 'You have already verified',
+  NO_REQUEST_FOUND = 'No request found',
+  NOT_PART_OF_COMPANY = 'Not part of any company',
+  ORDERS_NOT_FOUND = 'No orders found',
+  COMPANY_ORDERS_FETCHED = 'Company orders fetched successfully',
+  STUDENT_ORDERS_FETCHED = 'Student orders fetched successfully',
+  AVAILABILITY_FETCHED = 'Teacher availability fetched successfully.',
+  BOOKING_CREATED = 'Booking created successfully.',
+  BOOKING_CANCELLED = 'Booking cancelled successfully.',
+  BOOKING_APPROVED = 'Booking approved successfully.',
+  PAYMENT_SUCCESS = 'Payment processed successfully.',
+  HISTORY_FETCHED = 'Booking history fetched successfully.',
+  TEACHER_AVAILABILITY_FETCHED = 'Teacher availability fetched successfully.',
+  TEACHER_AVAILABILITY_NOT_FOUND = 'Teacher availability not found.',
+  AVAILABLE_SLOTS_FETCHED = 'Teacher available slots fetched successfully.',
+  COMPLETD_LESSON_MARKED = 'Lesson completed marked successfully.',
+  CODE_RUN_SUCCESSFULLY = 'Code completed run successfully.',
+  NOTE_SAVED_SUCCESSFULLY = 'Note saved successfully.',
 
 
 
-  NOTIFICATION_MARKED_AS_READ= "Notification marked as read successfully.",
-  NOTIFICATION_ID_REQUIRED= "Notification ID is required.",
-
-
-
-
-
+  NOTIFICATION_MARKED_AS_READ= 'Notification marked as read successfully.',
+  NOTIFICATION_ID_REQUIRED= 'Notification ID is required.',
+  MAX_4_ALLOWED= 'Max 4 slots allowed per day.',
 
 
 
 
-  NOTIFICATIONS_FETCHED = "Notifications fetched successfully.",
-  NOTIFICATION_MARKED_READ = "Notification marked as read.",
-  NOTIFICATION_DELETED = "Notification deleted successfully.",
-  NOTIFICATION_CREATED = "New notification created.",
-  NOTIFICATION_NOT_FOUND = "Notification not found.",
+
+
+
+
+
+  NOTIFICATIONS_FETCHED = 'Notifications fetched successfully.',
+  NOTIFICATION_MARKED_READ = 'Notification marked as read.',
+  NOTIFICATION_DELETED = 'Notification deleted successfully.',
+  NOTIFICATION_CREATED = 'New notification created.',
+  NOTIFICATION_NOT_FOUND = 'Notification not found.',
 
 
   //------------------ CALL REQUEST ---------------------
-  CALL_REQUESTS_FETCHED = "Call requests fetched successfully",
-  CALL_REQUEST_DETAILS_FETCHED = "Call request details fetched successfully",
-  CALL_REQUEST_APPROVED = "Call request approved successfully",
-  CALL_REQUEST_REJECTED = "Call request rejected successfully",
-  ACCEPTED_CALL_REQUESTS_FETCHED = "Accepted call requests fetched successfully",
-  CALL_REQUEST_NOT_FOUND = "Call request not found",
-  CALL_REQUEST_ALREADY_PROCESSED = "This call request has already been processed",
+  CALL_REQUESTS_FETCHED = 'Call requests fetched successfully',
+  CALL_REQUEST_DETAILS_FETCHED = 'Call request details fetched successfully',
+  CALL_REQUEST_APPROVED = 'Call request approved successfully',
+  CALL_REQUEST_REJECTED = 'Call request rejected successfully',
+  ACCEPTED_CALL_REQUESTS_FETCHED = 'Accepted call requests fetched successfully',
+  CALL_REQUEST_NOT_FOUND = 'Call request not found',
+  CALL_REQUEST_ALREADY_PROCESSED = 'This call request has already been processed',
 
 
 
@@ -154,6 +155,7 @@ export enum MESSAGES {
   COMPANY_DELETED = 'Company deleted successfully',
   COMPANY_DETAILS_FETCHED = 'Company details fetched successfully',
   COMPANY_NOT_FOUND = 'Company not found',
+  BOOKING_NOT_FOUND = 'Booking not found',
   COMPANY_UNBLOCKED = 'Company unblocked successfully',
   COMPANY_UPDATED = 'Company updated successfully',
   UNVERIFIED_COMPANIES_FETCHED = 'Unverified company fetched successfully',
@@ -166,8 +168,8 @@ export enum MESSAGES {
   TEACHER_VERIFIED = 'Teacher verified successfully',
   TEACHER_NOT_VERIFIED = 'Teacher unverified successfully',
   TEACHER_DETAILS_FETCHED = 'Teacher details fetched successfully',
-  VERIFICATION_REQUESTED =  "Verification request sent successfully",
-  VERIFICATION_FAILED =  "Verification request sent failed",
+  VERIFICATION_REQUESTED =  'Verification request sent successfully',
+  VERIFICATION_FAILED =  'Verification request sent failed',
   TEACHER_COURSES_FETCHED = 'Teacher courses fetched successfully',
   TEACHER_NOT_FOUND = 'Teacher not found',
   TEACHER_UNBLOCKED = 'Teacher unblocked successfully',
@@ -287,6 +289,6 @@ export enum MESSAGES {
 
 
   //order
-  ORDER_CREATED_SUCCESSFULLY = "Order created successfully",
+  ORDER_CREATED_SUCCESSFULLY = 'Order created successfully',
 
 }

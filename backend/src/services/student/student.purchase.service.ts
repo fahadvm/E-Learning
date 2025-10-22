@@ -1,21 +1,22 @@
 
-import Razorpay from "razorpay";
-import crypto from "crypto";
-import mongoose, { Types } from "mongoose";
-import { inject, injectable } from "inversify";
-import { IOrderRepository } from "../../core/interfaces/repositories/IOrderRepository";
-import { IOrder } from "../../models/Order";
-import { TYPES } from "../../core/di/types";
-import { IStudentPurchaseService } from "../../core/interfaces/services/student/IStudentPurchaseService";
-import { ICourse } from "../../models/Course";
+import Razorpay from 'razorpay';
+import crypto from 'crypto';
+import mongoose from 'mongoose';
+import { inject, injectable } from 'inversify';
+import { IOrderRepository } from '../../core/interfaces/repositories/IOrderRepository';
+import { IOrder } from '../../models/Order';
+import { TYPES } from '../../core/di/types';
+import { IStudentPurchaseService } from '../../core/interfaces/services/student/IStudentPurchaseService';
+import { ICourse } from '../../models/Course';
 import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
-import { ICourseRepository } from "../../core/interfaces/repositories/ICourseRepository";
-import { ICartRepository } from "../../core/interfaces/repositories/ICartRepository";
-import { ISubscriptionPlanRepository } from "../../core/interfaces/repositories/ISubscriptionPlanRepository";
-import { ICourseProgress } from "../../models/Student";
-import { IStudentRepository } from "../../core/interfaces/repositories/IStudentRepository";
+import { ICourseRepository } from '../../core/interfaces/repositories/ICourseRepository';
+import { ICartRepository } from '../../core/interfaces/repositories/ICartRepository';
+import { ISubscriptionPlanRepository } from '../../core/interfaces/repositories/ISubscriptionPlanRepository';
+import { ICourseProgress } from '../../models/Student';
+import { IStudentRepository } from '../../core/interfaces/repositories/IStudentRepository';
+import logger from '../../utils/logger';
 
 @injectable()
 export class StudentPurchaseService implements IStudentPurchaseService {
@@ -38,9 +39,9 @@ export class StudentPurchaseService implements IStudentPurchaseService {
     studentId: string,
     courses: string[],
     amount: number,
-    currency = "INR"
+    currency = 'INR'
   ): Promise<Partial<IOrder>> {
-    console.log("amount is ", amount)
+     logger.debug('amount is ', amount);
     const options = {
       amount: amount * 100,
       currency,
@@ -58,7 +59,7 @@ export class StudentPurchaseService implements IStudentPurchaseService {
       razorpayOrderId: razorpayOrder.id,
       amount,
       currency: razorpayOrder.currency,
-      status: "created",
+      status: 'created',
     });
 
     return {
@@ -77,20 +78,20 @@ export class StudentPurchaseService implements IStudentPurchaseService {
     razorpay_payment_id: string;
     razorpay_signature: string;
   }, studentId: string): Promise<{ success: boolean }> {
-    console.log(
+     logger.debug(
       details.razorpay_order_id,
       details.razorpay_payment_id,
-      details.razorpay_signature)
+      details.razorpay_signature);
     const body = `${details.razorpay_order_id}|${details.razorpay_payment_id}`;
     const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!)
       .update(body)
-      .digest("hex");
+      .digest('hex');
 
     const isValid = expectedSignature === details.razorpay_signature;
     await this._orderRepo.updateStatus(
       details.razorpay_order_id,
-      isValid ? "paid" : "failed"
+      isValid ? 'paid' : 'failed'
     );
     await this._cartRepo.clearCart(studentId);
 
@@ -98,7 +99,7 @@ export class StudentPurchaseService implements IStudentPurchaseService {
   }
 
   async getPurchasedCourses(studentId: string): Promise<IOrder[] | ICourse[]> {
-    const ispremium = await this._subscriptionRepo.findActiveSubscription(studentId)
+    const ispremium = await this._subscriptionRepo.findActiveSubscription(studentId);
     if (ispremium) {
       // const courses = await this._courseRepo.getPremiumCourses();  
       // return courses

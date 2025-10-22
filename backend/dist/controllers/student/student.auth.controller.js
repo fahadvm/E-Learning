@@ -20,6 +20,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StudentAuthController = void 0;
 const inversify_1 = require("inversify");
@@ -28,6 +31,7 @@ const JWTtoken_1 = require("../../utils/JWTtoken");
 const ResANDError_1 = require("../../utils/ResANDError");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
+const logger_1 = __importDefault(require("../../utils/logger"));
 let StudentAuthController = class StudentAuthController {
     constructor(_studentAuthService) {
         this._studentAuthService = _studentAuthService;
@@ -38,7 +42,7 @@ let StudentAuthController = class StudentAuthController {
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.CREATED, ResponseMessages_1.MESSAGES.OTP_SENT, true);
         });
         this.verifyOtp = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            console.log('verifying otp ', req.body);
+            logger_1.default.info('verifying otp ', req.body);
             const { email, otp } = req.body;
             if (!email || !otp)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMAIL_OTP_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
@@ -56,13 +60,12 @@ let StudentAuthController = class StudentAuthController {
         });
         this.logout = (_req, res) => __awaiter(this, void 0, void 0, function* () {
             (0, JWTtoken_1.clearTokens)(res);
-            console.log('logout successfull ');
+            logger_1.default.info('logout successfull ');
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.LOGOUT_SUCCESS, true);
         });
         this.googleAuth = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            console.log('gooogle sign in is working nonw', req.body);
             const { tokenId } = req.body;
-            console.log('tokenId', tokenId);
+            logger_1.default.info('tokenId', tokenId);
             if (!tokenId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.GOOGLE_AUTH_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const result = yield this._studentAuthService.googleAuth(tokenId);

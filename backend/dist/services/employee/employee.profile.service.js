@@ -42,7 +42,7 @@ let EmployeeProfileService = class EmployeeProfileService {
     }
     updateEmployeeProfile(employeeId, data) {
         return __awaiter(this, void 0, void 0, function* () {
-            const updated = yield this._employeeRepo.updateEmployeeById(employeeId, data);
+            const updated = yield this._employeeRepo.updateById(employeeId, data);
             if (!updated)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STUDENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             return (0, student_profile_dto_1.employeeProfileDto)(updated);

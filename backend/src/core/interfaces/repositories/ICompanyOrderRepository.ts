@@ -1,6 +1,6 @@
 // src/core/interfaces/repositories/IOrderRepository.ts
-import { ICompanyOrder } from "../../../models/CompanyOrder";
-import { ICourse } from "../../../models/Course";
+import { ICompanyOrder } from '../../../models/CompanyOrder';
+import { ICourse } from '../../../models/Course';
 
 export interface ICompanyOrderRepository {
   create(order: Partial<ICompanyOrder>): Promise<ICompanyOrder>;

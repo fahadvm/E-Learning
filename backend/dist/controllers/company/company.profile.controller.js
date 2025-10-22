@@ -50,7 +50,6 @@ let CompanyProfileController = class CompanyProfileController {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const companyId = decoded.id;
             const updatedData = req.body;
-            console.log('updatedData', updatedData);
             const updatedCompany = yield this._companyService.updateProfile(companyId, updatedData);
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COMPANY_UPDATED, true, updatedCompany);
         });

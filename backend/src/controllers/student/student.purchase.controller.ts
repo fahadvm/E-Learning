@@ -1,13 +1,13 @@
 // src/controllers/student/student.purchase.controller.ts
-import { Response } from "express";
-import { inject, injectable } from "inversify";
-import { TYPES } from "../../core/di/types";
-import { IStudentPurchaseService } from "../../core/interfaces/services/student/IStudentPurchaseService";
-import { IStudentPurchaseController } from "../../core/interfaces/controllers/student/IStudentPurchaseController";
-import { AuthRequest } from "../../types/AuthenticatedRequest";
-import { sendResponse, throwError } from "../../utils/ResANDError";
-import { STATUS_CODES } from "../../utils/HttpStatuscodes";
-import { MESSAGES } from "../../utils/ResponseMessages";
+import { Response } from 'express';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '../../core/di/types';
+import { IStudentPurchaseService } from '../../core/interfaces/services/student/IStudentPurchaseService';
+import { IStudentPurchaseController } from '../../core/interfaces/controllers/student/IStudentPurchaseController';
+import { AuthRequest } from '../../types/AuthenticatedRequest';
+import { sendResponse, throwError } from '../../utils/ResANDError';
+import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { MESSAGES } from '../../utils/ResponseMessages';
 
 
 
@@ -32,9 +32,9 @@ export class StudentPurchaseController implements IStudentPurchaseController {
   };
 
   verifyPayment = async (req: AuthRequest, res: Response) => {
-    const studentId = req.user?.id
+    const studentId = req.user?.id;
     if(!studentId){
-      throwError(MESSAGES.UNAUTHORIZED , STATUS_CODES.UNAUTHORIZED)
+      throwError(MESSAGES.UNAUTHORIZED , STATUS_CODES.UNAUTHORIZED);
     }
     const verified = await this._PurchaseService.verifyPayment(req.body , studentId);
     return verified.success
@@ -51,10 +51,10 @@ export class StudentPurchaseController implements IStudentPurchaseController {
     const courses = await this._PurchaseService.getPurchasedCourses(studentId);
 
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, courses);
-  }
+  };
 
   getMyCourseDetails = async (req: AuthRequest, res: Response) => {
-    const studentId = req.user?.id
+    const studentId = req.user?.id;
     const courseId  = req.params.courseId;
      
     if (!courseId || !studentId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.NOT_FOUND);
@@ -63,5 +63,5 @@ export class StudentPurchaseController implements IStudentPurchaseController {
 
 
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, course);
-  }
+  };
 }

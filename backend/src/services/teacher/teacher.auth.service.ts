@@ -3,13 +3,11 @@ import bcrypt from 'bcryptjs';
 import { ITeacherAuthService } from '../../core/interfaces/services/teacher/ITeacherAuthService';
 import { ITeacherRepository } from '../../core/interfaces/repositories/ITeacherRepository';
 import { IOtpRepository } from '../../core/interfaces/repositories/admin/IOtpRepository';
-import { ITeacher, VerificationStatus } from '../../models/Teacher';
+import { ITeacher } from '../../models/Teacher';
 import { throwError } from '../../utils/ResANDError';
 import { generateAccessToken, generateRefreshToken } from '../../utils/JWTtoken';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { generateOtp, sendOtpEmail } from '../../utils/OtpServices';
-// import { GooglePayLoad } from "../../types/userTypes";
-// import { verifyGoogleIdToken } from "../../utils/googleVerify";
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { TYPES } from '../../core/di/types';
 

@@ -34,10 +34,11 @@ const ResANDError_1 = require("../../utils/ResANDError");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 let StudentPurchaseService = class StudentPurchaseService {
-    constructor(_orderRepo, _courseRepo, _cartRepo, _subscriptionRepo) {
+    constructor(_orderRepo, _courseRepo, _cartRepo, _studentRepo, _subscriptionRepo) {
         this._orderRepo = _orderRepo;
         this._courseRepo = _courseRepo;
         this._cartRepo = _cartRepo;
+        this._studentRepo = _studentRepo;
         this._subscriptionRepo = _subscriptionRepo;
         this._razorpay = new razorpay_1.default({
             key_id: process.env.RAZORPAY_KEY_ID,
@@ -45,8 +46,8 @@ let StudentPurchaseService = class StudentPurchaseService {
         });
     }
     createOrder(studentId_1, courses_1, amount_1) {
-        return __awaiter(this, arguments, void 0, function* (studentId, courses, amount, currency = "INR") {
-            console.log("amount is ", amount);
+        return __awaiter(this, arguments, void 0, function* (studentId, courses, amount, currency = 'INR') {
+            console.log('amount is ', amount);
             const options = {
                 amount: amount * 100,
                 currency,
@@ -62,7 +63,7 @@ let StudentPurchaseService = class StudentPurchaseService {
                 razorpayOrderId: razorpayOrder.id,
                 amount,
                 currency: razorpayOrder.currency,
-                status: "created",
+                status: 'created',
             });
             return {
                 _id: newOrder._id,
@@ -80,12 +81,11 @@ let StudentPurchaseService = class StudentPurchaseService {
             console.log(details.razorpay_order_id, details.razorpay_payment_id, details.razorpay_signature);
             const body = `${details.razorpay_order_id}|${details.razorpay_payment_id}`;
             const expectedSignature = crypto_1.default
-                .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+                .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
                 .update(body)
-                .digest("hex");
+                .digest('hex');
             const isValid = expectedSignature === details.razorpay_signature;
-            console.log("until here everything is fine", details.razorpay_order_id, isValid);
-            yield this._orderRepo.updateStatus(details.razorpay_order_id, isValid ? "paid" : "failed");
+            yield this._orderRepo.updateStatus(details.razorpay_order_id, isValid ? 'paid' : 'failed');
             yield this._cartRepo.clearCart(studentId);
             return { success: isValid };
         });
@@ -94,7 +94,6 @@ let StudentPurchaseService = class StudentPurchaseService {
         return __awaiter(this, void 0, void 0, function* () {
             const ispremium = yield this._subscriptionRepo.findActiveSubscription(studentId);
             if (ispremium) {
-                console.log("this user id premium member ");
                 // const courses = await this._courseRepo.getPremiumCourses();  
                 // return courses
             }
@@ -102,14 +101,18 @@ let StudentPurchaseService = class StudentPurchaseService {
             return orders;
         });
     }
-    getPurchasedCourseDetails(courseId) {
+    getPurchasedCourseDetails(courseId, studentId) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!courseId)
-                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_ID, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            if (!courseId || !studentId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.REQUIRED_FIELDS_MISSING, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const course = yield this._courseRepo.findById(courseId);
             if (!course)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
-            return course;
+            const student = yield this._studentRepo.findById(studentId);
+            if (!student)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STUDENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            const progress = yield this._studentRepo.getOrCreateCourseProgress(studentId, courseId);
+            return { course, progress };
         });
     }
 };
@@ -119,6 +122,7 @@ exports.StudentPurchaseService = StudentPurchaseService = __decorate([
     __param(0, (0, inversify_1.inject)(types_1.TYPES.OrderRepository)),
     __param(1, (0, inversify_1.inject)(types_1.TYPES.CourseRepository)),
     __param(2, (0, inversify_1.inject)(types_1.TYPES.CartRepository)),
-    __param(3, (0, inversify_1.inject)(types_1.TYPES.SubscriptionPlanRepository)),
-    __metadata("design:paramtypes", [Object, Object, Object, Object])
+    __param(3, (0, inversify_1.inject)(types_1.TYPES.StudentRepository)),
+    __param(4, (0, inversify_1.inject)(types_1.TYPES.SubscriptionPlanRepository)),
+    __metadata("design:paramtypes", [Object, Object, Object, Object, Object])
 ], StudentPurchaseService);

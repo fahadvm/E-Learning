@@ -10,6 +10,53 @@ export class CourseRepository implements ICourseRepository {
     return await Course.create(courseData);
   }
 
+  async getFilteredCourses(
+    filters: {
+      search?: string;
+      category?: string;
+      level?: string;
+      language?: string;
+      sort?: string;
+      order?: 'asc' | 'desc';
+      page?: number;
+      limit?: number;
+    }): Promise<{ data: ICourse[]; totalPages: number; totalCount: number }> {
+    const {
+      search,
+      category,
+      level,
+      language,
+      sort = 'createdAt',
+      order = 'desc',
+      page = 1,
+      limit = 8,
+    } = filters;
+
+    const query: FilterQuery<ICourse> = {};
+
+    if (search) {
+      query.title = { $regex: search, $options: 'i' };
+    }
+
+    if (category) query.category = category;
+    if (level) query.level = level;
+    if (language) query.language = language;
+
+    const skip = (page - 1) * limit;
+
+    const totalCount = await Course.countDocuments(query);
+    const totalPages = Math.ceil(totalCount / limit);
+
+    const data = await Course.find(query)
+      .sort({ [sort]: order === 'asc' ? 1 : -1 })
+      .skip(skip)
+      .limit(limit)
+      .exec();
+
+    return { data, totalPages, totalCount };
+  }
+
+
   async findByTeacherId(teacherId: string): Promise<ICourse[]> {
     return await Course.find({ teacherId });
   }
@@ -23,22 +70,22 @@ export class CourseRepository implements ICourseRepository {
   }
 
 
-  
 
-async findAllCourses(
-  query: FilterQuery<ICourse>,
-  sort: Record<string, SortOrder>,
-  skip: number,
-  limit: number
-): Promise<ICourse[]> {
-  return Course.find(query)
-    .sort(sort)
-    .skip(skip)
-    .limit(limit)
-    .exec();
-}
 
-  async countAllCourses(query: any): Promise<number> {
+  async findAllCourses(
+    query: FilterQuery<ICourse>,
+    sort: Record<string, SortOrder>,
+    skip: number,
+    limit: number
+  ): Promise<ICourse[]> {
+    return Course.find(query)
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .exec();
+  }
+
+  async countAllCourses(query: FilterQuery<ICourse>): Promise<number> {
     return await Course.countDocuments(query).exec();
   }
 
@@ -46,11 +93,11 @@ async findAllCourses(
     return await Course.findById(courseId).populate('teacherId', 'name email');
   }
 
-async findAll({ skip, limit, search }: { skip: number; limit: number; search?: string }): Promise<ICourse[]> {
-  const query = search ? { title: { $regex: search, $options: 'i' } } : {};
-  const course = await Course.find(query).populate({ path: 'teacherId', select:' name ' }).skip(skip).limit(limit).lean();
-  return course;
-}
+  async findAll({ skip, limit, search }: { skip: number; limit: number; search?: string }): Promise<ICourse[]> {
+    const query = search ? { title: { $regex: search, $options: 'i' } } : {};
+    const course = await Course.find(query).populate({ path: 'teacherId', select: ' name ' }).skip(skip).limit(limit).lean();
+    return course;
+  }
 
   async count(search?: string): Promise<number> {
     const query = search ? { title: { $regex: search, $options: 'i' } } : {};
@@ -62,10 +109,10 @@ async findAll({ skip, limit, search }: { skip: number; limit: number; search?: s
   }
 
   async findById(courseId: string): Promise<ICourse | null> {
-  return Course.findById(courseId)
-    .populate('teacherId', 'name email profilePicture about') 
-    .lean();
-}
+    return Course.findById(courseId)
+      .populate('teacherId', 'name email profilePicture about')
+      .lean();
+  }
 
   async updateStatus(courseId: string, updates: Partial<ICourse>): Promise<ICourse | null> {
     return Course.findByIdAndUpdate(courseId, updates, { new: true }).lean();

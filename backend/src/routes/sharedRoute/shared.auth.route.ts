@@ -8,7 +8,7 @@ import { SharedController } from '../../controllers/shared/shared.controller';
 const router = Router();
 const sharedController = container.get<SharedController>(TYPES.SharedController);
 
-router.get("/refresh-token",sharedController.refreshToken.bind(sharedController))
+router.get('/refresh-token',sharedController.refreshToken.bind(sharedController));
 
 export default router;
 

@@ -1,6 +1,6 @@
 
-import { Request, Response} from "express";
-import { AuthRequest } from "../../../../types/AuthenticatedRequest";
+import { Request, Response} from 'express';
+import { AuthRequest } from '../../../../types/AuthenticatedRequest';
 
 export interface IStudentBookingController {
   bookSlot(req: Request, res: Response): Promise<void>;

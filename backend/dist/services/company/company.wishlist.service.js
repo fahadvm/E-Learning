@@ -35,9 +35,7 @@ let CompanyWishlistService = class CompanyWishlistService {
         return __awaiter(this, void 0, void 0, function* () {
             if (!companyId || !courseId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_INPUT, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            console.log('adding to wishlist is working');
             const wishlist = yield this._wishlistRepo.getWishlist(companyId);
-            console.log('wishlist', wishlist);
             if (wishlist === null || wishlist === void 0 ? void 0 : wishlist.courses.some(c => c._id.toString() === courseId))
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.WISHLIST_ALREADY_EXISTS, HttpStatuscodes_1.STATUS_CODES.CONFLICT);
             return ((yield this._wishlistRepo.addToWishlist(companyId, courseId)) ||

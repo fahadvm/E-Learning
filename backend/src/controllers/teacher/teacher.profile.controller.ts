@@ -39,7 +39,7 @@ export class TeacherProfileController implements ITeacherProfileController {
     const file = req.file;
     if (!file) throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
     if (!teacherId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
-    const teacher = await this._teacherservice.sendVerificationRequest(teacherId ,file)
+    const teacher = await this._teacherservice.sendVerificationRequest(teacherId ,file);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.TEACHER_DETAILS_FETCHED, true, teacher);
     
   }

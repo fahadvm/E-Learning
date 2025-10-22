@@ -6,7 +6,7 @@ const teacherProfileDto = (teacher) => ({
     name: teacher.name,
     email: teacher.email,
     role: teacher.role,
-    isVerified: teacher.isVerified,
+    verificationStatus: teacher.verificationStatus,
     isRejected: teacher.isRejected,
     isBlocked: teacher.isBlocked,
     googleUser: teacher.googleUser,

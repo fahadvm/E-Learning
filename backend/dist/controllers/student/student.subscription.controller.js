@@ -40,16 +40,13 @@ let StudentSubscriptionController = class StudentSubscriptionController {
         });
         this.createOrder = (req, res) => __awaiter(this, void 0, void 0, function* () {
             var _a;
-            console.log('creating subscription plan is working ');
             const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!studentId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
-            console.log(req.body);
             const { planId } = req.body;
             if (!planId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_ID, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const order = yield this._planService.createOrder(studentId, planId);
-            console.log('everything fine until here');
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.ORDER_CREATED, true, order);
         });
         this.verifyPayment = (req, res) => __awaiter(this, void 0, void 0, function* () {

@@ -59,11 +59,9 @@ let AdminCompanyService = class AdminCompanyService {
     }
     getEmployeeById(employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('from service', employeeId);
             const employee = yield this._employeeRepo.findById(employeeId);
             if (!employee)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMPLOYEE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
-            console.log('from service ressult', employee);
             return (0, Admin_company_Dto_1.adminCompanyEmployeeDto)(employee);
         });
     }

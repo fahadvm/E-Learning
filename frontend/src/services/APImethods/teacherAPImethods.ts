@@ -24,7 +24,7 @@ export const teacherProfileApi = {
     getProfile: () => get("/teacher/profile/"),
     createProfile: (data: any) => post("/teacher/profile/", data),
     editProfile: (data: any) => patch("/teacher/profile/", data),
-    sendVerificationRequest: (data:any) => post("/teacher/profile/verify",data),
+    sendVerificationRequest: (data: any) => post("/teacher/profile/verify", data),
 };
 
 export const teacherCourseApi = {
@@ -35,7 +35,7 @@ export const teacherCourseApi = {
 
     uploadCourseResource: (courseId: string, data: any) => post(`/teacher/courses/${courseId}/resources`, data),
     fetchCourseResources: (courseId: string) => get(`/teacher/courses/${courseId}/resources`),
-    deleteCourseResource: (resourceId:string) => del(`/teacher/courses/${resourceId}/resources`),
+    deleteCourseResource: (resourceId: string) => del(`/teacher/courses/${resourceId}/resources`),
 };
 
 export const teacherAvailabilityApi = {
@@ -46,28 +46,30 @@ export const teacherAvailabilityApi = {
 
 export const teacherCallRequestApi = {
     getslotsList: async () => get(`/teacher/call-request`),
-    getRequestHistory: async (params:{page: number, limit: number, status?: string}) => get(`/teacher/call-request/history`,params),
-    getPendingRequests: async (params:{page : number , limit :number}) => get(`/teacher/call-request/pending`,params),
+    getRequestHistory: async (params: { page: number, limit: number, status?: string }) => get(`/teacher/call-request/history`, params),
+    getPendingRequests: async (params: { page: number, limit: number }) => get(`/teacher/call-request/pending`, params),
     getConfirmedRequests: async () => get(`/teacher/call-request/confirmed`),
     getRequestDetails: async (bookingId: string) => get(`/teacher/call-request/${bookingId}`),
     approveRequests: async (bookingId: string) => patch(`/teacher/call-request/${bookingId}/approve`, { status: "approved" }),
     rejectRequests: async (bookingId: string, data: { status: string, reason: string }) => patch(`/teacher/call-request/${bookingId}/reject`, data),
-    tester: async (userId : string) => get(`/teacher/call-request/notifications/testing/${userId}`),
-    testerMark: async (data :{notificationId : string}) => post(`/teacher/call-request/notifications/testing/markread`,data),
+    cancelRequests: async (bookingId: string, data: { reason: string }) => patch(`/teacher/call-request/${bookingId}/cancel`, data),
+    tester: async (userId: string) => get(`/teacher/call-request/notifications/testing/${userId}`),
+    testerMark: async (data: { notificationId: string }) => post(`/teacher/call-request/notifications/testing/markread`, data),
 }
 
 
 export const teacherChatApi = {
-  getmessages: (chatId: string) => get(`/teacher/chat/messages/${chatId}`),
-  getChatInfo: (chatId: string) => get(`/teacher/chat/${chatId}`),
-  getuserchat: () => get(`/teacher/chat`),
+    getmessages: (chatId: string) => get(`/teacher/chat/messages/${chatId}`),
+    getChatInfo: (chatId: string) => get(`/teacher/chat/${chatId}`),
+    getuserchat: () => get(`/teacher/chat`),
+    createOrGetChat: (data: { studentId: string; teacherId: string }) => post('/teacher/chat/start', data),
 
 };
 
 
 export const teacherNotificationApi = {
-    getNotifications: (userId: string) =>{ console.log("userId in fetching of getnotifications") ,get(`/shared/notification/${userId}`)},
-    markAsRead: (userId: string) =>{ console.log("userId in fetching of getnotifications") ,get(`/shared/notification/${userId}`)},
+    getNotifications: (userId: string) => { console.log("userId in fetching of getnotifications"), get(`/shared/notification/${userId}`) },
+    markAsRead: (userId: string) => { console.log("userId in fetching of getnotifications"), get(`/shared/notification/${userId}`) },
 }
 
 

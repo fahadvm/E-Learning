@@ -36,11 +36,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrderModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const OrderSchema = new mongoose_1.Schema({
-    studentId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Student", required: true },
-    courses: [{ type: mongoose_1.Schema.Types.ObjectId, ref: "Course", required: true }],
+    studentId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Student', required: true },
+    courses: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Course', required: true }],
     razorpayOrderId: { type: String, required: true },
     amount: { type: Number, required: true },
     currency: { type: String, required: true },
-    status: { type: String, enum: ["created", "paid", "failed"], default: "created" },
+    status: { type: String, enum: ['created', 'paid', 'failed'], default: 'created' },
 }, { timestamps: true });
-exports.OrderModel = mongoose_1.default.model("Order", OrderSchema);
+exports.OrderModel = mongoose_1.default.model('Order', OrderSchema);

@@ -10,10 +10,10 @@ import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { TYPES } from '../../core/di/types';
-import { customAlphabet } from "nanoid";
+import { customAlphabet } from 'nanoid';
 
 
-  const nanoid = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8);
+  const nanoid = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 8);
 
 @injectable()
 export class CompanyAuthService implements ICompanyAuthService {
@@ -66,8 +66,8 @@ export class CompanyAuthService implements ICompanyAuthService {
 
     const newCompany = await this._companyRepository.create({
       email: tempData.email,
-      name: tempData.tempUserData?.name ?? "",
-      password: tempData.tempUserData?.password ?? "",
+      name: tempData.tempUserData?.name ?? '',
+      password: tempData.tempUserData?.password ?? '',
       companyCode, 
     });
 

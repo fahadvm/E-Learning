@@ -16,8 +16,17 @@ export class CompanyCourseService implements ICompanyCourseService {
     @inject(TYPES.CompanyOrderRepository) private readonly _companyOrderRepository: ICompanyOrderRepository
   ) { }
 
-  async getAllCourses(): Promise<ICourse[]> {
-    const courses = await this._courseRepository.findAllCourses();
+  async getAllCourses(filters: {
+    search?: string;
+    category?: string;
+    level?: string;
+    language?: string;
+    sort?: string;
+    order?: 'asc' | 'desc';
+    page?: number;
+    limit?: number;
+  }): Promise<{ data: ICourse[]; totalPages: number; totalCount: number }> {
+    const courses = await this._courseRepository.getFilteredCourses(filters);
     return courses;
   }
 
@@ -27,16 +36,18 @@ export class CompanyCourseService implements ICompanyCourseService {
     return course;
   }
 
+  
+
   async getMycoursesById(companyId: string): Promise<ICompanyOrder[] | null> {
     const orders = await this._companyOrderRepository.getOrdersByCompanyId(companyId);
     return orders;
   }
   async getMycourseDetailsById(companyId: string, courseId: string): Promise<ICourse | null> {
     if (!courseId || !companyId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
-    
+
     const orders = await this._companyOrderRepository.getOrdersByCompanyId(companyId);
     const purchasedCourseIds = orders.flatMap((order) => order.courses.map((c) => c.toString()));
-    
+
     if (!purchasedCourseIds.includes(courseId)) { throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND); }
 
     const course = await this._courseRepository.findById(courseId);

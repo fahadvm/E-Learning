@@ -116,6 +116,33 @@ let TeacherRepository = class TeacherRepository {
             return Teacher_1.Teacher.findByIdAndUpdate(teacherId, updates, { new: true }).lean();
         });
     }
+    updateVerificationStatus(id, status) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return Teacher_1.Teacher.findByIdAndUpdate(id, { verificationStatus: status }, { new: true });
+        });
+    }
+    isProfileComplete(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c;
+            const teacher = yield Teacher_1.Teacher.findById(id);
+            if (!teacher)
+                return false;
+            const requiredFields = [
+                teacher.about,
+                teacher.profilePicture,
+                teacher.location,
+                teacher.phone,
+                (_a = teacher.education) === null || _a === void 0 ? void 0 : _a.length,
+                (_b = teacher.experiences) === null || _b === void 0 ? void 0 : _b.length,
+                (_c = teacher.skills) === null || _c === void 0 ? void 0 : _c.length,
+            ];
+            console.log('required fields are', requiredFields);
+            return requiredFields.every((f) => f && f !== '' && f !== 0);
+        });
+    }
+    sendVerificationRequest(id, status, resumeUrl) {
+        return Teacher_1.Teacher.findByIdAndUpdate(id, { verificationStatus: status, resumeUrl }, { new: true });
+    }
 };
 exports.TeacherRepository = TeacherRepository;
 exports.TeacherRepository = TeacherRepository = __decorate([

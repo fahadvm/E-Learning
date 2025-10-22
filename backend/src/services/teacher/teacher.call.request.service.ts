@@ -1,12 +1,17 @@
-import { inject, injectable } from "inversify"
-import { IBooking } from "../../models/Booking"
-import { ITeacherCallRequestService } from "../../core/interfaces/services/teacher/ITeacherCallRequestService"
-import { IStudentBookingRepository } from "../../core/interfaces/repositories/IStudentBookingRepository"
-import { TYPES } from "../../core/di/types"
-import dayjs from "dayjs";
-import { ITeacherAvailabilityRepository } from "../../core/interfaces/repositories/ITeacherAvailabilityRepository"
-import { INotificationRepository } from "../../core/interfaces/repositories/INotificationRepository"
-import { IPaginationResponse } from "../../core/dtos/teacher/TeacherDTO"
+import { inject, injectable } from 'inversify';
+import { IBooking } from '../../models/Booking';
+import { ITeacherCallRequestService } from '../../core/interfaces/services/teacher/ITeacherCallRequestService';
+import { IStudentBookingRepository } from '../../core/interfaces/repositories/IStudentBookingRepository';
+import { TYPES } from '../../core/di/types';
+import dayjs from 'dayjs';
+import { ITeacherAvailabilityRepository } from '../../core/interfaces/repositories/ITeacherAvailabilityRepository';
+import { INotificationRepository } from '../../core/interfaces/repositories/INotificationRepository';
+import { IPaginationResponse } from '../../core/dtos/teacher/TeacherDTO';
+import { bookingDto, IBookingDTO } from '../../core/dtos/student/student.booking.dto';
+import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { throwError } from '../../utils/ResANDError';
+import { MESSAGES } from '../../utils/ResponseMessages';
+import { IBookingFilter, ITeacherSlot } from '../../types/filter/fiterTypes';
 
 
 @injectable()
@@ -22,29 +27,37 @@ export class TeacherCallRequestService implements ITeacherCallRequestService {
         totalPages: number
         currentPage: number
     }> {
-        return this._callRequestRepo.findPending(page, limit)
+        return this._callRequestRepo.findPending(page, limit);
+    }
+
+
+    async cancelBooking(bookingId: string, reason: string): Promise<IBookingDTO> {
+        if (!bookingId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
+        const cancelled = await this._callRequestRepo.updateBookingStatus(bookingId, 'cancelled', reason);
+         if (!cancelled) throwError(MESSAGES.BOOKING_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+        return bookingDto(cancelled);
     }
 
     async getConfirmedRequests(): Promise<IBooking[]> {
-        return this._callRequestRepo.findConfirmed()
+        return this._callRequestRepo.findConfirmed();
     }
 
     async getRequestDetails(bookingId: string): Promise<IBooking | null> {
-        return this._callRequestRepo.findById(bookingId)
+        return this._callRequestRepo.findById(bookingId);
     }
 
-    async getTeacherSlots(teacherId: string): Promise<any[] | null> {
+    async getTeacherSlots(teacherId: string): Promise<ITeacherSlot[] | null> {
         const availability = await this._availibilityRepo.getAvailabilityByTeacherId(teacherId);
         if (!availability) return [];
 
         const today = dayjs();
-        const next7Days = Array.from({ length: 7 }, (_, i) => today.add(i, "day"));
+        const next7Days = Array.from({ length: 7 }, (_, i) => today.add(i, 'day'));
 
-        const results: any[] = [];
+        const results: ITeacherSlot[] = [];
 
         for (const date of next7Days) {
-            const dayName = date.format("dddd");
-            const formattedDate = date.format("YYYY-MM-DD"); // <-- fix here
+            const dayName = date.format('dddd');
+            const formattedDate = date.format('YYYY-MM-DD'); // <-- fix here
 
             const matchingDay = availability.week.find(
                 (d) => d.day === dayName && d.enabled
@@ -57,14 +70,14 @@ export class TeacherCallRequestService implements ITeacherCallRequestService {
                     formattedDate,
                     slot
                 );
-
                 results.push({
+                    _id: booking?._id?.toString() ?? '',           
                     date: formattedDate,
                     day: dayName,
                     slot,
-                    status: booking ? booking.status : "available",
-                    student: booking ? booking.studentId : "",
-                    course: booking ? booking.courseId : "",
+                    status: booking ? booking.status : 'available',
+                    student: booking?.studentId?.toString(),     
+                    course: booking?.courseId?.toString(),
                 });
             }
         }
@@ -74,29 +87,29 @@ export class TeacherCallRequestService implements ITeacherCallRequestService {
 
 
     async approveRequest(bookingId: string): Promise<IBooking | null> {
-        const updated = await this._callRequestRepo.updateBookingStatus(bookingId, "approved")
+        const updated = await this._callRequestRepo.updateBookingStatus(bookingId, 'approved');
 
         if (!!updated) {
             await this._notificationRepo.createNotification(
                 updated.studentId?._id.toString(),
-                "Your Booking request approved!",
-                ` Teacher approved request you can pay now .`,
-                "booking",
-                "student"
+                'Your Booking request approved!',
+                ' Teacher approved request you can pay now .',
+                'booking',
+                'student'
             );
         }
-        return updated
+        return updated;
 
     }
 
     async rejectRequest(bookingId: string, reason: string): Promise<IBooking | null> {
-        return this._callRequestRepo.rejectBooking(bookingId, reason)
+        return this._callRequestRepo.rejectBooking(bookingId, reason);
     }
 
     async getHistory(teacherId: string, page: number, limit: number, status?: string): Promise<IPaginationResponse<IBooking>> {
         const skip = (page - 1) * limit;
 
-        const filter: any = { teacherId };
+        const filter: IBookingFilter = { teacherId };
         if (status) filter.status = status;
 
         const [records, total] = await Promise.all([

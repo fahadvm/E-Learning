@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { Admin } from '../models/Admin'; 
 import dotenv from 'dotenv';
+import logger from '../utils/logger';
 
 dotenv.config();
 
@@ -10,7 +11,7 @@ async function createAdmin() {
 
   const existing = await Admin.findOne({ email: 'admin@devnext.com' });
   if (existing) {
-    console.log('Admin already exists');
+    logger.error('Admin already exists');
     process.exit(0);
   }
 
@@ -23,7 +24,7 @@ async function createAdmin() {
   });
 
   await admin.save();
-  console.log('Admin created successfully');
+  logger.info('Admin created successfully');
   process.exit(0);
 }
 

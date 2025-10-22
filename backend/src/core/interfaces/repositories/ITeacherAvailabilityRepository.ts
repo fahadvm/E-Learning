@@ -1,5 +1,5 @@
 // core/interfaces/repositories/ITeacherAvailabilityRepository.ts
-import { ITeacherAvailability } from "../../../models/TeacherAvailability"
+import { ITeacherAvailability } from '../../../models/TeacherAvailability';
 
 export interface ITeacherAvailabilityRepository {
   saveAvailability(data: Partial<ITeacherAvailability>): Promise<ITeacherAvailability>

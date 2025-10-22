@@ -33,8 +33,11 @@ let CompanyWishlistController = class CompanyWishlistController {
     }
     add(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             const { courseId } = req.body;
-            const companyId = req.user.id;
+            const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!companyId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COMPANY_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const result = yield this._wishlistService.addCourse(companyId, courseId);
             if (result)
                 return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.WISHLIST_COURSE_ADDED, true, result);
@@ -42,16 +45,21 @@ let CompanyWishlistController = class CompanyWishlistController {
     }
     list(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const companyId = req.user.id;
+            var _a;
+            const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!companyId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COMPANY_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const result = yield this._wishlistService.listWishlist(companyId);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.WISHLIST_FETCHED, true, result);
         });
     }
     remove(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             const { courseId } = req.params;
-            console.log("course id  is ", courseId);
-            const companyId = req.user.id;
+            const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!companyId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COMPANY_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const result = yield this._wishlistService.removeCourse(companyId, courseId);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.WISHLIST_COURSE_REMOVED, true, result);
         });

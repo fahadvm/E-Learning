@@ -22,7 +22,7 @@ export interface IMessage extends Document {
 
 const reactionSchema = new Schema<IReaction>(
   {
-    userId: { type: Schema.Types.ObjectId, ref: "Student", required: true },
+    userId: { type: Schema.Types.ObjectId, ref: 'Student', required: true },
     reaction: { type: String, required: true },
   },
   { _id: false } 

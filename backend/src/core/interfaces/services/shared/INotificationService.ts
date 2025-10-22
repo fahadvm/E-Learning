@@ -1,4 +1,4 @@
-import { INotification } from "../../../../models/Notification";
+import { INotification } from '../../../../models/Notification';
 
 export interface INotificationService {
   getUserNotifications(userId: string): Promise<INotification[]>;

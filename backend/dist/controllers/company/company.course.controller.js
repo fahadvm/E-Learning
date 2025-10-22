@@ -33,7 +33,18 @@ let CompanyCourseController = class CompanyCourseController {
     }
     getAllCourses(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const courses = yield this._courseService.getAllCourses();
+            const { search, category, level, language, sort = 'createdAt', order = 'desc', page = '1', limit = '8', } = req.query;
+            const filters = {
+                search: search === null || search === void 0 ? void 0 : search.toString(),
+                category: category === null || category === void 0 ? void 0 : category.toString(),
+                level: level === null || level === void 0 ? void 0 : level.toString(),
+                language: language === null || language === void 0 ? void 0 : language.toString(),
+                sort: sort === null || sort === void 0 ? void 0 : sort.toString(),
+                order: (order === 'asc' ? 'asc' : 'desc'),
+                page: parseInt(page),
+                limit: parseInt(limit),
+            };
+            const courses = yield this._courseService.getAllCourses(filters);
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSES_FETCHED, true, courses);
         });
     }
@@ -50,7 +61,6 @@ let CompanyCourseController = class CompanyCourseController {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
-            console.log("get my couse controller is");
             if (!companyId) {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ALL_FIELDS_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             }

@@ -1,5 +1,5 @@
 
-import {  IComment } from "../../../models/Comment";
+import {  IComment } from '../../../models/Comment';
 
 export interface ICommentRepository{
    addComment(comment: IComment) :Promise<IComment>

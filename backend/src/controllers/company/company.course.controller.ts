@@ -15,7 +15,28 @@ export class CompanyCourseController implements ICompanyCourseController {
   ) { }
 
   async getAllCourses(req: Request, res: Response): Promise<void> {
-    const courses = await this._courseService.getAllCourses();
+    const {
+      search,
+      category,
+      level,
+      language,
+      sort = 'createdAt',
+      order = 'desc',
+      page = '1',
+      limit = '8',
+    } = req.query;
+    const filters = {
+      search: search?.toString(),
+      category: category?.toString(),
+      level: level?.toString(),
+      language: language?.toString(),
+      sort: sort?.toString(),
+      order: (order === 'asc' ? 'asc' : 'desc') as 'asc' | 'desc',
+      page: parseInt(page as string),
+      limit: parseInt(limit as string),
+    };
+
+    const courses = await this._courseService.getAllCourses(filters);
     sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, courses);
   }
 
@@ -28,18 +49,18 @@ export class CompanyCourseController implements ICompanyCourseController {
   }
 
   async getMyCourses(req: AuthRequest, res: Response): Promise<void> {
-    const companyId = req.user?.id
+    const companyId = req.user?.id;
     if (!companyId) { throwError(MESSAGES.ALL_FIELDS_REQUIRED, STATUS_CODES.BAD_REQUEST); }
-    const courses = await this._courseService.getMycoursesById(companyId)
+    const courses = await this._courseService.getMycoursesById(companyId);
     if (!courses) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, courses);
 
   }
   async getMyCourseDetails(req: AuthRequest, res: Response): Promise<void> {
-    const companyId = req.user?.id
-    const courseId = req.params.courseId
+    const companyId = req.user?.id;
+    const courseId = req.params.courseId;
     if (!companyId || !courseId) { throwError(MESSAGES.ALL_FIELDS_REQUIRED, STATUS_CODES.BAD_REQUEST); }
-    const courses = await this._courseService.getMycourseDetailsById(companyId ,courseId)
+    const courses = await this._courseService.getMycourseDetailsById(companyId, courseId);
     if (!courses) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, courses);
 

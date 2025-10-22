@@ -49,13 +49,13 @@ let AdminEmployeeService = class AdminEmployeeService {
     }
     blockEmployee(employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const employee = yield this._employeeRepo.blockEmployee(employeeId);
+            const employee = yield this._employeeRepo.blockEmployee(employeeId, true);
             return employee ? (0, Admin_employee_Dto_1.adminEmployeeDto)(employee) : null;
         });
     }
     unblockEmployee(employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const employee = yield this._employeeRepo.unblockEmployee(employeeId);
+            const employee = yield this._employeeRepo.blockEmployee(employeeId, false);
             return employee ? (0, Admin_employee_Dto_1.adminEmployeeDto)(employee) : null;
         });
     }

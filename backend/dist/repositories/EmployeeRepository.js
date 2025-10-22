@@ -19,30 +19,31 @@ exports.EmployeeRepository = void 0;
 const inversify_1 = require("inversify");
 const Employee_1 = require("../models/Employee");
 let EmployeeRepository = class EmployeeRepository {
-    create(student) {
+    create(employee) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield Employee_1.Employee.create(student);
+            return yield Employee_1.Employee.create(employee);
         });
     }
     findByEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield Employee_1.Employee.findOne({ email });
+            return yield Employee_1.Employee.findOne({ email }).lean().exec();
         });
     }
     updateByEmail(email, updateData) {
         return __awaiter(this, void 0, void 0, function* () {
-            return Employee_1.Employee.findOneAndUpdate({ email }, { $set: updateData }, { new: true }).lean().exec();
+            return yield Employee_1.Employee.findOneAndUpdate({ email }, { $set: updateData }, { new: true })
+                .lean()
+                .exec();
         });
     }
     findAll() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield Employee_1.Employee.find();
+            return yield Employee_1.Employee.find().lean().exec();
         });
     }
     findById(employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('employeeId from repository ', employeeId);
-            return yield Employee_1.Employee.findById(employeeId);
+            return yield Employee_1.Employee.findById(employeeId).lean().exec();
         });
     }
     findByCompanyId(companyId_1, skip_1, limit_1, search_1) {
@@ -51,15 +52,12 @@ let EmployeeRepository = class EmployeeRepository {
                 companyId,
                 $or: [
                     { name: { $regex: search, $options: 'i' } },
-                    { email: { $regex: search, $options: 'i' } },
+                    { email: { $regex: search, $options: 'i' } }
                 ]
             };
             const sort = {};
             sort[sortField] = sortOrder === 'asc' ? 1 : -1;
-            return yield Employee_1.Employee.find(query)
-                .sort(sort)
-                .skip(skip)
-                .limit(limit);
+            return yield Employee_1.Employee.find(query).sort(sort).skip(skip).limit(limit).lean().exec();
         });
     }
     getEmployeesByCompany(companyId, skip, limit, search) {
@@ -68,12 +66,10 @@ let EmployeeRepository = class EmployeeRepository {
                 companyId,
                 $or: [
                     { name: { $regex: search, $options: 'i' } },
-                    { email: { $regex: search, $options: 'i' } },
+                    { email: { $regex: search, $options: 'i' } }
                 ]
             };
-            return yield Employee_1.Employee.find(query)
-                .skip(skip)
-                .limit(limit);
+            return yield Employee_1.Employee.find(query).skip(skip).limit(limit).lean().exec();
         });
     }
     countEmployeesByCompany(companyId, search) {
@@ -82,25 +78,78 @@ let EmployeeRepository = class EmployeeRepository {
             if (search) {
                 query.$or = [
                     { name: { $regex: search, $options: 'i' } },
-                    { email: { $regex: search, $options: 'i' } },
+                    { email: { $regex: search, $options: 'i' } }
                 ];
             }
             return yield Employee_1.Employee.countDocuments(query);
         });
     }
-    updateEmployeeById(employeeId, data) {
+    updateById(employeeId, data) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield Employee_1.Employee.findByIdAndUpdate(employeeId, data, { new: true });
+            return yield Employee_1.Employee.findByIdAndUpdate(employeeId, data, { new: true }).lean().exec();
         });
     }
+    updateCancelRequestById(employeeId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield Employee_1.Employee.findByIdAndUpdate(employeeId, {
+                status: 'notRequest',
+                $unset: { requestedCompanyId: '' },
+            });
+        });
+    }
+    // async updateRemoveCompanyById(employeeId: string, data: Partial<IEmployee>): Promise<IEmployee | null> {
+    //     return await Employee.updateById(employeeId, {
+    //         status: "notRequest",
+    //         $unset: { requestedCompanyId: "" },
+    //     });
+    // }
     blockEmployee(employeeId, status) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield Employee_1.Employee.findByIdAndUpdate(employeeId, { isBlocked: status }, { new: true });
+            return yield Employee_1.Employee.findByIdAndUpdate(employeeId, { isBlocked: status }, { new: true })
+                .lean()
+                .exec();
         });
     }
     findByGoogleId(googleId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return Employee_1.Employee.findOne({ googleId }).lean().exec();
+            return yield Employee_1.Employee.findOne({ googleId }).lean().exec();
+        });
+    }
+    findCompanyByEmployeeId(employeeId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield Employee_1.Employee.findById(employeeId).populate('companyId').lean().exec();
+        });
+    }
+    findRequestedCompanyByEmployeeId(employeeId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield Employee_1.Employee.findById(employeeId).populate('requestedCompanyId').lean().exec();
+        });
+    }
+    findRequestedEmployees(companyId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('companyId:', companyId);
+            return yield Employee_1.Employee.find({
+                requestedCompanyId: companyId,
+                status: 'pending',
+            });
+        });
+    }
+    findEmployeeAndApprove(companyId, employeeId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('employee id from repository ', companyId, employeeId);
+            return yield Employee_1.Employee.findByIdAndUpdate(employeeId, {
+                status: 'approved',
+                companyId,
+                $unset: { requestedCompanyId: '' },
+            });
+        });
+    }
+    findEmployeeAndReject(employeeId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield Employee_1.Employee.findByIdAndUpdate(employeeId, {
+                status: 'notRequested',
+                $unset: { requestedCompanyId: '' },
+            });
         });
     }
 };

@@ -36,11 +36,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CompanyOrderModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const CompanyOrderSchema = new mongoose_1.Schema({
-    companyId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Student", required: true },
-    courses: [{ type: mongoose_1.Schema.Types.ObjectId, ref: "Course", required: true }],
+    companyId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Company', required: true },
+    courses: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Course', required: true }],
     stripeSessionId: { type: String, required: true },
     amount: { type: Number, required: true },
     currency: { type: String, required: true },
-    status: { type: String, enum: ["created", "paid", "failed"], default: "created" },
+    status: { type: String, enum: ['created', 'paid', 'failed'], default: 'created' },
 }, { timestamps: true });
-exports.CompanyOrderModel = mongoose_1.default.model("CompanyOrder", CompanyOrderSchema);
+exports.CompanyOrderModel = mongoose_1.default.model('CompanyOrder', CompanyOrderSchema);

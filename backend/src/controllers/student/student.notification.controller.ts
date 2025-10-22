@@ -1,12 +1,12 @@
-import { Response } from "express";
-import { inject, injectable } from "inversify";
-import { TYPES } from "../../core/di/types";
-import { IStudentNotificationService } from "../../core/interfaces/services/student/IStudentNotificationService";
-import { IStudentNotificationController } from "../../core/interfaces/controllers/student/IStudentNotificationController";
-import { AuthRequest } from "../../types/AuthenticatedRequest";
-import { sendResponse, throwError } from "../../utils/ResANDError";
-import { STATUS_CODES } from "../../utils/HttpStatuscodes";
-import { MESSAGES } from "../../utils/ResponseMessages";
+import { Response } from 'express';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '../../core/di/types';
+import { IStudentNotificationService } from '../../core/interfaces/services/student/IStudentNotificationService';
+import { IStudentNotificationController } from '../../core/interfaces/controllers/student/IStudentNotificationController';
+import { AuthRequest } from '../../types/AuthenticatedRequest';
+import { sendResponse, throwError } from '../../utils/ResANDError';
+import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { MESSAGES } from '../../utils/ResponseMessages';
 
 @injectable()
 export class StudentNotificationController implements IStudentNotificationController {

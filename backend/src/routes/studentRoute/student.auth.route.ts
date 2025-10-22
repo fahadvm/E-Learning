@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import container from '../../core/di/container';
 import { asyncHandler } from '../../middleware/asyncHandler';
-import { authMiddleware } from '../../middleware/authMiddleware';
 import { TYPES } from '../../core/di/types';
 import { StudentAuthController } from '../../controllers/student/student.auth.controller';
 

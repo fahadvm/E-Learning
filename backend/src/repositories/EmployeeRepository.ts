@@ -1,6 +1,6 @@
-import { injectable } from "inversify";
-import { IEmployeeRepository } from "../core/interfaces/repositories/IEmployeeRepository";
-import { IEmployee, Employee } from "../models/Employee";
+import { injectable } from 'inversify';
+import { IEmployeeRepository } from '../core/interfaces/repositories/IEmployeeRepository';
+import { IEmployee, Employee } from '../models/Employee';
 
 @injectable()
 export class EmployeeRepository implements IEmployeeRepository {
@@ -34,19 +34,19 @@ export class EmployeeRepository implements IEmployeeRepository {
         skip: number,
         limit: number,
         search: string,
-        sortField: string = "createdAt",
-        sortOrder: "asc" | "desc" = "desc"
+        sortField: string = 'createdAt',
+        sortOrder: 'asc' | 'desc' = 'desc'
     ): Promise<IEmployee[]> {
         const query: Record<string, unknown> = {
             companyId,
             $or: [
-                { name: { $regex: search, $options: "i" } },
-                { email: { $regex: search, $options: "i" } }
+                { name: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } }
             ]
         };
 
         const sort: Record<string, 1 | -1> = {};
-        sort[sortField] = sortOrder === "asc" ? 1 : -1;
+        sort[sortField] = sortOrder === 'asc' ? 1 : -1;
 
         return await Employee.find(query).sort(sort).skip(skip).limit(limit).lean().exec();
     }
@@ -60,8 +60,8 @@ export class EmployeeRepository implements IEmployeeRepository {
         const query: Record<string, unknown> = {
             companyId,
             $or: [
-                { name: { $regex: search, $options: "i" } },
-                { email: { $regex: search, $options: "i" } }
+                { name: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } }
             ]
         };
 
@@ -72,8 +72,8 @@ export class EmployeeRepository implements IEmployeeRepository {
         const query: Record<string, unknown> = { companyId };
         if (search) {
             query.$or = [
-                { name: { $regex: search, $options: "i" } },
-                { email: { $regex: search, $options: "i" } }
+                { name: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } }
             ];
         }
         return await Employee.countDocuments(query);
@@ -85,8 +85,8 @@ export class EmployeeRepository implements IEmployeeRepository {
 
     async updateCancelRequestById(employeeId: string): Promise<IEmployee | null> {
         return await Employee.findByIdAndUpdate(employeeId, {
-            status: "notRequest",
-            $unset: { requestedCompanyId: "" },
+            status: 'notRequest',
+            $unset: { requestedCompanyId: '' },
         });
     }
     // async updateRemoveCompanyById(employeeId: string, data: Partial<IEmployee>): Promise<IEmployee | null> {
@@ -107,36 +107,34 @@ export class EmployeeRepository implements IEmployeeRepository {
     }
 
     async findCompanyByEmployeeId(employeeId: string): Promise<IEmployee | null> {
-        return await Employee.findById(employeeId).populate("companyId").lean().exec();
+        return await Employee.findById(employeeId).populate('companyId').lean().exec();
     }
 
     async findRequestedCompanyByEmployeeId(employeeId: string): Promise<IEmployee | null> {
-        return await Employee.findById(employeeId).populate("requestedCompanyId").lean().exec();
+        return await Employee.findById(employeeId).populate('requestedCompanyId').lean().exec();
     }
 
     async findRequestedEmployees(companyId: string): Promise<IEmployee[]> {
-        console.log("companyId:", companyId)
         return await Employee.find({
 
             requestedCompanyId: companyId,
-            status: "pending",
+            status: 'pending',
         });
     }
 
     async findEmployeeAndApprove (companyId: string , employeeId :string): Promise<IEmployee | null> {
-        console.log("employee id from repository ",companyId ,employeeId)
          return await Employee.findByIdAndUpdate(employeeId, {
-            status: "approved",
+            status: 'approved',
             companyId,
-            $unset: { requestedCompanyId: "" },
+            $unset: { requestedCompanyId: '' },
         });
     }
 
     async findEmployeeAndReject ( employeeId :string): Promise<IEmployee | null> {
 
          return await Employee.findByIdAndUpdate(employeeId, {
-            status: "notRequested",
-            $unset: { requestedCompanyId: "" },
+            status: 'notRequested',
+            $unset: { requestedCompanyId: '' },
         });
     }
 

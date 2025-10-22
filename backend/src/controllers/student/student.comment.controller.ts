@@ -1,12 +1,12 @@
-import { Request, Response } from "express";
-import { injectable, inject } from "inversify";
-import { TYPES } from "../../core/di/types";
-import { AuthRequest } from "../../types/AuthenticatedRequest";
-import { StudentCommentService } from "../../services/student/student.comment.service";
-import { STATUS_CODES } from "../../utils/HttpStatuscodes";
-import { MESSAGES } from "../../utils/ResponseMessages";
-import { sendResponse } from "../../utils/ResANDError";
-import { Types } from "mongoose";
+import { Request, Response } from 'express';
+import { injectable, inject } from 'inversify';
+import { TYPES } from '../../core/di/types';
+import { AuthRequest } from '../../types/AuthenticatedRequest';
+import { StudentCommentService } from '../../services/student/student.comment.service';
+import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { MESSAGES } from '../../utils/ResponseMessages';
+import { sendResponse } from '../../utils/ResANDError';
+import { Types } from 'mongoose';
 
 @injectable()
 export class StudentCommentController {
@@ -14,8 +14,7 @@ export class StudentCommentController {
 
   addComment = async (req: AuthRequest, res: Response) => {
     const { content } = req.body;
-    console.log("content",req.body)
-    const {courseId} = req.params
+    const {courseId} = req.params;
     const userId = req.user?.id;
 
     const comment = await this._commentService.addComment({ courseId : new Types.ObjectId(courseId), userId:new Types.ObjectId(userId), content });

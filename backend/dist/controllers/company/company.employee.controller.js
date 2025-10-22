@@ -31,18 +31,6 @@ let CompanyEmployeeController = class CompanyEmployeeController {
     constructor(_employeeService) {
         this._employeeService = _employeeService;
     }
-    addEmployee(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { companyId, name, email, coursesAssigned, position } = req.body;
-            if (!companyId || !name || !email) {
-                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ALL_FIELDS_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            }
-            const employee = yield this._employeeService.addEmployee({
-                companyId, name, email, coursesAssigned, position,
-            });
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.CREATED, ResponseMessages_1.MESSAGES.EMPLOYEE_CREATED, true, employee);
-        });
-    }
     getAllEmployees(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
@@ -81,6 +69,36 @@ let CompanyEmployeeController = class CompanyEmployeeController {
             const { name, email, position } = req.body;
             const updatedEmployee = yield this._employeeService.updateEmployee(employeeId, { name, email, position });
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.EMPLOYEE_UPDATED, true, updatedEmployee);
+        });
+    }
+    getRequestedEmployees(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!companyId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            const employees = yield this._employeeService.requestedEmployees(companyId);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.REQUESTED_EMPLOYEES_FETCHED, true, employees);
+        });
+    }
+    approveEmployee(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            const employeeId = req.params.employeeId;
+            if (!companyId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            const employees = yield this._employeeService.approvingEmployee(companyId, employeeId);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.EMPLOYEE_REQUEST_APPROVED, true, employees);
+        });
+    }
+    rejectEmployee(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const employeeId = req.params.employeeId;
+            if (!employeeId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            const employees = yield this._employeeService.rejectingEmployee(employeeId);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.EMPLOYEE_REQUEST_REJECTED, true, employees);
         });
     }
 };

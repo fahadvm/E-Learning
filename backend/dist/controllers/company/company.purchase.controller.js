@@ -45,15 +45,12 @@ let CompanyPurchaseController = class CompanyPurchaseController {
     verifyPayment(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
-            console.log("controller in verifying", req.body);
             const { sessionId } = req.body;
             const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!sessionId || !companyId) {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.REQUIRED_FIELDS_MISSING, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             }
-            console.log("controller in verifying", sessionId, companyId);
             const result = yield this._purchaseService.verifyPayment(sessionId, companyId);
-            console.log("waiting for success");
             if (result.success) {
                 (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.PAYMENT_VERIFIED_SUCCESSFULLY, true, result);
             }

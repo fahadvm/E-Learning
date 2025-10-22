@@ -42,7 +42,6 @@ export class CompanyWishlistService implements ICompanyWishlistService {
       throwError(MESSAGES.INVALID_INPUT, STATUS_CODES.BAD_REQUEST);
 
 
-    console.log(companyId, courseId)
 
     const wishlist = await this._wishlistRepo.getWishlist(companyId);
     if (!wishlist) throwError(MESSAGES.NOT_FOUND, STATUS_CODES.NOT_FOUND);

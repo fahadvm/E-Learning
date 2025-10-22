@@ -1,4 +1,3 @@
-// src/services/admin/SubscriptionPlanService.ts
 import { inject, injectable } from 'inversify';
 import { IStudentSubscriptionService } from '../../core/interfaces/services/student/IStudentSubscriptionService';
 import { ISubscriptionPlanRepository } from '../../core/interfaces/repositories/ISubscriptionPlanRepository';
@@ -7,23 +6,33 @@ import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import { throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
+import { RazorpayOrderResponse, RazorpayVerifyPayload } from '../../types/filter/fiterTypes';
+import { ISubscriptionPlan } from '../../models/subscriptionPlan';
+import { IStudentSubscription } from '../../models/StudentSubscription';
 
 @injectable()
 export class StudentSubscriptionService implements IStudentSubscriptionService {
-    constructor(
-        @inject(TYPES.SubscriptionPlanRepository)
-        private _planRepo: ISubscriptionPlanRepository
-    ) {}
+  constructor(
+    @inject(TYPES.SubscriptionPlanRepository)
+    private _planRepo: ISubscriptionPlanRepository
+  ) { }
 
-    getAllForStudent() {
-        return this._planRepo.findAllForStudents();
-    }
-    getAllPlans() {
-        return this._planRepo.findAllForStudents();
-    }
-    async createOrder(studentId: string, planId: string) {
+  async getAllForStudent(): Promise<ISubscriptionPlan[]> {
+    return this._planRepo.findAllForStudents();
+  }
+
+  async getAllPlans(): Promise<ISubscriptionPlan[]> {
+    return this._planRepo.findAllForStudents();
+  }
+
+  async createOrder(studentId: string, planId: string): Promise<RazorpayOrderResponse> {
     const plan = await this._planRepo.findPlanById(planId);
     if (!plan) throwError(MESSAGES.SUBSCRIPTION_PLAN_NOT_FOUND);
+
+
+    if (typeof plan.price !== 'number' || plan.price <= 0) {
+      throwError(MESSAGES.INVALID_DATA);
+    }
 
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID!,
@@ -40,25 +49,40 @@ export class StudentSubscriptionService implements IStudentSubscriptionService {
     return order;
   }
 
-  async verifyPayment(studentId: string, payload: any) {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, planId } = payload;
+  async verifyPayment(studentId: string, payload: RazorpayVerifyPayload): Promise<void> {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = payload;
 
     const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!);
-    hmac.update(razorpay_order_id + '|' + razorpay_payment_id);
-    if (hmac.digest('hex') !== razorpay_signature) throwError(MESSAGES.PAYMENT_VERIFICATION_FAILED)
+    hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+    const digest = hmac.digest('hex');
 
-    return this._planRepo.updatePaymentStatus(razorpay_order_id, 'active', razorpay_payment_id);
+    if (digest !== razorpay_signature) {
+      throwError(MESSAGES.PAYMENT_VERIFICATION_FAILED);
+    }
+
+    await this._planRepo.updatePaymentStatus(
+      razorpay_order_id,
+      'active',
+      razorpay_payment_id
+    );
   }
 
-  async activateFreePlan(studentId: string, planId: string) {
+  async activateFreePlan(studentId: string, planId: string): Promise<void> {
     const plan = await this._planRepo.findPlanById(planId);
-    if (!plan || plan.price > 0) throwError(MESSAGES.INVALID_DATA)
+    if (!plan) throwError(MESSAGES.INVALID_DATA);
+    if (typeof plan.price === 'number' && plan.price > 0) {
+      throwError(MESSAGES.INVALID_DATA);
+    }
 
-    return this._planRepo.saveStudentSubscription(studentId, planId, `free_${Date.now()}`, 'free');
+    await this._planRepo.saveStudentSubscription(
+      studentId,
+      planId,
+      `free_${Date.now()}`,
+      'free'
+    );
   }
 
-  async getActiveSubscription(studentId: string) {
+  async getActiveSubscription(studentId: string): Promise<IStudentSubscription | null> {
     return this._planRepo.findActiveSubscription(studentId);
   }
-
 }

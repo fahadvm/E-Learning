@@ -1,12 +1,16 @@
 import { IOtpRepository } from '../core/interfaces/repositories/admin/IOtpRepository';
 import { Otp, IOtp } from '../models/Otp';
+import { OtpPurpose, OtpQuery } from '../types/filter/fiterTypes';
+
+
+
 
 export class OtpRepository implements IOtpRepository {
   async create(data: {
     email: string;
     otp: string;
     expiresAt: Date;
-    purpose?: 'signup' | 'forgot-password';
+    purpose?: OtpPurpose;
     tempUserData?: {
       name: string;
       password: string;
@@ -15,9 +19,9 @@ export class OtpRepository implements IOtpRepository {
     await Otp.create(data);
   }
 
-  async findByEmail(email: string, purpose?: 'signup' | 'forgot-password'): Promise<IOtp | null> {
+  async findByEmail(email: string, purpose?: OtpPurpose): Promise<IOtp | null> {
     const now = new Date();
-    const query: any = {
+    const query: OtpQuery = {
       email,
       expiresAt: { $gt: now },
     };
@@ -26,8 +30,8 @@ export class OtpRepository implements IOtpRepository {
     return await Otp.findOne(query).lean();
   }
 
-  async deleteByEmail(email: string, purpose?: 'signup' | 'forgot-password'): Promise<void> {
-    const query: any = { email };
+  async deleteByEmail(email: string, purpose?: OtpPurpose): Promise<void> {
+    const query: OtpQuery = { email };
     if (purpose) query.purpose = purpose;
 
     await Otp.deleteOne(query);
@@ -37,13 +41,13 @@ export class OtpRepository implements IOtpRepository {
     email: string,
     otp: string,
     expiresAt: Date,
-    purpose?: 'signup' | 'forgot-password',
+    purpose?: OtpPurpose,
     tempUserData?: {
       name: string;
       password: string;
     }
   ): Promise<void> {
-    const query: any = { email };
+    const query: OtpQuery = { email };
     if (purpose) query.purpose = purpose;
 
     await Otp.updateOne(query, {

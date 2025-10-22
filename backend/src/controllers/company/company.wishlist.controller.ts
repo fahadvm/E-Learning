@@ -1,11 +1,12 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../core/di/types';
 import { ICompanyWishlistService } from '../../core/interfaces/services/company/ICompanyWishlistService';
 import { ICompanyWishlistController } from '../../core/interfaces/controllers/company/ICompanyWishlistController';
-import { sendResponse } from '../../utils/ResANDError';
+import { sendResponse, throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { AuthRequest } from '../../types/AuthenticatedRequest';
 
 @injectable()
 export class CompanyWishlistController implements ICompanyWishlistController {
@@ -14,10 +15,11 @@ export class CompanyWishlistController implements ICompanyWishlistController {
         private _wishlistService: ICompanyWishlistService
     ) { }
 
-    async add(req: Request, res: Response) {
+    async add(req: AuthRequest , res: Response) {
 
         const { courseId } = req.body;
-        const companyId = (req as any).user.id;
+        const companyId = req.user?.id;
+        if(!companyId) throwError(MESSAGES.COMPANY_NOT_FOUND , STATUS_CODES.UNAUTHORIZED);
         const result = await this._wishlistService.addCourse(companyId, courseId);
         if(result)
         return sendResponse(
@@ -30,9 +32,10 @@ export class CompanyWishlistController implements ICompanyWishlistController {
 
     }
 
-    async list(req: Request, res: Response) {
+    async list(req: AuthRequest, res: Response) {
 
-        const companyId = (req as any).user.id;
+        const companyId = req.user?.id;
+        if(!companyId) throwError(MESSAGES.COMPANY_NOT_FOUND , STATUS_CODES.UNAUTHORIZED);
         const result = await this._wishlistService.listWishlist(companyId);
 
         return sendResponse(
@@ -45,9 +48,10 @@ export class CompanyWishlistController implements ICompanyWishlistController {
 
     }
 
-    async remove(req: Request, res: Response) {
+    async remove(req: AuthRequest, res: Response) {
         const { courseId } = req.params;
-        const companyId = (req as any).user.id;
+          const companyId = req.user?.id;
+        if(!companyId) throwError(MESSAGES.COMPANY_NOT_FOUND , STATUS_CODES.UNAUTHORIZED);
         const result = await this._wishlistService.removeCourse(companyId, courseId);
         return sendResponse(
             res,

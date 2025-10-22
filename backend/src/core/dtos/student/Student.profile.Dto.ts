@@ -1,5 +1,4 @@
-import { IStudent } from '../../../models/Student';
-import { Types } from 'mongoose';
+import { ICourseProgress, IStudent } from '../../../models/Student';
 
 // Define course progress interface
 export interface ICourseProgressDTO {
@@ -43,10 +42,10 @@ export const studentProfileDto = (student: IStudent): IStudentProfileDTO => ({
   googleUser: student.googleUser,
   social_links: student.social_links,
   coursesProgress: student.coursesProgress
-    ? student.coursesProgress.map((progress: any) => ({
+    ? student.coursesProgress.map((progress: ICourseProgress) => ({
         courseId: progress.courseId?.toString(),
-        completedLessons: progress.completedLessons?.map((l: any) => l.toString()) || [],
-        completedModules: progress.completedModules?.map((m: any) => m.toString()) || [],
+        completedLessons: progress.completedLessons?.map((l: string) => l.toString()) || [],
+        completedModules: progress.completedModules?.map((m: string) => m.toString()) || [],
         percentage: progress.percentage || 0,
         lastVisitedLesson: progress.lastVisitedLesson?.toString(),
       }))

@@ -1,5 +1,5 @@
-import { IMessage } from "../../../../models/message";
-import { IChat } from "../../../../models/chat";
+import { IMessage } from '../../../../models/message';
+import { IChat } from '../../../../models/chat';
 
 export interface IChatService {
   sendMessage(senderId: string, receiverId: string, content: string ,  chatId :string): Promise<IMessage>;

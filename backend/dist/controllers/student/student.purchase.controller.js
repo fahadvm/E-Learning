@@ -43,7 +43,6 @@ let StudentPurchaseController = class StudentPurchaseController {
         });
         this.verifyPayment = (req, res) => __awaiter(this, void 0, void 0, function* () {
             var _a;
-            console.log("verifying controller ", req.body);
             const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!studentId) {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
@@ -55,7 +54,6 @@ let StudentPurchaseController = class StudentPurchaseController {
         });
         this.getMyCourses = (req, res) => __awaiter(this, void 0, void 0, function* () {
             var _a;
-            console.log("trying to geting my courses ");
             const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!studentId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
@@ -63,13 +61,12 @@ let StudentPurchaseController = class StudentPurchaseController {
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSES_FETCHED, true, courses);
         });
         this.getMyCourseDetails = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            console.log("your details page is working");
-            console.log("if it does nt  work nothing done until here");
+            var _a;
+            const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             const courseId = req.params.courseId;
-            if (!courseId)
+            if (!courseId || !studentId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
-            const course = yield this._PurchaseService.getPurchasedCourseDetails(courseId);
-            console.log("everything fine getting details ", course);
+            const course = yield this._PurchaseService.getPurchasedCourseDetails(courseId, studentId);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSES_FETCHED, true, course);
         });
     }

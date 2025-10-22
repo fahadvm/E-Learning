@@ -8,6 +8,7 @@ import { sendResponse, throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { IEmployeeAuthController } from '../../core/interfaces/controllers/employee/IEmployeeAuthController';
+import logger from '../../utils/logger';
 
 
 @injectable()
@@ -39,13 +40,13 @@ export class EmployeeAuthController implements IEmployeeAuthController {
 
   logout = async (_req: Request, res: Response) => {
     clearTokens(res);
-    console.log('logout successfull ');
+     logger.info('logout successfull ');
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.LOGOUT_SUCCESS, true);
   };
 
   googleAuth = async (req: Request, res: Response) => {
     const {  tokenId  } = req.body;
-    console.log('tokenId',tokenId);
+     logger.log('tokenId',tokenId);
     if (!tokenId) throwError(MESSAGES.GOOGLE_AUTH_REQUIRED, STATUS_CODES.BAD_REQUEST);
     const result = await this._employeeAuthService.googleAuth(tokenId);
     setTokensInCookies(res, result.token, result.refreshToken);

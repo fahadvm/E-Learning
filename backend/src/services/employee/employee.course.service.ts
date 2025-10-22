@@ -1,14 +1,14 @@
-import { inject, injectable } from "inversify";
-import { TYPES } from "../../core/di/types";
-import { IEmployeeRepository } from "../../core/interfaces/repositories/IEmployeeRepository";
-import { IEmployeeCourseService } from "../../core/interfaces/services/employee/IEmployeeCourseService";
-import { ICompanyOrderRepository } from "../../core/interfaces/repositories/ICompanyOrderRepository";
-import { ICourseRepository } from "../../core/interfaces/repositories/ICourseRepository";
-import { ICompanyOrder } from "../../models/CompanyOrder";
-import { ICourse } from "../../models/Course";
-import { throwError } from "../../utils/ResANDError";
-import { STATUS_CODES } from "../../utils/HttpStatuscodes";
-import { MESSAGES } from "../../utils/ResponseMessages";
+import { inject, injectable } from 'inversify';
+import { TYPES } from '../../core/di/types';
+import { IEmployeeRepository } from '../../core/interfaces/repositories/IEmployeeRepository';
+import { IEmployeeCourseService } from '../../core/interfaces/services/employee/IEmployeeCourseService';
+import { ICompanyOrderRepository } from '../../core/interfaces/repositories/ICompanyOrderRepository';
+import { ICourseRepository } from '../../core/interfaces/repositories/ICourseRepository';
+import { ICompanyOrder } from '../../models/CompanyOrder';
+import { ICourse } from '../../models/Course';
+import { throwError } from '../../utils/ResANDError';
+import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { MESSAGES } from '../../utils/ResponseMessages';
 
 @injectable()
 export class EmployeeCourseService implements IEmployeeCourseService {

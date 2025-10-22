@@ -31,8 +31,6 @@ const ResANDError_1 = require("../../utils/ResANDError");
 const JWTtoken_1 = require("../../utils/JWTtoken");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const OtpServices_1 = require("../../utils/OtpServices");
-// import { GooglePayLoad } from "../../types/userTypes";
-// import { verifyGoogleIdToken } from "../../utils/googleVerify";
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const types_1 = require("../../core/di/types");
 let TeacherAuthService = class TeacherAuthService {
@@ -81,12 +79,12 @@ let TeacherAuthService = class TeacherAuthService {
             if (!record.tempUserData)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.TEMP_USER_DATA_MISSING, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const { name, password } = record.tempUserData;
-            const teacher = yield this._teacherRepo.create({ name, email, password, isVerified: true, isBlocked: false });
+            const teacher = yield this._teacherRepo.create({ name, email, password, isBlocked: false });
             yield this._otpRepository.deleteByEmail(email);
             const teacherId = teacher === null || teacher === void 0 ? void 0 : teacher._id.toString();
-            const token = (0, JWTtoken_1.generateAccessToken)(teacherId, 'Teacher');
-            const refreshToken = (0, JWTtoken_1.generateRefreshToken)(teacherId, 'Teacher');
-            return { token, refreshToken, user: { id: teacherId, role: 'Teacher', email: teacher.email, name: teacher.name } };
+            const token = (0, JWTtoken_1.generateAccessToken)(teacherId, 'teacher');
+            const refreshToken = (0, JWTtoken_1.generateRefreshToken)(teacherId, 'teacher');
+            return { token, refreshToken, user: { id: teacherId, role: 'teacher', email: teacher.email, name: teacher.name } };
         });
     }
     login(email, password) {
@@ -96,14 +94,12 @@ let TeacherAuthService = class TeacherAuthService {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_CREDENTIALS, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             if (teacher.password && !(yield bcryptjs_1.default.compare(password, teacher.password)))
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_CREDENTIALS, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            if (!teacher.isVerified)
-                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.TEACHER_NOT_VERIFIED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             if (teacher.isBlocked)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ACCOUNT_BLOCKED, HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
             const teacherId = teacher === null || teacher === void 0 ? void 0 : teacher._id.toString();
-            const token = (0, JWTtoken_1.generateAccessToken)(teacherId, 'Teacher');
-            const refreshToken = (0, JWTtoken_1.generateRefreshToken)(teacherId, 'Teacher');
-            return { token, refreshToken, user: { id: teacherId, role: 'Teacher', email: teacher.email, name: teacher.name } };
+            const token = (0, JWTtoken_1.generateAccessToken)(teacherId, 'teacher');
+            const refreshToken = (0, JWTtoken_1.generateRefreshToken)(teacherId, 'teacher');
+            return { token, refreshToken, user: { id: teacherId, role: 'teacher', email: teacher.email, name: teacher.name } };
         });
     }
     // async googleAuth(profile: GooglePayLoad) {
@@ -112,11 +108,11 @@ let TeacherAuthService = class TeacherAuthService {
     //   if (!user) {
     //     user = await this._teacherRepo.create({
     //       name: profile.username, email: profile.email, googleId: profile.googleId, profilePicture: profile.image,
-    //       role: "Teacher", googleUser: true, isVerified: true
+    //       role: "teacher", googleUser: true, isVerified: true
     //     });
     //   } else if (!user.googleUser) {
     //     user = await this._teacherRepo.updateById(user.id, {
-    //       name: profile.username, email: profile.email, googleId: profile.googleId, role: "Teacher", googleUser: true, isVerified: true
+    //       name: profile.username, email: profile.email, googleId: profile.googleId, role: "teacher", googleUser: true, isVerified: true
     //     });
     //   }
     //   if (user.isBlocked) throwError(MESSAGES.ACCOUNT_BLOCKED, STATUS_CODES.FORBIDDEN);

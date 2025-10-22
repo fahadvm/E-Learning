@@ -1,11 +1,12 @@
-import { Request, Response } from 'express';
+import {  Response } from 'express';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../core/di/types';
 import { IStudentWishlistService } from '../../core/interfaces/services/student/IStudentWishlistService';
 import { IStudentWishlistController } from '../../core/interfaces/controllers/student/IStudentWishlistController';
-import { sendResponse } from '../../utils/ResANDError';
+import { sendResponse, throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { AuthRequest } from '../../types/AuthenticatedRequest';
 
 @injectable()
 export class StudentWishlistController implements IStudentWishlistController {
@@ -14,25 +15,27 @@ export class StudentWishlistController implements IStudentWishlistController {
         private _wishlistService: IStudentWishlistService
     ) { }
 
-    async add(req: Request, res: Response) {
+    async add(req: AuthRequest, res: Response) {
 
         const { courseId } = req.body;
-        const studentId = (req as any).user.id;
+        const studentId = req.user?.id;
+        if (!studentId) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.UNAUTHORIZED);
         const result = await this._wishlistService.addCourse(studentId, courseId);
-        if(result)
-        return sendResponse(
-            res,
-            STATUS_CODES.OK,
-            MESSAGES.WISHLIST_COURSE_ADDED,
-            true,
-            result
-        );
+        if (result)
+            return sendResponse(
+                res,
+                STATUS_CODES.OK,
+                MESSAGES.WISHLIST_COURSE_ADDED,
+                true,
+                result
+            );
 
     }
 
-    async list(req: Request, res: Response) {
+    async list(req: AuthRequest, res: Response) {
 
-        const studentId = (req as any).user.id;
+        const studentId = req.user?.id;
+        if (!studentId) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.UNAUTHORIZED);
         const result = await this._wishlistService.listWishlist(studentId);
 
         return sendResponse(
@@ -45,10 +48,11 @@ export class StudentWishlistController implements IStudentWishlistController {
 
     }
 
-    async remove(req: Request, res: Response) {
+    async remove(req: AuthRequest, res: Response) {
 
         const { courseId } = req.params;
-        const studentId = (req as any).user.id;
+        const studentId = req.user?.id;
+        if (!studentId) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.UNAUTHORIZED);
         const result = await this._wishlistService.removeCourse(studentId, courseId);
 
         return sendResponse(

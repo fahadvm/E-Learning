@@ -1,12 +1,12 @@
 // src/controllers/teacher.notification.controller.ts
-import { Request, Response } from "express";
-import { injectable, inject } from "inversify";
-import { TYPES } from "../../core/di/types";
-import { INotificationService } from "../../core/interfaces/services/shared/INotificationService";
-import { sendResponse, throwError } from "../../utils/ResANDError";
-import { MESSAGES } from "../../utils/ResponseMessages";
-import { STATUS_CODES } from "../../utils/HttpStatuscodes";
-import { INotificationController } from "../../core/interfaces/controllers/shared/INotificationService";
+import { Request, Response } from 'express';
+import { injectable, inject } from 'inversify';
+import { TYPES } from '../../core/di/types';
+import { INotificationService } from '../../core/interfaces/services/shared/INotificationService';
+import { sendResponse, throwError } from '../../utils/ResANDError';
+import { MESSAGES } from '../../utils/ResponseMessages';
+import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { INotificationController } from '../../core/interfaces/controllers/shared/INotificationService';
 
 @injectable()
 export class NotificationController implements INotificationController {

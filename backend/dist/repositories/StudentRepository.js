@@ -16,9 +16,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StudentRepository = void 0;
-// repositories/student/StudentRepository.ts
 const inversify_1 = require("inversify");
+const mongoose_1 = require("mongoose");
+const Course_1 = require("../models/Course");
 const Student_1 = require("../models/Student");
+const HttpStatuscodes_1 = require("../utils/HttpStatuscodes");
+const ResponseMessages_1 = require("../utils/ResponseMessages");
+const ResANDError_1 = require("../utils/ResANDError");
 let StudentRepository = class StudentRepository {
     create(student) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -37,14 +41,8 @@ let StudentRepository = class StudentRepository {
     }
     findAll(skip, limit, search) {
         return __awaiter(this, void 0, void 0, function* () {
-            const filter = search
-                ? { name: { $regex: search, $options: 'i' } }
-                : {};
-            return Student_1.Student.find(filter)
-                .skip(skip)
-                .limit(limit)
-                .lean()
-                .exec();
+            const filter = search ? { name: { $regex: search, $options: 'i' } } : {};
+            return Student_1.Student.find(filter).skip(skip).limit(limit).lean().exec();
         });
     }
     findOne(filter) {
@@ -60,9 +58,8 @@ let StudentRepository = class StudentRepository {
     update(id, data) {
         return __awaiter(this, void 0, void 0, function* () {
             const updated = yield Student_1.Student.findByIdAndUpdate(id, { $set: data }, { new: true }).lean().exec();
-            if (!updated) {
+            if (!updated)
                 throw new Error('Student not found for update.');
-            }
             return updated;
         });
     }
@@ -78,10 +75,74 @@ let StudentRepository = class StudentRepository {
     }
     count(search) {
         return __awaiter(this, void 0, void 0, function* () {
-            const filter = search
-                ? { name: { $regex: search, $options: 'i' } }
-                : {};
+            const filter = search ? { name: { $regex: search, $options: 'i' } } : {};
             return Student_1.Student.countDocuments(filter).exec();
+        });
+    }
+    updateStudentProgress(studentId, courseId, lessonId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!mongoose_1.Types.ObjectId.isValid(studentId) || !mongoose_1.Types.ObjectId.isValid(courseId) || !mongoose_1.Types.ObjectId.isValid(lessonId))
+                throw new Error('Invalid ID');
+            const student = yield Student_1.Student.findById(studentId);
+            if (!student)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STUDENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            const course = yield Course_1.Course.findById(courseId);
+            if (!course)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            let progress = student.coursesProgress.find(p => p.courseId.toString() === courseId);
+            if (!progress) {
+                progress = { courseId: new mongoose_1.Types.ObjectId(courseId), completedLessons: [], completedModules: [], percentage: 0, lastVisitedLesson: undefined, notes: '' };
+                student.coursesProgress.push(progress);
+            }
+            if (!progress.completedLessons.includes(lessonId))
+                progress.completedLessons.push(lessonId);
+            progress.lastVisitedLesson = lessonId;
+            const totalLessons = course.modules.reduce((sum, mod) => sum + mod.lessons.length, 0);
+            const completedLessons = progress.completedLessons.length;
+            progress.percentage = Math.min((completedLessons / totalLessons) * 100, 100);
+            const completedModuleIds = [];
+            for (const module of course.modules) {
+                const moduleLessons = module.lessons.map(l => l._id.toString());
+                if (moduleLessons.every(id => progress.completedLessons.includes(id))) {
+                    const moduleId = module._id.toString();
+                    if (!progress.completedModules.includes(moduleId))
+                        completedModuleIds.push(moduleId);
+                }
+            }
+            progress.completedModules = completedModuleIds;
+            yield student.save({ validateBeforeSave: true });
+            return progress;
+        });
+    }
+    getOrCreateCourseProgress(studentId, courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const student = yield Student_1.Student.findById(studentId);
+            if (!student)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STUDENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            let progress = student.coursesProgress.find(p => p.courseId.toString() === courseId);
+            if (!progress) {
+                progress = { courseId: new mongoose_1.Types.ObjectId(courseId), completedLessons: [], completedModules: [], percentage: 0, lastVisitedLesson: undefined, notes: '' };
+                student.coursesProgress.push(progress);
+                yield student.save();
+            }
+            return progress;
+        });
+    }
+    saveNotes(studentId, courseId, notes) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const student = yield Student_1.Student.findById(studentId);
+            if (!student)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STUDENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            let courseProgress = student.coursesProgress.find(p => p.courseId.toString() === courseId);
+            if (!courseProgress) {
+                courseProgress = { courseId: new mongoose_1.Types.ObjectId(courseId), completedLessons: [], completedModules: [], percentage: 0, lastVisitedLesson: undefined, notes: notes };
+                student.coursesProgress.push(courseProgress);
+            }
+            else {
+                courseProgress.notes = notes;
+            }
+            yield student.save();
+            return courseProgress;
         });
     }
 };

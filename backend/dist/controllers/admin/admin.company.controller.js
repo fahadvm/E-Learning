@@ -71,9 +71,7 @@ let AdminCompanyController = class AdminCompanyController {
     getEmployeeById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { employeeId } = req.params;
-            console.log('here request reached with :', employeeId);
             const employee = yield this._companyService.getEmployeeById(employeeId);
-            console.log('came back to controller ', employee);
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.EMPLOYEE_DETAILS_FETCHED, true, employee);
         });
     }

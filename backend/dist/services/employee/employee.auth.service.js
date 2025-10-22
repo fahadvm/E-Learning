@@ -25,7 +25,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EmployeeAuthService = void 0;
-// src/services/employee/EmployeeAuthService.ts
 const inversify_1 = require("inversify");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const ResANDError_1 = require("../../utils/ResANDError");
@@ -84,11 +83,21 @@ let EmployeeAuthService = class EmployeeAuthService {
             if (!record.tempUserData)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.TEMP_USER_DATA_MISSING, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const { name, password } = record.tempUserData;
-            const employee = yield this._employeeRepo.create({ name, email, password, isVerified: true, isBlocked: false });
+            const employee = yield this._employeeRepo.create({
+                name,
+                email,
+                password,
+                isVerified: true,
+                isBlocked: false
+            });
             yield this._otpRepo.deleteByEmail(email);
             const token = (0, JWTtoken_1.generateAccessToken)(employee._id.toString(), 'employee');
             const refreshToken = (0, JWTtoken_1.generateRefreshToken)(employee._id.toString(), 'employee');
-            return { token, refreshToken, user: { id: employee._id.toString(), role: 'employee', email: employee.email, name: employee.name } };
+            return {
+                token,
+                refreshToken,
+                user: { id: employee._id.toString(), role: 'employee', email: employee.email, name: employee.name }
+            };
         });
     }
     login(email, password) {
@@ -105,23 +114,22 @@ let EmployeeAuthService = class EmployeeAuthService {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ACCOUNT_BLOCKED, HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
             const token = (0, JWTtoken_1.generateAccessToken)(employee._id.toString(), 'employee');
             const refreshToken = (0, JWTtoken_1.generateRefreshToken)(employee._id.toString(), 'employee');
-            return { token, refreshToken, user: { id: employee._id.toString(), role: 'employee', email: employee.email, name: employee.name } };
+            return {
+                token,
+                refreshToken,
+                user: { id: employee._id.toString(), role: 'employee', email: employee.email, name: employee.name }
+            };
         });
     }
     googleAuth(idToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            const ticket = yield this._googleClient.verifyIdToken({
-                idToken,
-                audience: GOOGLE_CLIENT_ID,
-            });
+            const ticket = yield this._googleClient.verifyIdToken({ idToken, audience: GOOGLE_CLIENT_ID });
             const payload = ticket.getPayload();
             if (!payload)
-                throw new Error('Invalid Google token payload');
-            console.log('Expected Audience:', GOOGLE_CLIENT_ID);
-            console.log('Actual Audience from token:', payload.aud);
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.GOOGLE_TOKEN_INVALID, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const { sub: googleId, email, name } = payload;
             if (!googleId || !email)
-                throw new Error('Google token missing required fields');
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.GOOGLE_TOKEN_MISSING_FIELDS, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             let user = yield this._employeeRepo.findByGoogleId(googleId);
             if (!user)
                 user = yield this._employeeRepo.findByEmail(email);
@@ -132,21 +140,18 @@ let EmployeeAuthService = class EmployeeAuthService {
                     name,
                     isVerified: true,
                     isBlocked: false,
-                    role: 'employee',
+                    role: 'employee'
                 });
             }
             else if (!user.googleId) {
-                throw new Error('User is not linked to Google');
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.USER_NOT_LINKED_GOOGLE, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             }
             const token = (0, JWTtoken_1.generateAccessToken)(user._id.toString(), user.role);
             const refreshToken = (0, JWTtoken_1.generateRefreshToken)(user._id.toString(), user.role);
             return {
-                token, // matches interface
+                token,
                 refreshToken,
-                user: {
-                    id: user._id.toString(),
-                    role: 'employee',
-                },
+                user: { id: user._id.toString(), role: 'employee' }
             };
         });
     }

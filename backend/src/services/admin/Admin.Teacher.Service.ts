@@ -8,6 +8,7 @@ import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { IAdminTeacherDTO, PaginatedTeacherDTO, adminTeacherDto } from '../../core/dtos/admin/Admin.teacher.Dto';
 import { IAdminCourseDTO ,AdminCourseDTO } from '../../core/dtos/admin/Admin.course.Dto';
+import { VerificationStatus } from '../../models/Teacher';
 
 @injectable()
 export class AdminTeacherService implements IAdminTeacherService {
@@ -36,7 +37,7 @@ export class AdminTeacherService implements IAdminTeacherService {
     }
 
     async verifyTeacher(teacherId: string): Promise<IAdminTeacherDTO> {
-        const updated = await this._teacherRepo.updateStatus(teacherId, { isVerified: true, isRejected: false });
+        const updated = await this._teacherRepo.updateStatus(teacherId, { verificationStatus: VerificationStatus.VERIFIED, isRejected: false });
         if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
         return adminTeacherDto(updated);
     }
@@ -55,7 +56,7 @@ export class AdminTeacherService implements IAdminTeacherService {
 }
 
     async rejectTeacher(teacherId: string): Promise<IAdminTeacherDTO> {
-        const updated = await this._teacherRepo.updateStatus(teacherId, { isVerified: false, isRejected: true });
+        const updated = await this._teacherRepo.updateStatus(teacherId, { verificationStatus: VerificationStatus.UNVERIFIED, isRejected: true });
         if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
         return adminTeacherDto(updated);
     }

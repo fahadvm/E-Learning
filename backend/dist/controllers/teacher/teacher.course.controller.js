@@ -61,6 +61,34 @@ let TeacherCourseController = class TeacherCourseController {
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_DETAILS_FETCHED, true, courseDetails);
         });
     }
+    uploadResource(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { courseId } = req.params;
+            const { title } = req.body;
+            const file = req.file;
+            console.log('file is ', file);
+            if (!file)
+                return (0, ResANDError_2.throwError)(ResponseMessages_1.MESSAGES.FILE_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            const resource = yield this._courseService.uploadResource(courseId, title, file);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.RESOURCE_UPLOADED, true, resource);
+        });
+    }
+    deleteResource(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { resourceId } = req.params;
+            if (!resourceId)
+                (0, ResANDError_2.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            const deleted = yield this._courseService.deleteResource(resourceId);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.RESOURCE_DELETED, true, deleted);
+        });
+    }
+    getResources(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { courseId } = req.params;
+            const resources = yield this._courseService.getResources(courseId);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.RESOURCES_FETCHED, true, resources);
+        });
+    }
 };
 exports.TeacherCourseController = TeacherCourseController;
 exports.TeacherCourseController = TeacherCourseController = __decorate([

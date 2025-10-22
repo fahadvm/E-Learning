@@ -24,6 +24,30 @@ let CourseRepository = class CourseRepository {
             return yield Course_1.Course.create(courseData);
         });
     }
+    getFilteredCourses(filters) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { search, category, level, language, sort = 'createdAt', order = 'desc', page = 1, limit = 8, } = filters;
+            const query = {};
+            if (search) {
+                query.title = { $regex: search, $options: 'i' };
+            }
+            if (category)
+                query.category = category;
+            if (level)
+                query.level = level;
+            if (language)
+                query.language = language;
+            const skip = (page - 1) * limit;
+            const totalCount = yield Course_1.Course.countDocuments(query);
+            const totalPages = Math.ceil(totalCount / limit);
+            const data = yield Course_1.Course.find(query)
+                .sort({ [sort]: order === 'asc' ? 1 : -1 })
+                .skip(skip)
+                .limit(limit)
+                .exec();
+            return { data, totalPages, totalCount };
+        });
+    }
     findByTeacherId(teacherId) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield Course_1.Course.find({ teacherId });

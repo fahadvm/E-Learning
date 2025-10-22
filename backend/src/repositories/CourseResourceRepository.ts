@@ -1,7 +1,7 @@
 // src/infrastructure/repositories/CourseResourceRepository.ts
-import { injectable } from "inversify";
-import { ICourseResourceRepository } from "../core/interfaces/repositories/ICourseResourceRepository";
-import { CourseResource, ICourseResource } from "../models/CourseResource";
+import { injectable } from 'inversify';
+import { ICourseResourceRepository } from '../core/interfaces/repositories/ICourseResourceRepository';
+import { CourseResource, ICourseResource } from '../models/CourseResource';
 
 @injectable()
 export class CourseResourceRepository implements ICourseResourceRepository {

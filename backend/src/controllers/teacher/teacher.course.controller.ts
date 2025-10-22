@@ -9,6 +9,7 @@ import { MESSAGES } from '../../utils/ResponseMessages';
 import { TYPES } from '../../core/di/types';
 import { ITeacherCourseController } from '../../core/interfaces/controllers/teacher/ITeacherCourseController';
 import { AuthRequest } from '../../types/AuthenticatedRequest';
+import { CreateCourseRequest } from '../../types/filter/fiterTypes';
 
 @injectable()
 export class TeacherCourseController implements ITeacherCourseController {
@@ -16,7 +17,7 @@ export class TeacherCourseController implements ITeacherCourseController {
     @inject(TYPES.TeacherCourseService) private readonly _courseService: ITeacherCourseService
   ) { }
 
-  async addCourse(req: AuthRequest, res: Response): Promise<void> {
+  async addCourse(req: CreateCourseRequest, res: Response): Promise<void> {
 
     const created = await this._courseService.createCourse(req);
     sendResponse(res, STATUS_CODES.CREATED, MESSAGES.COURSE_CREATED, true, created);
@@ -51,7 +52,6 @@ export class TeacherCourseController implements ITeacherCourseController {
     const { courseId } = req.params;
     const { title  } = req.body;
     const file = req.file;
-    console.log("file is ",file)
     if (!file) return throwError(MESSAGES.FILE_REQUIRED, STATUS_CODES.BAD_REQUEST);
     const resource = await this._courseService.uploadResource(courseId, title, file);
     sendResponse(res, STATUS_CODES.OK, MESSAGES.RESOURCE_UPLOADED, true, resource);

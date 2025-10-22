@@ -35,6 +35,14 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Student = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
+const CourseProgressSchema = new mongoose_1.Schema({
+    courseId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Course', required: true },
+    completedLessons: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Lesson' }],
+    completedModules: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Module' }],
+    percentage: { type: Number, default: 0 },
+    lastVisitedLesson: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Lesson' },
+    notes: { type: String, default: '' }
+});
 const StudentSchema = new mongoose_1.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
@@ -58,6 +66,7 @@ const StudentSchema = new mongoose_1.Schema({
         linkedin: { type: String },
         twitter: { type: String },
         instagram: { type: String }
-    }
+    },
+    coursesProgress: [CourseProgressSchema]
 }, { timestamps: true, });
 exports.Student = mongoose_1.default.model('Student', StudentSchema);

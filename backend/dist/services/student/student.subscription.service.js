@@ -25,27 +25,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StudentSubscriptionService = void 0;
-// src/services/admin/SubscriptionPlanService.ts
 const inversify_1 = require("inversify");
 const types_1 = require("../../core/di/types");
 const razorpay_1 = __importDefault(require("razorpay"));
 const crypto_1 = __importDefault(require("crypto"));
+const ResANDError_1 = require("../../utils/ResANDError");
+const ResponseMessages_1 = require("../../utils/ResponseMessages");
 let StudentSubscriptionService = class StudentSubscriptionService {
     constructor(_planRepo) {
         this._planRepo = _planRepo;
     }
     getAllForStudent() {
-        return this._planRepo.findAllForStudents();
+        return __awaiter(this, void 0, void 0, function* () {
+            return this._planRepo.findAllForStudents();
+        });
     }
     getAllPlans() {
-        return this._planRepo.findAllForStudents();
+        return __awaiter(this, void 0, void 0, function* () {
+            return this._planRepo.findAllForStudents();
+        });
     }
     createOrder(studentId, planId) {
         return __awaiter(this, void 0, void 0, function* () {
             const plan = yield this._planRepo.findPlanById(planId);
-            console.log('plan details :', plan);
             if (!plan)
-                throw new Error('Plan not found');
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.SUBSCRIPTION_PLAN_NOT_FOUND);
+            if (typeof plan.price !== 'number' || plan.price <= 0) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_DATA);
+            }
             const razorpay = new razorpay_1.default({
                 key_id: process.env.RAZORPAY_KEY_ID,
                 key_secret: process.env.RAZORPAY_KEY_SECRET
@@ -61,20 +68,25 @@ let StudentSubscriptionService = class StudentSubscriptionService {
     }
     verifyPayment(studentId, payload) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { razorpay_order_id, razorpay_payment_id, razorpay_signature, planId } = payload;
+            const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = payload;
             const hmac = crypto_1.default.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
-            hmac.update(razorpay_order_id + '|' + razorpay_payment_id);
-            if (hmac.digest('hex') !== razorpay_signature)
-                throw new Error('Payment verification failed');
-            return this._planRepo.updatePaymentStatus(razorpay_order_id, 'active', razorpay_payment_id);
+            hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+            const digest = hmac.digest('hex');
+            if (digest !== razorpay_signature) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.PAYMENT_VERIFICATION_FAILED);
+            }
+            yield this._planRepo.updatePaymentStatus(razorpay_order_id, 'active', razorpay_payment_id);
         });
     }
     activateFreePlan(studentId, planId) {
         return __awaiter(this, void 0, void 0, function* () {
             const plan = yield this._planRepo.findPlanById(planId);
-            if (!plan || plan.price > 0)
-                throw new Error('Invalid free plan');
-            return this._planRepo.saveStudentSubscription(studentId, planId, `free_${Date.now()}`, 'free');
+            if (!plan)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_DATA);
+            if (typeof plan.price === 'number' && plan.price > 0) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_DATA);
+            }
+            yield this._planRepo.saveStudentSubscription(studentId, planId, `free_${Date.now()}`, 'free');
         });
     }
     getActiveSubscription(studentId) {

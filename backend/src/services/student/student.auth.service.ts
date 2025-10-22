@@ -12,6 +12,7 @@ import { generateOtp, sendOtpEmail } from '../../utils/OtpServices';
 import { OAuth2Client } from 'google-auth-library';
 import { TYPES } from '../../core/di/types';
 import { MESSAGES } from '../../utils/ResponseMessages';
+import logger from '../../utils/logger';
 const GOOGLE_CLIENT_ID = '1009449170165-l51vq71vru9hqefmkl570nf782455uf1.apps.googleusercontent.com';
 
 
@@ -86,8 +87,8 @@ async googleAuth(idToken: string): Promise<{
   const payload = ticket.getPayload();
 
   if (!payload) throw new Error('Invalid Google token payload');
-  console.log('Expected Audience:', GOOGLE_CLIENT_ID);
-console.log('Actual Audience from token:', payload.aud);
+   logger.debug('Expected Audience:', GOOGLE_CLIENT_ID);
+ logger.debug('Actual Audience from token:', payload.aud);
 
   const { sub: googleId, email, name } = payload;
   if (!googleId || !email) throw new Error('Google token missing required fields');

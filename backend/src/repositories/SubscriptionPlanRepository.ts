@@ -4,17 +4,24 @@ import { FilterQuery } from 'mongoose';
 
 import { ISubscriptionPlanRepository } from '../core/interfaces/repositories/ISubscriptionPlanRepository';
 import { ISubscriptionPlan, SubscriptionPlan } from '../models/subscriptionPlan';
-import { StudentSubscription } from '../models/StudentSubscription';
+import { IStudentSubscription, StudentSubscription } from '../models/StudentSubscription';
+
 
 @injectable()
 export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
   async create(plan: Partial<ISubscriptionPlan>): Promise<ISubscriptionPlan> {
     return await SubscriptionPlan.create(plan);
   }
-  async findAllPlans() { return SubscriptionPlan.find({ isActive: true }); }
 
-  async findAll(): Promise<ISubscriptionPlan[]> {
-    return await SubscriptionPlan.find();
+  async findAll(skip: number, limit: number, search?: string): Promise<ISubscriptionPlan[]> {
+    const filter: FilterQuery<ISubscriptionPlan> = search
+      ? { name: { $regex: search, $options: 'i' } }
+      : {};
+    return await SubscriptionPlan.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .exec();
   }
 
   async countAll(search?: string): Promise<number> {
@@ -24,12 +31,7 @@ export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
     return SubscriptionPlan.countDocuments(filter).exec();
   }
 
-
-
-
   async getById(id: string): Promise<ISubscriptionPlan | null> {
-    console.log('trying to get in repository ',id);
-
     return await SubscriptionPlan.findById(id);
   }
 
@@ -41,28 +43,50 @@ export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
     await SubscriptionPlan.findByIdAndDelete(id);
   }
 
-
   async findAllForStudents(): Promise<ISubscriptionPlan[]> {
-    return await SubscriptionPlan.find({ planFor: 'Student' });
+    return await SubscriptionPlan.find({ planFor: 'student' });
   }
+
   async findAllForCompany(): Promise<ISubscriptionPlan[]> {
-    return await SubscriptionPlan.find({ planFor: 'Company' });
-  }
-  
-  async findPlanById(planId: string) { return SubscriptionPlan.findById(planId); }
-
-  async saveStudentSubscription(studentId: string, planId: string, orderId: string, paymentId?: string) {
-    return StudentSubscription.create({ studentId, planId, orderId, paymentId, status: 'pending' });
+    return await SubscriptionPlan.find({ planFor: 'company' });
   }
 
-  async updatePaymentStatus(orderId: string, status: string, paymentId?: string) {
-    return StudentSubscription.findOneAndUpdate({ orderId }, { status, paymentId }, { new: true });
+  async findAllPlans(): Promise<ISubscriptionPlan[]> {
+    return await SubscriptionPlan.find({ isActive: true });
   }
 
-  async findActiveSubscription(studentId: string) {
-    return StudentSubscription.findOne({ studentId, status: 'active' });
+  async findPlanById(planId: string): Promise<ISubscriptionPlan | null> {
+    return await SubscriptionPlan.findById(planId);
   }
 
+  async saveStudentSubscription(
+    studentId: string,
+    planId: string,
+    orderId: string,
+    paymentId?: string
+  ): Promise<IStudentSubscription> {
+    return await StudentSubscription.create({
+      studentId,
+      planId,
+      orderId,
+      paymentId,
+      status: 'pending',
+    });
+  }
 
+  async updatePaymentStatus(
+    orderId: string,
+    status: 'pending' | 'active' | 'expired' | 'cancelled',
+    paymentId?: string
+  ): Promise<IStudentSubscription | null> {
+    return await StudentSubscription.findOneAndUpdate(
+      { orderId },
+      { status, paymentId },
+      { new: true }
+    );
+  }
 
+  async findActiveSubscription(studentId: string): Promise<IStudentSubscription | null> {
+    return await StudentSubscription.findOne({ studentId, status: 'active' });
+  }
 }

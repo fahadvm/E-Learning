@@ -39,7 +39,6 @@ let AdminSubscriptionPlanController = class AdminSubscriptionPlanController {
     }
     getAllPlans(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('adding new plans in backend ');
             const plans = yield this._planService.getAllPlans();
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.SUBSCRIPTION_PLANS_FETCHED, true, plans);
         });

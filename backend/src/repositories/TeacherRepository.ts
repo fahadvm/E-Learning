@@ -44,7 +44,7 @@ export class TeacherRepository implements ITeacherRepository {
   }
 
   async findAll(params?: { skip?: number; limit?: number; search?: string }): Promise<ITeacher[]> {
-    const query: any = {};
+    const query: FilterQuery<ITeacher> = {};
     if (params?.search) {
       query.$or = [
         { name: { $regex: params.search, $options: 'i' } },
@@ -52,13 +52,14 @@ export class TeacherRepository implements ITeacherRepository {
       ];
     }
     return Teacher.find(query)
+
       .skip(params?.skip || 0)
       .limit(params?.limit || 0)
       .lean();
   }
 
   async count(search?: string): Promise<number> {
-    const query: any = {};
+    const query: FilterQuery<ITeacher> = {};
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -105,9 +106,8 @@ export class TeacherRepository implements ITeacherRepository {
       teacher.experiences?.length,
       teacher.skills?.length,
     ];
-    console.log("required fields are" , requiredFields)
 
-    return requiredFields.every((f) => f && f !== "" && f !== 0);
+    return requiredFields.every((f) => f && f !== '' && f !== 0);
   }
 
     sendVerificationRequest(id: string, status: VerificationStatus ,resumeUrl:string): Promise<ITeacher | null>{

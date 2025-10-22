@@ -1,18 +1,19 @@
 // src/services/student/student.booking.service.ts
-import { injectable, inject } from "inversify";
-import { IStudentBookingService } from "../../core/interfaces/services/student/IStudentBookingService";
-import { IStudentBookingRepository } from "../../core/interfaces/repositories/IStudentBookingRepository";
-import { TYPES } from "../../core/di/types";
-import { IBookingDTO, bookingDto, bookingsDto } from "../../core/dtos/student/student.booking.dto";
-import { throwError } from "../../utils/ResANDError";
-import { STATUS_CODES } from "../../utils/HttpStatuscodes";
-import { MESSAGES } from "../../utils/ResponseMessages";
-import { Types } from "mongoose";
-import dayjs from "dayjs";
-import { ITeacherAvailabilityRepository } from "../../core/interfaces/repositories/ITeacherAvailabilityRepository";
-import { IBooking } from "../../models/Booking";
-import Razorpay from "razorpay";
-import { INotificationRepository } from "../../core/interfaces/repositories/INotificationRepository";
+import { injectable, inject } from 'inversify';
+import { IStudentBookingService } from '../../core/interfaces/services/student/IStudentBookingService';
+import { IPaginatedResult, IStudentBookingRepository } from '../../core/interfaces/repositories/IStudentBookingRepository';
+import { TYPES } from '../../core/di/types';
+import { IBookingDTO, bookingDto, bookingsDto } from '../../core/dtos/student/student.booking.dto';
+import { throwError } from '../../utils/ResANDError';
+import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { MESSAGES } from '../../utils/ResponseMessages';
+import { Types } from 'mongoose';
+import dayjs from 'dayjs';
+import { ITeacherAvailabilityRepository } from '../../core/interfaces/repositories/ITeacherAvailabilityRepository';
+import { IBooking } from '../../models/Booking';
+import Razorpay from 'razorpay';
+import { INotificationRepository } from '../../core/interfaces/repositories/INotificationRepository';
+import { IAvailableSlot } from '../../types/filter/fiterTypes';
 
 
 @injectable()
@@ -37,15 +38,12 @@ export class StudentBookingService implements IStudentBookingService {
 
   async bookSlot(studentId: string, teacherId: string, courseId: string, date: string, day: string, startTime: string, endTime: string, note: string): Promise<IBookingDTO> {
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
-    console.log("here everything is fine iam from service")
 
     if (!teacherId || !courseId || !date || !day || !startTime || !endTime) throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
-    console.log(teacherId, courseId, studentId)
     const studentIdObj = new Types.ObjectId(studentId);
     const teacherIdObj = new Types.ObjectId(teacherId);
     const courseIdObj = new Types.ObjectId(courseId);
 
-    console.log(studentIdObj, teacherIdObj, courseIdObj)
     const booking = await this._bookingRepo.createBooking({
       studentId: studentIdObj,
       teacherId: teacherIdObj,
@@ -57,20 +55,22 @@ export class StudentBookingService implements IStudentBookingService {
         end: endTime,
       },
       note,
-      status: "pending",
+      status: 'pending',
     });
     return bookingDto(booking);
   }
 
-  async cancelBooking(bookingId: string , reason : string): Promise<IBookingDTO> {
+  async cancelBooking(bookingId: string, reason: string): Promise<IBookingDTO> {
     if (!bookingId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
-    const cancelled = await this._bookingRepo.updateBookingStatus(bookingId, "cancelled" , reason);
+    const cancelled = await this._bookingRepo.updateBookingStatus(bookingId, 'cancelled', reason);
+    if (!cancelled) throwError(MESSAGES.BOOKING_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     return bookingDto(cancelled);
   }
 
   async approveBooking(bookingId: string): Promise<IBookingDTO> {
     if (!bookingId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
-    const approved = await this._bookingRepo.updateBookingStatus(bookingId, "approved");
+    const approved = await this._bookingRepo.updateBookingStatus(bookingId, 'approved');
+    if (!approved) throwError(MESSAGES.BOOKING_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     return bookingDto(approved);
   }
 
@@ -79,7 +79,7 @@ export class StudentBookingService implements IStudentBookingService {
 
     const options = {
       amount: amount * 100,
-      currency: "INR",
+      currency: 'INR',
       receipt: `receipt_${Date.now()}`,
       notes: { bookingId },
     };
@@ -93,37 +93,36 @@ export class StudentBookingService implements IStudentBookingService {
 
 
   async verifyPayment(razorpay_order_id: string, razorpay_payment_id: string, razorpay_signature: string): Promise<IBooking | null> {
-    const crypto = await import("crypto");
-    const body = razorpay_order_id + "|" + razorpay_payment_id;
+    const crypto = await import('crypto');
+    const body = razorpay_order_id + '|' + razorpay_payment_id;
 
     const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!)
       .update(body.toString())
-      .digest("hex");
+      .digest('hex');
 
     if (expectedSignature !== razorpay_signature)
-      throwError("Payment verification failed", STATUS_CODES.BAD_REQUEST);
+      throwError('Payment verification failed', STATUS_CODES.BAD_REQUEST);
 
     const updated = await this._bookingRepo.verifyAndMarkPaid(razorpay_order_id);
-    if(!!updated){
+    if (!!updated) {
       await this._notificationRepo.createNotification(
-      updated.teacherId.toString(),
-      "New Booking Confirmed!",
-      ` booked a paid session for .`,
-      "booking",
-      "teacher"
-    );
+        updated.teacherId.toString(),
+        'New Booking Confirmed!',
+        ' booked a paid session for .',
+        'booking',
+        'teacher'
+      );
     }
-    
+
 
     return updated;
   }
 
-  async getHistory(studentId: string , page: number, limit: number, status?: string, teacher?: string): Promise<any> {
+  async getHistory(studentId: string, page: number, limit: number, status?: string, teacher?: string): Promise<IPaginatedResult<IBooking>> {
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
-    console.log("getting history is working well ",page, limit, status, teacher )
-    const history = await this._bookingRepo.getBookingsByStudent(studentId ,page, limit, status, teacher);
+    const history = await this._bookingRepo.getBookingsByStudent(studentId, page, limit, status, teacher);
     return history;
   }
   async getScheduledCalls(studentId: string): Promise<IBookingDTO[]> {
@@ -132,38 +131,32 @@ export class StudentBookingService implements IStudentBookingService {
     return bookingsDto(scheduledCalls);
   }
   async getBookingDetails(bookingId: string): Promise<IBooking> {
-    const details = await this._bookingRepo.findById(bookingId)
-    if (!details) throw new Error("Booking not found");
-    return details
+    const details = await this._bookingRepo.findById(bookingId);
+    if (!details) throw new Error('Booking not found');
+    return details;
   }
 
-
-  
-
-
-   
-
-  async getAvailableSlots(teacherId: string): Promise<any[]> {
+  async getAvailableSlots(teacherId: string): Promise<IAvailableSlot[]> {
     const availability = await this._availibilityRepo.getAvailabilityByTeacherId(teacherId);
     if (!availability) throwError(MESSAGES.TEACHER_AVAILABILITY_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
     const today = dayjs();
-    const nextWeek = today.add(7, "day");
+    const nextWeek = today.add(7, 'day');
 
-    const slotsForWeek: any[] = [];
+    const slotsForWeek: IAvailableSlot[] = [];
 
     for (let d = 0; d < 7; d++) {
-      const currentDate = today.add(d, "day");
-      const dayName = currentDate.format("dddd");
+      const currentDate = today.add(d, 'day');
+      const dayName = currentDate.format('dddd');
 
       const dayAvailability = availability.week.find(w => w.day === dayName && w.enabled);
       if (!dayAvailability) continue;
 
       for (const slot of dayAvailability.slots) {
-        const slotStart = dayjs(`${currentDate.format("YYYY-MM-DD")}T${slot.start}`);
+        const slotStart = dayjs(`${currentDate.format('YYYY-MM-DD')}T${slot.start}`);
 
         slotsForWeek.push({
-          date: currentDate.format("YYYY-MM-DD"),
+          date: currentDate.format('YYYY-MM-DD'),
           day: dayName,
           start: slot.start,
           end: slot.end,
@@ -177,8 +170,8 @@ export class StudentBookingService implements IStudentBookingService {
     // fetch bookings for next 7 days
     const bookings = await this._bookingRepo.findBookedSlots(
       teacherId,
-      today.format("YYYY-MM-DD"),
-      nextWeek.format("YYYY-MM-DD")
+      today.format('YYYY-MM-DD'),
+      nextWeek.format('YYYY-MM-DD')
     );
 
     // convert booked slots into ISO strings
@@ -196,7 +189,6 @@ export class StudentBookingService implements IStudentBookingService {
       new Map(availableSlots.map(s => [`${s.date}-${s.start}-${s.end}`, s])).values()
     );
 
-    console.log("Available slots:", uniqueSlots);
 
     return uniqueSlots;
   }

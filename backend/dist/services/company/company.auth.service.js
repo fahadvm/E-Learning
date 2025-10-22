@@ -34,7 +34,7 @@ const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const types_1 = require("../../core/di/types");
 const nanoid_1 = require("nanoid");
-const nanoid = (0, nanoid_1.customAlphabet)("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8);
+const nanoid = (0, nanoid_1.customAlphabet)('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 8);
 let CompanyAuthService = class CompanyAuthService {
     constructor(_companyRepository, _otpRepository) {
         this._companyRepository = _companyRepository;
@@ -66,28 +66,23 @@ let CompanyAuthService = class CompanyAuthService {
             const tempData = yield this._otpRepository.findByEmail(email);
             if (!tempData)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COMPANY_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
-            // Check OTP validity
             if (tempData.otp !== otp || tempData.expiresAt < new Date()) {
                 yield this._otpRepository.deleteByEmail(email);
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.OTP_INVALID, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             }
-            // Prevent duplicate verified company
             const existingCompany = yield this._companyRepository.findByEmail(email);
             if (existingCompany)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.VERIFIED, HttpStatuscodes_1.STATUS_CODES.CONFLICT);
-            // Generate unique companyCode
             let companyCode = nanoid();
             while (yield this._companyRepository.findByCompanyCode(companyCode)) {
                 companyCode = nanoid();
             }
-            // Create new company with unique code
             const newCompany = yield this._companyRepository.create({
                 email: tempData.email,
-                name: (_b = (_a = tempData.tempUserData) === null || _a === void 0 ? void 0 : _a.name) !== null && _b !== void 0 ? _b : "",
-                password: (_d = (_c = tempData.tempUserData) === null || _c === void 0 ? void 0 : _c.password) !== null && _d !== void 0 ? _d : "",
+                name: (_b = (_a = tempData.tempUserData) === null || _a === void 0 ? void 0 : _a.name) !== null && _b !== void 0 ? _b : '',
+                password: (_d = (_c = tempData.tempUserData) === null || _c === void 0 ? void 0 : _c.password) !== null && _d !== void 0 ? _d : '',
                 companyCode,
             });
-            // Clean up OTP record
             yield this._otpRepository.deleteByEmail(email);
             return newCompany;
         });

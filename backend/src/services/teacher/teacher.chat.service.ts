@@ -1,9 +1,9 @@
-import { inject, injectable } from "inversify";
-import { IChatRepository } from "../../core/interfaces/repositories/IChatRepository";
-import { TYPES } from "../../core/di/types";
-import { IMessage } from "../../models/message"; 
-import { IChat } from "../../models/chat";  
-import { ITeacherChatService } from "../../core/interfaces/services/teacher/ITeacherChatService";
+import { inject, injectable } from 'inversify';
+import { IChatRepository } from '../../core/interfaces/repositories/IChatRepository';
+import { TYPES } from '../../core/di/types';
+import { IMessage } from '../../models/message'; 
+import { IChat } from '../../models/chat';  
+import { ITeacherChatService } from '../../core/interfaces/services/teacher/ITeacherChatService';
 
 @injectable()
 export class TeacherChatService implements ITeacherChatService {
@@ -12,7 +12,6 @@ export class TeacherChatService implements ITeacherChatService {
   ) {}
 
   async sendMessage(senderId: string, receiverId: string, message: string): Promise<IMessage> {  
-    console.log("senderid and reciever id in service",senderId, receiverId)
     return this.chatRepository.saveMessage(senderId, receiverId, message);
   }
 
@@ -26,6 +25,6 @@ export class TeacherChatService implements ITeacherChatService {
 
   async getUserChats(userId: string): Promise<IChat[]> {
     const chat = await this.chatRepository.getTeacherChats(userId );
-    return chat
+    return chat;
   }
 }

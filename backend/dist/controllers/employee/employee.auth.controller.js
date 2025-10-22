@@ -38,7 +38,6 @@ let EmployeeAuthController = class EmployeeAuthController {
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.CREATED, ResponseMessages_1.MESSAGES.OTP_SENT, true);
         });
         this.verifyOtp = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            console.log('verifying otp ', req.body);
             const { email, otp } = req.body;
             if (!email || !otp)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMAIL_OTP_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
@@ -60,7 +59,6 @@ let EmployeeAuthController = class EmployeeAuthController {
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.LOGOUT_SUCCESS, true);
         });
         this.googleAuth = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            console.log('gooogle sign in is working nonw', req.body);
             const { tokenId } = req.body;
             console.log('tokenId', tokenId);
             if (!tokenId)

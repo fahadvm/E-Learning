@@ -1,6 +1,6 @@
-import { IOrder } from "../../../../models/Order";
-import { ICourse } from "../../../../models/Course";
-import { ICourseProgress } from "../../../../models/Student";
+import { IOrder } from '../../../../models/Order';
+import { ICourse } from '../../../../models/Course';
+import { ICourseProgress } from '../../../../models/Student';
 
 export interface IStudentPurchaseService {
     createOrder(studentId: string, courses: string[], amount: number, currency?: string): Promise<Partial<IOrder>>;

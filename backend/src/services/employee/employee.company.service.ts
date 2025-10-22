@@ -1,18 +1,18 @@
-import { inject, injectable } from "inversify";
-import { TYPES } from "../../core/di/types";
-import { IEmployeeCompanyService } from "../../core/interfaces/services/employee/IEmployeeCompanyService";
-import { ICompanyRepository } from "../../core/interfaces/repositories/ICompanyRepository";
-import { IEmployeeRepository } from "../../core/interfaces/repositories/IEmployeeRepository";
-import { throwError } from "../../utils/ResANDError";
-import { STATUS_CODES } from "../../utils/HttpStatuscodes";
-import { MESSAGES } from "../../utils/ResponseMessages";
-import { IEmployee } from "../../models/Employee";
-import mongoose from "mongoose";
+import { inject, injectable } from 'inversify';
+import { TYPES } from '../../core/di/types';
+import { IEmployeeCompanyService } from '../../core/interfaces/services/employee/IEmployeeCompanyService';
+import { ICompanyRepository } from '../../core/interfaces/repositories/ICompanyRepository';
+import { IEmployeeRepository } from '../../core/interfaces/repositories/IEmployeeRepository';
+import { throwError } from '../../utils/ResANDError';
+import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { MESSAGES } from '../../utils/ResponseMessages';
+import { IEmployee } from '../../models/Employee';
+import mongoose from 'mongoose';
 
 export enum EmployeeStatus {
-  PENDING = "pending",
-  APPROVED = "approved",
-  NOT_REQUEST = "notRequest",
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  NOT_REQUEST = 'notRequest',
 }
 
 @injectable()

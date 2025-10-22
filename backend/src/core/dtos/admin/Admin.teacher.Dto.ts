@@ -30,7 +30,7 @@ export interface IAdminTeacherDTO {
   _id: string;
   name: string;
   email: string;
-  isVerified: boolean;
+  verificationStatus: string;
   isRejected: boolean;
   isBlocked: boolean;
   googleUser: boolean;
@@ -67,7 +67,7 @@ export const adminTeacherDto = (teacher: ITeacher): IAdminTeacherDTO => ({
   _id: teacher._id.toString(),
   name: teacher.name,
   email: teacher.email,
-  isVerified: teacher.isVerified,
+  verificationStatus: teacher.verificationStatus,
   isRejected: teacher.isRejected,
   isBlocked: teacher.isBlocked,
   googleUser: teacher.googleUser,

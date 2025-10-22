@@ -1,6 +1,5 @@
 // src/core/interfaces/services/student/IStudentAuthService.ts
 import { IStudent } from '../../../../models/Student';
-import { GooglePayLoad } from '../../../../types/userTypes';
 
 export interface IStudentAuthService {
   sendOtp(data: IStudent): Promise<void>;

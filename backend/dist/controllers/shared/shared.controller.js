@@ -1,30 +1,43 @@
 "use strict";
-// import { Request, Response } from "express";
-// import {
-//   handleControllerError,
-//   sendResponse,
-// } from "../../utils/ResANDError";
-// // import { ISharedController } from "../../core/interfaces/controllers/shared/ISharedController";
-// import { refreshAccessToken, setTokensInCookies } from "../../utils/JWTtoken";
-// export class SharedController implements ISharedController {
-//   async refeshToken(req: Request, res: Response): Promise<void> {
-//     try {
-//       const tokens = refreshAccessToken(req.cookies.refreshToken);
-//       if (!tokens) {
-//         sendResponse(
-//           res,
-//           StatusCode.UNAUTHORIZED,
-//           Messages.SHARED.INVALID_TOKEN,
-//           false
-//         );
-//         return;
-//       }
-//       setTokensInCookies(res, tokens.accessToken, tokens.refreshToken);
-//       sendResponse(res, StatusCode.OK, Messages.SHARED.TOKENS_REFRESHED, true);
-//       return;
-//     } catch (error) {
-//       handleControllerError(res, error, StatusCode.UNAUTHORIZED);
-//       return;
-//     }
-//   }
-// }
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SharedController = void 0;
+const inversify_1 = require("inversify");
+const ResANDError_1 = require("../../utils/ResANDError");
+const JWTtoken_1 = require("../../utils/JWTtoken");
+const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
+const ResponseMessages_1 = require("../../utils/ResponseMessages");
+let SharedController = class SharedController {
+    constructor() {
+        this.refreshToken = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const tokens = (0, JWTtoken_1.refreshAccessToken)(req.cookies.refreshToken);
+            if (!tokens) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.TOKEN_INVALID, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            }
+            (0, JWTtoken_1.setTokensInCookies)(res, tokens.accessToken, tokens.refreshToken);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.TOKEN_REFRESHED, true);
+        });
+    }
+};
+exports.SharedController = SharedController;
+exports.SharedController = SharedController = __decorate([
+    (0, inversify_1.injectable)(),
+    __metadata("design:paramtypes", [])
+], SharedController);

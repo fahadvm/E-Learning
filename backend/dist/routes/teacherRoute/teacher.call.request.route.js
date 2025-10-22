@@ -1,0 +1,24 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const container_1 = __importDefault(require("../../core/di/container"));
+const asyncHandler_1 = require("../../middleware/asyncHandler");
+const authMiddleware_1 = require("../../middleware/authMiddleware");
+const types_1 = require("../../core/di/types");
+const callRequestCtrl = container_1.default.get(types_1.TYPES.TeacherCallRequestController);
+const notificationCtrl = container_1.default.get(types_1.TYPES.NotificationController);
+const router = (0, express_1.Router)();
+router.get('/', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(callRequestCtrl.getMySlots.bind(callRequestCtrl)));
+router.get('/history', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(callRequestCtrl.getRequestHistory.bind(callRequestCtrl)));
+router.get('/pending', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(callRequestCtrl.getPendingRequests.bind(callRequestCtrl)));
+router.get('/confirmed', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(callRequestCtrl.getConfirmedRequests.bind(callRequestCtrl)));
+router.get('/:bookingId', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(callRequestCtrl.getRequestDetails.bind(callRequestCtrl)));
+router.patch('/:bookingId/approve', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(callRequestCtrl.approveRequest.bind(callRequestCtrl)));
+router.patch('/:bookingId/cancel', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(callRequestCtrl.cancelRequest.bind(callRequestCtrl)));
+router.patch('/:bookingId/reject', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(callRequestCtrl.rejectRequest.bind(callRequestCtrl)));
+router.get('/notifications/testing/:userId', (0, asyncHandler_1.asyncHandler)(notificationCtrl.getNotifications.bind(callRequestCtrl)));
+router.post('/notifications/testing/markread', (0, asyncHandler_1.asyncHandler)(notificationCtrl.markNotificationRead.bind(callRequestCtrl)));
+exports.default = router;

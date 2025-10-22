@@ -14,7 +14,7 @@ const adminTeacherDto = (teacher) => {
         _id: teacher._id.toString(),
         name: teacher.name,
         email: teacher.email,
-        isVerified: teacher.isVerified,
+        verificationStatus: teacher.verificationStatus,
         isRejected: teacher.isRejected,
         isBlocked: teacher.isBlocked,
         googleUser: teacher.googleUser,

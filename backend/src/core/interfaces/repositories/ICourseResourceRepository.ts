@@ -1,4 +1,4 @@
-import { ICourseResource } from "../../../models/CourseResource";
+import { ICourseResource } from '../../../models/CourseResource';
 
 export interface ICourseResourceRepository {
   uploadResource(resourceData: Partial<ICourseResource>): Promise<ICourseResource>;

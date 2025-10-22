@@ -1,4 +1,4 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model, Types } from 'mongoose';
 
 export interface IComment {
   _id?: string;
@@ -9,9 +9,9 @@ export interface IComment {
 }
 
 const CommentSchema = new Schema<IComment>({
-  courseId: { type: Schema.Types.ObjectId, ref: "Course", required: true },
-  userId: { type: Schema.Types.ObjectId, ref: "Student", required: true },
+  courseId: { type: Schema.Types.ObjectId, ref: 'Course', required: true },
+  userId: { type: Schema.Types.ObjectId, ref: 'Student', required: true },
   content: { type: String, required: true },
 }, { timestamps: true });
 
-export const Comment = model<IComment>("Comment", CommentSchema);
+export const Comment = model<IComment>('Comment', CommentSchema);

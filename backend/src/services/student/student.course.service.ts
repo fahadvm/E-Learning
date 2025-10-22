@@ -11,6 +11,8 @@ import { IStudentRepository } from '../../core/interfaces/repositories/IStudentR
 import { ICourseProgress } from '../../models/Student';
 import { ICourseResource } from '../../models/CourseResource';
 import { ICourseResourceRepository } from '../../core/interfaces/repositories/ICourseResourceRepository';
+import { CourseQuery } from '../../types/filter/fiterTypes';
+import { SortOrder } from 'mongoose';
 
 @injectable()
 export class StudentCourseService implements IStudentCourseService {
@@ -22,14 +24,16 @@ export class StudentCourseService implements IStudentCourseService {
   async getAllCourses(filters: GetStudentCoursesRequestDTO): Promise<PaginatedCourseDTO> {
     const { search, category, level, language, sort, order, page, limit } = filters;
 
-    const query: any = {};
+    const query: CourseQuery = {};
     if (search) query.title = { $regex: search, $options: 'i' };
     if (category) query.category = category;
     if (level) query.level = level;
     if (language) query.language = language;
 
     const skip = (page - 1) * limit;
-    const sortQuery = { [sort]: order === 'asc' ? 1 : -1 };
+    const sortQuery: Record<string, SortOrder> = {
+      [sort]: order === 'asc' ? 1 : -1
+    };
 
 
     const courses = await this._courseRepo.findAllCourses(query, sortQuery, skip, limit);
@@ -60,18 +64,18 @@ export class StudentCourseService implements IStudentCourseService {
   ): Promise<ICourseProgress> {
 
     const course = await this._courseRepo.findById(courseId);
-    if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND)
+    if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     const progress = await this._studentRepo.updateStudentProgress(studentId, courseId, lessonId);
-    return progress
+    return progress;
   }
 
   async saveNotes(studentId: string, courseId: string, notes: string): Promise<ICourseProgress> {
-    if (!notes) notes = "// Write your thoughts or doubts here";
+    if (!notes) notes = '// Write your thoughts or doubts here';
     if (!courseId) throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.NOT_FOUND);
     const course = await this._courseRepo.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     const saving = await this._studentRepo.saveNotes(studentId, courseId, notes);
-    return saving
+    return saving;
   }
   async getResources(courseId: string): Promise<ICourseResource[]> {
     return this._resourceRepository.getResourcesByCourse(courseId);

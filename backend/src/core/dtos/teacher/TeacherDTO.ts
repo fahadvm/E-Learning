@@ -36,7 +36,7 @@ export interface LessonDTO {
 
 export interface ModuleDTO {
   title: string;
-  description: string;
+  description?: string;
   lessons: LessonDTO[];
 }
 

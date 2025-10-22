@@ -42,6 +42,7 @@ type BackendSlot = {
   status: SlotStatus
   student?: Student
   course?: Course
+  _id:string
 }
 
 export default function Page() {
@@ -49,7 +50,7 @@ export default function Page() {
   const [loading, setLoading] = useState(true)
   const [history, setHistory] = useState<any[]>([])
   const [page, setPage] = useState(1)
-  const [limit] = useState(12)
+  const [limit] = useState(9)
   const [totalPages, setTotalPages] = useState(1)
   const [statusFilter, setStatusFilter] = useState<string | undefined>()
   const [upcomingPage, setUpcomingPage] = useState(1)
@@ -63,9 +64,9 @@ export default function Page() {
         console.log("Slots response:", res.data)
 
         const transformedSlots: Slot[] = res.data.map((item: BackendSlot) => {
-          const { date, slot, status, student, course } = item
+          const { date, slot, status, student, course ,_id } = item
           return {
-            id: slot._id,
+            id: _id,
             dateKey: date,
             startISO: slot.start,
             endISO: slot.end,

@@ -67,7 +67,6 @@ let AdminSubscriptionPlanService = class AdminSubscriptionPlanService {
     }
     updatePlan(id, data) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(id, data, ' these are the resources');
             const updated = yield this._planRepo.update(id, data);
             if (!updated)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);

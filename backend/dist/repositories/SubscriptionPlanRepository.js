@@ -26,12 +26,16 @@ let SubscriptionPlanRepository = class SubscriptionPlanRepository {
             return yield subscriptionPlan_1.SubscriptionPlan.create(plan);
         });
     }
-    findAllPlans() {
-        return __awaiter(this, void 0, void 0, function* () { return subscriptionPlan_1.SubscriptionPlan.find({ isActive: true }); });
-    }
-    findAll() {
+    findAll(skip, limit, search) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield subscriptionPlan_1.SubscriptionPlan.find();
+            const filter = search
+                ? { name: { $regex: search, $options: 'i' } }
+                : {};
+            return yield subscriptionPlan_1.SubscriptionPlan.find(filter)
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .exec();
         });
     }
     countAll(search) {
@@ -44,7 +48,6 @@ let SubscriptionPlanRepository = class SubscriptionPlanRepository {
     }
     getById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('trying to get in repository ', id);
             return yield subscriptionPlan_1.SubscriptionPlan.findById(id);
         });
     }
@@ -60,30 +63,43 @@ let SubscriptionPlanRepository = class SubscriptionPlanRepository {
     }
     findAllForStudents() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield subscriptionPlan_1.SubscriptionPlan.find({ planFor: 'Student' });
+            return yield subscriptionPlan_1.SubscriptionPlan.find({ planFor: 'student' });
         });
     }
     findAllForCompany() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield subscriptionPlan_1.SubscriptionPlan.find({ planFor: 'Company' });
+            return yield subscriptionPlan_1.SubscriptionPlan.find({ planFor: 'company' });
+        });
+    }
+    findAllPlans() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield subscriptionPlan_1.SubscriptionPlan.find({ isActive: true });
         });
     }
     findPlanById(planId) {
-        return __awaiter(this, void 0, void 0, function* () { return subscriptionPlan_1.SubscriptionPlan.findById(planId); });
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield subscriptionPlan_1.SubscriptionPlan.findById(planId);
+        });
     }
     saveStudentSubscription(studentId, planId, orderId, paymentId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return StudentSubscription_1.StudentSubscription.create({ studentId, planId, orderId, paymentId, status: 'pending' });
+            return yield StudentSubscription_1.StudentSubscription.create({
+                studentId,
+                planId,
+                orderId,
+                paymentId,
+                status: 'pending',
+            });
         });
     }
     updatePaymentStatus(orderId, status, paymentId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return StudentSubscription_1.StudentSubscription.findOneAndUpdate({ orderId }, { status, paymentId }, { new: true });
+            return yield StudentSubscription_1.StudentSubscription.findOneAndUpdate({ orderId }, { status, paymentId }, { new: true });
         });
     }
     findActiveSubscription(studentId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return StudentSubscription_1.StudentSubscription.findOne({ studentId, status: 'active' });
+            return yield StudentSubscription_1.StudentSubscription.findOne({ studentId, status: 'active' });
         });
     }
 };

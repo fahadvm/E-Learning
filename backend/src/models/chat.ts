@@ -1,4 +1,4 @@
-          import { Schema, model, Types, Document } from "mongoose";
+          import { Schema, model, Types, Document } from 'mongoose';
 
 export interface IChat extends Document {
   participants: Types.ObjectId[];  // student + teacher IDs
@@ -11,16 +11,16 @@ export interface IChat extends Document {
 const chatSchema = new Schema<IChat>(
   {
     participants: [
-      { type: Schema.Types.ObjectId, ref: "User", required: true }
+      { type: Schema.Types.ObjectId, ref: 'User', required: true }
     ],
     studentId: {
       type: Schema.Types.ObjectId,
-      ref: "Student",
+      ref: 'Student',
       required: true,
     },
     teacherId: {
       type: Schema.Types.ObjectId,
-      ref: "Teacher",
+      ref: 'Teacher',
       required: true,
     },
     isActive: {
@@ -32,4 +32,4 @@ const chatSchema = new Schema<IChat>(
   { timestamps: true }
 );
 
-export const Chat = model<IChat>("Chat", chatSchema);
+export const Chat = model<IChat>('Chat', chatSchema);

@@ -39,10 +39,26 @@ let CompanyOrderRepository = class CompanyOrderRepository {
         return __awaiter(this, void 0, void 0, function* () {
             return CompanyOrder_1.CompanyOrderModel.find({
                 companyId,
-                status: "paid",
+                status: 'paid',
             })
-                .populate("courses")
+                .populate('courses')
                 .exec();
+        });
+    }
+    getOrdersById(companyId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return CompanyOrder_1.CompanyOrderModel.find({
+                companyId,
+                status: 'paid',
+            });
+        });
+    }
+    getCompanyOrders() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return CompanyOrder_1.CompanyOrderModel.find()
+                .populate('companyId', 'name email')
+                .populate('courses', 'title')
+                .sort({ createdAt: -1 });
         });
     }
 };

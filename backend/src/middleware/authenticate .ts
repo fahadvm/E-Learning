@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { sendResponse } from '../utils/ResANDError';
+import logger from '../utils/logger';
 
 
 export const authenticateToken = async (
@@ -10,10 +11,10 @@ export const authenticateToken = async (
   const accessToken = req.cookies?.token;
   if (!accessToken) {
     sendResponse(res, 401, '', true);
-    console.log('req.cookies is now:', req.cookies);
+     logger.info('req.cookies is now:', req.cookies);
     return;
   }
-  console.log('decoding:',accessToken);
+   logger.info('decoding:',accessToken);
 
   if (!req.user) {
     sendResponse(res, 401, 'Unauthorized', true);

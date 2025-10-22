@@ -1,10 +1,10 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export enum VerificationStatus {
-  UNVERIFIED = "unverified",
-  PENDING = "pending",
-  VERIFIED = "verified",
-  REJECTED = "rejected",
+  UNVERIFIED = 'unverified',
+  PENDING = 'pending',
+  VERIFIED = 'verified',
+  REJECTED = 'rejected',
 }
 
 export interface Education {

@@ -35,7 +35,7 @@ function verifyGoogleIdToken(idToken) {
             };
         }
         catch (err) {
-            console.error('Google ID token verification failed:', err);
+            logger.err('Google ID token verification failed:', err);
             (0, ResANDError_1.throwError)('Failed to verify Google ID token', HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
         }
     });

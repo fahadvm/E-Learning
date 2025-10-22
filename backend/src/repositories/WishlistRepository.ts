@@ -1,3 +1,4 @@
+import {  Types } from 'mongoose';
 import { IWishlistRepository } from '../core/interfaces/repositories/IWishlistRepository';
 import { IWishlist, Wishlist } from '../models/Wishlist';
 import { injectable } from 'inversify';
@@ -7,10 +8,11 @@ import { injectable } from 'inversify';
 export class WishlistRepository implements IWishlistRepository {
   async addToWishlist(userId: string, courseId: string): Promise<IWishlist> {
     let wishlist = await Wishlist.findOne({ userId });
+    const courseObjectId = new Types.ObjectId(courseId);
 
     if (wishlist) {
-      if (!wishlist.courses.includes(courseId as any)) {
-        wishlist.courses.push(courseId as any);
+      if (!wishlist.courses.includes( courseObjectId)) {
+        wishlist.courses.push(courseObjectId);
         await wishlist.save();
       }
     } else {

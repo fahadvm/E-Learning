@@ -39,10 +39,18 @@ let OrderRepository = class OrderRepository {
         return __awaiter(this, void 0, void 0, function* () {
             return Order_1.OrderModel.find({
                 studentId,
-                status: "paid",
+                status: 'paid',
             })
-                .populate("courses")
+                .populate('courses')
                 .exec();
+        });
+    }
+    getStudentOrders() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return Order_1.OrderModel.find()
+                .populate('studentId', 'name email')
+                .populate('courses', 'title')
+                .sort({ createdAt: -1 });
         });
     }
 };

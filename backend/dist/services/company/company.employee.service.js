@@ -33,30 +33,6 @@ let CompanyEmployeeService = class CompanyEmployeeService {
     constructor(_employeeRepo) {
         this._employeeRepo = _employeeRepo;
     }
-    // async addEmployee(data: {
-    //     companyId: string;
-    //     name: string;
-    //     email: string;
-    //     password?: string;
-    //     coursesAssigned?: string[];
-    //     position: string;
-    // }): Promise<any> {
-    //     const existing = await this._employeeRepo.findByEmail(data.email);
-    //     if (existing) {
-    //         throwError(MESSAGES.ALREADY_EXISTS, STATUS_CODES.CONFLICT);
-    //     }
-    //     const tempPassword = 'Temp@' + generateOtp();
-    //     console.log(`new employee added email :${data.email} & password :${tempPassword}`);
-    //     const hashedPassword = tempPassword
-    //         ? await bcrypt.hash(tempPassword, 10)
-    //         : undefined;
-    //     const newEmployee = await this._employeeRepo.create({
-    //         ...data,
-    //         password: hashedPassword,
-    //     });
-    //     await sendOtpEmail(data.email, tempPassword);
-    //     return newEmployee;
-    // }
     getAllEmployees(companyId, page, limit, search, sortBy, sortOrder) {
         return __awaiter(this, void 0, void 0, function* () {
             const total = yield this._employeeRepo.countEmployeesByCompany(companyId, search);
@@ -85,7 +61,25 @@ let CompanyEmployeeService = class CompanyEmployeeService {
     }
     updateEmployee(employeeId, data) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this._employeeRepo.updateEmployeeById(employeeId, data);
+            return yield this._employeeRepo.updateById(employeeId, data);
+        });
+    }
+    requestedEmployees(companyId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const courses = yield this._employeeRepo.findRequestedEmployees(companyId);
+            return courses;
+        });
+    }
+    approvingEmployee(companyId, employeeId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const courses = yield this._employeeRepo.findEmployeeAndApprove(companyId, employeeId);
+            return courses;
+        });
+    }
+    rejectingEmployee(companyId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const courses = yield this._employeeRepo.findEmployeeAndReject(companyId);
+            return courses;
         });
     }
 };

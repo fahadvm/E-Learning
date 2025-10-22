@@ -16,9 +16,13 @@ const teacherCourseController = container_1.default.get(types_1.TYPES.TeacherCou
 // Course Routes
 router
     .route('/')
-    .get((0, authMiddleware_1.authMiddleware)('Teacher'), (0, asyncHandler_1.asyncHandler)(teacherCourseController.getMyCourses.bind(teacherCourseController)))
-    .post((0, authMiddleware_1.authMiddleware)('Teacher'), upload.any(), (0, asyncHandler_1.asyncHandler)(teacherCourseController.addCourse.bind(teacherCourseController)));
+    .get((0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(teacherCourseController.getMyCourses.bind(teacherCourseController)))
+    .post((0, authMiddleware_1.authMiddleware)('teacher'), upload.any(), (0, asyncHandler_1.asyncHandler)(teacherCourseController.addCourse.bind(teacherCourseController)));
 router.route('/:courseId')
-    .get((0, authMiddleware_1.authMiddleware)('Teacher'), (0, asyncHandler_1.asyncHandler)(teacherCourseController.getCourseById.bind(teacherCourseController)))
-    .patch((0, authMiddleware_1.authMiddleware)('Teacher'), (0, asyncHandler_1.asyncHandler)(teacherCourseController.getCourseById.bind(teacherCourseController)));
+    .get((0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(teacherCourseController.getCourseById.bind(teacherCourseController)))
+    .patch((0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(teacherCourseController.getCourseById.bind(teacherCourseController)));
+router.route('/:courseId/resources')
+    .get((0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(teacherCourseController.getResources.bind(teacherCourseController)))
+    .post((0, authMiddleware_1.authMiddleware)('teacher'), upload.single('file'), (0, asyncHandler_1.asyncHandler)(teacherCourseController.uploadResource.bind(teacherCourseController)));
+router.delete('/:resourceId/resources', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(teacherCourseController.deleteResource.bind(teacherCourseController)));
 exports.default = router;

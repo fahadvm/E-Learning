@@ -1,12 +1,12 @@
 // src/controllers/employee/employee.company.controller.ts
-import { Request, Response } from "express";
-import { inject, injectable } from "inversify";
-import { TYPES } from "../../core/di/types";
-import { IEmployeeCompanyService } from "../../core/interfaces/services/employee/IEmployeeCompanyService";
-import { AuthRequest } from "../../types/AuthenticatedRequest";
-import { sendResponse } from "../../utils/ResANDError";
-import { STATUS_CODES } from "../../utils/HttpStatuscodes";
-import { MESSAGES } from "../../utils/ResponseMessages";
+import { Response } from 'express';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '../../core/di/types';
+import { IEmployeeCompanyService } from '../../core/interfaces/services/employee/IEmployeeCompanyService';
+import { AuthRequest } from '../../types/AuthenticatedRequest';
+import { sendResponse } from '../../utils/ResANDError';
+import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { MESSAGES } from '../../utils/ResponseMessages';
 
 // ✅ Define all messages as constants
 

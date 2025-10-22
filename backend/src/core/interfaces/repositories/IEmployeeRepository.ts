@@ -1,4 +1,4 @@
-import { IEmployee } from "../../../models/Employee";
+import { IEmployee } from '../../../models/Employee';
 
 export interface IEmployeeRepository {
   create(employee: Partial<IEmployee>): Promise<IEmployee>;
@@ -6,7 +6,7 @@ export interface IEmployeeRepository {
   updateByEmail(email: string, updateData: Partial<IEmployee>): Promise<IEmployee | null>;
   findAll(): Promise<IEmployee[]>;
   findById(employeeId: string): Promise<IEmployee | null>;
-  findByCompanyId(companyId: string,skip: number,limit: number,search: string,sortField?: string,sortOrder?: 'asc' | 'desc'): Promise<IEmployee[]>;
+  findByCompanyId(companyId: string,skip: number,limit: number,search: string,sortField?: string,sortOrder? : string): Promise<IEmployee[]>;
   getEmployeesByCompany(companyId: string,skip: number,limit: number,search: string): Promise<IEmployee[]>;
   countEmployeesByCompany(companyId: string, search: string): Promise<number>;
   updateById(employeeId: string, data: Partial<IEmployee>): Promise<IEmployee | null>;

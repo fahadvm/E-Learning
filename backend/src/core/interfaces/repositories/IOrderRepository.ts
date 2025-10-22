@@ -1,6 +1,6 @@
 // src/core/interfaces/repositories/IOrderRepository.ts
-import { IOrder } from "../../../models/Order";
-import { ICourse } from "../../../models/Course";
+import { IOrder } from '../../../models/Order';
+import { ICourse } from '../../../models/Course';
 
 export interface IOrderRepository {
   create(order: Partial<IOrder>): Promise<IOrder>;

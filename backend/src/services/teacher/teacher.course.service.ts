@@ -1,49 +1,56 @@
 import { inject, injectable } from 'inversify';
 import { ITeacherCourseService } from '../../core/interfaces/services/teacher/ITeacherCourseService';
 import { ICourseRepository } from '../../core/interfaces/repositories/ICourseRepository';
+import { ICourseResourceRepository } from '../../core/interfaces/repositories/ICourseResourceRepository';
+import { ICourseResource } from '../../models/CourseResource';
+import { CourseCreateDTO, ModuleDTO, LessonDTO } from '../../core/dtos/teacher/TeacherDTO';
+import { TYPES } from '../../core/di/types';
 import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
-import { TYPES } from '../../core/di/types';
 import cloudinary from '../../config/cloudinary';
-import { CourseCreateDTO, ModuleDTO } from '../../core/dtos/teacher/TeacherDTO';
-import { ICourseResource } from '../../models/CourseResource';
-import { ICourseResourceRepository } from '../../core/interfaces/repositories/ICourseResourceRepository';
 import { Types } from 'mongoose';
-import { UploadApiOptions } from 'cloudinary';
+import { ICourse } from '../../models/Course';
+import { CreateCourseRequest } from '../../types/filter/fiterTypes';
+
+
 
 @injectable()
 export class TeacherCourseService implements ITeacherCourseService {
   constructor(
     @inject(TYPES.CourseRepository) private readonly _courseRepository: ICourseRepository,
     @inject(TYPES.CourseResourceRepository) private readonly _resourceRepository: ICourseResourceRepository,
-  ) { }
+  ) {}
 
-  async createCourse(req: any): Promise<CourseCreateDTO> {
+  // Helper for Cloudinary upload
+  private async uploadToCloudinary(file: Express.Multer.File, folder: string, resourceType: 'video' | 'image' | 'raw'| 'auto' = 'auto'): Promise<string> {
+    return new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream({ resource_type: resourceType, folder }, (error, result) => {
+        if (error || !result) reject(error || new Error('Upload failed'));
+        else resolve(result.secure_url);
+      }).end(file.buffer);
+    });
+  }
+
+  async createCourse(req: CreateCourseRequest): Promise<CourseCreateDTO> {
     const teacherId = req.user?.id;
-    if (!teacherId) throw new Error(MESSAGES.UNAUTHORIZED);
+    if (!teacherId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
     // Map files by fieldname
     const filesMap: { [key: string]: Express.Multer.File } = {};
-    (req.files as Express.Multer.File[] || []).forEach(file => {
-      filesMap[file.fieldname] = file;
-    });
+    (req.files || []).forEach(file => filesMap[file.fieldname] = file);
 
-    // Parse modules JSON from frontend
-    let modulesBody: any[] = [];
-    try {
-      modulesBody = JSON.parse(req.body.modules || '[]');
-    } catch (error) {
-      console.error('Failed to parse modules:', error);
-      throw new Error('Invalid modules format');
-    }
+    // Parse modules
+    let modulesBody: ModuleDTO[] = [];
+      modulesBody = JSON.parse(req.body.modules || '[]') as ModuleDTO[];
+   
 
     const modules: ModuleDTO[] = [];
 
     for (const [moduleIndex, module] of modulesBody.entries()) {
       const newModule: ModuleDTO = {
         title: module.title,
-        description: module.description, 
+        description: module.description,
         lessons: [],
       };
 
@@ -52,49 +59,19 @@ export class TeacherCourseService implements ITeacherCourseService {
           let videoFileUrl = '';
           let thumbnailUrl = '';
 
-          // Upload lesson video
           const videoFile = filesMap[`modules[${moduleIndex}][lessons][${lessonIndex}][videoFile]`];
-          if (videoFile) {
-            try {
-              videoFileUrl = await new Promise<string>((resolve, reject) => {
-                cloudinary.uploader.upload_stream(
-                  { resource_type: 'video', folder: 'course_videos' },
-                  (error, result) => {
-                    if (error || !result) reject(new Error('Cloudinary video upload failed'));
-                    else resolve(result.secure_url);
-                  }
-                ).end(videoFile.buffer);
-              });
-            } catch (error) {
-              console.error(`Video upload failed for module ${moduleIndex}, lesson ${lessonIndex}:`, error);
-            }
-          }
+          if (videoFile) videoFileUrl = await this.uploadToCloudinary(videoFile, 'course_videos', 'video');
 
-          // Upload lesson thumbnail
           const thumbnail = filesMap[`modules[${moduleIndex}][lessons][${lessonIndex}][thumbnail]`];
-          if (thumbnail) {
-            try {
-              thumbnailUrl = await new Promise<string>((resolve, reject) => {
-                cloudinary.uploader.upload_stream(
-                  { resource_type: 'image', folder: 'course_thumbnails' },
-                  (error, result) => {
-                    if (error || !result) reject(new Error('Cloudinary thumbnail upload failed'));
-                    else resolve(result.secure_url);
-                  }
-                ).end(thumbnail.buffer);
-              });
-            } catch (error) {
-              console.error(`Thumbnail upload failed for module ${moduleIndex}, lesson ${lessonIndex}:`, error);
-            }
-          }
+          if (thumbnail) thumbnailUrl = await this.uploadToCloudinary(thumbnail, 'course_thumbnails', 'image');
 
           newModule.lessons.push({
             title: lesson.title,
             description: lesson.description || '',
-            duration: parseInt(lesson.duration) || 0,
+            duration: parseInt(lesson.duration?.toString() || '0', 10),
             videoFile: videoFileUrl,
             thumbnail: thumbnailUrl,
-          });
+          } as LessonDTO);
         }
       }
 
@@ -104,25 +81,10 @@ export class TeacherCourseService implements ITeacherCourseService {
     // Upload cover image
     let coverImageUrl = '';
     const coverImage = filesMap['coverImage'];
-    if (coverImage) {
-      try {
-        coverImageUrl = await new Promise<string>((resolve, reject) => {
-          cloudinary.uploader.upload_stream(
-            { resource_type: 'image', folder: 'course_covers' },
-            (error, result) => {
-              if (error || !result) reject(new Error('Cloudinary cover image upload failed'));
-              else resolve(result.secure_url);
-            }
-          ).end(coverImage.buffer);
-        });
-      } catch (error) {
-        console.error('Cover image upload failed:', error);
-      }
-    }
-
-
+    if (coverImage) coverImageUrl = await this.uploadToCloudinary(coverImage, 'course_covers', 'image');
 
     // Construct course DTO
+    const price = typeof req.body.price === 'string' ? parseFloat(req.body.price) : req.body.price ?? 0;
     const courseData: CourseCreateDTO = {
       title: req.body.title,
       subtitle: req.body.subtitle || '',
@@ -130,14 +92,14 @@ export class TeacherCourseService implements ITeacherCourseService {
       category: req.body.category,
       level: req.body.level,
       language: req.body.language,
-      price: parseFloat(req.body.price || '0'),
+      price,
       coverImage: coverImageUrl,
       learningOutcomes: JSON.parse(req.body.learningOutcomes || '[]'),
       requirements: JSON.parse(req.body.requirements || '[]'),
       isPublished: req.body.isPublished === 'true',
-      totalDuration: req.body.totalDuration || undefined,
+      totalDuration: req.body.totalDuration ? Number(req.body.totalDuration) : undefined,
       modules,
-      teacherId,
+      teacherId :new Types.ObjectId(teacherId),
     };
 
     // Validation
@@ -148,79 +110,39 @@ export class TeacherCourseService implements ITeacherCourseService {
       throw new Error(MESSAGES.AT_LEAST_ONE_MODULE_REQUIRED);
     }
 
-    return await this._courseRepository.create(courseData);
+    return this._courseRepository.create(courseData);
   }
 
-
-  async getCoursesByTeacherId(teacherId: string): Promise<any[]> {
-    const courses = await this._courseRepository.findByTeacherId(teacherId);
-    // if (!courses || courses.length === 0) {
-    //   throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    // }
-    return courses;
+  async getCoursesByTeacherId(teacherId: string): Promise<ICourse[]> {
+    return this._courseRepository.findByTeacherId(teacherId);
   }
 
-  async getCourseByIdWithTeacherId(courseId: string, teacherId: string): Promise<any> {
+  async getCourseByIdWithTeacherId(courseId: string, teacherId: string): Promise<ICourse> {
     const course = await this._courseRepository.findByIdAndTeacherId(courseId, teacherId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     return course;
   }
 
-async uploadResource(courseId: string, title: string, file: Express.Multer.File): Promise<ICourseResource> {
-  if (!file) throwError(MESSAGES.FILE_REQUIRED, STATUS_CODES.BAD_REQUEST);
+  async uploadResource(courseId: string, title: string, file: Express.Multer.File): Promise<ICourseResource> {
+    if (!file) throwError(MESSAGES.FILE_REQUIRED, STATUS_CODES.BAD_REQUEST);
 
-  const fileType = file.originalname.split(".").pop() || "unknown";
+    const fileType = file.originalname.split('.').pop() ?? 'unknown';
+    const resourceType: 'raw' | 'auto' = fileType === 'pdf' ? 'raw' : 'auto';
+    const uploadedUrl = await this.uploadToCloudinary(file, 'course_resources', resourceType);
 
-  const uploadOptions: UploadApiOptions = {
-    resource_type: fileType === "pdf"? "raw" : "auto",
-    folder: "course_resources",
-    public_id: `${Date.now()}_${file.originalname.split(".")[0]}`,
-  };
-
-  const uploaded = await new Promise<any>((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
-      if (error) reject(error);
-      else resolve(result);
+    return this._resourceRepository.uploadResource({
+      courseId: new Types.ObjectId(courseId),
+      title,
+      fileUrl: uploadedUrl,
+      fileType,
     });
-    stream.end(file.buffer);
-  });
-
-
-  const resource = await this._resourceRepository.uploadResource({
-    courseId: new Types.ObjectId(courseId),
-    title,
-    fileUrl: uploaded.secure_url,
-    fileType,
-  });
-
-  return resource;
-}
-
+  }
 
   async getResources(courseId: string): Promise<ICourseResource[]> {
-    const  resources = await this._resourceRepository.getResourcesByCourse(courseId);
-    return resources
+    return this._resourceRepository.getResourcesByCourse(courseId);
   }
 
-  async deleteResource( resourceId: string): Promise<void> {
+  async deleteResource(resourceId: string): Promise<void> {
     await this._resourceRepository.deleteResource(resourceId);
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

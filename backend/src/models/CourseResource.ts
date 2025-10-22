@@ -1,5 +1,5 @@
 // src/models/CourseResource.ts
-import mongoose, { Schema, model, Document } from "mongoose";
+import mongoose, { Schema, model, Document } from 'mongoose';
 
 
 export interface ICourseResource extends Document {
@@ -11,7 +11,7 @@ export interface ICourseResource extends Document {
 
 const CourseResourceSchema = new Schema<ICourseResource>(
   {
-    courseId: { type: Schema.Types.ObjectId, ref: "Course", required: true },
+    courseId: { type: Schema.Types.ObjectId, ref: 'Course', required: true },
     title: { type: String, required: true },
     fileUrl: { type: String, required: true },
     fileType: { type: String, required: true },
@@ -20,6 +20,6 @@ const CourseResourceSchema = new Schema<ICourseResource>(
 );
 
 export const CourseResource = model<ICourseResource>(
-  "CourseResource",
+  'CourseResource',
   CourseResourceSchema
 );

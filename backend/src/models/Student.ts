@@ -43,7 +43,7 @@ const CourseProgressSchema: Schema = new Schema<ICourseProgress>({
   completedModules: [{ type: Schema.Types.ObjectId, ref: 'Module' }],
   percentage: { type: Number, default: 0 },
   lastVisitedLesson: { type: Schema.Types.ObjectId, ref: 'Lesson' },
-  notes:{type:String ,default:""}
+  notes:{type:String ,default:''}
 });
 
 const StudentSchema: Schema = new Schema<IStudent>({

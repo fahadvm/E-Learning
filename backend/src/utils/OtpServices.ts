@@ -1,5 +1,7 @@
 import nodemailer from 'nodemailer';
-const otpStore = new Map();
+import { TemporaryCompanyData } from '../types/filter/fiterTypes';
+import logger from './logger';
+const otpStore = new Map<string, TemporaryCompanyData>();
 
 export function generateOtp(length: number = 6): string {
   let otp = '';
@@ -26,14 +28,14 @@ export const sendOtpEmail = async (toEmail: string, otp: string): Promise<void> 
     html: `<h3>Your OTP code is: <b>${otp}</b></h3><p>It is valid for 1 minutes.</p>`,
   };
 
-  console.log('otp is :',otp);
+  logger.info('otp is :',otp);
 
   await transporter.sendMail(mailOptions);
 };
 
 
 
-export async function storeTemporaryCompanyData(email: string, data: any) {
+export async function storeTemporaryCompanyData(email: string,data: Omit<TemporaryCompanyData, 'createdAt'>) {
   otpStore.set(email, { ...data, createdAt: Date.now() });
 }
 

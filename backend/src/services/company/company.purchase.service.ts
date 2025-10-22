@@ -1,14 +1,15 @@
-import { injectable, inject } from "inversify";
-import { ICompanyPurchaseService } from "../../core/interfaces/services/company/ICompanyPurchaseService";
-import { stripe } from "../../config/stripe";
-import dotenv from "dotenv";
-import { TYPES } from "../../core/di/types";
-import { IOrderRepository } from "../../core/interfaces/repositories/IOrderRepository";
-import { ICartRepository } from "../../core/interfaces/repositories/ICartRepository";
-import { ICourseRepository } from "../../core/interfaces/repositories/ICourseRepository";
-import mongoose from "mongoose";
-import { ICompanyRepository } from "../../core/interfaces/repositories/ICompanyRepository";
-import { ICompanyOrderRepository } from "../../core/interfaces/repositories/ICompanyOrderRepository";
+import { injectable, inject } from 'inversify';
+import { ICompanyPurchaseService } from '../../core/interfaces/services/company/ICompanyPurchaseService';
+import { stripe } from '../../config/stripe';
+import dotenv from 'dotenv';
+import { TYPES } from '../../core/di/types';
+import { ICartRepository } from '../../core/interfaces/repositories/ICartRepository';
+import { ICourseRepository } from '../../core/interfaces/repositories/ICourseRepository';
+import mongoose from 'mongoose';
+import { ICompanyRepository } from '../../core/interfaces/repositories/ICompanyRepository';
+import { ICompanyOrderRepository } from '../../core/interfaces/repositories/ICompanyOrderRepository';
+import { ICompanyOrder } from '../../models/CompanyOrder';
+import { ICourse } from '../../models/Course';
 
 dotenv.config();
 
@@ -25,24 +26,23 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
    * Create a Stripe Checkout session for a company
    */
   async createCheckoutSession(courseIds: string[], companyId: string, amount: number) {
-    console.log("coming from controllers", courseIds, companyId, amount)
-    const Company = await this._companyRepo.findById(companyId)
+    const Company = await this._companyRepo.findById(companyId);
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
+      payment_method_types: ['card'],
       line_items: [
         {
           price_data: {
-            currency: "inr",
+            currency: 'inr',
             product_data: {
-              name: Company?.name || "unknown",
-              description: "Purchase courses from devnext!",
+              name: Company?.name || 'unknown',
+              description: 'Purchase courses from devnext!',
             },
             unit_amount: amount * 100,
           },
           quantity: 1,
         },
       ],
-      mode: "payment",
+      mode: 'payment',
       success_url: `${process.env.FRONTEND_URL}/company/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.FRONTEND_URL}/company/checkout/cancel`,
     });
@@ -56,8 +56,8 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
       courses: courseObjIds,
       stripeSessionId: session.id,
       amount,
-      currency: "inr",
-      status: "created",
+      currency: 'inr',
+      status: 'created',
     });
 
     return { url: session.url };
@@ -66,25 +66,25 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
 
   async verifyPayment(sessionId: string, companyId: string) {
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ["payment_intent"],
+      expand: ['payment_intent'],
     });
 
 
-    if (session.payment_status === "paid") {
-      await this._companyOrderRepo.updateStatus(sessionId, "paid");
+    if (session.payment_status === 'paid') {
+      await this._companyOrderRepo.updateStatus(sessionId, 'paid');
       await this._cartRepo.clearCart(companyId);
-      const order = await this._companyOrderRepo.findByStripeSessionId(sessionId)
+      const order = await this._companyOrderRepo.findByStripeSessionId(sessionId);
       return { success: true , amount : order?.amount };
     }
 
-    await this._companyOrderRepo.updateStatus(sessionId, "failed");
+    await this._companyOrderRepo.updateStatus(sessionId, 'failed');
     return { success: false };
   }
 
   /**
    * Get purchased courses for a company
    */
-  async getPurchasedCourses(companyId: string) {
+  async getPurchasedCourses(companyId: string): Promise<(ICompanyOrder & { courses: ICourse[] })[]> {
     return await this._companyOrderRepo.getOrdersByCompanyId(companyId);
   }
 }

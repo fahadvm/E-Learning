@@ -1,4 +1,4 @@
-import { Schema, model, Document } from "mongoose"
+import { Schema, model, Document } from 'mongoose';
 
 export interface ITimeSlot {
   start: string
@@ -21,20 +21,20 @@ export interface ITeacherAvailability extends Document {
 const TimeSlotSchema = new Schema<ITimeSlot>({
   start: { type: String, required: true },
   end: { type: String, required: true },
-})
+});
 
 const DayAvailabilitySchema = new Schema<IDayAvailability>({
   day: { type: String, required: true },
   enabled: { type: Boolean, default: false },
   slots: { type: [TimeSlotSchema], default: [] },
-})
+});
 
 const TeacherAvailabilitySchema = new Schema<ITeacherAvailability>(
   {
-    teacherId: { type: Schema.Types.ObjectId, ref: "Teacher", required: true, unique: true },
+    teacherId: { type: Schema.Types.ObjectId, ref: 'Teacher', required: true, unique: true },
     week: { type: [DayAvailabilitySchema], required: true },
   },
   { timestamps: true }
-)
+);
 
-export const TeacherAvailability = model<ITeacherAvailability>("TeacherAvailability",TeacherAvailabilitySchema)
+export const TeacherAvailability = model<ITeacherAvailability>('TeacherAvailability',TeacherAvailabilitySchema);

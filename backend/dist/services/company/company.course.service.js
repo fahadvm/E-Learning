@@ -32,9 +32,9 @@ let CompanyCourseService = class CompanyCourseService {
         this._courseRepository = _courseRepository;
         this._companyOrderRepository = _companyOrderRepository;
     }
-    getAllCourses() {
+    getAllCourses(filters) {
         return __awaiter(this, void 0, void 0, function* () {
-            const courses = yield this._courseRepository.findAllCourses();
+            const courses = yield this._courseRepository.getFilteredCourses(filters);
             return courses;
         });
     }
@@ -48,7 +48,6 @@ let CompanyCourseService = class CompanyCourseService {
     }
     getMycoursesById(companyId) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("request reached until service ");
             const orders = yield this._companyOrderRepository.getOrdersByCompanyId(companyId);
             return orders;
         });

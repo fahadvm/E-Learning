@@ -29,6 +29,7 @@ const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const Admin_teacher_Dto_1 = require("../../core/dtos/admin/Admin.teacher.Dto");
 const Admin_course_Dto_1 = require("../../core/dtos/admin/Admin.course.Dto");
+const Teacher_1 = require("../../models/Teacher");
 let AdminTeacherService = class AdminTeacherService {
     constructor(_teacherRepo, _courseRepo) {
         this._teacherRepo = _teacherRepo;
@@ -57,7 +58,7 @@ let AdminTeacherService = class AdminTeacherService {
     }
     verifyTeacher(teacherId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const updated = yield this._teacherRepo.updateStatus(teacherId, { isVerified: true, isRejected: false });
+            const updated = yield this._teacherRepo.updateStatus(teacherId, { verificationStatus: Teacher_1.VerificationStatus.VERIFIED, isRejected: false });
             if (!updated)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.TEACHER_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             return (0, Admin_teacher_Dto_1.adminTeacherDto)(updated);
@@ -82,7 +83,7 @@ let AdminTeacherService = class AdminTeacherService {
     }
     rejectTeacher(teacherId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const updated = yield this._teacherRepo.updateStatus(teacherId, { isVerified: false, isRejected: true });
+            const updated = yield this._teacherRepo.updateStatus(teacherId, { verificationStatus: Teacher_1.VerificationStatus.UNVERIFIED, isRejected: true });
             if (!updated)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.TEACHER_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             return (0, Admin_teacher_Dto_1.adminTeacherDto)(updated);

@@ -1,5 +1,5 @@
-import { Response } from "express"
-import { AuthRequest } from "../../../../types/AuthenticatedRequest"
+import { Response } from 'express';
+import { AuthRequest } from '../../../../types/AuthenticatedRequest';
 export interface ITeacherCallRequestController {
   getPendingRequests(req: AuthRequest, res: Response): Promise<void>
   getConfirmedRequests(req: AuthRequest, res: Response): Promise<void>

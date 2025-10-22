@@ -16,15 +16,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WishlistRepository = void 0;
+const mongoose_1 = require("mongoose");
 const Wishlist_1 = require("../models/Wishlist");
 const inversify_1 = require("inversify");
 let WishlistRepository = class WishlistRepository {
     addToWishlist(userId, courseId) {
         return __awaiter(this, void 0, void 0, function* () {
             let wishlist = yield Wishlist_1.Wishlist.findOne({ userId });
+            const courseObjectId = new mongoose_1.Types.ObjectId(courseId);
             if (wishlist) {
-                if (!wishlist.courses.includes(courseId)) {
-                    wishlist.courses.push(courseId);
+                if (!wishlist.courses.includes(courseObjectId)) {
+                    wishlist.courses.push(courseObjectId);
                     yield wishlist.save();
                 }
             }

@@ -33,8 +33,11 @@ let StudentWishlistController = class StudentWishlistController {
     }
     add(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             const { courseId } = req.body;
-            const studentId = req.user.id;
+            const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!studentId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STUDENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const result = yield this._wishlistService.addCourse(studentId, courseId);
             if (result)
                 return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.WISHLIST_COURSE_ADDED, true, result);
@@ -42,15 +45,21 @@ let StudentWishlistController = class StudentWishlistController {
     }
     list(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const studentId = req.user.id;
+            var _a;
+            const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!studentId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STUDENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const result = yield this._wishlistService.listWishlist(studentId);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.WISHLIST_FETCHED, true, result);
         });
     }
     remove(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             const { courseId } = req.params;
-            const studentId = req.user.id;
+            const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!studentId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STUDENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const result = yield this._wishlistService.removeCourse(studentId, courseId);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.WISHLIST_COURSE_REMOVED, true, result);
         });

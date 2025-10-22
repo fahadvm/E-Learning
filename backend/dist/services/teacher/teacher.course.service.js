@@ -26,83 +26,63 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TeacherCourseService = void 0;
 const inversify_1 = require("inversify");
+const types_1 = require("../../core/di/types");
 const ResANDError_1 = require("../../utils/ResANDError");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
-const types_1 = require("../../core/di/types");
 const cloudinary_1 = __importDefault(require("../../config/cloudinary"));
+const mongoose_1 = require("mongoose");
 let TeacherCourseService = class TeacherCourseService {
-    constructor(_courseRepository) {
+    constructor(_courseRepository, _resourceRepository) {
         this._courseRepository = _courseRepository;
+        this._resourceRepository = _resourceRepository;
+    }
+    // Helper for Cloudinary upload
+    uploadToCloudinary(file_1, folder_1) {
+        return __awaiter(this, arguments, void 0, function* (file, folder, resourceType = 'auto') {
+            return new Promise((resolve, reject) => {
+                cloudinary_1.default.uploader.upload_stream({ resource_type: resourceType, folder }, (error, result) => {
+                    if (error || !result)
+                        reject(error || new Error('Upload failed'));
+                    else
+                        resolve(result.secure_url);
+                }).end(file.buffer);
+            });
+        });
     }
     createCourse(req) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
+            var _a, _b, _c;
             const teacherId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!teacherId)
-                throw new Error(ResponseMessages_1.MESSAGES.UNAUTHORIZED);
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             // Map files by fieldname
             const filesMap = {};
-            (req.files || []).forEach(file => {
-                filesMap[file.fieldname] = file;
-            });
-            // Parse modules JSON from frontend
+            (req.files || []).forEach(file => filesMap[file.fieldname] = file);
+            // Parse modules
             let modulesBody = [];
-            try {
-                modulesBody = JSON.parse(req.body.modules || '[]');
-            }
-            catch (error) {
-                console.error('Failed to parse modules:', error);
-                throw new Error('Invalid modules format');
-            }
+            modulesBody = JSON.parse(req.body.modules || '[]');
             const modules = [];
             for (const [moduleIndex, module] of modulesBody.entries()) {
                 const newModule = {
                     title: module.title,
+                    description: module.description,
                     lessons: [],
                 };
                 if (Array.isArray(module.lessons)) {
                     for (const [lessonIndex, lesson] of module.lessons.entries()) {
                         let videoFileUrl = '';
                         let thumbnailUrl = '';
-                        // Upload lesson video
                         const videoFile = filesMap[`modules[${moduleIndex}][lessons][${lessonIndex}][videoFile]`];
-                        if (videoFile) {
-                            try {
-                                videoFileUrl = yield new Promise((resolve, reject) => {
-                                    cloudinary_1.default.uploader.upload_stream({ resource_type: 'video', folder: 'course_videos' }, (error, result) => {
-                                        if (error || !result)
-                                            reject(new Error('Cloudinary video upload failed'));
-                                        else
-                                            resolve(result.secure_url);
-                                    }).end(videoFile.buffer);
-                                });
-                            }
-                            catch (error) {
-                                console.error(`Video upload failed for module ${moduleIndex}, lesson ${lessonIndex}:`, error);
-                            }
-                        }
-                        // Upload lesson thumbnail
+                        if (videoFile)
+                            videoFileUrl = yield this.uploadToCloudinary(videoFile, 'course_videos', 'video');
                         const thumbnail = filesMap[`modules[${moduleIndex}][lessons][${lessonIndex}][thumbnail]`];
-                        if (thumbnail) {
-                            try {
-                                thumbnailUrl = yield new Promise((resolve, reject) => {
-                                    cloudinary_1.default.uploader.upload_stream({ resource_type: 'image', folder: 'course_thumbnails' }, (error, result) => {
-                                        if (error || !result)
-                                            reject(new Error('Cloudinary thumbnail upload failed'));
-                                        else
-                                            resolve(result.secure_url);
-                                    }).end(thumbnail.buffer);
-                                });
-                            }
-                            catch (error) {
-                                console.error(`Thumbnail upload failed for module ${moduleIndex}, lesson ${lessonIndex}:`, error);
-                            }
-                        }
+                        if (thumbnail)
+                            thumbnailUrl = yield this.uploadToCloudinary(thumbnail, 'course_thumbnails', 'image');
                         newModule.lessons.push({
                             title: lesson.title,
                             description: lesson.description || '',
-                            duration: parseInt(lesson.duration) || 0,
+                            duration: parseInt(((_b = lesson.duration) === null || _b === void 0 ? void 0 : _b.toString()) || '0', 10),
                             videoFile: videoFileUrl,
                             thumbnail: thumbnailUrl,
                         });
@@ -113,23 +93,10 @@ let TeacherCourseService = class TeacherCourseService {
             // Upload cover image
             let coverImageUrl = '';
             const coverImage = filesMap['coverImage'];
-            if (coverImage) {
-                try {
-                    coverImageUrl = yield new Promise((resolve, reject) => {
-                        cloudinary_1.default.uploader.upload_stream({ resource_type: 'image', folder: 'course_covers' }, (error, result) => {
-                            if (error || !result)
-                                reject(new Error('Cloudinary cover image upload failed'));
-                            else
-                                resolve(result.secure_url);
-                        }).end(coverImage.buffer);
-                    });
-                }
-                catch (error) {
-                    console.error('Cover image upload failed:', error);
-                }
-            }
-            console.log("here just printing the req/bpdu :", req.body);
+            if (coverImage)
+                coverImageUrl = yield this.uploadToCloudinary(coverImage, 'course_covers', 'image');
             // Construct course DTO
+            const price = typeof req.body.price === 'string' ? parseFloat(req.body.price) : (_c = req.body.price) !== null && _c !== void 0 ? _c : 0;
             const courseData = {
                 title: req.body.title,
                 subtitle: req.body.subtitle || '',
@@ -137,14 +104,14 @@ let TeacherCourseService = class TeacherCourseService {
                 category: req.body.category,
                 level: req.body.level,
                 language: req.body.language,
-                price: parseFloat(req.body.price || '0'),
+                price,
                 coverImage: coverImageUrl,
                 learningOutcomes: JSON.parse(req.body.learningOutcomes || '[]'),
                 requirements: JSON.parse(req.body.requirements || '[]'),
                 isPublished: req.body.isPublished === 'true',
-                totalDuration: req.body.totalDuration || undefined,
+                totalDuration: req.body.totalDuration ? Number(req.body.totalDuration) : undefined,
                 modules,
-                teacherId,
+                teacherId: new mongoose_1.Types.ObjectId(teacherId),
             };
             // Validation
             if (!courseData.title || !courseData.description || !courseData.category) {
@@ -153,16 +120,12 @@ let TeacherCourseService = class TeacherCourseService {
             if (courseData.modules.length === 0) {
                 throw new Error(ResponseMessages_1.MESSAGES.AT_LEAST_ONE_MODULE_REQUIRED);
             }
-            return yield this._courseRepository.create(courseData);
+            return this._courseRepository.create(courseData);
         });
     }
     getCoursesByTeacherId(teacherId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const courses = yield this._courseRepository.findByTeacherId(teacherId);
-            // if (!courses || courses.length === 0) {
-            //   throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-            // }
-            return courses;
+            return this._courseRepository.findByTeacherId(teacherId);
         });
     }
     getCourseByIdWithTeacherId(courseId, teacherId) {
@@ -173,10 +136,37 @@ let TeacherCourseService = class TeacherCourseService {
             return course;
         });
     }
+    uploadResource(courseId, title, file) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            if (!file)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.FILE_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            const fileType = (_a = file.originalname.split('.').pop()) !== null && _a !== void 0 ? _a : 'unknown';
+            const resourceType = fileType === 'pdf' ? 'raw' : 'auto';
+            const uploadedUrl = yield this.uploadToCloudinary(file, 'course_resources', resourceType);
+            return this._resourceRepository.uploadResource({
+                courseId: new mongoose_1.Types.ObjectId(courseId),
+                title,
+                fileUrl: uploadedUrl,
+                fileType,
+            });
+        });
+    }
+    getResources(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this._resourceRepository.getResourcesByCourse(courseId);
+        });
+    }
+    deleteResource(resourceId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this._resourceRepository.deleteResource(resourceId);
+        });
+    }
 };
 exports.TeacherCourseService = TeacherCourseService;
 exports.TeacherCourseService = TeacherCourseService = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(types_1.TYPES.CourseRepository)),
-    __metadata("design:paramtypes", [Object])
+    __param(1, (0, inversify_1.inject)(types_1.TYPES.CourseResourceRepository)),
+    __metadata("design:paramtypes", [Object, Object])
 ], TeacherCourseService);

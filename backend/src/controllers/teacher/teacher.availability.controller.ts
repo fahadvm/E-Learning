@@ -2,7 +2,6 @@
 import { inject, injectable } from 'inversify';
 import { Response } from 'express';
 import { AuthRequest } from '../../types/AuthenticatedRequest';
-import { TeacherAvailabilityService } from '../../services/teacher/teacher.availability.service';
 import { TYPES } from '../../core/di/types';
 import { sendResponse, throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
@@ -26,7 +25,6 @@ export class TeacherAvailabilityController {
 
   async getMyAvailability(req: AuthRequest, res: Response): Promise<void> {
     const teacherId = req.user?.id;
-    console.log("trying to getting")
     if (!teacherId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
     const availabilities = await this._availabilityService.getAvailabilityByTeacherId(teacherId);

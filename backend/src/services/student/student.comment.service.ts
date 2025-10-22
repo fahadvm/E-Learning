@@ -1,8 +1,8 @@
-import { injectable, inject } from "inversify";
-import { IComment } from "../../models/Comment";
-import { TYPES } from "../../core/di/types";
-import { ICommentRepository } from "../../core/interfaces/repositories/ICommentRepository";
-import { IStudentCommentService } from "../../core/interfaces/services/student/IStudentCommentService";
+import { injectable, inject } from 'inversify';
+import { IComment } from '../../models/Comment';
+import { TYPES } from '../../core/di/types';
+import { ICommentRepository } from '../../core/interfaces/repositories/ICommentRepository';
+import { IStudentCommentService } from '../../core/interfaces/services/student/IStudentCommentService';
 
 @injectable()
 export class StudentCommentService implements IStudentCommentService {

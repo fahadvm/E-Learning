@@ -43,24 +43,24 @@ let CompanyPurchaseService = class CompanyPurchaseService {
      */
     createCheckoutSession(courseIds, companyId, amount) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("coming from controllers", courseIds, companyId, amount);
+            console.log('coming from controllers', courseIds, companyId, amount);
             const Company = yield this._companyRepo.findById(companyId);
             const session = yield stripe_1.stripe.checkout.sessions.create({
-                payment_method_types: ["card"],
+                payment_method_types: ['card'],
                 line_items: [
                     {
                         price_data: {
-                            currency: "inr",
+                            currency: 'inr',
                             product_data: {
-                                name: (Company === null || Company === void 0 ? void 0 : Company.name) || "unknown",
-                                description: "Purchase courses from devnext!",
+                                name: (Company === null || Company === void 0 ? void 0 : Company.name) || 'unknown',
+                                description: 'Purchase courses from devnext!',
                             },
                             unit_amount: amount * 100,
                         },
                         quantity: 1,
                     },
                 ],
-                mode: "payment",
+                mode: 'payment',
                 success_url: `${process.env.FRONTEND_URL}/company/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
                 cancel_url: `${process.env.FRONTEND_URL}/company/checkout/cancel`,
             });
@@ -71,8 +71,8 @@ let CompanyPurchaseService = class CompanyPurchaseService {
                 courses: courseObjIds,
                 stripeSessionId: session.id,
                 amount,
-                currency: "inr",
-                status: "created",
+                currency: 'inr',
+                status: 'created',
             });
             return { url: session.url };
         });
@@ -80,16 +80,15 @@ let CompanyPurchaseService = class CompanyPurchaseService {
     verifyPayment(sessionId, companyId) {
         return __awaiter(this, void 0, void 0, function* () {
             const session = yield stripe_1.stripe.checkout.sessions.retrieve(sessionId, {
-                expand: ["payment_intent"],
+                expand: ['payment_intent'],
             });
-            console.log("verifying is working", session.payment_status);
-            if (session.payment_status === "paid") {
-                yield this._companyOrderRepo.updateStatus(sessionId, "paid");
+            if (session.payment_status === 'paid') {
+                yield this._companyOrderRepo.updateStatus(sessionId, 'paid');
                 yield this._cartRepo.clearCart(companyId);
                 const order = yield this._companyOrderRepo.findByStripeSessionId(sessionId);
                 return { success: true, amount: order === null || order === void 0 ? void 0 : order.amount };
             }
-            yield this._companyOrderRepo.updateStatus(sessionId, "failed");
+            yield this._companyOrderRepo.updateStatus(sessionId, 'failed');
             return { success: false };
         });
     }

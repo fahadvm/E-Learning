@@ -1,7 +1,7 @@
-import { ICompanyOrderRepository } from "../core/interfaces/repositories/ICompanyOrderRepository";
-import { ICompanyOrder, CompanyOrderModel } from "../models/CompanyOrder";
-import { injectable } from "inversify";
-import { ICourse ,Course } from "../models/Course";
+import { ICompanyOrderRepository } from '../core/interfaces/repositories/ICompanyOrderRepository';
+import { ICompanyOrder, CompanyOrderModel } from '../models/CompanyOrder';
+import { injectable } from 'inversify';
+import { ICourse  } from '../models/Course';
 
 @injectable()
 export class CompanyOrderRepository implements ICompanyOrderRepository {
@@ -25,9 +25,9 @@ export class CompanyOrderRepository implements ICompanyOrderRepository {
   async getOrdersByCompanyId(companyId: string): Promise<(ICompanyOrder & { courses: ICourse[] })[]> {
     return CompanyOrderModel.find({
       companyId,
-      status: "paid",
+      status: 'paid',
     })
-      .populate<{ courses: ICourse[] }>("courses")
+      .populate<{ courses: ICourse[] }>('courses')
       .exec();
   }
 
@@ -35,15 +35,15 @@ export class CompanyOrderRepository implements ICompanyOrderRepository {
   async getOrdersById(companyId: string): Promise<(ICompanyOrder & { courses: ICourse[] })[]> {
     return CompanyOrderModel.find({
       companyId,
-      status: "paid",
-    })
+      status: 'paid',
+    });
      
   }
 
    async getCompanyOrders(): Promise<ICompanyOrder[]> {
     return CompanyOrderModel.find()
-      .populate("companyId", "name email")
-      .populate("courses", "title")
+      .populate('companyId', 'name email')
+      .populate('courses', 'title')
       .sort({ createdAt: -1 });
   }
 

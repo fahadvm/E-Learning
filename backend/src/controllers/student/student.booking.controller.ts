@@ -1,14 +1,13 @@
 // src/controllers/student/student.booking.controller.ts
-import { Response } from "express";
-import { inject, injectable } from "inversify";
-import { TYPES } from "../../core/di/types";
-import { IStudentBookingService } from "../../core/interfaces/services/student/IStudentBookingService";
-import { IStudentBookingController } from "../../core/interfaces/controllers/student/IStudentBookingController";
-import { AuthRequest } from "../../types/AuthenticatedRequest";
-import { sendResponse, throwError } from "../../utils/ResANDError";
-import { STATUS_CODES } from "../../utils/HttpStatuscodes";
-import { MESSAGES } from "../../utils/ResponseMessages";
-import { Message } from "../../models/message";
+import { Response } from 'express';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '../../core/di/types';
+import { IStudentBookingService } from '../../core/interfaces/services/student/IStudentBookingService';
+import { IStudentBookingController } from '../../core/interfaces/controllers/student/IStudentBookingController';
+import { AuthRequest } from '../../types/AuthenticatedRequest';
+import { sendResponse, throwError } from '../../utils/ResANDError';
+import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { MESSAGES } from '../../utils/ResponseMessages';
 
 @injectable()
 export class StudentBookingController implements IStudentBookingController {
@@ -37,7 +36,7 @@ export class StudentBookingController implements IStudentBookingController {
   };
 
   bookingDetails = async (req: AuthRequest, res: Response) => {
-    const bookingId = req.params.bookingId
+    const bookingId = req.params.bookingId;
     if (!bookingId)
       throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
 
@@ -47,8 +46,7 @@ export class StudentBookingController implements IStudentBookingController {
 
   cancelBooking = async (req: AuthRequest, res: Response) => {
     const { bookingId } = req.params;
-    const {reason} = req.body
-    console.log("cancel booking is working  now" ,reason ,bookingId )
+    const {reason} = req.body;
     if (!bookingId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
 
     const result = await this._bookingService.cancelBooking(bookingId , reason);
@@ -77,18 +75,18 @@ export class StudentBookingController implements IStudentBookingController {
   };
 
   verifyPayment = async (req: AuthRequest, res: Response) => {
-    const studentId = req.user?.id
+    const studentId = req.user?.id;
     if (!studentId) {
-      throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED)
+      throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
     }
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-      throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST)
+      throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
     }
 
     const verified = await this._bookingService.verifyPayment(razorpay_order_id, razorpay_payment_id, razorpay_signature);
     if (!!verified) {
-      return sendResponse(res, STATUS_CODES.OK, MESSAGES.PAYMENT_VERIFIED_SUCCESSFULLY, true, verified)
+      return sendResponse(res, STATUS_CODES.OK, MESSAGES.PAYMENT_VERIFIED_SUCCESSFULLY, true, verified);
     }
     return sendResponse(res, STATUS_CODES.BAD_REQUEST, MESSAGES.PAYMENT_VERIFICATION_FAILED, false, verified);
   };
@@ -104,7 +102,6 @@ export class StudentBookingController implements IStudentBookingController {
 
   ScheduledCalls = async (req: AuthRequest, res: Response) => {
     const studentId = req.user?.id;
-    console.log("req.query :",req.query)
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
     const schedules = await this._bookingService.getScheduledCalls(studentId);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.CALL_REQUESTS_FETCHED, true, schedules);
@@ -115,7 +112,7 @@ export class StudentBookingController implements IStudentBookingController {
   AvailableBookingSlots = async (req: AuthRequest, res: Response) => {
     const { teacherId } = req.params;
     const slots = await this._bookingService.getAvailableSlots(teacherId);
-    return sendResponse(res, STATUS_CODES.OK, MESSAGES.AVAILABLE_SLOTS_FETCHED, true, slots)
+    return sendResponse(res, STATUS_CODES.OK, MESSAGES.AVAILABLE_SLOTS_FETCHED, true, slots);
 
-  }
+  };
 }

@@ -9,29 +9,30 @@ const cors_1 = __importDefault(require("cors"));
 const morgan_1 = __importDefault(require("morgan"));
 const express_session_1 = __importDefault(require("express-session"));
 const passport_1 = __importDefault(require("passport"));
-const db_1 = __importDefault(require("./config/db"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const http_1 = __importDefault(require("http"));
+const socket_1 = require("./config/socket");
+const db_1 = __importDefault(require("./config/db"));
 const companyRoutes_1 = __importDefault(require("./routes/companyRoutes"));
 const adminRoutes_1 = __importDefault(require("./routes/adminRoutes"));
 const studentAuthRoutes_1 = __importDefault(require("./routes/studentAuthRoutes"));
 const employeeRoutes_1 = __importDefault(require("./routes/employeeRoutes"));
 const teacherAuthRoutes_1 = __importDefault(require("./routes/teacherAuthRoutes"));
+const sharedRoutes_1 = __importDefault(require("./routes/sharedRoutes"));
 const errorHandler_1 = require("./middleware/errorHandler");
 require("./config/passport");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
+const server = http_1.default.createServer(app);
+(0, socket_1.initSocket)(server);
+(0, db_1.default)();
 app.use((0, morgan_1.default)('tiny', {
-    stream: {
-        write: (message) => console.log(message.trim())
-    }
+    stream: { write: (message) => console.log(message.trim()) },
 }));
 app.use((0, express_session_1.default)({ secret: 'your_secret', resave: false, saveUninitialized: false }));
 app.use(passport_1.default.initialize());
 app.use(passport_1.default.session());
-const allowedOrigins = [
-    'http://localhost:3000',
-    /\.devtunnels\.ms$/,
-];
+const allowedOrigins = ['http://localhost:3000', /\.devtunnels\.ms$/];
 app.use((0, cors_1.default)({
     origin: (origin, callback) => {
         if (!origin)
@@ -51,8 +52,10 @@ app.use('/api/company', companyRoutes_1.default);
 app.use('/api/admin', adminRoutes_1.default);
 app.use('/api/student', studentAuthRoutes_1.default);
 app.use('/api/teacher', teacherAuthRoutes_1.default);
-app.use("/employee", employeeRoutes_1.default);
+app.use('/api/employee', employeeRoutes_1.default);
+app.use('/api/shared', sharedRoutes_1.default);
 app.use(errorHandler_1.errorHandler);
-const PORT = process.env.PORT;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-(0, db_1.default)();
+const PORT = process.env.PORT || 8000;
+server.listen(PORT, () => {
+    console.log(`Server + Socket running on port ${PORT}`);
+});

@@ -18,14 +18,10 @@ export class TeacherAvailabilityService implements ITeacherAvailabilityService {
 
   async saveAvailability(teacherId: string, week: IDayAvailability[]): Promise<ITeacherAvailability | null>{
      if (week.some(d => d.slots.length > 4)) {
-    throwError('Max 4 slots allowed per day', STATUS_CODES.BAD_REQUEST);
+    throwError(MESSAGES.MAX_4_ALLOWED, STATUS_CODES.BAD_REQUEST);
   }
-
-    console.log("sending to controller is ", week , teacherId)
-    const result = await this._availabilityRepo.updateAvailability(teacherId, { week });
-    console.log("result is ",result)
-    
-    return  result
+    const result = await this._availabilityRepo.updateAvailability(teacherId, { week });    
+    return  result;
   }
 
   async getAvailabilityByTeacherId(teacherId: string) {

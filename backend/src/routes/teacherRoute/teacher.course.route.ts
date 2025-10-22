@@ -24,7 +24,7 @@ router.route('/:courseId')
     .patch(authMiddleware('teacher'), asyncHandler(teacherCourseController.getCourseById.bind(teacherCourseController)));
 router.route('/:courseId/resources')
     .get(authMiddleware('teacher'), asyncHandler(teacherCourseController.getResources.bind(teacherCourseController)))
-    .post(authMiddleware('teacher'), upload.single("file"), asyncHandler(teacherCourseController.uploadResource.bind(teacherCourseController)))
+    .post(authMiddleware('teacher'), upload.single('file'), asyncHandler(teacherCourseController.uploadResource.bind(teacherCourseController)));
     
     
     router.delete('/:resourceId/resources',authMiddleware('teacher'), asyncHandler(teacherCourseController.deleteResource.bind(teacherCourseController)));

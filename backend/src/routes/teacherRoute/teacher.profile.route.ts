@@ -17,6 +17,6 @@ router
   .post(authMiddleware('teacher'), asyncHandler(teacherProfileController.createProfile.bind(teacherProfileController)))
   .patch(authMiddleware('teacher'), asyncHandler(teacherProfileController.updateProfile.bind(teacherProfileController)));
 
-router.post("/verify",upload.single("resume"),authMiddleware('teacher'), asyncHandler(teacherProfileController.sendVerificationRequest.bind(teacherProfileController)));
+router.post('/verify',upload.single('resume'),authMiddleware('teacher'), asyncHandler(teacherProfileController.sendVerificationRequest.bind(teacherProfileController)));
 
 export default router;

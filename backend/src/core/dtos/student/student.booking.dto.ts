@@ -1,21 +1,27 @@
+import { IBooking } from '../../../models/Booking';
+
+export interface ITimeSlotDTO {
+  start: string;
+  end: string;
+}
 
 export interface IBookingDTO {
   id: string;
   studentId: string;
   teacherId: string;
   courseId: string;
-  slot: Date;
-  date:Date;
-  status: "pending" | "approved" | "cancelled" | "paid";
+  slot: ITimeSlotDTO;
+  date:string;
+  status:'pending' | 'approved' | 'paid' | 'cancelled' | 'rejected';
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export const bookingDto = (booking: any): IBookingDTO => ({
+export const bookingDto = (booking: IBooking ): IBookingDTO => ({
   id: booking._id?.toString() || booking.id,
-  studentId: booking.studentId,
-  teacherId: booking.teacherId,
-  courseId: booking.courseId,
+  studentId: booking.studentId.toString(),
+  teacherId: booking.teacherId.toString(),
+  courseId: booking.courseId.toString(),
   slot: booking.slot,
   date:booking.date,
   status: booking.status,
@@ -23,4 +29,4 @@ export const bookingDto = (booking: any): IBookingDTO => ({
   updatedAt: booking.updatedAt,
 });
 
-export const bookingsDto = (bookings: any[]): IBookingDTO[] => bookings.map(bookingDto);
+export const bookingsDto = (bookings: IBooking[]): IBookingDTO[] => bookings.map(bookingDto);

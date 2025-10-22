@@ -1,8 +1,8 @@
-import { injectable } from "inversify";
-import { Chat, IChat } from "../models/chat";  
-import { Message } from "../models/message";  
-import { IChatRepository } from "../core/interfaces/repositories/IChatRepository";  
-import { Types } from "mongoose";
+import { injectable } from 'inversify';
+import { Chat, IChat } from '../models/chat';
+import { IMessage, Message } from '../models/message';
+import { IChatRepository } from '../core/interfaces/repositories/IChatRepository';
+import { Types } from 'mongoose';
 
 @injectable()
 export class ChatRepository implements IChatRepository {
@@ -31,30 +31,28 @@ export class ChatRepository implements IChatRepository {
     return message;
   }
 
-  async getStudentMessages(chatId: string  , limit: number, before?: Date) {
-    console.log("off set is working now :  ",before)
-    const query: any = { chatId: new Types.ObjectId(chatId) };
+  async getStudentMessages(chatId: string, limit: number, before?: Date) {
+    const query: Partial<IMessage & { chatId: Types.ObjectId }> = { chatId: new Types.ObjectId(chatId) };
     if (before) {
-      
-      query.createdAt = { $lt: before };
-      
+      query.createdAt = { $lt: before } as unknown as Date;
     }
-    return Message.find({ chatId: new Types.ObjectId(chatId) }).populate(`receiverId`, "name email profilePicture").sort({ createdAt: 1 });
+
+    return Message.find({ chatId: new Types.ObjectId(chatId) }).populate('receiverId', 'name email profilePicture').sort({ createdAt: 1 });
   }
-  async getTeacherMessages(chatId: string ) {
-    
-    return Message.find({ chatId: new Types.ObjectId(chatId) }).populate(`receiverId`, "name email profilePicture").sort({ createdAt: 1 });
+  async getTeacherMessages(chatId: string) {
+
+    return Message.find({ chatId: new Types.ObjectId(chatId) }).populate('receiverId', 'name email profilePicture').sort({ createdAt: 1 });
   }
- async getChatDetails(chatId: string): Promise<IChat | null> {
-  return Chat.findById(chatId)
-    .populate('teacherId', 'name email profilePicture')
-    .populate('studentId', 'name email profilePicture');
-}
+  async getChatDetails(chatId: string): Promise<IChat | null> {
+    return Chat.findById(chatId)
+      .populate('teacherId', 'name email profilePicture')
+      .populate('studentId', 'name email profilePicture');
+  }
 
   async getStudentChats(userId: string) {
-    return Chat.find({ studentId: new Types.ObjectId(userId) }).populate(`teacherId`, "name email profilePicture");
+    return Chat.find({ studentId: new Types.ObjectId(userId) }).populate('teacherId', 'name email profilePicture');
   }
   async getTeacherChats(userId: string) {
-    return Chat.find({ teacherId: new Types.ObjectId(userId) }).populate(`studentId`, "name email profilePicture");
+    return Chat.find({ teacherId: new Types.ObjectId(userId) }).populate('studentId', 'name email profilePicture');
   }
 }
