@@ -26,25 +26,25 @@ export default function PurchaseSuccess() {
 
     const [booking, setBooking] = useState<BookingDetails | null>(null);
 
-    useEffect(() => {
-        const fetchBooking = async () => {
-            if (!orderId) return;
+    // useEffect(() => {
+    //     const fetchBooking = async () => {
+    //         if (!orderId) return;
 
-            try {
-                const res = await studentBookingApi.getBookingDetails(orderId);
-                if (res.ok) {
-                    console.log(res)
-                    setBooking(res.data);
-                } else {
-                    console.error("Failed to fetch booking details:", res);
-                }
-            } catch (error) {
-                console.error("Error fetching booking details:", error);
-            }
-        };
+    //         try {
+    //             const res = await studentBookingApi.getBookingDetails(orderId);
+    //             if (res.ok) {
+    //                 console.log(res)
+    //                 setBooking(res.data);
+    //             } else {
+    //                 console.error("Failed to fetch booking details:", res);
+    //             }
+    //         } catch (error) {
+    //             console.error("Error fetching booking details:", error);
+    //         }
+    //     };
 
-        fetchBooking();
-    }, [orderId]);
+    //     fetchBooking();
+    // }, [orderId]);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center p-4">

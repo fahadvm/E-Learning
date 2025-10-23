@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from "react";
-import { useParams, useSearchParams ,useRouter} from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useStudent } from "@/context/studentContext";
 import { initSocket, sendMessage, sendTyping, sendReadMessage, sendMessageReaction, sendDeleteMessage, sendEditMessage, disconnectSocket } from "@/lib/socket";
 import { studentChatApi } from "@/services/APIservices/studentApiservice";
@@ -88,6 +88,7 @@ const ChatMessages = ({
   setShowEditDialog,
   confirmDeleteMessageId,
   confirmEditMessageId,
+  setConfirmDeleteMessageId,
   setEditingMessageId,
 }: {
   messages: any[];
@@ -108,6 +109,7 @@ const ChatMessages = ({
   setShowEditDialog: (value: boolean) => void;
   confirmDeleteMessageId: string | null;
   confirmEditMessageId: string | null;
+  setConfirmDeleteMessageId: (value: string | null) => void;
   setEditingMessageId: (value: string | null) => void;
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -236,7 +238,10 @@ const ChatMessages = ({
                         </button>
                         <button
                           className="p-1.5 bg-white border border-slate-200 rounded-lg hover:bg-red-50 hover:border-red-300 active:scale-95 transition-all duration-200 shadow-sm group/delete"
-                          onClick={() => setShowDeleteDialog(true)}
+                          onClick={() => {
+                            setConfirmDeleteMessageId(msg._id);
+                            setShowDeleteDialog(true);
+                          }}
                           title="Delete"
                         >
                           <svg className="w-4 h-4 text-slate-600 group-hover/delete:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -295,18 +300,27 @@ const ChatMessages = ({
         onConfirm={() => {
           if (confirmDeleteMessageId) handleDelete(confirmDeleteMessageId);
           setShowDeleteDialog(false);
+          setConfirmDeleteMessageId(null);
         }}
-        onCancel={() => setShowDeleteDialog(false)}
+        onCancel={() => {
+          setShowDeleteDialog(false);
+          setConfirmDeleteMessageId(null);
+        }}
       />
       <ConfirmationDialog
         isOpen={showEditDialog}
         title="Edit Message"
         message="Are you sure you want to save changes to this message?"
         onConfirm={() => {
+          console.log("confirmEditMessageId",confirmEditMessageId)
           if (confirmEditMessageId) handleEditSubmit(confirmEditMessageId);
           setShowEditDialog(false);
+          // setConfirmEditMessageId(null);
         }}
-        onCancel={() => setShowEditDialog(false)}
+        onCancel={() => {
+          setShowEditDialog(false);
+          // setConfirmEditMessageId(null);
+        }}
       />
     </div>
   );
@@ -342,7 +356,7 @@ const ChatInput = ({ input, setInput, handleSend, handleTyping }: { input: strin
 export default function StudentChat() {
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
-  const [teachertInfo, setTeacherInfo] = useState<{ name: string; profilePicture?: string } | null>(null);
+  const [teacherInfo, setTeacherInfo] = useState<{ name: string; profilePicture?: string } | null>(null);
   const { student } = useStudent();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -361,7 +375,6 @@ export default function StudentChat() {
   const studentId = student?._id;
   const [chatId, setChatId] = useState<string | null>(searchParams.get("chatId"));
 
-
   useEffect(() => {
     if (!studentId || !teacherId || chatId) return;
     const createOrFetchChat = async () => {
@@ -376,7 +389,7 @@ export default function StudentChat() {
     };
 
     createOrFetchChat();
-  }, [studentId, teacherId, chatId]);
+  }, [studentId, teacherId, chatId, router]);
 
   useEffect(() => {
     if (!chatId) return;
@@ -541,42 +554,28 @@ export default function StudentChat() {
 
   return (
     <div className="flex flex-col h-screen bg-slate-50">
-      <ChatHeader teacherName={teachertInfo?.name || "Teacher"} teacherAvatar={teachertInfo?.profilePicture} isOnline={isOnline} />
+      <ChatHeader teacherName={teacherInfo?.name || "Teacher"} teacherAvatar={teacherInfo?.profilePicture} isOnline={isOnline} />
       <ChatMessages
         messages={messages}
         studentId={studentId!}
-        teacherAvatar={teachertInfo?.profilePicture}
+        teacherAvatar={teacherInfo?.profilePicture}
         isTyping={isTyping}
         markMessagesAsRead={markMessagesAsRead}
         handleReaction={handleReaction}
-        handleDelete={() => {
-          if (confirmDeleteMessageId) handleDelete(confirmDeleteMessageId);
-          setShowDeleteDialog(false);
-        }}
+        handleDelete={handleDelete}
         handleEdit={handleEdit}
         editingMessageId={editingMessageId}
         editInput={editInput}
         setEditInput={setEditInput}
-        handleEditSubmit={() => {
-          if (confirmEditMessageId) handleEditSubmit(confirmEditMessageId);
-          setShowEditDialog(false);
-        }}
+        handleEditSubmit={handleEditSubmit}
         showDeleteDialog={showDeleteDialog}
-        setShowDeleteDialog={(value) => {
-          setShowDeleteDialog(value);
-          if (!value) setConfirmDeleteMessageId(null);
-        }}
+        setShowDeleteDialog={setShowDeleteDialog}
         showEditDialog={showEditDialog}
-        setShowEditDialog={(value) => {
-          setShowEditDialog(value);
-          if (!value) setConfirmEditMessageId(null);
-        }}
+        setShowEditDialog={setShowEditDialog}
         confirmDeleteMessageId={confirmDeleteMessageId}
         confirmEditMessageId={confirmEditMessageId}
-        setEditingMessageId={(value) => {
-          setEditingMessageId(value);
-          if (!value) setEditingMessageId(null);
-        }}
+        setConfirmDeleteMessageId={setConfirmDeleteMessageId}
+        setEditingMessageId={setEditingMessageId}
       />
       <ChatInput input={input} setInput={setInput} handleSend={handleSend} handleTyping={handleTyping} />
     </div>

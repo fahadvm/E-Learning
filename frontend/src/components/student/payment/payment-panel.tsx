@@ -63,6 +63,7 @@ export default function PaymentPanel({
         amount: fee,
         bookingId,
       });
+      console.log("response of bookingPayment",response)
 
       const orderResp = response.data;
 

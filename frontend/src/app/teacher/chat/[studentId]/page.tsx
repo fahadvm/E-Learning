@@ -293,6 +293,7 @@ const ChatMessages = ({
         title="Delete Message"
         message="Are you sure you want to delete this message? This action cannot be undone."
         onConfirm={() => {
+          console.log("confirmDeleteMessageId",confirmDeleteMessageId)
           if (confirmDeleteMessageId) handleDelete(confirmDeleteMessageId);
           setShowDeleteDialog(false);
         }}
@@ -303,7 +304,9 @@ const ChatMessages = ({
         title="Edit Message"
         message="Are you sure you want to save changes to this message?"
         onConfirm={() => {
+          console.log("confirmEditMessageId",confirmEditMessageId)
           if (confirmEditMessageId) handleEditSubmit(confirmEditMessageId);
+          console.log("heey editing")
           setShowEditDialog(false);
         }}
         onCancel={() => setShowEditDialog(false)}
@@ -410,8 +413,10 @@ export default function TeacherChat() {
   }, [teacherId, studentId, chatId]);
 
   // Initialize socket
+
   useEffect(() => {
     if (!teacherId) return;
+    console.log("start to  init")
 
     const socket = initSocket(
       teacherId,
@@ -459,6 +464,7 @@ export default function TeacherChat() {
     socket.on("onlineUsers", (users: string[]) => {
       setIsOnline(users.includes(studentId));
     });
+        console.log("connected the socket to init socket")
 
     return () => {
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
@@ -492,6 +498,8 @@ export default function TeacherChat() {
   };
 
   const handleDelete = (messageId: string) => {
+    
+    console.log("her deleting message working")
     if (!teacherId || !studentId || !chatId) return;
     sendDeleteMessage({
       chatId,
@@ -509,6 +517,7 @@ export default function TeacherChat() {
   };
 
   const handleEditSubmit = (messageId: string) => {
+    console.log("editing is working here")
     if (!editInput || !teacherId || !studentId || !chatId) return;
     sendEditMessage({
       chatId,

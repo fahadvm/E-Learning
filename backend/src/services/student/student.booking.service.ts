@@ -75,6 +75,7 @@ export class StudentBookingService implements IStudentBookingService {
   }
 
   async initiatePayment(bookingId: string, amount: number): Promise<{ razorpayOrderId: string, booking: IBooking | null }> {
+    
     if (!bookingId || !amount) throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
 
     const options = {

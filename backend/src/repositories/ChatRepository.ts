@@ -17,7 +17,7 @@ export class ChatRepository implements IChatRepository {
     return newChat;
   }
 
-  async saveMessage(senderId: string, receiverId: string, content: string) {
+  async saveMessage(senderId: string, receiverId: string, content: string ,chatId:string) {
     // console.log("here the saving message with :",senderId,receiverId)
     const chat = await this.findOrCreateChat([senderId, receiverId]);
     // console.log("founded chat is" ,chat )
@@ -27,7 +27,8 @@ export class ChatRepository implements IChatRepository {
       receiverId: new Types.ObjectId(receiverId),
       message: content,  // Updated to match schema
     });
-    await Chat.findByIdAndUpdate(chat._id, { lastMessage: content });
+    console.log("chat id from repo for last seen", chatId)
+    await Chat.findByIdAndUpdate(chatId, { lastMessage: content });
     return message;
   }
 

@@ -15,7 +15,8 @@ export class ChatService implements IChatService {
 
   async sendMessage(senderId: string, receiverId: string, message: string , chatId :string ): Promise<IMessage> { 
     if(!senderId || !chatId ||!message ||!receiverId) throwError(MESSAGES.REQUIRED_FIELDS_MISSING);
-    return this.chatRepository.saveMessage(senderId, receiverId, message);
+    
+    return this.chatRepository.saveMessage(senderId, receiverId, message ,chatId);
   }
 
   async getMessages(chatId: string, limit: number, before: string): Promise<IMessage[]> {
@@ -51,13 +52,18 @@ async markMessageAsRead(chatId: string, messageId: string):Promise<void> {
 
 
 async deleteMessage(chatId: string, messageId: string, senderId: string):Promise<void> {
-  if(!senderId || chatId) throwError(MESSAGES.ID_REQUIRED);
+  console.log("deleting is working")
+  if(!senderId || !chatId) throwError(MESSAGES.ID_REQUIRED);
   
-  await Message.findByIdAndDelete(messageId);
+  const deleted = await Message.findByIdAndDelete(messageId);
+  console.log("deleted",deleted)
 }
 async editMessage(chatId: string, messageId: string, senderId: string, newMessage: string):Promise<void> {
-    if(!senderId || chatId) throwError(MESSAGES.ID_REQUIRED);
-  await Message.findByIdAndUpdate(messageId,{ $set: { message: newMessage, edited: true } });
+  // console.log(chatId, messageId, senderId, newMessage)
+  if(!senderId || !chatId) throwError(MESSAGES.ID_REQUIRED);
+  
+  const edit = await Message.findByIdAndUpdate(messageId,{ $set: { message: newMessage, edited: true } });
+  console.log("edited in service ",edit)
 }
 
 

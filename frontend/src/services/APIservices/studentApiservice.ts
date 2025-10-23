@@ -79,7 +79,7 @@ export const paymentApi = {
     post(STUDENT_ROUTES.purchase.verifyPayment, data),
   bookingPayment: (data: { amount: number; bookingId: string }) => post(STUDENT_ROUTES.bookings.payments(''), data),
   verifyBookingPayment: (data: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) =>
-    post(STUDENT_ROUTES.bookings.payments(''), data),
+    post(STUDENT_ROUTES.bookings.verify, data),
 };
 
 export const studentSubscriptionApi = {

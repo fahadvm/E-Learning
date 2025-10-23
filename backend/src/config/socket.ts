@@ -38,7 +38,7 @@ export function initSocket(server: HTTPServer) {
   };
 
   io.on('connection', (socket) => {
-    // logger.info('New socket connected:', socket.id);
+    console.log('New socket connected:', socket.id);
 
     // When user joins with their ID
     socket.on('join', (userId: string) => {
@@ -51,8 +51,13 @@ export function initSocket(server: HTTPServer) {
     socket.on('send_message', async (data: { senderId: string; receiverId: string; message: string; chatId: string }) => {
       const receiverSocketId = onlineUsers.get(data.receiverId);
       const messageData = { ...data, read: false, createdAt: new Date(), reactions: [] };
-      await chatService.sendMessage(data.senderId, data.receiverId, data.message, data.chatId);
+      console.log("sendding message in BS", messageData)
+      const saving = await chatService.sendMessage(data.senderId, data.receiverId, data.message, data.chatId);
+      console.log("message saving", saving)
+      console.log("message receiverSocketId", receiverSocketId)
       if (receiverSocketId) {
+        console.log("recieving message in connected??", receiverSocketId)
+
         io.to(receiverSocketId).emit('receive_message', messageData);
       }
     });
@@ -76,7 +81,7 @@ export function initSocket(server: HTTPServer) {
           io.to(senderSocketId).emit('message_read', { messageId: data.messageId, chatId: data.chatId });
         }
       } catch (err) {
-         logger.error('Error marking message as read:', err);
+        logger.error('Error marking message as read:', err);
       }
     });
 
@@ -96,7 +101,7 @@ export function initSocket(server: HTTPServer) {
           });
         }
       } catch (err) {
-         logger.error('Error adding reaction:', err);
+        logger.error('Error adding reaction:', err);
       }
     });
 
@@ -104,14 +109,18 @@ export function initSocket(server: HTTPServer) {
     socket.on('delete_message', async (data: { chatId: string; messageId: string; senderId: string; receiverId: string }) => {
       try {
         // Delete message from the database
+        console.log("delele  message is working data", data)
+
         await chatService.deleteMessage(data.chatId, data.messageId, data.senderId);
         // Notify the receiver to remove the message
         const receiverSocketId = onlineUsers.get(data.receiverId);
+        console.log("delele  message is reciever", receiverSocketId)
+
         if (receiverSocketId) {
           io.to(receiverSocketId).emit('message_deleted', { messageId: data.messageId, chatId: data.chatId });
         }
       } catch (err) {
-         logger.error('Error deleting message:', err);
+        logger.error('Error deleting message:', err);
       }
     });
 
@@ -119,9 +128,13 @@ export function initSocket(server: HTTPServer) {
     socket.on('edit_message', async (data: { chatId: string; messageId: string; senderId: string; newMessage: string; receiverId: string }) => {
       try {
         // Update message content in the database
-        await chatService.editMessage(data.chatId, data.messageId, data.senderId, data.newMessage);
+        console.log("send edit message is working data", data)
+        const edit = await chatService.editMessage(data.chatId, data.messageId, data.senderId, data.newMessage);
         // Notify the receiver of the updated message
+        console.log("edit", edit)
         const receiverSocketId = onlineUsers.get(data.receiverId);
+        console.log("edit receiverSocketId", receiverSocketId)
+
         if (receiverSocketId) {
           io.to(receiverSocketId).emit('message_edited', {
             messageId: data.messageId,
@@ -130,7 +143,7 @@ export function initSocket(server: HTTPServer) {
           });
         }
       } catch (err) {
-         logger.error('Error editing message:', err);
+        logger.error('Error editing message:', err);
       }
     });
 
@@ -147,13 +160,13 @@ export function initSocket(server: HTTPServer) {
           });
         }
       } catch (err) {
-         logger.error('Error sending  notification:', err);
+        logger.error('Error sending  notification:', err);
       }
     });
 
     // Handle disconnect
     socket.on('disconnect', () => {
-      // logger.info('Socket disconnected:', socket.id);
+      console.log('Socket disconnected:', socket.id);
       // Remove from online users
       onlineUsers.forEach((value, key) => {
         if (value === socket.id) onlineUsers.delete(key);

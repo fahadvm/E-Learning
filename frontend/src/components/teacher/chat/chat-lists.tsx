@@ -94,9 +94,9 @@ export function ChatLists({ conversations, selectedChatId }: ChatListProps) {
 
                   {/* {conversation.unread > 0 && (
                                 )} */}
-                  <Badge className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                  {/* <Badge className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
                     5
-                  </Badge>
+                  </Badge> */}
                 </div>
               </div>
             </div>

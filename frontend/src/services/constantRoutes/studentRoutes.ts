@@ -1,5 +1,7 @@
 // studentRoutes.ts
 
+import { verify } from "crypto";
+
 // Base paths
 const STUDENT_BASE = '/student';
 const STUDENT_AUTH = `${STUDENT_BASE}/auth`;
@@ -55,6 +57,7 @@ export const STUDENT_ROUTES = {
     approveAvailability: (teacherId: string) => `${STUDENT_BOOKINGS}/availability/${teacherId}`,
     history: `${STUDENT_BOOKINGS}/history`,
     payments: (teacherId: string) => `${STUDENT_BOOKINGS}/payments/${teacherId}`,
+    verify:  `${STUDENT_BOOKINGS}/payments/verify`,
     details: (bookingId: string) => `${STUDENT_BOOKINGS}/${bookingId}/details`,
     scheduledCalls: `${STUDENT_BOOKINGS}/ScheduledCall`,
   },
