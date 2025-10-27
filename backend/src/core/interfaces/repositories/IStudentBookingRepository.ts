@@ -23,7 +23,7 @@ export interface IStudentBookingRepository {
   createBooking(booking: Partial<IBooking>): Promise<IBooking>;
   updateBookingStatus(
     bookingId: string,
-    status: 'pending' | 'approved' | 'paid' | 'cancelled' | 'rejected',
+    status: 'pending' | 'approved' | 'paid' | 'cancelled' | 'rejected' | 'reschedulled',
     reason?: string
   ): Promise<IBooking | null>;
   getBookingsByStudent(
@@ -60,4 +60,9 @@ export interface IStudentBookingRepository {
     limit: number
   ): Promise<IBooking[]>;
   countHistory(filter: IBookingFilter): Promise<number>;
+  rescheduleBooking(
+    bookingId: string,
+    reason: string,
+    nextSlot: { start: string; end: string; date: string ,day:string}
+  ): Promise<IBooking>
 }

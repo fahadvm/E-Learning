@@ -48,7 +48,7 @@ export const TEACHER_ROUTES = {
     details: (bookingId: string) => `${TEACHER_CALL_REQUEST}/${bookingId}`,
     approve: (bookingId: string) => `${TEACHER_CALL_REQUEST}/${bookingId}/approve`,
     reject: (bookingId: string) => `${TEACHER_CALL_REQUEST}/${bookingId}/reject`,
-    cancel: (bookingId: string) => `${TEACHER_CALL_REQUEST}/${bookingId}/cancel`,
+    reschedule: (bookingId: string) => `${TEACHER_CALL_REQUEST}/${bookingId}/reschedule`,
     notificationsTest: (userId: string) => `${TEACHER_CALL_REQUEST}/notifications/testing/${userId}`,
     notificationsMarkRead: `${TEACHER_CALL_REQUEST}/notifications/testing/markread`,
   },

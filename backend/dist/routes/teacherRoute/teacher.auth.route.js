@@ -1,0 +1,20 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const container_1 = __importDefault(require("../../core/di/container"));
+const asyncHandler_1 = require("../../middleware/asyncHandler");
+const types_1 = require("../../core/di/types");
+const router = (0, express_1.Router)();
+const teacherAuthController = container_1.default.get(types_1.TYPES.TeacherAuthController);
+router.post('/signup', (0, asyncHandler_1.asyncHandler)(teacherAuthController.signup.bind(teacherAuthController)));
+router.post('/login', (0, asyncHandler_1.asyncHandler)(teacherAuthController.login.bind(teacherAuthController)));
+router.post('/logout', (0, asyncHandler_1.asyncHandler)(teacherAuthController.logout.bind(teacherAuthController)));
+router.post('/verify-otp', (0, asyncHandler_1.asyncHandler)(teacherAuthController.verifyOtp.bind(teacherAuthController)));
+router.post('/resend-otp', (0, asyncHandler_1.asyncHandler)(teacherAuthController.resendOtp.bind(teacherAuthController)));
+router.post('/forgot-password', (0, asyncHandler_1.asyncHandler)(teacherAuthController.sendForgotPasswordOtp.bind(teacherAuthController)));
+router.post('/verify-forgot-otp', (0, asyncHandler_1.asyncHandler)(teacherAuthController.verifyForgotOtp.bind(teacherAuthController)));
+router.post('/reset-password', (0, asyncHandler_1.asyncHandler)(teacherAuthController.setNewPassword.bind(teacherAuthController)));
+exports.default = router;

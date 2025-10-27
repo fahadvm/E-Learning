@@ -50,7 +50,7 @@ export const teacherCallRequestApi = {
   getRequestDetails: (bookingId: string) => get(TEACHER_ROUTES.callRequest.details(bookingId)),
   approveRequests: (bookingId: string) => patch(TEACHER_ROUTES.callRequest.approve(bookingId), { status: "approved" }),
   rejectRequests: (bookingId: string, data: { status: string; reason: string }) => patch(TEACHER_ROUTES.callRequest.reject(bookingId), data),
-  cancelRequests: (bookingId: string, data: { reason: string }) => patch(TEACHER_ROUTES.callRequest.cancel(bookingId), data),
+  rescheduleRequests: (bookingId: string, data: { reason: string , nextSlot: { start: string; end: string ,date :string ,day :string } }) => patch(TEACHER_ROUTES.callRequest.reschedule(bookingId), data),
   tester: (userId: string) => get(TEACHER_ROUTES.callRequest.notificationsTest(userId)),
   testerMark: (data: { notificationId: string }) => post(TEACHER_ROUTES.callRequest.notificationsMarkRead, data),
 };

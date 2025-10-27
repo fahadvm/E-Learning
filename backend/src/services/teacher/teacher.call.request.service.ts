@@ -31,11 +31,11 @@ export class TeacherCallRequestService implements ITeacherCallRequestService {
     }
 
 
-    async cancelBooking(bookingId: string, reason: string): Promise<IBookingDTO> {
+    async rescheduleBooking(bookingId: string, reason: string, nextSlot: { start: string; end: string; date: string ,day:string}): Promise<IBookingDTO> {
         if (!bookingId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
-        const cancelled = await this._callRequestRepo.updateBookingStatus(bookingId, 'cancelled', reason);
-         if (!cancelled) throwError(MESSAGES.BOOKING_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-        return bookingDto(cancelled);
+        const reschedulled = await this._callRequestRepo.rescheduleBooking(bookingId, reason, nextSlot);
+        if (!reschedulled) throwError(MESSAGES.BOOKING_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+        return bookingDto(reschedulled);
     }
 
     async getConfirmedRequests(): Promise<IBooking[]> {
@@ -71,16 +71,17 @@ export class TeacherCallRequestService implements ITeacherCallRequestService {
                     slot
                 );
                 results.push({
-                    _id: booking?._id?.toString() ?? '',           
+                    _id: booking?._id.toString() ?? `${formattedDate}-${slot}`,
                     date: formattedDate,
                     day: dayName,
                     slot,
                     status: booking ? booking.status : 'available',
-                    student: booking?.studentId?.toString(),     
+                    student: booking?.studentId?.toString(),
                     course: booking?.courseId?.toString(),
                 });
             }
         }
+
 
         return results;
     }

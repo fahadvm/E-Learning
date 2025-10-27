@@ -82,12 +82,12 @@ export class TeacherCallRequestController implements ITeacherCallRequestControll
     }
 
 
-    async cancelRequest(req: AuthRequest, res: Response): Promise<void> {
+    async rescheduleRequest(req: AuthRequest, res: Response): Promise<void> {
         const { bookingId } = req.params;
-        const { reason } = req.body;
+        const { reason , nextSlot } = req.body;
         if (!bookingId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
 
-        const result = await this._callRequestService.cancelBooking(bookingId, reason);
+        const result = await this._callRequestService.rescheduleBooking(bookingId, reason ,nextSlot);
 
         return sendResponse(res, STATUS_CODES.OK, MESSAGES.BOOKING_CANCELLED, true, result);
     }

@@ -1,0 +1,20 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const container_1 = __importDefault(require("../../core/di/container"));
+const asyncHandler_1 = require("../../middleware/asyncHandler");
+const types_1 = require("../../core/di/types");
+const router = express_1.default.Router();
+const companyAuthController = container_1.default.get(types_1.TYPES.CompanyAuthController);
+router.post('/signup', (0, asyncHandler_1.asyncHandler)(companyAuthController.sendOtp.bind(companyAuthController)));
+router.post('/verify-otp', (0, asyncHandler_1.asyncHandler)(companyAuthController.verifyOtp.bind(companyAuthController)));
+router.post('/login', (0, asyncHandler_1.asyncHandler)(companyAuthController.login.bind(companyAuthController)));
+router.post('/logout', (0, asyncHandler_1.asyncHandler)(companyAuthController.logout.bind(companyAuthController)));
+router.post('/forgot-password', (0, asyncHandler_1.asyncHandler)(companyAuthController.forgotPassword.bind(companyAuthController)));
+router.post('/reset-password', (0, asyncHandler_1.asyncHandler)(companyAuthController.resetPassword.bind(companyAuthController)));
+router.post('/verify-forgot-otp', (0, asyncHandler_1.asyncHandler)(companyAuthController.verifyForgotOtp.bind(companyAuthController)));
+router.post('/resend-otp', (0, asyncHandler_1.asyncHandler)(companyAuthController.resendOtp.bind(companyAuthController)));
+exports.default = router;

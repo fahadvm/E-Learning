@@ -1,4 +1,4 @@
-import { ISubscriptionPlan } from '../../../models/subscriptionPlan';
+import { IFeature, ISubscriptionPlan } from '../../../models/subscriptionPlan';
 
 export interface IAdminSubscriptionPlanDTO {
   _id: string;
@@ -6,7 +6,7 @@ export interface IAdminSubscriptionPlanDTO {
   price: number | 'Free' | 'Custom';
   planFor: 'company' | 'student';
   description: string;
-  features: string[];
+  features: IFeature[];
   popular: boolean;
 
 }

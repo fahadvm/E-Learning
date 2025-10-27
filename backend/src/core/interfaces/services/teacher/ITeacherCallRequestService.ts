@@ -14,6 +14,6 @@ export interface ITeacherCallRequestService {
   approveRequest(bookingId: string): Promise<IBooking | null>
   rejectRequest(bookingId: string, reason: string): Promise<IBooking | null>
   getTeacherSlots(teacherId: string): Promise<ITeacherSlot[] | null>
-  cancelBooking(bookingId: string, reason: string): Promise<IBookingDTO>;
+  rescheduleBooking(bookingId: string, reason: string ,nextSlot: { start: string; end: string; date: string ,day:string}): Promise<IBookingDTO>;
   getHistory(teacherId: string, page: number, limit: number, status?: string): Promise<IPaginationResponse<IBooking>>
 }

@@ -22,8 +22,9 @@ export type Course = {
 }
 
 export type Slot = {
-  id: string
+  _id: string
   dateKey: string
+  day:string
   startISO: string
   endISO: string
   status: SlotStatus
@@ -42,7 +43,7 @@ type BackendSlot = {
   status: SlotStatus
   student?: Student
   course?: Course
-  _id:string
+  _id: string
 }
 
 export default function Page() {
@@ -64,12 +65,14 @@ export default function Page() {
         console.log("Slots response:", res.data)
 
         const transformedSlots: Slot[] = res.data.map((item: BackendSlot) => {
-          const { date, slot, status, student, course ,_id } = item
-          return {
-            id: _id,
+          const { date, slot, day, status, student, course, _id } = item
+          console.log("day",day)
+          return {  
+            _id: _id,
             dateKey: date,
             startISO: slot.start,
             endISO: slot.end,
+            day : day,
             status,
             student,
             course
@@ -151,7 +154,7 @@ export default function Page() {
                 </TabsContent>
 
                 <TabsContent value="Requests" className="mt-6">
-                  <RequestCallList/>
+                  <RequestCallList />
                 </TabsContent>
 
                 <TabsContent value="upcoming" className="mt-6">

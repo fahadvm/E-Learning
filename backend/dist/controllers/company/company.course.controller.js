@@ -1,0 +1,105 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CompanyCourseController = void 0;
+const inversify_1 = require("inversify");
+const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
+const ResANDError_1 = require("../../utils/ResANDError");
+const types_1 = require("../../core/di/types");
+const ResponseMessages_1 = require("../../utils/ResponseMessages");
+let CompanyCourseController = class CompanyCourseController {
+    constructor(_courseService) {
+        this._courseService = _courseService;
+    }
+    getAllCourses(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { search, category, level, language, sort = 'createdAt', order = 'desc', page = '1', limit = '8', } = req.query;
+            const filters = {
+                search: search === null || search === void 0 ? void 0 : search.toString(),
+                category: category === null || category === void 0 ? void 0 : category.toString(),
+                level: level === null || level === void 0 ? void 0 : level.toString(),
+                language: language === null || language === void 0 ? void 0 : language.toString(),
+                sort: sort === null || sort === void 0 ? void 0 : sort.toString(),
+                order: (order === 'asc' ? 'asc' : 'desc'),
+                page: parseInt(page),
+                limit: parseInt(limit),
+            };
+            const courses = yield this._courseService.getAllCourses(filters);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSES_FETCHED, true, courses);
+        });
+    }
+    getCourseDetailById(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { courseId } = req.params;
+            const course = yield this._courseService.getCourseDetail(courseId);
+            if (!course)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_DETAILS_FETCHED, true, course);
+        });
+    }
+    assignCourseToEmployee(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { courseId, employeeId } = req.body;
+            if (!courseId || !employeeId) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            }
+            const course = yield this._courseService.assignCourseToEmployee(courseId, employeeId);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_DETAILS_FETCHED, true, course);
+        });
+    }
+    getMyCourses(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            console.log("controller of get courses");
+            const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!companyId) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ALL_FIELDS_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            }
+            const courses = yield this._courseService.getMycoursesById(companyId);
+            if (!courses)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            console.log("controller of get courses completed", courses);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_DETAILS_FETCHED, true, courses);
+        });
+    }
+    getMyCourseDetails(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            const courseId = req.params.courseId;
+            if (!companyId || !courseId) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ALL_FIELDS_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            }
+            const courses = yield this._courseService.getMycourseDetailsById(companyId, courseId);
+            if (!courses)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_DETAILS_FETCHED, true, courses);
+        });
+    }
+};
+exports.CompanyCourseController = CompanyCourseController;
+exports.CompanyCourseController = CompanyCourseController = __decorate([
+    (0, inversify_1.injectable)(),
+    __param(0, (0, inversify_1.inject)(types_1.TYPES.CompanyCourseService)),
+    __metadata("design:paramtypes", [Object])
+], CompanyCourseController);
