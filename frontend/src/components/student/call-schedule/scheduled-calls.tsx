@@ -77,6 +77,7 @@ export function ScheduledCalls() {
       });
 
       if (res.ok && res.data) {
+        console.log("setScheduledCalls",res.data.data)
         setScheduledCalls(res.data.data || res.data);
         setTotalPages(res.data.totalPages || 1);
       } else {
@@ -183,7 +184,7 @@ export function ScheduledCalls() {
                         />
                       ) : (
                         <AvatarFallback>
-                          {call.teacherId.name
+                          {call.teacherId?.name
                             .split(" ")
                             .map((n) => n[0])
                             .join("")}

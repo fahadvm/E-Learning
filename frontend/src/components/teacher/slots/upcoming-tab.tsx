@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { teacherCallRequestApi } from "@/services/APIservices/teacherApiService";
 import { showSuccessToast } from "@/utils/Toast";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export default function UpcomingTab({
   slots,
@@ -30,6 +31,7 @@ export default function UpcomingTab({
   const [selectedNewSlot, setSelectedNewSlot] = useState<Slot | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter()
 
   useEffect(() => {
     if (isModalOpen) {
@@ -64,6 +66,10 @@ export default function UpcomingTab({
     console.log("here slectslot id is ", slotId)
     setSelectedSlotId(slotId);
     setIsModalOpen(true);
+  };
+  const handleVideoCallClick = (slotId: string) => {
+    console.log("here slectslot id for video call is ", slotId)
+    router.push(`/teacher/videoCall`)
   };
 
   const handleRescheduleConfirm = async () => {
@@ -152,6 +158,7 @@ export default function UpcomingTab({
                 <Button
                   variant="default"
                   className="flex items-center gap-1 bg-blue-700 hover:bg-blue-800"
+                  onClick={() => handleVideoCallClick(s._id)}
                   aria-label="Join video call"
                   title="Join video call"
                 >
