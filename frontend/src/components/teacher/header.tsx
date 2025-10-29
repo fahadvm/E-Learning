@@ -125,16 +125,16 @@ export default function Header() {
           onMouseLeave={() => setIsBrowseOpen(false)}
         >
           <button className="flex items-center text-gray-300 hover:text-white font-medium transition">
-            Browse
+            Entrolled
             <ChevronDown className="ml-1 w-4 h-4" />
           </button>
           {isBrowseOpen && (
             <div className="absolute top-full left-0 bg-gray-800 mt-2 rounded shadow-lg z-50 w-40 py-2 animate-fadeIn">
               <Link href="/course" className="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 transition">
-                Courses
+                Students
               </Link>
               <Link href="/learning-paths" className="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 transition">
-                Learning Paths
+                Companies
               </Link>
             </div>
           )}
@@ -148,6 +148,9 @@ export default function Header() {
         <Link href="/teacher/callSchedule" className="text-gray-300 hover:text-white font-medium transition">
           Call Schedule
         </Link>
+        <Link href="/teacher/callSchedule" className="text-gray-300 hover:text-white font-medium transition">
+          Earnings
+        </Link>
       </nav>
 
       <div className="flex items-center space-x-4">
@@ -158,6 +161,9 @@ export default function Header() {
           <MessageSquare size={18} />
         </Link>
         <Link href="/teacher/profile" title="Profile" className="hover:text-blue-400 transition">
+          <Settings size={20} />
+        </Link>
+        <Link href="/teacher/salary" title="Profile" className="hover:text-blue-400 transition">
           <Settings size={20} />
         </Link>
         <div className="relative">

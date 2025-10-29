@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X, Bell, Heart, ShoppingCart, LogOut, BookOpen,Users, Route, Compass, User } from "lucide-react";
+import { Menu, X, Bell, Heart, ShoppingCart, LogOut, BookOpen, Users, Route, MessageSquare, Compass, User } from "lucide-react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
@@ -63,15 +63,19 @@ export default function Header() {
                 3
               </span>
             </Link>
+            <Link href="/employee/chat">
+              <MessageSquare size={20} className="text-gray-600 hover:text-indigo-600" />
+            </Link>
+            <Link href="/employee/profile">
+              <User size={20} className="text-gray-600 hover:text-indigo-600" />
+            </Link>
             {/* <Link href="/employee/wishlist">
               <Heart size={20} className="text-gray-600 hover:text-indigo-600" />
             </Link>
             <Link href="/employee/cart">
               <ShoppingCart size={20} className="text-gray-600 hover:text-indigo-600" />
             </Link>
-            <Link href="/employee/profile">
-              <User size={20} className="text-gray-600 hover:text-indigo-600" />
-            </Link> */}
+             */}
             <button onClick={handleLogout}>
               <LogOut size={20} className="text-gray-600 hover:text-indigo-600" />
             </button>
