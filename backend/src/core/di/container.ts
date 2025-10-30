@@ -169,6 +169,8 @@ import { StudentCommentController } from '../../controllers/student/student.comm
 import { AiTutorController } from '../../controllers/shared/ai.controller';
 import { IStudentAiTutorService } from '../interfaces/services/shared/IAiService';
 import { StudentAiTutorService } from '../../services/shared/ai.service';
+import { IEmployeeCommentService } from '../interfaces/services/employee/IEmployeeCommentService';
+import { EmployeeCommentService } from '../../services/employee/employee.comment.service';
 
 
 
@@ -251,6 +253,7 @@ container.bind<IEmployeeAuthService>(TYPES.EmployeeAuthService).to(EmployeeAuthS
 container.bind<IEmployeeProfileService>(TYPES.EmployeeProfileService).to(EmployeeProfileService);
 container.bind<IEmployeeCompanyService>(TYPES.EmployeeCompanyService).to(EmployeeCompanyService);
 container.bind<IEmployeeCourseService>(TYPES.EmployeeCourseService).to(EmployeeCourseService);
+container.bind<IEmployeeCommentService>(TYPES.EmployeeCommentService).to(EmployeeCommentService);
 
 
 

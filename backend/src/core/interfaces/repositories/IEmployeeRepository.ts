@@ -1,4 +1,4 @@
-import { IEmployee } from '../../../models/Employee';
+import { ICourseProgress, IEmployee } from '../../../models/Employee';
 
 export interface IEmployeeRepository {
   create(employee: Partial<IEmployee>): Promise<IEmployee>;
@@ -19,6 +19,9 @@ export interface IEmployeeRepository {
   findEmployeeAndApprove(companyId: string, employeeId: string): Promise<IEmployee | null>
   findEmployeeAndReject(employeeId: string): Promise<IEmployee | null>
   assignCourseToEmployee(courseId: string, employeeId: string): Promise<void>
-  getAssignedCourses(employeeId: string): Promise<IEmployee | null> 
+  getAssignedCourses(employeeId: string): Promise<IEmployee | null>
+  updateEmployeeProgress(employeeId: string, courseId: string, lessonId: string): Promise<ICourseProgress>;
+  getOrCreateCourseProgress(employeeId: string, courseId: string): Promise<ICourseProgress>
+  saveNotes(employeeId: string, courseId: string, notes: string): Promise<ICourseProgress>
 
 }

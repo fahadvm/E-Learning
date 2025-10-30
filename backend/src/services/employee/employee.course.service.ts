@@ -9,15 +9,18 @@ import { ICourse } from '../../models/Course';
 import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
-import { IEmployee } from '../../models/Employee';
+import { ICourseProgress, IEmployee } from '../../models/Employee';
+import { ICourseResource } from '../../models/CourseResource';
+import { ICourseResourceRepository } from '../../core/interfaces/repositories/ICourseResourceRepository';
 
 @injectable()
 export class EmployeeCourseService implements IEmployeeCourseService {
   constructor(
     @inject(TYPES.EmployeeRepository) private _employeeRepo: IEmployeeRepository,
     @inject(TYPES.CompanyOrderRepository) private _companyOrderRepo: ICompanyOrderRepository,
-    @inject(TYPES.CourseRepository) private _courseRepo: ICourseRepository
-  ) {}
+    @inject(TYPES.CourseRepository) private _courseRepo: ICourseRepository,
+    @inject(TYPES.CourseResourceRepository) private readonly _resourceRepository: ICourseResourceRepository,
+  ) { }
 
   async getMyCourses(employeeId: string): Promise<IEmployee | null> {
     const employee = await this._employeeRepo.findById(employeeId);
@@ -25,7 +28,7 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     if (!employee.companyId) throwError(MESSAGES.NOT_PART_OF_COMPANY, STATUS_CODES.CONFLICT);
 
     const orders = await this._employeeRepo.getAssignedCourses(employeeId);
-    console.log("order in service page ",orders)
+    console.log("order in service page ", orders)
     if (!orders) throwError(MESSAGES.ORDER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     return orders;
   }
@@ -43,5 +46,29 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     const course = await this._courseRepo.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     return course;
+  }
+
+  async markLessonComplete(
+    employeeId: string,
+    courseId: string,
+    lessonId: string
+  ): Promise<ICourseProgress> {
+
+    const course = await this._courseRepo.findById(courseId);
+    if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    const progress = await this._employeeRepo.updateEmployeeProgress(employeeId, courseId, lessonId);
+    return progress;
+  }
+
+  async saveNotes(employeeId: string, courseId: string, notes: string): Promise<ICourseProgress> {
+    if (!notes) notes = '// Write your thoughts or doubts here';
+    if (!courseId) throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.NOT_FOUND);
+    const course = await this._courseRepo.findById(courseId);
+    if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    const saving = await this._employeeRepo.saveNotes(employeeId, courseId, notes);
+    return saving;
+  }
+  async getResources(courseId: string): Promise<ICourseResource[]> {
+    return this._resourceRepository.getResourcesByCourse(courseId);
   }
 }

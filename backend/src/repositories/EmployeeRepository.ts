@@ -1,9 +1,11 @@
 import { injectable } from 'inversify';
 import { IEmployeeRepository } from '../core/interfaces/repositories/IEmployeeRepository';
-import { IEmployee, Employee } from '../models/Employee';
+import { IEmployee, Employee, ICourseProgress } from '../models/Employee';
 import { Course } from '../models/Course';
 import { throwError } from '../utils/ResANDError';
 import { MESSAGES } from '../utils/ResponseMessages';
+import { Types } from 'mongoose';
+import { STATUS_CODES } from '../utils/HttpStatuscodes';
 
 @injectable()
 export class EmployeeRepository implements IEmployeeRepository {
@@ -31,7 +33,7 @@ export class EmployeeRepository implements IEmployeeRepository {
 
     async getAssignedCourses(employeeId: string): Promise<IEmployee | null> {
         const employee = await Employee.findById(employeeId)
-            .populate("coursesAssigned") 
+            .populate("coursesAssigned")
             .lean();
         return employee;
     }
@@ -164,4 +166,69 @@ export class EmployeeRepository implements IEmployeeRepository {
         );
     }
 
+
+    async updateEmployeeProgress(employeeId: string, courseId: string, lessonId: string): Promise<ICourseProgress> {
+        if (!Types.ObjectId.isValid(employeeId) || !Types.ObjectId.isValid(courseId) || !Types.ObjectId.isValid(lessonId)) throw new Error('Invalid ID');
+
+        const student = await Employee.findById(employeeId);
+        if (!student) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
+        const course = await Course.findById(courseId);
+        if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
+        let progress = student.coursesProgress.find(p => p.courseId.toString() === courseId);
+        if (!progress) {
+            progress = { courseId: new Types.ObjectId(courseId), completedLessons: [], completedModules: [], percentage: 0, lastVisitedLesson: undefined, notes: '' };
+            student.coursesProgress.push(progress);
+        }
+
+        if (!progress.completedLessons.includes(lessonId)) progress.completedLessons.push(lessonId);
+        progress.lastVisitedLesson = lessonId;
+
+        const totalLessons = course.modules.reduce((sum, mod) => sum + mod.lessons.length, 0);
+        const completedLessons = progress.completedLessons.length;
+        progress.percentage = Math.min((completedLessons / totalLessons) * 100, 100);
+
+        const completedModuleIds: string[] = [];
+        for (const module of course.modules) {
+            const moduleLessons = module.lessons.map(l => l._id!.toString());
+            if (moduleLessons.every(id => progress!.completedLessons.includes(id))) {
+                const moduleId = module._id!.toString();
+                if (!progress.completedModules.includes(moduleId)) completedModuleIds.push(moduleId);
+            }
+        }
+        progress.completedModules = completedModuleIds;
+        await student.save({ validateBeforeSave: true });
+        return progress;
+    }
+
+    async getOrCreateCourseProgress(employeeId: string, courseId: string): Promise<ICourseProgress> {
+        const student = await Employee.findById(employeeId);
+        if (!student) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
+        let progress = student.coursesProgress.find(p => p.courseId.toString() === courseId);
+        if (!progress) {
+            progress = { courseId: new Types.ObjectId(courseId), completedLessons: [], completedModules: [], percentage: 0, lastVisitedLesson: undefined, notes: '' };
+            student.coursesProgress.push(progress);
+            await student.save();
+        }
+        return progress;
+    }
+
+    async saveNotes(employeeId: string, courseId: string, notes: string): Promise<ICourseProgress> {
+        const student = await Employee.findById(employeeId);
+        if (!student) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
+        let courseProgress = student.coursesProgress.find(p => p.courseId.toString() === courseId);
+        if (!courseProgress) {
+            courseProgress = { courseId: new Types.ObjectId(courseId), completedLessons: [], completedModules: [], percentage: 0, lastVisitedLesson: undefined, notes: notes };
+            student.coursesProgress.push(courseProgress);
+        } else {
+            courseProgress.notes = notes;
+        }
+        await student.save();
+        return courseProgress;
+    }
 }
+
+

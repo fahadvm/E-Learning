@@ -1,6 +1,16 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 import { ObjectId } from 'mongodb';
 
+
+export interface ICourseProgress {
+  courseId: Types.ObjectId;
+  completedLessons: string[];
+  completedModules: string[];
+  percentage: number;
+  lastVisitedLesson?: string;
+  notes: string;
+}
+
 export interface IEmployee extends Document {
   _id: ObjectId;
   name: string;
@@ -24,9 +34,18 @@ export interface IEmployee extends Document {
     twitter?: string;
     instagram?: string;
   };
-
+  coursesProgress: ICourseProgress[];
 
 }
+
+const CourseProgressSchema: Schema = new Schema<ICourseProgress>({
+  courseId: { type: Schema.Types.ObjectId, ref: 'Course', required: true },
+  completedLessons: [{ type: Schema.Types.ObjectId, ref: 'Lesson' }],
+  completedModules: [{ type: Schema.Types.ObjectId, ref: 'Module' }],
+  percentage: { type: Number, default: 0 },
+  lastVisitedLesson: { type: Schema.Types.ObjectId, ref: 'Lesson' },
+  notes:{type:String ,default:''}
+});
 
 const EmployeeSchema: Schema = new Schema({
   name: { type: String, required: true },
@@ -40,7 +59,7 @@ const EmployeeSchema: Schema = new Schema({
   googleId: { type: String },
   about: { type: String },
   phone: { type: String },
-  status: { type: String , default: 'notRequsted' },
+  status: { type: String, default: 'notRequsted' },
   profilePicture: { type: String },
   isBlocked: { type: Boolean, default: false },
   isVerified: { type: Boolean, default: false },
@@ -49,7 +68,9 @@ const EmployeeSchema: Schema = new Schema({
     linkedin: { type: String },
     twitter: { type: String },
     instagram: { type: String }
-  }
+  },
+  coursesProgress: [CourseProgressSchema]
+
 }, { timestamps: true, });
 
 export const Employee = mongoose.model<IEmployee>('Employee', EmployeeSchema);

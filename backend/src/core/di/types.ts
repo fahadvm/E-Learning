@@ -23,6 +23,7 @@ export const TYPES = {
     StudentCommentController: Symbol.for('StudentCommentController'),
     
     StudentCommentService: Symbol.for('StudentCommentService'),
+    EmployeeCommentService: Symbol.for('EmployeeCommentService'),
     StudentAiTutorService: Symbol.for('StudentAiTutorService'),
     AiTutorController: Symbol.for('AiTutorController'),
 
@@ -105,6 +106,7 @@ export const TYPES = {
     EmployeeAuthController: Symbol.for('EmployeeAuthController'),
     EmployeeProfileController: Symbol.for('EmployeeProfileController'),
     EmployeeCompanyController: Symbol.for('EmployeeCompanyController'),
+    EmployeeCommentController: Symbol.for('EmployeeCommentController'),
     
     EmployeeCourseController: Symbol.for('EmployeeCourseController'),
     ChatController: Symbol.for('ChatController'),
