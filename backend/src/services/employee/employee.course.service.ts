@@ -33,7 +33,7 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     return orders;
   }
 
-  async getMyCourseDetails(employeeId: string, courseId: string): Promise<ICourse | null> {
+  async getMyCourseDetails(employeeId: string, courseId: string): Promise<{ course: ICourse; progress: ICourseProgress }> {
     const employee = await this._employeeRepo.findById(employeeId);
     if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     if (!employee.companyId) throwError(MESSAGES.NOT_PART_OF_COMPANY, STATUS_CODES.CONFLICT);
@@ -45,7 +45,8 @@ export class EmployeeCourseService implements IEmployeeCourseService {
 
     const course = await this._courseRepo.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    return course;
+    const progress = await this._employeeRepo.getOrCreateCourseProgress(employeeId, courseId);
+    return { course, progress };
   }
 
   async markLessonComplete(

@@ -171,6 +171,7 @@ import { IStudentAiTutorService } from '../interfaces/services/shared/IAiService
 import { StudentAiTutorService } from '../../services/shared/ai.service';
 import { IEmployeeCommentService } from '../interfaces/services/employee/IEmployeeCommentService';
 import { EmployeeCommentService } from '../../services/employee/employee.comment.service';
+import { EmployeeCommentController } from '../../controllers/employee/employee.comment.controller';
 
 
 
@@ -295,6 +296,7 @@ container.bind<TeacherCallRequestController>(TYPES.TeacherCallRequestController)
 container.bind<EmployeeProfileController>(TYPES.EmployeeProfileController).to(EmployeeProfileController);
 container.bind<EmployeeAuthController>(TYPES.EmployeeAuthController).to(EmployeeAuthController);
 container.bind<EmployeeCompanyController>(TYPES.EmployeeCompanyController).to(EmployeeCompanyController);
+container.bind<EmployeeCommentController>(TYPES.EmployeeCommentController).to(EmployeeCommentController);
 container.bind<EmployeeCourseController>(TYPES.EmployeeCourseController).to(EmployeeCourseController);
 
 

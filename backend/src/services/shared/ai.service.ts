@@ -18,7 +18,7 @@ export class StudentAiTutorService implements IStudentAiTutorService {
         this.genAI = new GoogleGenerativeAI(apiKey);
     }
 
-    async getCourseAnswer(studentId: string, courseId: string, prompt: string) {
+    async getCourseAnswer( courseId: string, prompt: string) {
 
         const course = await this._courseRepo.findById(courseId);
         if (!course) throw new Error('Course not found');

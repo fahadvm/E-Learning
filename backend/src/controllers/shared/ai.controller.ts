@@ -16,14 +16,12 @@ export class AiTutorController {
 
     askQuestion = async (req: AuthRequest, res: Response) => {
 
-        const studentId = req.user?.id;
         const { courseId } = req.params;
-        if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
         const { prompt } = req.body;
 
 
 
-        const reply = await this._aiService.getCourseAnswer(studentId, courseId, prompt);
+        const reply = await this._aiService.getCourseAnswer( courseId, prompt);
         return sendResponse(res, STATUS_CODES.OK, MESSAGES.NOTIFICATIONS_FETCHED, true, reply);
 
 

@@ -187,6 +187,8 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
       setLoading(true);
       const res = await employeeApiMethods.getMyCourseDetails(courseId);
       if (res.ok) {
+
+        console.log("course details :", res.data)
         const { course: courseData, progress: progressData }: StudentCourseResponse = res.data;
 
         // Map module and lesson IDs and completion status
@@ -200,6 +202,9 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
             completed: progressData.completedLessons?.includes(lesson._id) || false,
           })),
         }));
+                console.log("course updatedModules :", updatedModules)
+
+
 
         setCourse({ ...courseData, modules: updatedModules });
         setProgress(progressData);
@@ -406,7 +411,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
       {/* Header */}
       <div className="bg-card border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <Link href="/student/mycourses">
+          <Link href="/employee/mycourses">
             <Button variant="ghost" size="sm">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
@@ -490,7 +495,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                       <div className="flex items-center justify-between flex-wrap gap-2">
                         <div className="flex items-center gap-2">
                           <Link
-                            href={`/student/teacher/${course.teacherId?._id}?courseId=${course._id}`}
+                            href={`/employee/teacher/${course.teacherId?._id}?courseId=${course._id}`}
                             className="font-medium"
                           >
                             {course.teacherId?.name || "Unknown Instructor"}
@@ -498,7 +503,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                         </div>
                         <div className="flex items-center gap-2">
                           {course.teacherId && (
-                            <Link href={`/student/chat/${course.teacherId._id}`}>
+                            <Link href={`/employee/chat/${course.teacherId._id}`}>
                               <Button
                                 size="sm"
                                 className="flex items-center gap-1 bg-gray-100 hover:bg-blue-700 hover:text-white text-black rounded-full px-3"
@@ -509,7 +514,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                             </Link>
                           )}
                           <Link
-                            href={`/student/teacher/call-shedule/${course.teacherId?._id}?courseId=${course._id}`}
+                            href={`/employee/teacher/call-shedule/${course.teacherId?._id}?courseId=${course._id}`}
                           >
                             <Button
                               size="sm"

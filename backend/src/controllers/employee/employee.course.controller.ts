@@ -28,6 +28,7 @@ export class EmployeeCourseController {
         if (!employeeId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
         const { courseId } = req.params;
         const course = await this._employeeCourseService.getMyCourseDetails(employeeId, courseId);
+        console.log("fetching course details", course)
         sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, course);
     }
     markLessonComplete = async (req: AuthRequest, res: Response) => {

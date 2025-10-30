@@ -16,6 +16,7 @@ export class EmployeeProfileController implements IEmployeeProfileController{
   ) {}
 
   getProfile = async (req: Request, res: Response) => {
+    console.log("getting profile of employee")
     const decoded = decodeToken(req.cookies.token);
     if (!decoded?.id) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
     const employee = await this._employeeProfileService.getProfile(decoded.id);
