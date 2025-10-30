@@ -33,8 +33,7 @@ export const STUDENT_ROUTES = {
     base: STUDENT_COURSES,
     getById: (id: string) => `${STUDENT_COURSES}/${id}`,
     compilerRun: `${STUDENT_COURSES}/compiler/run`,
-    lessonComplete: (courseId: string, lessonIndex: string) =>
-      `${STUDENT_COURSES}/${courseId}/lesson/${lessonIndex}/complete`,
+    lessonComplete: (courseId: string, lessonIndex: string) =>`${STUDENT_COURSES}/${courseId}/lesson/${lessonIndex}/complete`,
     notes: `${STUDENT_COURSES}/notes`,
     resources: (courseId: string) => `${STUDENT_COURSES}/resources/${courseId}`,
     comments: (courseId: string) => `${STUDENT_COURSES}/comment/${courseId}`,

@@ -1,12 +1,13 @@
 // src/api/employeeApiMethods.ts
 
-import { getRequest, patchRequest, postRequest, putRequest } from "../api";
+import { deleteRequest, getRequest, patchRequest, postRequest, putRequest } from "../api";
 import { EMPLOYEE_ROUTES } from "../constantRoutes/employeeRoutes";
 
 const get = getRequest;
 const post = postRequest;
 const patch = patchRequest;
 const put = putRequest;
+const del = deleteRequest;
 
 export const employeeApiMethods = {
   // Auth
@@ -35,4 +36,11 @@ export const employeeApiMethods = {
   // Courses
   getMyCourses: () => get(EMPLOYEE_ROUTES.courses.enrolled),
   getMyCourseDetails: (courseId: string) => get(EMPLOYEE_ROUTES.courses.details(courseId)),
+  markLessonComplete: (courseId: string, lessonIndex: string) => get(EMPLOYEE_ROUTES.courses.lessonComplete(courseId, lessonIndex)),
+  saveNotes: (data: { courseId: string; notes: string }) => post(EMPLOYEE_ROUTES.courses.notes, data),
+  getCourseResources: (courseId: string) => get(EMPLOYEE_ROUTES.courses.resources(courseId)),
+  getCourseComments: (courseId: string) => get(EMPLOYEE_ROUTES.courses.comments(courseId)),
+  addCourseComment: (courseId: string, data: { content: string }) => post(EMPLOYEE_ROUTES.courses.comments(courseId), data),
+  deleteCourseComment: (commentId: string) => del(`${EMPLOYEE_ROUTES.courses.comments('')}${commentId}`),
+
 };
