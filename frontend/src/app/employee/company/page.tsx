@@ -20,8 +20,6 @@ import {
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";
 import Loader from "@/components/common/Loader";
-import Header from "@/components/employee/Header";
-
 type CompanyStatus = "joined" | "notJoined" | "pendingRequest";
 
 interface Company {
@@ -153,7 +151,6 @@ export default function MyCompanyPage() {
 
   return (
     <>
-      <Header/>
     <div className="p-6 space-y-8 pt-20">
       {/* Header */}
       <div>

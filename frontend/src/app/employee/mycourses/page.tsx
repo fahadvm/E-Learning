@@ -8,7 +8,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService"
-import Header from "@/components/employee/Header"
 // import { showErrorToast } from "@/utils/Toast"
 
 interface Review {
@@ -86,7 +85,6 @@ export default function MyCourses() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
       <div className="bg-card border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-start justify-between mb-6">

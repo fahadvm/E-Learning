@@ -26,8 +26,7 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
    * Create a Stripe Checkout session for a company
    */
   async createCheckoutSession(courseIds: string[], companyId: string, amount: number) {
-    console.log("creating course ids are ",courseIds)
-    const Company = await this._companyRepo.findById(companyId);
+     const Company = await this._companyRepo.findById(companyId);
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
