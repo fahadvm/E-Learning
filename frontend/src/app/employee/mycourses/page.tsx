@@ -57,7 +57,6 @@ interface CourseProgress {
 export default function EmployeeMyCourses() {
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
-  const { employee } = useEmployee()
 
   useEffect(() => {
     fetchCourses()

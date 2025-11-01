@@ -32,11 +32,19 @@ export class EmployeeCourseController {
         sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, course);
     }
     markLessonComplete = async (req: AuthRequest, res: Response) => {
-        const studentId = req.user?.id;
+        const employeeId = req.user?.id;
         const { courseId, lessonIndex } = req.params;
-        if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+        if (!employeeId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
         if (!lessonIndex) throwError('Lesson ID is required', STATUS_CODES.BAD_REQUEST);
-        const result = await this._employeeCourseService.markLessonComplete(studentId, courseId, lessonIndex);
+        const result = await this._employeeCourseService.markLessonComplete(employeeId, courseId, lessonIndex);
+        return sendResponse(res, STATUS_CODES.OK, MESSAGES.COMPLETD_LESSON_MARKED, true, result);
+    };
+    trackLearningTime = async (req: AuthRequest, res: Response) => {
+        const employeeId = req.user?.id;
+        const { courseId , seconds } = req.body;
+        console.log("consoling req.body ",req.body)
+        if (!employeeId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+        const result = await this._employeeCourseService.addLearningTime(employeeId, courseId, seconds);
         return sendResponse(res, STATUS_CODES.OK, MESSAGES.COMPLETD_LESSON_MARKED, true, result);
     };
 
@@ -83,10 +91,10 @@ export class EmployeeCourseController {
     };
 
     noteSaving = async (req: AuthRequest, res: Response) => {
-        const studentId = req.user?.id;
+        const employeeId = req.user?.id;
         const { courseId, notes } = req.body;
-        if (!studentId || !courseId) throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
-        const saving = await this._employeeCourseService.saveNotes(studentId, courseId, notes);
+        if (!employeeId || !courseId) throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
+        const saving = await this._employeeCourseService.saveNotes(employeeId, courseId, notes);
         return sendResponse(res, STATUS_CODES.OK, MESSAGES.NOTE_SAVED_SUCCESSFULLY, true, saving);
     };
     getCourseResources = async (req: AuthRequest, res: Response) => {
@@ -95,5 +103,9 @@ export class EmployeeCourseController {
         const resources = await this._employeeCourseService.getResources(courseId);
         return sendResponse(res, STATUS_CODES.OK, MESSAGES.RESOURCES_FETCHED, true, resources);
     };
+
+
+
+
 
 }

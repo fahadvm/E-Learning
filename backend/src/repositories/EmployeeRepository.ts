@@ -6,6 +6,7 @@ import { throwError } from '../utils/ResANDError';
 import { MESSAGES } from '../utils/ResponseMessages';
 import { Types } from 'mongoose';
 import { STATUS_CODES } from '../utils/HttpStatuscodes';
+import { EmployeeLearningRecord, IEmployeeLearningRecord } from '../models/EmployeeLearningRecord';
 
 @injectable()
 export class EmployeeRepository implements IEmployeeRepository {
@@ -216,19 +217,33 @@ export class EmployeeRepository implements IEmployeeRepository {
     }
 
     async saveNotes(employeeId: string, courseId: string, notes: string): Promise<ICourseProgress> {
-        const student = await Employee.findById(employeeId);
-        if (!student) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+        const employee = await Employee.findById(employeeId);
+        if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
-        let courseProgress = student.coursesProgress.find(p => p.courseId.toString() === courseId);
+        let courseProgress = employee.coursesProgress.find(p => p.courseId.toString() === courseId);
         if (!courseProgress) {
             courseProgress = { courseId: new Types.ObjectId(courseId), completedLessons: [], completedModules: [], percentage: 0, lastVisitedLesson: undefined, notes: notes };
-            student.coursesProgress.push(courseProgress);
+            employee.coursesProgress.push(courseProgress);
         } else {
             courseProgress.notes = notes;
         }
-        await student.save();
+        await employee.save();
         return courseProgress;
     }
+
+    async updateLearningTime(employeeId: string, courseId: string, date: Date, roundedHours: number): Promise<IEmployeeLearningRecord> {
+        const record = await EmployeeLearningRecord.findOneAndUpdate(
+            { employeeId, date },
+            {
+                $inc: { totalHours: roundedHours },
+                $setOnInsert: { employeeId, date },
+                $addToSet: { courses: { courseId, hours: roundedHours } },
+            },
+            { new: true, upsert: true }
+        )
+        return record;
+    }
+
 }
 
 

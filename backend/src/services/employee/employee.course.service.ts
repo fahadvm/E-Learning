@@ -61,6 +61,19 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     return progress;
   }
 
+
+  async addLearningTime(employeeId: string, courseId: string,  seconds: number): Promise<ICourseProgress> {
+    const course = await this._courseRepo.findById(courseId);
+    if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    const today = new Date();
+    const date = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+    const hours = seconds / 3600
+    const roundedHours  = Math.round( hours* 100 ) / 100
+    const record = await this._employeeRepo.updateLearningTime(employeeId, courseId, date , roundedHours);
+    return record;
+
+  }
+
   async saveNotes(employeeId: string, courseId: string, notes: string): Promise<ICourseProgress> {
     if (!notes) notes = '// Write your thoughts or doubts here';
     if (!courseId) throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.NOT_FOUND);

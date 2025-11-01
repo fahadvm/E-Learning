@@ -1,4 +1,5 @@
 import { ICourseProgress, IEmployee } from '../../../models/Employee';
+import { IEmployeeLearningRecord } from '../../../models/EmployeeLearningRecord';
 
 export interface IEmployeeRepository {
   create(employee: Partial<IEmployee>): Promise<IEmployee>;
@@ -21,6 +22,7 @@ export interface IEmployeeRepository {
   assignCourseToEmployee(courseId: string, employeeId: string): Promise<void>
   getAssignedCourses(employeeId: string): Promise<IEmployee | null>
   updateEmployeeProgress(employeeId: string, courseId: string, lessonId: string): Promise<ICourseProgress>;
+  updateLearningTime(employeeId: string, courseId: string, date: Date, roundedHours : number): Promise<IEmployeeLearningRecord>;
   getOrCreateCourseProgress(employeeId: string, courseId: string): Promise<ICourseProgress>
   saveNotes(employeeId: string, courseId: string, notes: string): Promise<ICourseProgress>
 

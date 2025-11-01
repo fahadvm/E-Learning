@@ -66,7 +66,7 @@ interface CourseProgress {
   completedModules: string[];
   percentage: number;
   lastVisitedLesson?: string;
-  notes: string
+  notes: string;
 }
 
 interface Course {
@@ -106,6 +106,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
   const [course, setCourse] = useState<Course | null>(null);
   const [progress, setProgress] = useState<CourseProgress | null>(null);
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
+  const [pendingLesson, setPendingLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
   const [notes, setNotes] = useState<string>("");
   const [comments, setComments] = useState<Comment[]>([]);
@@ -114,11 +115,24 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
   const [language, setLanguage] = useState("javascript");
   const [output, setOutput] = useState("");
   const [resources, setResources] = useState<Resource[]>([]);
+  const [watchTime, setWatchTime] = useState<number>(0);
 
+  const watchSessionRef = useRef<{
+    startTime: number;
+    accumulated: number;
+    rafId: number | null;
+    saveTimeout: NodeJS.Timeout | null;
+  }>({
+    startTime: 0,
+    accumulated: 0,
+    rafId: null,
+    saveTimeout: null,
+  });
 
+  const isTrackingRef = useRef(false);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-
-
+  // === Resolve course ID from params ===
   useEffect(() => {
     const fetchParams = async () => {
       const resolvedParams = await params;
@@ -126,17 +140,15 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
         setCourseId(resolvedParams.id);
       }
     };
-
     fetchParams();
   }, [params]);
 
-
+  // === Fetch Comments ===
   useEffect(() => {
     if (!courseId) return;
     const fetchComments = async () => {
       try {
         const res = await employeeApiMethods.getCourseComments(courseId);
-        console.log("res in comment", res.data)
         if (res.ok) setComments(res.data);
         else showErrorToast(res.message);
       } catch {
@@ -146,6 +158,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     fetchComments();
   }, [courseId]);
 
+  // === Add Comment ===
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
     try {
@@ -162,7 +175,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     }
   };
 
-  // Delete comment
+  // === Delete Comment ===
   const handleDeleteComment = async (commentId: string) => {
     try {
       const res = await employeeApiMethods.deleteCourseComment(commentId);
@@ -177,7 +190,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     }
   };
 
-
+  // === Fetch Course ===
   useEffect(() => {
     if (courseId) fetchCourse();
   }, [courseId]);
@@ -187,36 +200,25 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
       setLoading(true);
       const res = await employeeApiMethods.getMyCourseDetails(courseId);
       if (res.ok) {
-
-        console.log("course details :", res.data)
         const { course: courseData, progress: progressData }: StudentCourseResponse = res.data;
 
-        // Map module and lesson IDs and completion status
-        const updatedModules = courseData.modules?.map((module, moduleIndex) => ({
+        const updatedModules = courseData.modules?.map((module) => ({
           ...module,
-          id: module._id,
           completed: progressData.completedModules?.includes(module._id) || false,
-          lessons: module.lessons.map((lesson, lessonIndex) => ({
+          lessons: module.lessons.map((lesson) => ({
             ...lesson,
-            id: lesson._id,
             completed: progressData.completedLessons?.includes(lesson._id) || false,
           })),
         }));
-                console.log("course updatedModules :", updatedModules)
-
-
 
         setCourse({ ...courseData, modules: updatedModules });
         setProgress(progressData);
-        setNotes(progressData.notes)
+        setNotes(progressData.notes);
 
-        // Set current lesson to last visited or first lesson
         const lastVisitedLessonId = progressData.lastVisitedLesson;
         const firstLesson = updatedModules?.[0]?.lessons?.[0] || null;
         const lastVisitedLesson = lastVisitedLessonId
-          ? updatedModules
-            ?.flatMap((m) => m.lessons)
-            .find((l) => l._id === lastVisitedLessonId) || firstLesson
+          ? updatedModules?.flatMap((m) => m.lessons).find((l) => l._id === lastVisitedLessonId) || firstLesson
           : firstLesson;
         setCurrentLesson(lastVisitedLesson);
       } else {
@@ -228,27 +230,20 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
       setLoading(false);
     }
   };
+
+  // === Download Resource ===
   const handleDownload = async (fileUrl: string) => {
     try {
       const res = await fetch(fileUrl);
       const blob = await res.blob();
-
-      // Extract filename from Cloudinary URL
       const urlParts = fileUrl.split("/");
-      console.log("original name is :", urlParts)
-      let originalFilename = urlParts[urlParts.length - 1]; // e.g., 1760538617694_Naveen.pdf
+      let originalFilename = urlParts[urlParts.length - 1];
+      if (!originalFilename.includes(".")) originalFilename += ".pdf";
 
-      // Ensure it keeps the correct extension
-      if (!originalFilename.includes(".")) {
-        // fallback: use extension from fileUrl query if present, or default pdf
-        originalFilename += ".pdf";
-      }
-
-      // Create download link
       const blobUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = blobUrl;
-      link.download = originalFilename; // force proper name with extension
+      link.download = originalFilename;
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -258,7 +253,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     }
   };
 
-
+  // === Fetch Resources ===
   useEffect(() => {
     const fetchResources = async () => {
       try {
@@ -271,10 +266,138 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
         setLoading(false);
       }
     };
-
     if (courseId) fetchResources();
   }, [courseId]);
 
+  // === TIME TRACKING: Start when lesson changes ===
+  useEffect(() => {
+    if (!currentLesson || !courseId) return;
+
+    const startTracking = async () => {
+      let serverTime = 0;
+      // try {
+      //   // const res = await employeeApiMethods.getLessonWatchTime(courseId, currentLesson._id);
+      //   // if (res.ok) serverTime = res.data.seconds || 0;
+
+      // } catch (err) {
+      //   console.warn("Could not fetch watch time");
+      // }
+
+      const session = watchSessionRef.current;
+      session.accumulated = serverTime;
+      session.startTime = performance.now();
+      isTrackingRef.current = true;
+
+      if (session.rafId) cancelAnimationFrame(session.rafId);
+      if (session.saveTimeout) clearTimeout(session.saveTimeout);
+
+      const tick = () => {
+        if (!isTrackingRef.current) return;
+
+        const elapsedMs = performance.now() - session.startTime;
+        const totalSeconds = Math.floor(session.accumulated + elapsedMs / 1000);
+
+        if (totalSeconds % 1 === 0) setWatchTime(totalSeconds);
+        if (totalSeconds % 30 === 0 && totalSeconds > 0) saveWatchTime(totalSeconds, false);
+
+        session.rafId = requestAnimationFrame(tick);
+      };
+
+      session.rafId = requestAnimationFrame(tick);
+    };
+
+    startTracking();
+
+    return () => stopTracking(true);
+  }, [currentLesson?._id, courseId]);
+
+  // === Stop tracking and save ===
+  const stopTracking = (shouldSave: boolean) => {
+    const session = watchSessionRef.current;
+    isTrackingRef.current = false;
+
+    if (session.rafId) {
+      cancelAnimationFrame(session.rafId);
+      session.rafId = null;
+    }
+
+    const elapsedMs = performance.now() - session.startTime;
+    const addedSeconds = Math.floor(elapsedMs / 1000);
+    const totalSeconds = session.accumulated + addedSeconds;
+
+    if (shouldSave && addedSeconds > 0 && currentLesson) {
+      saveWatchTime(totalSeconds, true);
+    }
+
+    session.accumulated = totalSeconds;
+  };
+
+  // === Save watch time to backend ===
+  const saveWatchTime = async (seconds: number, isFinal: boolean) => {
+    if (!currentLesson || seconds <= 0) return;
+
+    const session = watchSessionRef.current;
+    if (session.saveTimeout) clearTimeout(session.saveTimeout);
+
+    const payload = { courseId, lessonId: currentLesson._id, seconds };
+
+    try {
+      await employeeApiMethods.trackLearningTime(payload);
+      session.accumulated = seconds;
+      if (isFinal) showSuccessToast("Watch time saved");
+    } catch (err) {
+      console.error("Failed to save watch time", err);
+      if (isFinal) showErrorToast("Failed to save watch time");
+    }
+  };
+
+  // === Handle visibility change ===
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        stopTracking(true);
+      } else if (currentLesson && !isTrackingRef.current) {
+        watchSessionRef.current.startTime = performance.now();
+        isTrackingRef.current = true;
+        const tick = () => {
+          if (!isTrackingRef.current) return;
+          const session = watchSessionRef.current;
+          const elapsedMs = performance.now() - session.startTime;
+          const totalSeconds = Math.floor(session.accumulated + elapsedMs / 1000);
+          setWatchTime(totalSeconds);
+          session.rafId = requestAnimationFrame(tick);
+        };
+        watchSessionRef.current.rafId = requestAnimationFrame(tick);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, [currentLesson]);
+
+  // === Save on page unload ===
+  useEffect(() => {
+    const handleUnload = () => stopTracking(true);
+    window.addEventListener("pagehide", handleUnload);
+    window.addEventListener("beforeunload", handleUnload);
+    return () => {
+      window.removeEventListener("pagehide", handleUnload);
+      window.removeEventListener("beforeunload", handleUnload);
+    };
+  }, [currentLesson]);
+
+  // === Safe lesson switch (debounced) ===
+  const setCurrentLessonSafe = (lesson: Lesson) => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    setPendingLesson(lesson);
+    debounceRef.current = setTimeout(() => {
+      if (pendingLesson?._id === lesson._id) {
+        setCurrentLesson(lesson);
+      }
+    }, 300);
+  };
+
+  // === Mark Lesson Complete ===
   const totalLessonsCount = course?.modules?.flatMap((m) => m.lessons).length || 0;
   const completedLessonsCount = progress?.completedLessons?.length || 0;
 
@@ -282,7 +405,6 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     if (!course || !progress || progress.completedLessons?.includes(lessonId)) return;
 
     try {
-      // Optimistically update the UI
       const updatedProgress = {
         ...progress,
         completedLessons: [...progress.completedLessons, lessonId],
@@ -290,8 +412,6 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
       };
 
       setProgress(updatedProgress);
-
-      // Update course and current lesson states based on the new progress
       setCourse((prev) => {
         if (!prev) return prev;
         const updatedModules = prev.modules?.map((mod) => ({
@@ -307,20 +427,10 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
 
       setCurrentLesson((prev) => (prev && prev._id === lessonId ? { ...prev, completed: true } : prev));
 
-      // Make API call to mark lesson complete
       const res = await employeeApiMethods.markLessonComplete(course._id, lessonId);
       if (res.ok) {
         const serverProgress: CourseProgress = res.data;
-
-        if (!Array.isArray(serverProgress.completedLessons)) {
-          console.error("Invalid server response: completedLessons is not an array", serverProgress);
-          await fetchCourse();
-          showErrorToast("Invalid server response");
-          return;
-        }
-
         setProgress(serverProgress);
-
         setCourse((prev) => {
           if (!prev) return prev;
           const updatedModules = prev.modules?.map((mod) => ({
@@ -333,11 +443,6 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
           }));
           return { ...prev, modules: updatedModules };
         });
-
-        setCurrentLesson((prev) =>
-          prev && prev._id === lessonId ? { ...prev, completed: serverProgress.completedLessons.includes(lessonId) } : prev
-        );
-
         showSuccessToast("Lesson marked as complete");
       } else {
         await fetchCourse();
@@ -349,11 +454,10 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     }
   };
 
+  // === Notes Auto-save ===
   const saveTimeout = useRef<NodeJS.Timeout | null>(null);
-
   useEffect(() => {
     if (!courseId) return;
-
     if (saveTimeout.current) clearTimeout(saveTimeout.current);
 
     saveTimeout.current = setTimeout(async () => {
@@ -361,7 +465,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
         if (!courseId) return;
         const res = await employeeApiMethods.saveNotes({ courseId, notes });
         if (res.ok) {
-          setProgress((prev) => prev ? { ...prev, notes: notes } : prev);
+          setProgress((prev) => prev ? { ...prev, notes } : prev);
         } else {
           showErrorToast(res.message);
         }
@@ -375,8 +479,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     };
   }, [notes, courseId]);
 
-
-
+  // === Run Code ===
   const handleRunCode = async () => {
     if (!code.trim()) {
       setOutput("Error: No code to execute.");
@@ -385,13 +488,13 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     setOutput("Running...");
     try {
       const res = await studentCourseApi.codeRunner({ language, code });
-      console.log("res of output:", res)
       setOutput(res.data);
     } catch (err) {
       setOutput("Error running code");
     }
   };
 
+  // === Render Loading / Not Found ===
   if (loading)
     return (
       <div className="flex justify-center items-center h-screen text-lg">
@@ -450,29 +553,25 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                 <BookOpen className="w-4 h-4" />
                 Overview
               </TabsTrigger>
-
               <TabsTrigger value="notes" className="flex items-center gap-2">
                 <FileText className="w-4 h-4" />
                 Notes
               </TabsTrigger>
-
               <TabsTrigger value="compiler" className="flex items-center gap-2">
                 <Code2 className="w-4 h-4" />
                 Compiler
               </TabsTrigger>
-
               <TabsTrigger value="community" className="flex items-center gap-2">
                 <MessageSquare className="w-4 h-4" />
                 Community
               </TabsTrigger>
-
               <TabsTrigger value="resources" className="flex items-center gap-2">
                 <Download className="w-4 h-4" />
                 Resources
               </TabsTrigger>
             </TabsList>
 
-            {/* Overview Tab */}
+            {/* Overview */}
             <TabsContent value="overview">
               <Card className="rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 border border-gray-200">
                 <CardHeader className="pb-2">
@@ -481,7 +580,6 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                     About Instructor
                   </CardTitle>
                 </CardHeader>
-
                 <CardContent>
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 rounded-full overflow-hidden border border-gray-300 shadow-sm">
@@ -555,12 +653,19 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                         {Math.floor(course.totalDuration / 60)}h {course.totalDuration % 60}m
                       </span>
                     </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                      <Clock className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-muted-foreground">Watched:</span>
+                      <span className="font-medium text-muted-foreground">
+                        {Math.floor(watchTime / 60)}m {watchTime % 60}s
+                      </span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
 
-            {/* Notes Tab */}
+            {/* Notes */}
             <TabsContent value="notes">
               <Card>
                 <CardHeader>
@@ -574,15 +679,14 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                     placeholder="Write your thoughts or doubts here..."
                     maxLength={1000}
                   />
-                  <p style={{ textAlign: "right", fontSize: "0.9em", color: "#666" }}>
+                  <p className="text-right text-xs text-gray-500 mt-1">
                     {notes.length}/1000
                   </p>
-
                 </CardContent>
               </Card>
             </TabsContent>
 
-            {/* Compiler Tab */}
+            {/* Compiler */}
             <TabsContent value="compiler">
               <Card>
                 <CardHeader>
@@ -656,7 +760,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
               </Card>
             </TabsContent>
 
-            {/* Community Tab */}
+            {/* Community */}
             <TabsContent value="community">
               <Card>
                 <CardHeader>
@@ -707,7 +811,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
               </Card>
             </TabsContent>
 
-            {/* Resources Tab */}
+            {/* Resources */}
             <TabsContent value="resources">
               <Card>
                 <CardHeader>
@@ -773,15 +877,15 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
             <CardContent className="p-0">
               <div className="space-y-1">
                 {course.modules?.map((module, moduleIndex) => (
-                  <div key={module.title} className="border-b border-border last:border-b-0">
-                    <div className="p-4 bg-muted/50 font-medium text-sm" >
+                  <div key={module._id} className="border-b border-border last:border-b-0">
+                    <div className="p-4 bg-muted/50 font-medium text-sm">
                       {module.title} : <span className="text-muted-foreground font-normal">{module.description}</span>
                     </div>
                     {module.lessons.map((lesson, lessonIndex) => (
                       <div
                         key={lesson._id}
                         className={`flex items-center p-4 cursor-pointer hover:bg-muted transition-colors ${currentLesson?._id === lesson._id ? "bg-muted border-r-2 border-primary" : ""}`}
-                        onClick={() => setCurrentLesson(lesson)}
+                        onClick={() => setCurrentLessonSafe(lesson)}
                       >
                         <div className="flex items-center space-x-3 flex-1">
                           <div className="flex-shrink-0">
@@ -812,11 +916,9 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
         </div>
       </div>
 
-      // here i need impliment chat with ai
+      {/* AI Tutor Chat */}
       <div className="fixed bottom-6 right-6">
-        <div className="fixed bottom-6 right-6">
-          <AiTutorChat courseId={courseId} />
-        </div>
+        <AiTutorChat courseId={courseId} />
       </div>
     </div>
   );
