@@ -179,12 +179,13 @@ export class EmployeeRepository implements IEmployeeRepository {
 
         let progress = student.coursesProgress.find(p => p.courseId.toString() === courseId);
         if (!progress) {
-            progress = { courseId: new Types.ObjectId(courseId), completedLessons: [], completedModules: [], percentage: 0, lastVisitedLesson: undefined, notes: '' };
+            progress = { courseId: new Types.ObjectId(courseId), completedLessons: [], completedModules: [], percentage: 0, lastVisitedLesson: undefined, lastVisitedTime: new Date(), notes: '' };
             student.coursesProgress.push(progress);
         }
 
         if (!progress.completedLessons.includes(lessonId)) progress.completedLessons.push(lessonId);
         progress.lastVisitedLesson = lessonId;
+        progress.lastVisitedTime = new Date();
 
         const totalLessons = course.modules.reduce((sum, mod) => sum + mod.lessons.length, 0);
         const completedLessons = progress.completedLessons.length;
@@ -209,7 +210,7 @@ export class EmployeeRepository implements IEmployeeRepository {
 
         let progress = student.coursesProgress.find(p => p.courseId.toString() === courseId);
         if (!progress) {
-            progress = { courseId: new Types.ObjectId(courseId), completedLessons: [], completedModules: [], percentage: 0, lastVisitedLesson: undefined, notes: '' };
+            progress = { courseId: new Types.ObjectId(courseId), completedLessons: [], completedModules: [], percentage: 0, lastVisitedLesson: undefined,lastVisitedTime: new Date(), notes: '' };
             student.coursesProgress.push(progress);
             await student.save();
         }

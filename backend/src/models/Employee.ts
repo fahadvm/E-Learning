@@ -8,6 +8,7 @@ export interface ICourseProgress {
   completedModules: string[];
   percentage: number;
   lastVisitedLesson?: string;
+  lastVisitedTime?: Date;
   notes: string;
 }
 
@@ -44,7 +45,8 @@ const CourseProgressSchema: Schema = new Schema<ICourseProgress>({
   completedModules: [{ type: Schema.Types.ObjectId, ref: 'Module' }],
   percentage: { type: Number, default: 0 },
   lastVisitedLesson: { type: Schema.Types.ObjectId, ref: 'Lesson' },
-  notes:{type:String ,default:''}
+  lastVisitedTime: { type: Date, default: Date.now },
+  notes: { type: String, default: '' }
 });
 
 const EmployeeSchema: Schema = new Schema({
