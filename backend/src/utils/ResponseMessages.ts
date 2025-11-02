@@ -32,7 +32,7 @@ export enum MESSAGES {
   COMPLETD_LESSON_MARKED = 'Lesson completed marked successfully.',
   CODE_RUN_SUCCESSFULLY = 'Code completed run successfully.',
   NOTE_SAVED_SUCCESSFULLY = 'Note saved successfully.',
-
+  RECORD_CREATION_FAILED = "Failed to update or create learning record",
 
 
   NOTIFICATION_MARKED_AS_READ= 'Notification marked as read successfully.',

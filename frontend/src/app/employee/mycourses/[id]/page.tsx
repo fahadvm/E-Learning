@@ -116,6 +116,8 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
   const [output, setOutput] = useState("");
   const [resources, setResources] = useState<Resource[]>([]);
   const [watchTime, setWatchTime] = useState<number>(0);
+  const [totalTimeSpent, setTotalTimeSpent] = useState<number>(0);
+
 
   const watchSessionRef = useRef<{
     startTime: number;
@@ -269,122 +271,55 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     if (courseId) fetchResources();
   }, [courseId]);
 
-  // === TIME TRACKING: Start when lesson changes ===
+
+  // === Accurate Time Tracking ===
   useEffect(() => {
-    if (!currentLesson || !courseId) return;
+    if (!courseId) return;
 
-    const startTracking = async () => {
-      let serverTime = 0;
-      // try {
-      //   // const res = await employeeApiMethods.getLessonWatchTime(courseId, currentLesson._id);
-      //   // if (res.ok) serverTime = res.data.seconds || 0;
+    let totalSeconds = 0;
+    let lastSent = 0;
 
-      // } catch (err) {
-      //   console.warn("Could not fetch watch time");
-      // }
+    const tickTimer = setInterval(() => {
+      totalSeconds++;
+      setTotalTimeSpent(totalSeconds);
+    }, 1000);
 
-      const session = watchSessionRef.current;
-      session.accumulated = serverTime;
-      session.startTime = performance.now();
-      isTrackingRef.current = true;
+    const saveTimer = setInterval(async () => {
+      const delta = totalSeconds - lastSent;
+      if (delta > 0) {
+        try {
+          await employeeApiMethods.trackLearningTime({ courseId, seconds: delta });
+          console.log(`⏱ Sent ${delta}s for ${courseId}`);
+          lastSent = totalSeconds;
+        } catch (err) {
+          console.warn("Failed to save learning time:", err);
+        }
+      }
+    }, 30000); // every 30s
 
-      if (session.rafId) cancelAnimationFrame(session.rafId);
-      if (session.saveTimeout) clearTimeout(session.saveTimeout);
-
-      const tick = () => {
-        if (!isTrackingRef.current) return;
-
-        const elapsedMs = performance.now() - session.startTime;
-        const totalSeconds = Math.floor(session.accumulated + elapsedMs / 1000);
-
-        if (totalSeconds % 1 === 0) setWatchTime(totalSeconds);
-        if (totalSeconds % 30 === 0 && totalSeconds > 0) saveWatchTime(totalSeconds, false);
-
-        session.rafId = requestAnimationFrame(tick);
-      };
-
-      session.rafId = requestAnimationFrame(tick);
-    };
-
-    startTracking();
-
-    return () => stopTracking(true);
-  }, [currentLesson?._id, courseId]);
-
-  // === Stop tracking and save ===
-  const stopTracking = (shouldSave: boolean) => {
-    const session = watchSessionRef.current;
-    isTrackingRef.current = false;
-
-    if (session.rafId) {
-      cancelAnimationFrame(session.rafId);
-      session.rafId = null;
-    }
-
-    const elapsedMs = performance.now() - session.startTime;
-    const addedSeconds = Math.floor(elapsedMs / 1000);
-    const totalSeconds = session.accumulated + addedSeconds;
-
-    if (shouldSave && addedSeconds > 0 && currentLesson) {
-      saveWatchTime(totalSeconds, true);
-    }
-
-    session.accumulated = totalSeconds;
-  };
-
-  // === Save watch time to backend ===
-  const saveWatchTime = async (seconds: number, isFinal: boolean) => {
-    if (!currentLesson || seconds <= 0) return;
-
-    const session = watchSessionRef.current;
-    if (session.saveTimeout) clearTimeout(session.saveTimeout);
-
-    const payload = { courseId, lessonId: currentLesson._id, seconds };
-
-    try {
-      await employeeApiMethods.trackLearningTime(payload);
-      session.accumulated = seconds;
-      if (isFinal) showSuccessToast("Watch time saved");
-    } catch (err) {
-      console.error("Failed to save watch time", err);
-      if (isFinal) showErrorToast("Failed to save watch time");
-    }
-  };
-
-  // === Handle visibility change ===
-  useEffect(() => {
-    const handleVisibility = () => {
-      if (document.hidden) {
-        stopTracking(true);
-      } else if (currentLesson && !isTrackingRef.current) {
-        watchSessionRef.current.startTime = performance.now();
-        isTrackingRef.current = true;
-        const tick = () => {
-          if (!isTrackingRef.current) return;
-          const session = watchSessionRef.current;
-          const elapsedMs = performance.now() - session.startTime;
-          const totalSeconds = Math.floor(session.accumulated + elapsedMs / 1000);
-          setWatchTime(totalSeconds);
-          session.rafId = requestAnimationFrame(tick);
-        };
-        watchSessionRef.current.rafId = requestAnimationFrame(tick);
+    const unloadHandler = async () => {
+      const delta = totalSeconds - lastSent;
+      if (delta > 0) {
+        try {
+          await employeeApiMethods.trackLearningTime({ courseId, seconds: delta });
+        } catch (err) {
+          console.warn("Final save failed", err);
+        }
       }
     };
 
-    document.addEventListener("visibilitychange", handleVisibility);
-    return () => document.removeEventListener("visibilitychange", handleVisibility);
-  }, [currentLesson]);
+    window.addEventListener("beforeunload", unloadHandler);
+    window.addEventListener("pagehide", unloadHandler);
 
-  // === Save on page unload ===
-  useEffect(() => {
-    const handleUnload = () => stopTracking(true);
-    window.addEventListener("pagehide", handleUnload);
-    window.addEventListener("beforeunload", handleUnload);
     return () => {
-      window.removeEventListener("pagehide", handleUnload);
-      window.removeEventListener("beforeunload", handleUnload);
+      clearInterval(tickTimer);
+      clearInterval(saveTimer);
+      window.removeEventListener("beforeunload", unloadHandler);
+      window.removeEventListener("pagehide", unloadHandler);
     };
-  }, [currentLesson]);
+  }, [courseId]);
+
+
 
   // === Safe lesson switch (debounced) ===
   const setCurrentLessonSafe = (lesson: Lesson) => {

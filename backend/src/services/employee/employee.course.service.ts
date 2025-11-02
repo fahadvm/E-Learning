@@ -12,6 +12,7 @@ import { MESSAGES } from '../../utils/ResponseMessages';
 import { ICourseProgress, IEmployee } from '../../models/Employee';
 import { ICourseResource } from '../../models/CourseResource';
 import { ICourseResourceRepository } from '../../core/interfaces/repositories/ICourseResourceRepository';
+import { IEmployeeLearningRecord } from '../../models/EmployeeLearningRecord';
 
 @injectable()
 export class EmployeeCourseService implements IEmployeeCourseService {
@@ -62,14 +63,13 @@ export class EmployeeCourseService implements IEmployeeCourseService {
   }
 
 
-  async addLearningTime(employeeId: string, courseId: string,  seconds: number): Promise<ICourseProgress> {
+  async addLearningTime(employeeId: string, courseId: string,  seconds: number): Promise<IEmployeeLearningRecord> {
     const course = await this._courseRepo.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     const today = new Date();
     const date = new Date(today.getFullYear(), today.getMonth(), today.getDate())
-    const hours = seconds / 3600
-    const roundedHours  = Math.round( hours* 100 ) / 100
-    const record = await this._employeeRepo.updateLearningTime(employeeId, courseId, date , roundedHours);
+     const minutes = seconds / 60
+    const record = await this._employeeRepo.updateLearningTime(employeeId, courseId, date , minutes);
     return record;
 
   }

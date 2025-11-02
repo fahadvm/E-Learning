@@ -232,15 +232,34 @@ export class EmployeeRepository implements IEmployeeRepository {
     }
 
     async updateLearningTime(employeeId: string, courseId: string, date: Date, roundedHours: number): Promise<IEmployeeLearningRecord> {
-        const record = await EmployeeLearningRecord.findOneAndUpdate(
-            { employeeId, date },
+
+        let record = await EmployeeLearningRecord.findOneAndUpdate(
             {
-                $inc: { totalHours: roundedHours },
-                $setOnInsert: { employeeId, date },
-                $addToSet: { courses: { courseId, hours: roundedHours } },
+                employeeId,
+                date,
+                "courses.courseId": new Types.ObjectId(courseId)
             },
-            { new: true, upsert: true }
-        )
+            {
+                $inc: {
+                    "courses.$.minutes": roundedHours,
+                    totalMinutes: roundedHours
+                }
+            },
+            { new: true }
+        );
+
+        if (!record) {
+            record = await EmployeeLearningRecord.findOneAndUpdate(
+                { employeeId, date },
+                {
+                    $inc: { totalMinutes: roundedHours },
+                    $setOnInsert: { employeeId, date },
+                    $push: { courses: { courseId: new Types.ObjectId(courseId), minutes: roundedHours } },
+                },
+                { new: true, upsert: true }
+            )
+        }
+        if (!record) throwError(MESSAGES.RECORD_CREATION_FAILED);
         return record;
     }
 
