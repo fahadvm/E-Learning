@@ -75,6 +75,8 @@ export class EmployeeAuthService implements IEmployeeAuthService {
 
     const token = generateAccessToken(employee._id.toString(), 'employee');
     const refreshToken = generateRefreshToken(employee._id.toString(), 'employee');
+    let streak = await this._employeeRepo.updateLoginStreak(employee._id.toString());
+    if (!streak) throwError(MESSAGES.STREAK_FAILED, STATUS_CODES.BAD_REQUEST)
 
     return {
       token,
@@ -94,6 +96,10 @@ export class EmployeeAuthService implements IEmployeeAuthService {
 
     const token = generateAccessToken(employee._id.toString(), 'employee');
     const refreshToken = generateRefreshToken(employee._id.toString(), 'employee');
+
+    let streak = await this._employeeRepo.updateLoginStreak(employee._id.toString());
+    if (!streak) throwError(MESSAGES.STREAK_FAILED, STATUS_CODES.BAD_REQUEST)
+
 
     return {
       token,
@@ -128,7 +134,8 @@ export class EmployeeAuthService implements IEmployeeAuthService {
 
     const token = generateAccessToken(user._id.toString(), user.role);
     const refreshToken = generateRefreshToken(user._id.toString(), user.role);
-
+    let streak = await this._employeeRepo.updateLoginStreak(user._id.toString());
+    if (!streak) throwError(MESSAGES.STREAK_FAILED, STATUS_CODES.BAD_REQUEST)
     return {
       token,
       refreshToken,

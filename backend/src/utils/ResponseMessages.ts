@@ -33,6 +33,7 @@ export enum MESSAGES {
   CODE_RUN_SUCCESSFULLY = 'Code completed run successfully.',
   NOTE_SAVED_SUCCESSFULLY = 'Note saved successfully.',
   RECORD_CREATION_FAILED = "Failed to update or create learning record",
+  STREAK_FAILED = "Failed to update or create streak",
 
 
   NOTIFICATION_MARKED_AS_READ= 'Notification marked as read successfully.',

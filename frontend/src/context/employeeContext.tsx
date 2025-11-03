@@ -51,8 +51,10 @@ export interface IEmployee {
   coursesProgress: ICourseProgress[];
   createdAt?: Date;
   updatedAt?: Date;
+  streakCount:  number;
+  lastLoginDate: Date;
+  longestStreak: number;
 }
-
 // ---------------------- Context Type ----------------------
 
 interface EmployeeContextType {

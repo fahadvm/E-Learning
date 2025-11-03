@@ -36,6 +36,9 @@ export interface IEmployee extends Document {
     instagram?: string;
   };
   coursesProgress: ICourseProgress[];
+  streakCount:  number
+  lastLoginDate: Date 
+  longestStreak: number
 
 }
 
@@ -71,7 +74,10 @@ const EmployeeSchema: Schema = new Schema({
     twitter: { type: String },
     instagram: { type: String }
   },
-  coursesProgress: [CourseProgressSchema]
+  coursesProgress: [CourseProgressSchema],
+  streakCount: { type: Number, default: 0 },
+  lastLoginDate: { type: Date },
+  longestStreak: { type: Number, default: 0 },
 
 }, { timestamps: true, });
 

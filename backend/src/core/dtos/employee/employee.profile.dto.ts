@@ -12,7 +12,10 @@ export const employeeProfileDto = (employee: IEmployee): IEmployeeProfileDTO => 
   isVerified: employee.isVerified,
   isBlocked: employee.isBlocked,
   social_links: employee.social_links,
-  position : employee.position
+  position: employee.position,
+  streakCount: employee.streakCount,
+  lastLoginDate: employee.lastLoginDate,
+  longestStreak: employee.longestStreak,
 });
 
 export interface IEmployeeProfileDTO {
@@ -25,10 +28,14 @@ export interface IEmployeeProfileDTO {
   profilePicture?: string;
   about?: string;
   phone?: string;
-  position?:string;
+  position?: string;
   social_links?: {
     linkedin?: string;
     twitter?: string;
     instagram?: string;
   };
+  streakCount: number;
+  lastLoginDate: Date;
+  longestStreak: number;
+
 }

@@ -1,7 +1,7 @@
 // src/core/interfaces/services/employee/IEmployeeProfileService.ts
 
 import { IEmployee } from '../../../../models/Employee';
-import {  IEmployeeProfileDTO } from '../../../dtos/employee/student.profile.dto';
+import {  IEmployeeProfileDTO } from '../../../dtos/employee/employee.profile.dto';
 
 
 export interface IEmployeeProfileService {

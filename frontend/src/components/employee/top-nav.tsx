@@ -1,12 +1,14 @@
 "use client"
 
-import { Bell, Search, User, Menu ,MessageCircle} from "lucide-react"
+import { Bell, Search, User, Menu, MessageCircle, Flame } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { useState } from "react"
+import { useEmployee } from "@/context/employeeContext"
 
 export function TopNav() {
+    const {employee} = useEmployee()
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
     const navLinks = [
@@ -15,6 +17,7 @@ export function TopNav() {
         { href: "/employee/progress", label: "Progress" },
         { href: "/employee/company", label: "Company" },
         { href: "/employee/leaderboard", label: "Leaderboard" },
+        { href: "/employee/learningpath", label: "LearnigPath" },
     ]
 
     return (
@@ -65,6 +68,14 @@ export function TopNav() {
                             <span className="absolute top-1 right-1 h-2 w-2 bg-destructive rounded-full" />
                         </Button>
                     </Link>
+                    <Link href="/employee/streak" passHref>
+                        <Button variant="ghost" size="icon" className="relative">
+                            <Flame className="h-5 w-5" />
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                                {employee?.streakCount}
+                            </span>
+                        </Button>
+                    </Link>
 
                     {/* Profile */}
                     <Link href="/employee/profile" passHref>
@@ -72,32 +83,32 @@ export function TopNav() {
                             <User className="h-5 w-5" />
                         </Button>
                     </Link>
-                
 
-                {/* Mobile Menu Button */}
-                <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-                    <Menu className="h-5 w-5" />
-                </Button>
+
+                    {/* Mobile Menu Button */}
+                    <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                        <Menu className="h-5 w-5" />
+                    </Button>
+                </div>
             </div>
-        </div>
 
-      {/* Mobile Navigation Menu */ }
-    {
-        mobileMenuOpen && (
-            <nav className="md:hidden border-t border-border bg-card px-6 py-4 flex flex-col gap-2">
-                {navLinks.map((link) => (
-                    <Link
-                        key={link.href}
-                        href={link.href}
-                        className="px-3 py-2 text-sm font-medium text-foreground hover:bg-accent rounded-md transition-colors"
-                        onClick={() => setMobileMenuOpen(false)}
-                    >
-                        {link.label}
-                    </Link>
-                ))}
-            </nav>
-        )
-    }
-    </header >
-  )
+            {/* Mobile Navigation Menu */}
+            {
+                mobileMenuOpen && (
+                    <nav className="md:hidden border-t border-border bg-card px-6 py-4 flex flex-col gap-2">
+                        {navLinks.map((link) => (
+                            <Link
+                                key={link.href}
+                                href={link.href}
+                                className="px-3 py-2 text-sm font-medium text-foreground hover:bg-accent rounded-md transition-colors"
+                                onClick={() => setMobileMenuOpen(false)}
+                            >
+                                {link.label}
+                            </Link>
+                        ))}
+                    </nav>
+                )
+            }
+        </header >
+    )
 }

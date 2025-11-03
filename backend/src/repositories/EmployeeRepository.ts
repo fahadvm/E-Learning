@@ -279,6 +279,43 @@ export class EmployeeRepository implements IEmployeeRepository {
         if (!employee) return null;
         return employee.coursesProgress || [];
     }
+
+    async updateLoginStreak(employeeId: string):Promise<any> {
+        const employee = await Employee.findById(employeeId);
+        if(!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND)
+
+        const today = new Date();
+        const lastLogin = employee.lastLoginDate ? new Date(employee.lastLoginDate) : null;
+
+        if (!lastLogin) {
+            employee.streakCount = 1;
+        } else {
+            const diffDays =
+                Math.floor(
+                    (today.getTime() - lastLogin.getTime()) / (1000 * 60 * 60 * 24)
+                );
+
+            if (diffDays === 1) {
+                employee.streakCount += 1;
+            } else if (diffDays > 1) {
+                employee.streakCount = 1;
+            }
+        }
+
+        employee.lastLoginDate = today;
+
+        if (employee.streakCount > employee.longestStreak) {
+            employee.longestStreak = employee.streakCount;
+        }
+
+        await employee.save();
+        console.log("streak added successfullyyyyyyyyy")
+
+        return {
+            streakCount: employee.streakCount,
+            longestStreak: employee.longestStreak,
+        };
+    }
 }
 
 
