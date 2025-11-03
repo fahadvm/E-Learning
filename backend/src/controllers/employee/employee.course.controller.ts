@@ -41,8 +41,8 @@ export class EmployeeCourseController {
     };
     trackLearningTime = async (req: AuthRequest, res: Response) => {
         const employeeId = req.user?.id;
-        const { courseId , seconds } = req.body;
-        console.log("consoling req.body ",req.body)
+        const { courseId, seconds } = req.body;
+        console.log("consoling req.body ", req.body)
         if (!employeeId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
         const result = await this._employeeCourseService.addLearningTime(employeeId, courseId, seconds);
         return sendResponse(res, STATUS_CODES.OK, MESSAGES.COMPLETD_LESSON_MARKED, true, result);
@@ -103,6 +103,31 @@ export class EmployeeCourseController {
         const resources = await this._employeeCourseService.getResources(courseId);
         return sendResponse(res, STATUS_CODES.OK, MESSAGES.RESOURCES_FETCHED, true, resources);
     };
+
+
+    async getLearningRecords(req: AuthRequest, res: Response) {
+        console.log("getLearningRecords is running")
+
+        const employeeId = req.user?.id;
+        if (!employeeId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+
+        const data = await this._employeeCourseService.getLearningRecords(employeeId);
+        console.log("getLearningRecords:", data)
+
+        return sendResponse(res, STATUS_CODES.OK, MESSAGES.LEARNING_RECORD_FETCHED, true, data);
+    }
+
+    async getCourseProgress(req: AuthRequest, res: Response) {
+        console.log("getCourseProgress is running")
+
+        const employeeId = req.user?.id;
+        if (!employeeId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+        console.log("until here everything is fine", employeeId)
+        const data = await this._employeeCourseService.getProgress(employeeId);
+        console.log("getcourseprogress:", data)
+        return sendResponse(res, STATUS_CODES.OK, MESSAGES.PROGRESS_FETCHED, true, data);
+    }
+
 
 
 

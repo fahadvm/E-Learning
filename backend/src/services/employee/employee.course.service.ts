@@ -85,4 +85,10 @@ export class EmployeeCourseService implements IEmployeeCourseService {
   async getResources(courseId: string): Promise<ICourseResource[]> {
     return this._resourceRepository.getResourcesByCourse(courseId);
   }
+  async getProgress(employeeId: string): Promise<ICourseProgress[] | null> {
+    return this._employeeRepo.getProgress(employeeId);
+  }
+  async getLearningRecords(employeeId: string): Promise<any> {
+    return this._employeeRepo.getLearningRecords(employeeId);
+  }
 }

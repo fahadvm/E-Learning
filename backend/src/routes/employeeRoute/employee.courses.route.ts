@@ -26,6 +26,8 @@ courseRouter.post('/notes', authMiddleware('employee'), asyncHandler(employeeCou
 courseRouter.get('/:courseId/lesson/:lessonIndex/complete', authMiddleware('employee'), asyncHandler(employeeCourseCtrl.markLessonComplete.bind(employeeCourseCtrl)));
 courseRouter.patch('/tracking/time', authMiddleware('employee'), asyncHandler(employeeCourseCtrl.trackLearningTime.bind(employeeCourseCtrl)));
 courseRouter.get('/resources/:courseId', authMiddleware('employee'), asyncHandler(employeeCourseCtrl.getCourseResources.bind(employeeCourseCtrl)));
+courseRouter.get('/progress', authMiddleware('employee'), asyncHandler(employeeCourseCtrl.getCourseProgress.bind(employeeCourseCtrl)));
+courseRouter.get('/leaningRecords', authMiddleware('employee'), asyncHandler(employeeCourseCtrl.getLearningRecords.bind(employeeCourseCtrl)));
 
 
 courseRouter.route('/comment/:courseId')

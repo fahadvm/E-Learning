@@ -37,11 +37,13 @@ export const employeeApiMethods = {
   getMyCourses: () => get(EMPLOYEE_ROUTES.courses.enrolled),
   getMyCourseDetails: (courseId: string) => get(EMPLOYEE_ROUTES.courses.details(courseId)),
   markLessonComplete: (courseId: string, lessonIndex: string) => get(EMPLOYEE_ROUTES.courses.lessonComplete(courseId, lessonIndex)),
-  trackLearningTime: (data:{courseId: string,seconds : number}) => patch(EMPLOYEE_ROUTES.courses.trackTime,data),
+  trackLearningTime: (data: { courseId: string, seconds: number }) => patch(EMPLOYEE_ROUTES.courses.trackTime, data),
   saveNotes: (data: { courseId: string; notes: string }) => post(EMPLOYEE_ROUTES.courses.notes, data),
   getCourseResources: (courseId: string) => get(EMPLOYEE_ROUTES.courses.resources(courseId)),
   getCourseComments: (courseId: string) => get(EMPLOYEE_ROUTES.courses.comments(courseId)),
   addCourseComment: (courseId: string, data: { content: string }) => post(EMPLOYEE_ROUTES.courses.comments(courseId), data),
   deleteCourseComment: (commentId: string) => del(`${EMPLOYEE_ROUTES.courses.comments('')}${commentId}`),
+  getLearningRecord: () => get(EMPLOYEE_ROUTES.courses.learningRecords),
+  getProgression: () => get(EMPLOYEE_ROUTES.courses.progress),
 
 };

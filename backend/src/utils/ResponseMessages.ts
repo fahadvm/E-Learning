@@ -199,6 +199,8 @@ export enum MESSAGES {
   COURSE_DELETED = 'Course deleted successfully',
   COURSE_DETAILS_FETCHED = 'Course details fetched successfully',
   RESOURCES_FETCHED = 'Resources fetched successfully',
+  PROGRESS_FETCHED = 'Progress fetched successfully',
+  LEARNING_RECORD_FETCHED = 'Learning record fetched successfully',
   RESOURCE_UPLOADED = 'Resource uploaded successfully',
   RESOURCE_DELETED = 'Resource deleted successfully',
   COURSE_NOT_FOUND = 'Course not found',

@@ -39,6 +39,8 @@ export const EMPLOYEE_ROUTES = {
     enrolled: `${EMPLOYEE_COURSES}/enrolled`,
     compilerRun: `${EMPLOYEE_COURSES}/compiler/run`,
     trackTime: `${EMPLOYEE_COURSES}/tracking/time`,
+    progress: `${EMPLOYEE_COURSES}/progress`,
+    learningRecords: `${EMPLOYEE_COURSES}/leaningRecords`,
     details: (courseId: string) => `${EMPLOYEE_COURSES}/enrolled/${courseId}`,
     lessonComplete: (courseId: string, lessonIndex: string) => `${EMPLOYEE_COURSES}/${courseId}/lesson/${lessonIndex}/complete`,
     resources: (courseId: string) => `${EMPLOYEE_COURSES}/resources/${courseId}`,

@@ -10,4 +10,6 @@ export interface IEmployeeCourseService {
   addLearningTime(employeeId: string, courseId: string, seconds : number): Promise<IEmployeeLearningRecord>;
   saveNotes(employeeId: string, courseId: string, notes: string): Promise<ICourseProgress>
   getResources(courseId: string): Promise<ICourseResource[]>
+  getProgress(employeeId: string): Promise<ICourseProgress[] | null>
+  getLearningRecords(employeeId: string): Promise<any>
 }

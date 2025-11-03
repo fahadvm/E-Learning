@@ -210,7 +210,7 @@ export class EmployeeRepository implements IEmployeeRepository {
 
         let progress = student.coursesProgress.find(p => p.courseId.toString() === courseId);
         if (!progress) {
-            progress = { courseId: new Types.ObjectId(courseId), completedLessons: [], completedModules: [], percentage: 0, lastVisitedLesson: undefined,lastVisitedTime: new Date(), notes: '' };
+            progress = { courseId: new Types.ObjectId(courseId), completedLessons: [], completedModules: [], percentage: 0, lastVisitedLesson: undefined, lastVisitedTime: new Date(), notes: '' };
             student.coursesProgress.push(progress);
             await student.save();
         }
@@ -264,6 +264,21 @@ export class EmployeeRepository implements IEmployeeRepository {
         return record;
     }
 
+    async getLearningRecords(employeeId: string): Promise<IEmployeeLearningRecord[]> {
+        return EmployeeLearningRecord.find({ employeeId })
+            .populate("courses.courseId", "title duration")
+            .sort({ updatedAt: -1 })
+            .lean();
+    }
+
+    async getProgress(employeeId: string): Promise<ICourseProgress[] | null> {
+        const employee = await Employee.findById(employeeId)
+            .populate("coursesProgress.courseId", "title duration")
+            .lean();
+
+        if (!employee) return null;
+        return employee.coursesProgress || [];
+    }
 }
 
 

@@ -38,6 +38,7 @@ export const verifyRefreshToken = (token: string): TokenPayload | null => {
 export const decodeToken = (token: string): TokenPayload | null => {
   try {
     const decoded = jwt.decode(token) as TokenPayload | null;
+    console.log("decoding details is ",decoded)
     return decoded;
   } catch  {
     return null;

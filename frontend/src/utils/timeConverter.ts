@@ -27,3 +27,33 @@ export function formatMinutesToHours(minutes: number): string {
   if (hours) return `${hours}h`
   return `${mins}m`
 }
+
+
+
+export function timeAgo(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+
+  const divisions: { amount: number; name: Intl.RelativeTimeFormatUnit }[] = [
+    { amount: 60, name: "seconds" },
+    { amount: 60, name: "minutes" },
+    { amount: 24, name: "hours" },
+    { amount: 7, name: "days" },
+    { amount: 4.34524, name: "weeks" },
+    { amount: 12, name: "months" },
+    { amount: Infinity, name: "years" },
+  ];
+
+  let duration = diffInSeconds;
+  for (let i = 0; i < divisions.length; i++) {
+    const division = divisions[i];
+    if (Math.abs(duration) < division.amount) {
+      return rtf.format(-Math.floor(duration), division.name);
+    }
+    duration /= division.amount;
+  }
+  return "just now";
+}

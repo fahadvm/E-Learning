@@ -20,8 +20,8 @@ export class EmployeeProfileController implements IEmployeeProfileController{
     const decoded = decodeToken(req.cookies.token);
     if (!decoded?.id) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
     const employee = await this._employeeProfileService.getProfile(decoded.id);
-    if (!employee) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    return sendResponse(res, STATUS_CODES.OK, MESSAGES.STUDENT_DETAILS_FETCHED, true, employee);
+    if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    return sendResponse(res, STATUS_CODES.OK, MESSAGES.EMPLOYEE_DETAILS_FETCHED, true, employee);
   };
 
   editProfile = async (req: Request, res: Response) => {
