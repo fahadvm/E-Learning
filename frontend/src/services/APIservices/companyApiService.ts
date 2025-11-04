@@ -1,5 +1,6 @@
 // src/api/companyApiMethods.ts
 
+import LearningPath from "@/app/employee/learningpath/page";
 import { getRequest, patchRequest, postRequest, putRequest, deleteRequest } from "../api";
 import { COMPANY_ROUTES } from "../constantRoutes/companyRoutes";
 
@@ -78,5 +79,14 @@ export const companyApiMethods = {
   getmycourses: () => get(COMPANY_ROUTES.purchase.myCourses),
   getmycourseDetails: (courseId: string) =>
     get(COMPANY_ROUTES.purchase.courseDetails(courseId)),
-  assignCourseToEmployee:(data:{courseId:string , employeeId : string}) => post(COMPANY_ROUTES.courses.assign,data)
+  assignCourseToEmployee: (data: { courseId: string, employeeId: string }) => post(COMPANY_ROUTES.courses.assign, data),
+
+
+  //learning path
+  getLearingPaths: () => get(COMPANY_ROUTES.learningPath.list),
+  addLearingPaths: () => get(COMPANY_ROUTES.learningPath.add),
+  editLearingPaths: (LearningPathId: string) => get(COMPANY_ROUTES.learningPath.edit(LearningPathId)),
+  deleteLearingPaths: (LearningPathId: string) => get(COMPANY_ROUTES.learningPath.delete(LearningPathId)),
+  detailsLearingPaths: (LearningPathId: string) => get(COMPANY_ROUTES.learningPath.details(LearningPathId)),
+
 };

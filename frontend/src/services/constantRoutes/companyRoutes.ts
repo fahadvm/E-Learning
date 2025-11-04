@@ -11,6 +11,7 @@ const COMPANY_SUBSCRIPTIONS = `${COMPANY_BASE}/subscriptions`;
 const COMPANY_WISHLIST = `${COMPANY_BASE}/wishlist`;
 const COMPANY_CART = `${COMPANY_BASE}/cart`;
 const COMPANY_PURCHASE = `${COMPANY_BASE}/purchase`;
+const COMPANY_LEARNING_PATH = `${COMPANY_BASE}/learning-paths`;
 
 export const COMPANY_ROUTES = {
   auth: {
@@ -64,5 +65,13 @@ export const COMPANY_ROUTES = {
     verifyPayment: `${COMPANY_PURCHASE}/verify-payment`,
     myCourses: `${COMPANY_PURCHASE}/entrollments`,
     courseDetails: (id: string) => `${COMPANY_PURCHASE}/entrollments/${id}`,
+  },
+
+  learningPath: {
+    list: `${COMPANY_LEARNING_PATH}`,
+    add: `${COMPANY_LEARNING_PATH}`,
+    delete: (id: string) => `${COMPANY_LEARNING_PATH}/${id}`,
+    edit: (id: string) => `${COMPANY_LEARNING_PATH}/${id}`,
+    details: (id: string) => `${COMPANY_LEARNING_PATH}/${id}`,
   },
 };
