@@ -39,6 +39,11 @@ export enum MESSAGES {
   NOTIFICATION_MARKED_AS_READ= 'Notification marked as read successfully.',
   NOTIFICATION_ID_REQUIRED= 'Notification ID is required.',
   MAX_4_ALLOWED= 'Max 4 slots allowed per day.',
+  CREATED_SUCCESS= 'Learning Path created successfully.',
+  FETCHED_SUCCESS= 'Learning Path fetched successfully.',
+  UPDATED_SUCCESS= 'Learning Path updated successfully.',
+  DELETED_SUCCESS= 'Learning Path deleted successfully.',
+ 
 
 
 

@@ -18,7 +18,7 @@ export default function Header() {
     { href: "/company/home", label: "Home" },
     { href: "/company/courses", label: "Courses", icon: <BookOpen size={20} /> },
     { href: "/company/employees", label: "Employees", icon: <Users size={20} /> },
-    { href: "/learning-path", label: "Learning Path", icon: <Route size={20} /> },
+    { href: "/company/learningpath", label: "Learning Path", icon: <Route size={20} /> },
     { href: "/company/mycourses", label: "MyCourses", icon: <BookOpen size={20} /> },
     { href: "/tracker", label: "Tracker", icon: <Compass size={20} /> },
   ];

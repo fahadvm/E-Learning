@@ -172,6 +172,11 @@ import { StudentAiTutorService } from '../../services/shared/ai.service';
 import { IEmployeeCommentService } from '../interfaces/services/employee/IEmployeeCommentService';
 import { EmployeeCommentService } from '../../services/employee/employee.comment.service';
 import { EmployeeCommentController } from '../../controllers/employee/employee.comment.controller';
+import { IEmployeeLearningPathRepository } from '../interfaces/repositories/IEmployeeLearningPathRepository';
+import { ICompanyLearningPathService } from '../interfaces/services/company/ICompanyLearningpathService';
+import { CompanyLearningPathController } from '../../controllers/company/company.learningpath.controller';
+import { CompanyLearningPathService } from '../../services/company/company.learningpath.service';
+import { EmployeeLearningPathRepository } from '../../repositories/EmployeeLearningPathRepository';
 
 
 
@@ -315,7 +320,9 @@ container.bind<INotificationRepository>(TYPES.NotificationRepository).to(Notific
 container.bind<NotificationController>(TYPES.NotificationController).to(NotificationController);
 container.bind<INotificationService>(TYPES.NotificationService).to(NotificationService);
 
-
+container.bind<IEmployeeLearningPathRepository>(TYPES.EmployeeLearningPathRepository).to(EmployeeLearningPathRepository);
+container.bind<ICompanyLearningPathService>(TYPES.CompanyLearningPathService).to(CompanyLearningPathService);
+container.bind<CompanyLearningPathController>(TYPES.CompanyLearningPathController).to(CompanyLearningPathController);
 
 
 export default container;

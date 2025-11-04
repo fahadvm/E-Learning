@@ -5,6 +5,7 @@ export const TYPES = {
     CompanyRepository: Symbol.for('CompanyRepository'),
     AdminRepository: Symbol.for('AdminRepository'),
     CompanyEmployeeRepository: Symbol.for('CompanyEmployeeRepository'),
+    EmployeeLearningPathRepository: Symbol.for('EmployeeLearningPathRepository'),
     EmployeeRepository: Symbol.for('EmployeeRepository'),
     TeacherRepository: Symbol.for('TeacherRepository'),
     OtpRepository: Symbol.for('OtpRepository'),
@@ -29,6 +30,7 @@ export const TYPES = {
 
     // Services
     StudentAuthService: Symbol.for('StudentAuthService'),
+    CompanyLearningPathService: Symbol.for('CompanyLearningPathService'),
     StudentProfileService: Symbol.for('StudentProfileService'),
     StudentCourseService: Symbol.for('StudentCourseService'),
     StudentWishlistService: Symbol.for('StudentWishlistService'),
@@ -88,6 +90,7 @@ export const TYPES = {
     CompanyWishlistController: Symbol.for('CompanyWishlistController'),
     CompanyCartController: Symbol.for('CompanyCartController'),
     CompanyPurchaseController: Symbol.for('CompanyPurchaseController'),
+    CompanyLearningPathController: Symbol.for('CompanyLearningPathController'),
 
 
     AdminAuthController: Symbol.for('AdminAuthController'),
