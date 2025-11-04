@@ -84,9 +84,9 @@ export const companyApiMethods = {
 
   //learning path
   getLearingPaths: () => get(COMPANY_ROUTES.learningPath.list),
-  addLearingPaths: () => get(COMPANY_ROUTES.learningPath.add),
+  addLearingPaths: (data:any) => post(COMPANY_ROUTES.learningPath.add,data),
   editLearingPaths: (LearningPathId: string) => get(COMPANY_ROUTES.learningPath.edit(LearningPathId)),
-  deleteLearingPaths: (LearningPathId: string) => get(COMPANY_ROUTES.learningPath.delete(LearningPathId)),
+  deleteLearingPaths: (LearningPathId: string) => del(COMPANY_ROUTES.learningPath.delete(LearningPathId)),
   detailsLearingPaths: (LearningPathId: string) => get(COMPANY_ROUTES.learningPath.details(LearningPathId)),
 
 };

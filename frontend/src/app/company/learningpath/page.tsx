@@ -16,6 +16,8 @@ import {
   MapPin,
 } from "lucide-react";
 import Header from "@/components/company/Header";
+import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
+import { companyApiMethods } from "@/services/APIservices/companyApiService";
 
 interface Course {
   title: string;
@@ -62,19 +64,20 @@ export default function LearningPathsPage() {
   }, []);
 
   const fetchPaths = async () => {
-    const res = await axios.get("/company/learning-paths");
-    setPaths(res.data.data);
+    const res = await companyApiMethods.getLearingPaths()
+    console.log("consolled fetchpaths" , res)
+    setPaths(res.data);
   };
 
   const createPath = async () => {
     const payload = { ...newPath, courses: newCourses.filter((c) => c.title !== "") };
-    await axios.post("/company/learning-paths", payload);
+    await companyApiMethods.addLearingPaths(payload)
     fetchPaths();
     setActiveTab("list");
   };
 
   const deletePath = async (id: string) => {
-    await axios.delete(`/company/learning-paths/${id}`);
+    await companyApiMethods.deleteLearingPaths(id)
     fetchPaths();
     setSelectedPath(null);
     setActiveTab("list");
