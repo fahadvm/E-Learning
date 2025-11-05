@@ -83,10 +83,14 @@ export const companyApiMethods = {
 
 
   //learning path
-  getLearingPaths: () => get(COMPANY_ROUTES.learningPath.list),
-  addLearingPaths: (data:any) => post(COMPANY_ROUTES.learningPath.add,data),
-  editLearingPaths: (LearningPathId: string) => get(COMPANY_ROUTES.learningPath.edit(LearningPathId)),
-  deleteLearingPaths: (LearningPathId: string) => del(COMPANY_ROUTES.learningPath.delete(LearningPathId)),
+  getLearningPath: () => get(COMPANY_ROUTES.learningPath.list),
+  addLearningPaths: (data: any) => post(COMPANY_ROUTES.learningPath.add, data),
+  updateLearningPath: (LearningPathId: string, payload: any) => get(COMPANY_ROUTES.learningPath.edit(LearningPathId), payload),
+  deleteLearningPath: (LearningPathId: string) => del(COMPANY_ROUTES.learningPath.delete(LearningPathId)),
   detailsLearingPaths: (LearningPathId: string) => get(COMPANY_ROUTES.learningPath.details(LearningPathId)),
+  getLearningPaths: (params?: { page?: number; limit?: number; search?: string }) => get(COMPANY_ROUTES.learningPath.list,params),
+  getAssignedLearningPaths: (employeeId: string) => get(COMPANY_ROUTES.learningPath.assigned(employeeId)),
+  assignLearningPath: (data: { employeeId: string; learningPathId: string }) => post(COMPANY_ROUTES.learningPath.assign,data),
+  unassignLearningPath: (params?: { employeeId: string; learningPathId: string }) => del(COMPANY_ROUTES.learningPath.unassign,params),
 
 };

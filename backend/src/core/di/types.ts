@@ -124,6 +124,11 @@ export const TYPES = {
     NotificationController: Symbol.for('NotificationController'),
     TeacherChatService: Symbol.for('TeacherChatService'),
     TeacherChatController: Symbol.for('TeacherChatController'),
+
+
+    EmployeeLearningPathProgressRepository: Symbol.for('EmployeeLearningPathProgressRepository'),
+    // TeacherChatController: Symbol.for('TeacherChatController'),
+    // TeacherChatController: Symbol.for('TeacherChatController'),
         
         
     

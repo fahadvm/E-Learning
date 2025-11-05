@@ -64,14 +64,17 @@ export const COMPANY_ROUTES = {
     checkoutSession: `${COMPANY_PURCHASE}/checkout-session`,
     verifyPayment: `${COMPANY_PURCHASE}/verify-payment`,
     myCourses: `${COMPANY_PURCHASE}/entrollments`,
-    courseDetails: (id: string) => `${COMPANY_PURCHASE}/entrollments/${id}`,
+    courseDetails: (id: string) => `${COMPANY_PURCHASE}/entrollments/`,
   },
 
   learningPath: {
     list: `${COMPANY_LEARNING_PATH}`,
     add: `${COMPANY_LEARNING_PATH}`,
+    assign :  `${COMPANY_LEARNING_PATH}/assign`,
+    unassign :`${COMPANY_LEARNING_PATH}/unassign/employee`,
     delete: (id: string) => `${COMPANY_LEARNING_PATH}/${id}`,
     edit: (id: string) => `${COMPANY_LEARNING_PATH}/${id}`,
     details: (id: string) => `${COMPANY_LEARNING_PATH}/${id}`,
+    assigned : (id: string) => `${COMPANY_LEARNING_PATH}/assigned/${id}`,
   },
 };

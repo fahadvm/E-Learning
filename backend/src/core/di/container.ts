@@ -177,6 +177,9 @@ import { ICompanyLearningPathService } from '../interfaces/services/company/ICom
 import { CompanyLearningPathController } from '../../controllers/company/company.learningpath.controller';
 import { CompanyLearningPathService } from '../../services/company/company.learningpath.service';
 import { EmployeeLearningPathRepository } from '../../repositories/EmployeeLearningPathRepository';
+import { IEmployeeLearningPathProgressRepository } from '../interfaces/repositories/IEmployeeLearningPathProgressRepository';
+import { EmployeeLearningPathProgress } from '../../models/EmployeeLearningPathProgress';
+import { EmployeeLearningPathProgressRepository } from '../../repositories/EmployeeLearningPathProgressRepository';
 
 
 
@@ -321,6 +324,7 @@ container.bind<NotificationController>(TYPES.NotificationController).to(Notifica
 container.bind<INotificationService>(TYPES.NotificationService).to(NotificationService);
 
 container.bind<IEmployeeLearningPathRepository>(TYPES.EmployeeLearningPathRepository).to(EmployeeLearningPathRepository);
+container.bind<IEmployeeLearningPathProgressRepository>(TYPES.EmployeeLearningPathProgressRepository).to(EmployeeLearningPathProgressRepository);
 container.bind<ICompanyLearningPathService>(TYPES.CompanyLearningPathService).to(CompanyLearningPathService);
 container.bind<CompanyLearningPathController>(TYPES.CompanyLearningPathController).to(CompanyLearningPathController);
 

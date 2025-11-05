@@ -1,5 +1,8 @@
 export enum MESSAGES {
   COMPANY_FETCHED = 'Company fetched',
+  LEARNING_PATHS_FETCHED ="Learning paths fetched",
+  LEARNING_PATH_ASSIGNED = "Learning path assigned",
+  LEARNING_PATH_UNASSIGNED = "Learning path unassigned",
   COMPANY_FOUND = 'Company found',
   REQUEST_SENT = 'Request sent',
   REQUEST_CANCELLED = 'Request cancelled',
@@ -43,6 +46,9 @@ export enum MESSAGES {
   FETCHED_SUCCESS= 'Learning Path fetched successfully.',
   UPDATED_SUCCESS= 'Learning Path updated successfully.',
   DELETED_SUCCESS= 'Learning Path deleted successfully.',
+  LEARNING_PATH_ALREADY_ASSIGNED = "Learning Path already assigned",
+  LEARNING_PATH_ASSIGNMENT_NOT_FOUND = "Learning Path Assignment not found",
+  LEARNING_PATH_NOT_FOUND = "Learning Path not found",
  
 
 
