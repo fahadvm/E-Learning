@@ -178,8 +178,10 @@ import { CompanyLearningPathController } from '../../controllers/company/company
 import { CompanyLearningPathService } from '../../services/company/company.learningpath.service';
 import { EmployeeLearningPathRepository } from '../../repositories/EmployeeLearningPathRepository';
 import { IEmployeeLearningPathProgressRepository } from '../interfaces/repositories/IEmployeeLearningPathProgressRepository';
-import { EmployeeLearningPathProgress } from '../../models/EmployeeLearningPathProgress';
+import { EmployeeLearningPathController } from '../../controllers/employee/employee.learningpath.controller';
 import { EmployeeLearningPathProgressRepository } from '../../repositories/EmployeeLearningPathProgressRepository';
+import { IEmployeeLearningPathService } from '../interfaces/services/employee/IEmployeeLearningPathService';
+import { EmployeeLearningPathService } from '../../services/employee/employee.learnigpath.service';
 
 
 
@@ -327,6 +329,8 @@ container.bind<IEmployeeLearningPathRepository>(TYPES.EmployeeLearningPathReposi
 container.bind<IEmployeeLearningPathProgressRepository>(TYPES.EmployeeLearningPathProgressRepository).to(EmployeeLearningPathProgressRepository);
 container.bind<ICompanyLearningPathService>(TYPES.CompanyLearningPathService).to(CompanyLearningPathService);
 container.bind<CompanyLearningPathController>(TYPES.CompanyLearningPathController).to(CompanyLearningPathController);
+container.bind<IEmployeeLearningPathService>(TYPES.EmployeeLearningPathService).to(EmployeeLearningPathService);
+container.bind<EmployeeLearningPathController>(TYPES.EmployeeLearningPathController).to(EmployeeLearningPathController);
 
 
 export default container;

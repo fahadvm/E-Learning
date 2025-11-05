@@ -1,11 +1,14 @@
 // src/constants/employeeRoutes.ts
 
+import LearningPathsPage from "@/app/company/learningpath/page";
+
 const EMPLOYEE_BASE = '/employee';
 
 const EMPLOYEE_AUTH = `${EMPLOYEE_BASE}/auth`;
 const EMPLOYEE_PROFILE = `${EMPLOYEE_BASE}/profile`;
 const EMPLOYEE_COMPANY = `${EMPLOYEE_BASE}/company`;
 const EMPLOYEE_COURSES = `${EMPLOYEE_BASE}/courses`;
+const EMPLOYEE_LEARNING_PATH = `${EMPLOYEE_BASE}/learning-paths`;
 
 export const EMPLOYEE_ROUTES = {
   auth: {
@@ -46,4 +49,9 @@ export const EMPLOYEE_ROUTES = {
     resources: (courseId: string) => `${EMPLOYEE_COURSES}/resources/${courseId}`,
     comments: (courseId: string) => `${EMPLOYEE_COURSES}/comment/${courseId}`,
   },
+
+  LearningPaths:{
+    get: `${EMPLOYEE_LEARNING_PATH}`,
+    details: (learningPathId: string) => `${EMPLOYEE_LEARNING_PATH}/${learningPathId}`,
+  }
 };

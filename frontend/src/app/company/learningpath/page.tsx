@@ -18,6 +18,7 @@ type Difficulty = "Beginner" | "Intermediate" | "Advanced";
 
 interface CourseOption {
   _id: string;
+  courseId: string;
   title: string;
   description?: string;
   totalDuration?: number;
@@ -27,6 +28,7 @@ interface CourseOption {
 
 interface CourseInPath {
   title: string;
+  courseId : string
   description?: string;
   duration?: number;
   difficulty: Difficulty;
@@ -261,6 +263,7 @@ function CreateOrEditView({
   const addCourse = (course: CourseOption) => {
     const newCourse: CourseInPath = {
       title: course.title,
+      courseId:course._id,
       description: course.description || "",
       duration: course.totalDuration || 0,
       difficulty: course.difficulty || "Beginner",
@@ -282,6 +285,7 @@ function CreateOrEditView({
       {
         _id: Date.now().toString(),
         title: removed.title,
+        courseId:removed.courseId,
         description: removed.description,
         difficulty: removed.difficulty,
         icon: removed.icon,

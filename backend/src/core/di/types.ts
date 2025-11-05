@@ -127,7 +127,8 @@ export const TYPES = {
 
 
     EmployeeLearningPathProgressRepository: Symbol.for('EmployeeLearningPathProgressRepository'),
-    // TeacherChatController: Symbol.for('TeacherChatController'),
+    EmployeeLearningPathController: Symbol.for('EmployeeLearningPathController'),
+    EmployeeLearningPathService: Symbol.for('EmployeeLearningPathService'),
     // TeacherChatController: Symbol.for('TeacherChatController'),
         
         

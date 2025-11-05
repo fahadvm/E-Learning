@@ -13,6 +13,8 @@ import { ICourseProgress, IEmployee } from '../../models/Employee';
 import { ICourseResource } from '../../models/CourseResource';
 import { ICourseResourceRepository } from '../../core/interfaces/repositories/ICourseResourceRepository';
 import { IEmployeeLearningRecord } from '../../models/EmployeeLearningRecord';
+import { IEmployeeLearningPathRepository } from '../../core/interfaces/repositories/IEmployeeLearningPathRepository';
+import { IEmployeeLearningPathProgressRepository } from '../../core/interfaces/repositories/IEmployeeLearningPathProgressRepository';
 
 @injectable()
 export class EmployeeCourseService implements IEmployeeCourseService {
@@ -21,6 +23,7 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     @inject(TYPES.CompanyOrderRepository) private _companyOrderRepo: ICompanyOrderRepository,
     @inject(TYPES.CourseRepository) private _courseRepo: ICourseRepository,
     @inject(TYPES.CourseResourceRepository) private readonly _resourceRepository: ICourseResourceRepository,
+    @inject(TYPES.EmployeeLearningPathProgressRepository) private readonly _LearnigPathRepo: IEmployeeLearningPathProgressRepository,
   ) { }
 
   async getMyCourses(employeeId: string): Promise<IEmployee | null> {
@@ -59,6 +62,7 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     const course = await this._courseRepo.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     const progress = await this._employeeRepo.updateEmployeeProgress(employeeId, courseId, lessonId);
+    const learningPath = await this._LearnigPathRepo.updateLearningPathProgress(employeeId, courseId, progress.percentage);
     return progress;
   }
 

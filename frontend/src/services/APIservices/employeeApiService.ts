@@ -46,4 +46,7 @@ export const employeeApiMethods = {
   getLearningRecord: () => get(EMPLOYEE_ROUTES.courses.learningRecords),
   getProgression: () => get(EMPLOYEE_ROUTES.courses.progress),
 
+  getAssignedLearningPaths: () => get(EMPLOYEE_ROUTES.LearningPaths.get),
+  getLearningPathById: (learningPathId: string) => get(EMPLOYEE_ROUTES.LearningPaths.details(learningPathId)),
+
 };
