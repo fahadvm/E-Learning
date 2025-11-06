@@ -33,7 +33,7 @@ export interface IEmployee {
   _id: string;
   name: string;
   email: string;
-  companyId?: string;
+  companyId: string;
   requestedCompanyId?: string;
   password?: string;
   profilePicture?: string;

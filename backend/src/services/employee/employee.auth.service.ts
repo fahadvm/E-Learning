@@ -76,6 +76,7 @@ export class EmployeeAuthService implements IEmployeeAuthService {
     const token = generateAccessToken(employee._id.toString(), 'employee');
     const refreshToken = generateRefreshToken(employee._id.toString(), 'employee');
     let streak = await this._employeeRepo.updateLoginStreak(employee._id.toString());
+    console.log("streak :", streak)
     if (!streak) throwError(MESSAGES.STREAK_FAILED, STATUS_CODES.BAD_REQUEST)
 
     return {

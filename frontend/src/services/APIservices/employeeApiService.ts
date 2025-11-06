@@ -49,4 +49,8 @@ export const employeeApiMethods = {
   getAssignedLearningPaths: () => get(EMPLOYEE_ROUTES.LearningPaths.get),
   getLearningPathById: (learningPathId: string) => get(EMPLOYEE_ROUTES.LearningPaths.details(learningPathId)),
 
+  getAllTimeLeaderBoard: (params:{companyId:string}) => get(EMPLOYEE_ROUTES.leaderboard.allTime,params),
+  getWeeklyLeaderBoard: (params:{companyId:string}) => get(EMPLOYEE_ROUTES.leaderboard.weekly,params),
+  getMonthlyLeaderBoard: (params:{companyId:string}) => get(EMPLOYEE_ROUTES.leaderboard.monthly,params),
+
 };

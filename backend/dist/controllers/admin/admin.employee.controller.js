@@ -34,7 +34,7 @@ let AdminEmployeeController = class AdminEmployeeController {
     }
     getEmployeesByCompany(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { companyId } = req.params;
+            const { companyId } = ms;
             const { page = '1', limit = '10', search = '' } = req.query;
             const { pageNum, limitNum, error } = (0, validatePagination_1.validatePagination)(String(page), String(limit));
             if (error || pageNum === null || limitNum === null) {

@@ -280,20 +280,25 @@ export class EmployeeRepository implements IEmployeeRepository {
         return employee.coursesProgress || [];
     }
 
-    async updateLoginStreak(employeeId: string):Promise<any> {
+    async updateLoginStreak(employeeId: string): Promise<any> {
         const employee = await Employee.findById(employeeId);
-        if(!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND)
+        if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND);
 
         const today = new Date();
         const lastLogin = employee.lastLoginDate ? new Date(employee.lastLoginDate) : null;
 
+        const normalizeDate = (date: Date) =>
+            new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
         if (!lastLogin) {
             employee.streakCount = 1;
         } else {
-            const diffDays =
-                Math.floor(
-                    (today.getTime() - lastLogin.getTime()) / (1000 * 60 * 60 * 24)
-                );
+            const todayStart = normalizeDate(today);
+            const lastLoginStart = normalizeDate(lastLogin);
+
+            const diffDays = Math.floor(
+                (todayStart.getTime() - lastLoginStart.getTime()) / (1000 * 60 * 60 * 24)
+            );
 
             if (diffDays === 1) {
                 employee.streakCount += 1;
@@ -309,13 +314,11 @@ export class EmployeeRepository implements IEmployeeRepository {
         }
 
         await employee.save();
-        console.log("streak added successfullyyyyyyyyy")
 
         return {
             streakCount: employee.streakCount,
             longestStreak: employee.longestStreak,
         };
     }
+
 }
-
-

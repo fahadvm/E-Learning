@@ -9,6 +9,7 @@ const EMPLOYEE_PROFILE = `${EMPLOYEE_BASE}/profile`;
 const EMPLOYEE_COMPANY = `${EMPLOYEE_BASE}/company`;
 const EMPLOYEE_COURSES = `${EMPLOYEE_BASE}/courses`;
 const EMPLOYEE_LEARNING_PATH = `${EMPLOYEE_BASE}/learning-paths`;
+const EMPLOYEE_LEADERBOARD = `${EMPLOYEE_BASE}/leaderboard`;
 
 export const EMPLOYEE_ROUTES = {
   auth: {
@@ -50,8 +51,15 @@ export const EMPLOYEE_ROUTES = {
     comments: (courseId: string) => `${EMPLOYEE_COURSES}/comment/${courseId}`,
   },
 
-  LearningPaths:{
+  LearningPaths: {
     get: `${EMPLOYEE_LEARNING_PATH}`,
     details: (learningPathId: string) => `${EMPLOYEE_LEARNING_PATH}/${learningPathId}`,
+  },
+
+  leaderboard: {
+    allTime: `${EMPLOYEE_LEADERBOARD}/all-time`,
+    weekly: `${EMPLOYEE_LEADERBOARD}/weekly`,
+    monthly: `${EMPLOYEE_LEADERBOARD}/monthly`,
   }
+
 };

@@ -182,6 +182,9 @@ import { EmployeeLearningPathController } from '../../controllers/employee/emplo
 import { EmployeeLearningPathProgressRepository } from '../../repositories/EmployeeLearningPathProgressRepository';
 import { IEmployeeLearningPathService } from '../interfaces/services/employee/IEmployeeLearningPathService';
 import { EmployeeLearningPathService } from '../../services/employee/employee.learnigpath.service';
+import { EmployeeLeaderboardController } from '../../controllers/employee/employee.leaderboard.controller';
+import { EmployeeLeaderboardService } from '../../services/employee/employee.leaderboard.service';
+import { IEmployeeLeaderboardService } from '../interfaces/services/employee/IEmployeeLeaderboardService';
 
 
 
@@ -331,6 +334,8 @@ container.bind<ICompanyLearningPathService>(TYPES.CompanyLearningPathService).to
 container.bind<CompanyLearningPathController>(TYPES.CompanyLearningPathController).to(CompanyLearningPathController);
 container.bind<IEmployeeLearningPathService>(TYPES.EmployeeLearningPathService).to(EmployeeLearningPathService);
 container.bind<EmployeeLearningPathController>(TYPES.EmployeeLearningPathController).to(EmployeeLearningPathController);
+container.bind<EmployeeLeaderboardController>(TYPES.EmployeeLeaderboardController).to(EmployeeLeaderboardController);
+container.bind<IEmployeeLeaderboardService>(TYPES.EmployeeLeaderboardService).to(EmployeeLeaderboardService);
 
 
 export default container;

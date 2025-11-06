@@ -5,6 +5,7 @@ import profileRoutes from './employeeRoute/employee.profile.route';
 import companyRoutes from './employeeRoute/employee.company.route';
 import courseRoutes from './employeeRoute/employee.courses.route';
 import learningPathRoutes from './employeeRoute/employee.learningpath.route';
+import leaderBoardRoutes from './employeeRoute/employee.leaderboard.route';
 
 
 
@@ -19,6 +20,7 @@ employeeRouter.use('/progress', courseRoutes);
 employeeRouter.use('/leaderboard', courseRoutes);
 employeeRouter.use('/progress', courseRoutes);
 employeeRouter.use('/learning-paths', learningPathRoutes);
+employeeRouter.use('/leaderboard', leaderBoardRoutes);
 
 
 

@@ -16,26 +16,38 @@ export const employeeProfileDto = (employee: IEmployee): IEmployeeProfileDTO => 
   streakCount: employee.streakCount,
   lastLoginDate: employee.lastLoginDate,
   longestStreak: employee.longestStreak,
+  companyId: employee.companyId?.toString(),
+  requestedCompanyId: employee.requestedCompanyId?.toString(),
+  coursesAssigned: employee.coursesAssigned?.map((id) => id.toString()) ?? [],
+  status: employee.status,
+  subscription: employee.subscription,
 });
 
 export interface IEmployeeProfileDTO {
   _id: string;
   name: string;
   email: string;
-  isVerified: boolean;
-  isBlocked: boolean;
-  role: string;
+  companyId?: string;
+  requestedCompanyId?: string;
+  password?: string;
   profilePicture?: string;
+  coursesAssigned: string[];
+  position?: string;
+  isBlocked: boolean;
+  status: string;
+  role: string;
+  isVerified: boolean;
+  subscription: boolean;
+  googleId?: string;
   about?: string;
   phone?: string;
-  position?: string;
   social_links?: {
     linkedin?: string;
     twitter?: string;
     instagram?: string;
   };
-  streakCount: number;
-  lastLoginDate: Date;
-  longestStreak: number;
+  streakCount: number
+  lastLoginDate: Date
+  longestStreak: number
 
 }
