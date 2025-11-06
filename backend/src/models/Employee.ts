@@ -23,6 +23,9 @@ export interface IEmployee extends Document {
   coursesAssigned: mongoose.Types.ObjectId[];
   position?: string;
   isBlocked: boolean;
+  employeeID?: boolean;
+  location: string;
+  department: string;
   status: string;
   role: string;
   isVerified: boolean;
@@ -32,8 +35,8 @@ export interface IEmployee extends Document {
   phone?: string;
   social_links?: {
     linkedin?: string;
-    twitter?: string;
-    instagram?: string;
+    github?: string;
+    portfolio?: string;
   };
   coursesProgress: ICourseProgress[];
   streakCount:  number
@@ -61,7 +64,10 @@ const EmployeeSchema: Schema = new Schema({
   coursesAssigned: [{ type: Schema.Types.ObjectId, ref: 'Course' }],
   role: { type: String, default: 'employee' },
   position: { type: String },
+  employeeID: { type: String },
+  department: { type: String },
   googleId: { type: String },
+  location: { type: String },
   about: { type: String },
   phone: { type: String },
   status: { type: String, default: 'notRequsted' },
@@ -71,8 +77,8 @@ const EmployeeSchema: Schema = new Schema({
   subscription: { type: Boolean, default: false },
   social_links: {
     linkedin: { type: String },
-    twitter: { type: String },
-    instagram: { type: String }
+    github: { type: String },
+    portfolio: { type: String }
   },
   coursesProgress: [CourseProgressSchema],
   streakCount: { type: Number, default: 0 },

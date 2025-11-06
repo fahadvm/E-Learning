@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
-import { ArrowLeft, Lock, CheckCircle2, Play } from "lucide-react";
+import { ArrowLeft, Lock, CheckCircle2, Play, Users, Building2, ArrowRight } from "lucide-react";
+import { useEmployee } from "@/context/employeeContext";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 /* ---------- Types ---------- */
@@ -41,6 +43,9 @@ export default function EmployeeLearningPathsPage() {
   const [view, setView] = useState<"list" | "detail">("list");
   const [paths, setPaths] = useState<any[]>([]);
   const [selectedPath, setSelectedPath] = useState<LearningPathDetail | null>(null);
+  const { employee } = useEmployee()
+  const router = useRouter();
+
 
   useEffect(() => {
     fetchAssignedPaths();
@@ -109,6 +114,35 @@ export default function EmployeeLearningPathsPage() {
     // lock any course strictly after the current index
     return index > currentIdx;
   };
+
+
+  if (!employee?.companyId) {
+    return (
+      <div className="mt-10 flex flex-col items-center justify-center text-center px-6">
+        <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full mb-6">
+          <Users className="w-12 h-12 text-blue-600" />
+        </div>
+
+        <h3 className="text-3xl font-bold text-gray-900 mb-3">
+          You’re not part of a company yet
+        </h3>
+
+        <p className="text-lg text-gray-600 mb-8 max-w-xl">
+          Join a company to unlock leaderboards, team learning paths, and collaborative growth.
+        </p>
+
+        <button
+          onClick={() => router.push('/employee/company')}
+          className="group inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+        >
+          <Building2 className="w-5 h-5" />
+          Join a Company
+          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+        </button>
+      </div>
+    );
+  }
+
 
   return (
     <div className="min-h-screen bg-gray-50 pt-24 px-6 max-w-6xl mx-auto">
@@ -217,7 +251,7 @@ export default function EmployeeLearningPathsPage() {
                           />
                         </div>
 
-                        <Link href={`/employee/mycourses/${course.courseId}`}>
+                        <Link href={`/employee/learningpath/${course.courseId}`}>
                           <button className="flex items-center gap-2 bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 w-full justify-center">
                             <Play size={18} />
                             {isCompleted ? "Review" : isCurrent ? "Continue" : "Start"}

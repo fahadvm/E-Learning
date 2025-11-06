@@ -91,12 +91,14 @@ export class EmployeeRepository implements IEmployeeRepository {
     }
 
     async updateById(employeeId: string, data: Partial<IEmployee>): Promise<IEmployee | null> {
+                console.log("update data from service ", data)
+
         return await Employee.findByIdAndUpdate(employeeId, data, { new: true }).lean().exec();
     }
 
     async updateCancelRequestById(employeeId: string): Promise<IEmployee | null> {
         return await Employee.findByIdAndUpdate(employeeId, {
-            status: 'notRequest',
+            status: 'none',
             $unset: { requestedCompanyId: '' },
         });
     }
@@ -118,7 +120,13 @@ export class EmployeeRepository implements IEmployeeRepository {
     }
 
     async findCompanyByEmployeeId(employeeId: string): Promise<IEmployee | null> {
-        return await Employee.findById(employeeId).populate('companyId').lean().exec();
+        const employee = await Employee.findById(employeeId)
+            .populate("companyId")
+            .populate("requestedCompanyId")
+            .exec()
+
+        return employee
+
     }
 
     async findRequestedCompanyByEmployeeId(employeeId: string): Promise<IEmployee | null> {
@@ -129,7 +137,7 @@ export class EmployeeRepository implements IEmployeeRepository {
         return await Employee.find({
 
             requestedCompanyId: companyId,
-            status: 'pending',
+            status: 'requested',
         });
     }
 
@@ -144,7 +152,7 @@ export class EmployeeRepository implements IEmployeeRepository {
     async findEmployeeAndReject(employeeId: string): Promise<IEmployee | null> {
 
         return await Employee.findByIdAndUpdate(employeeId, {
-            status: 'notRequested',
+            status: 'none',
             $unset: { requestedCompanyId: '' },
         });
     }

@@ -1,306 +1,369 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
-import { showSuccessToast, showErrorToast } from "@/utils/Toast";
-import Loader from "@/components/common/Loader";
-type CompanyStatus = "joined" | "notJoined" | "pendingRequest";
+import { motion, AnimatePresence } from "framer-motion"
+import { useEffect, useState } from "react"
+import { employeeApiMethods } from "@/services/APIservices/employeeApiService"
+import { IEmployee, useEmployee } from "@/context/employeeContext"
+import { EmployeeCard } from "@/components/employee/employee-card"
+import { CompanySearch } from "@/components/employee/company-search"
+import { CompanyCard } from "@/components/employee/company-card"
+import { CompanyHero } from "@/components/employee/company-hero"
+import { TeamGrid } from "@/components/employee/team-grid"
+import { CompanyProfileModal } from "@/components/employee/company-profile-modal"
+import { ConfirmationDialog } from "@/components/employee/confirmation-dialog"
+import { LoadingState } from "@/components/employee/loading-state"
+import { NotificationAlert } from "@/components/employee/notification-alert"
 
-interface Company {
-  _id: string;
-  name: string;
-  companyCode: string;
-  profilePicture?: string;
-  description?: string;
-  email: string;
-  phone: string;
-  employees: number[];
-  createdAt: string;
-  plan: string;
+type UserCompanyState = "no-company" | "has-company" | "loading"
+type JoinRequestStatus = "none" | "requested" | "approved"
+
+interface SocialLinks {
+  linkedin?: string
+  twitter?: string
+  instagram?: string
 }
 
-interface Course {
-  _id?: string;
-  title: string;
-  status: "not-started" | "in-progress" | "completed";
-  progress: number;
+interface ICompany {
+  _id?: string
+  isVerified: boolean
+  isBlocked: boolean
+  role: string
+  about: string
+  profilePicture: string
+  location: string
+  companyCode: string
+  phone: string
+  website: string
+  social_links: SocialLinks
+  name: string
+  email: string
+  password: string
+  courses: string
+  employees: any[]
+  employeesCount?: number
+  isPremium: boolean
+  createdAt: Date
+  updatedAt: Date
 }
 
-export default function MyCompanyPage() {
-  const [loading, setLoading] = useState(true);
-  const [companyStatus, setCompanyStatus] = useState<CompanyStatus>("notJoined");
-  const [company, setCompany] = useState<Company | null>(null);
-  const [assignedCourses, setAssignedCourses] = useState<Course[]>([]);
-  const [searchValue, setSearchValue] = useState("");
-  const [searchResult, setSearchResult] = useState<Company | null>(null);
-  const [showLeaveModal, setShowLeaveModal] = useState(false);
-  const [isSendingRequest, setIsSendingRequest] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
+interface Notification {
+  id: string
+  title: string
+  message: string
+  type: "success" | "error" | "info"
+}
 
-  // 🔹 Fetch company info on mount
+export default function CompanyPage() {
+
+  const [userState, setUserState] = useState<UserCompanyState>("loading")
+  const [joinRequestStatus, setJoinRequestStatus] = useState<JoinRequestStatus>("none")
+  const [companyData, setCompanyData] = useState<ICompany | null>(null)
+  const [companyFullData, setCompanyFullData] = useState<ICompany | null>(null)
+  const [employee, setEmployee] = useState<IEmployee | null>(null)
+  const [employees, setEmployees] = useState<any[]>([])
+
+  const [companyCode, setCompanyCode] = useState("")
+  const [searchError, setSearchError] = useState<string | null>(null)
+
+  const [companyProfileOpen, setCompanyProfileOpen] = useState(false)
+  const [confirmCancelOpen, setConfirmCancelOpen] = useState(false)
+  const [confirmLeaveOpen, setConfirmLeaveOpen] = useState(false)
+
+  const [isSearching, setIsSearching] = useState(false)
+  const [isActionLoading, setIsActionLoading] = useState(false)
+  const [isCompanyLoading, setIsCompanyLoading] = useState(false)
+
+  const [notification, setNotification] = useState<Notification | null>(null)
+  const requiredFields = ["name", "phone", "location", "department", "position"]
+
+
+  const showNotification = (title: string, message: string, type: "success" | "error" | "info" = "info") => {
+    const id = Date.now().toString()
+    setNotification({ id, title, message, type })
+  }
+
   useEffect(() => {
     const fetchCompanyData = async () => {
       try {
-        const response = await employeeApiMethods.getMyCompany();
-        console.log("response.data.company", response.data)
-        if (response?.data) {
-          setCompany(response.data.companyId);
-          setAssignedCourses(response.data || []);
-          setCompanyStatus("joined");
-        } else if (response?.data === "pending") {
-          setCompanyStatus("pendingRequest");
+        setUserState("loading")
+        const res = await employeeApiMethods.getMyCompany()
+
+        if (res?.data?.status === "approved") {
+          const company = res.data.companyId
+          setCompanyData(company)
+          setEmployees(company.employees || [])
+          setUserState("has-company")
+          setJoinRequestStatus("approved")
+        } else if (res?.data?.status === "requested") {
+          const company = res.data.requestedCompanyId
+          setCompanyData(company)
+          setEmployees(company.employees || [])
+          setJoinRequestStatus("requested")
+          setUserState("no-company")
         } else {
-          setCompanyStatus("notJoined");
+          setUserState("no-company")
+          setJoinRequestStatus("none")
         }
+      } catch {
+        setUserState("no-company")
+      }
+    }
+
+    const fetchEmployee = async () => {
+      try {
+        const res = await employeeApiMethods.getProfile();
+        setEmployee(res.data);
       } catch (err) {
-        console.error(err);
-        showErrorToast("Unable to fetch company data. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCompanyData();
-  }, []);
-
-  // 🔹 Cancel pending join request
-  const handleCancelRequest = async () => {
-    try {
-      await employeeApiMethods.cancelCompanyRequest();
-      showSuccessToast("Join request cancelled successfully.");
-      setCompanyStatus("notJoined");
-      setSearchResult(null);
-      setSearchValue("");
-    } catch {
-      showErrorToast("Failed to cancel join request.");
+        console.log("Profile fetch error:", err);
+      };
     }
-  };
+    fetchEmployee()
+    fetchCompanyData()
+  }, [])
 
-  // 🔹 Search company by code
-  const handleSearchCompany = async () => {
-    if (!searchValue.trim()) return;
-    setIsSearching(true);
+  const handleSearch = async (code: string) => {
+    if (joinRequestStatus === "requested" && companyData?.name) {
+      showNotification(
+        "Request Already Sent",
+        `You've already requested ${companyData.name}. Cancel your request to connect with another company.`,
+        "info",
+      )
+      return
+    }
+
+    setIsSearching(true)
+    setSearchError(null)
+
     try {
-      const response = await employeeApiMethods.findCompany({ companycode: searchValue });
-      if (response?.data) {
-        setSearchResult(response.data);
+      const res = await employeeApiMethods.findCompany({ companycode: code })
+      if (res?.data) {
+        setCompanyData(res.data)
+        setEmployees(res.data.employees || [])
       } else {
-        setSearchResult(null);
-        showErrorToast("No company found with that code.");
+        setSearchError("Company not found.")
       }
     } catch {
-      showErrorToast("Failed to search for company.");
+      setSearchError("Error searching company.")
     } finally {
-      setIsSearching(false);
+      setIsSearching(false)
     }
-  };
+  }
 
-  // 🔹 Send join request
-  const handleSendJoinRequest = async () => {
-    if (!searchResult) return;
-    setIsSendingRequest(true);
+  const handleJoinRequest = async () => {
+    if (!companyData?._id) return
+
+    const missingFields = []
+    if (!employee?.name) missingFields.push("Name")
+    if (!employee?.phone) missingFields.push("Phone")
+    if (!employee?.location) missingFields.push("Location")
+    if (!employee?.department) missingFields.push("Department")
+    if (!employee?.position) missingFields.push("Position")
+
+    if (missingFields.length > 0) {
+      showNotification(
+        "Complete Your Profile",
+        `Please fill the following fields before joining a company: ${missingFields.join(", ")}`,
+        "error"
+      )
+      return
+    }
+
+    setIsActionLoading(true)
     try {
-      await employeeApiMethods.sendCompanyRequest({ companyId: searchResult._id });
-      showSuccessToast("Join request sent successfully.");
-      setCompanyStatus("pendingRequest");
-      setSearchResult(null);
+      await employeeApiMethods.sendCompanyRequest({ companyId: companyData?._id })
+      setJoinRequestStatus("requested")
+      showNotification("Request Sent", "Your join request is pending approval.", "success")
     } catch {
-      showErrorToast("Failed to send join request.");
+      showNotification("Error", "Failed to send join request.", "error")
     } finally {
-      setIsSendingRequest(false);
+      setIsActionLoading(false)
     }
+  }
+
+
+  const handleCancelRequest = async () => {
+    setIsActionLoading(true)
+    try {
+      await employeeApiMethods.cancelCompanyRequest()
+      setJoinRequestStatus("none")
+      setCompanyData(null)
+      showNotification("Cancelled", "Your join request has been cancelled.", "success")
+    } finally {
+      setIsActionLoading(false)
+      setConfirmCancelOpen(false)
+    }
+  }
+
+  const handleEmployeeUpdate = (updatedData: Partial<IEmployee>) => {
+    setEmployee((prev) => ({
+      ...prev!,
+      ...updatedData,
+    }));
   };
 
-  // 🔹 Leave company
   const handleLeaveCompany = async () => {
+    setIsActionLoading(true)
     try {
-      await employeeApiMethods.leaveCompany();
-      showSuccessToast("You have left the company.");
-      setCompanyStatus("notJoined");
-      setCompany(null);
-      setAssignedCourses([]);
-      setShowLeaveModal(false);
+      await employeeApiMethods.leaveCompany()
+      setUserState("no-company")
+      setJoinRequestStatus("none")
+      setCompanyData(null)
+      showNotification("Left Company", "You have successfully left the company.", "success")
     } catch {
-      showErrorToast("Failed to leave company.");
+      showNotification("Error", "Failed to leave company.", "error")
+    } finally {
+      setIsActionLoading(false)
+      setConfirmLeaveOpen(false)
     }
-  };
+  }
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[60vh]">
-        <Loader loadingTexts="Loading company data..." />
-      </div>
-    );
+  const openCompanyProfile = async () => {
+    setCompanyProfileOpen(true)
+    setIsCompanyLoading(true)
+    try {
+      const res = await employeeApiMethods.getMyCompany()
+      if (res.data.status === "requested") {
+        setCompanyFullData(res?.data.requestedCompanyId)
+      } else if (res.data.status === "approved") {
+        setCompanyFullData(res?.data.companyId)
+      }
+    } finally {
+      setIsCompanyLoading(false)
+    }
+  }
+
+  if (userState === "loading") {
+    return <LoadingState message="Loading company data..." />
   }
 
   return (
-    <>
-    <div className="p-6 space-y-8 pt-20">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">My Company</h1>
-        <p className="text-gray-500">
-          {companyStatus === "joined"
-            ? `You are part of ${company?.name}.`
-            : companyStatus === "pendingRequest"
-              ? "Your join request is pending."
-              : "Join your company to access internal learning resources."}
-        </p>
+    <main className="min-h-screen bg-background">
+      {/* Background Grid Pattern */}
+      <div className="fixed inset-0 pointer-events-none opacity-5">
+        <div className="absolute inset-0 bg-grid-pattern" />
       </div>
 
-      {companyStatus === "joined" && company && (
-        <>
-          <Card className="shadow-md">
-            <CardHeader className="flex flex-col md:flex-row justify-between items-start md:items-center">
-              <CardTitle>Company Details</CardTitle>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => setShowLeaveModal(true)}
-              >
-                Leave Company
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center gap-4">
-                <img
-                  src={company.profilePicture || "/images/default-company.png"}
-                  alt="Company logo"
-                  className="w-20 h-20 rounded-full object-cover border"
-                />
-                <div>
-                  <h2 className="text-2xl font-semibold">{company.name}</h2>
-                  <p className="text-sm text-gray-500">
-                    {company.description || "No description available."}
-                  </p>
-                </div>
-              </div>
+      <div className="relative">
+        <div className="mx-auto max-w-6xl px-4 md:px-6 lg:px-8 py-8 md:py-12">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="grid grid-cols-1 md:grid-cols-[30%_70%] gap-8 md:gap-12"
+          >
+            {/* Employee Card */}
+            <EmployeeCard
+              name={employee?.name || "Unknown"}
+              email={employee?.email || "-"}
+              phone={employee?.phone || "-"}
+              address={employee?.location || "-"}
+              employeeId={employee?.employeeID || "N/A"}
+              department={employee?.department || "-"}
+              position={employee?.position || "-"}
+              profilePicture={employee?.profilePicture || "/images/profile.jpg"}
+              linkedin={employee?.social_links?.linkedin}
+              github={employee?.social_links?.github}
+              portfolio={employee?.social_links?.portfolio}
+              onProfileUpdate={handleEmployeeUpdate}
+            />
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4 text-sm">
-                <p><strong>Company Code:</strong> {company.companyCode}</p>
-                <p><strong>Email:</strong> {company.email}</p>
-                <p><strong>Contact:</strong> {company.phone}</p>
-                <p><strong>Employees:</strong> {company.employees.length}</p>
-                <p><strong>Joined:</strong> {new Date(company.createdAt).toDateString()}</p>
-                <p><strong>Subscription Plan:</strong> No plan</p>
-              </div>
-            </CardContent>
-          </Card>
+            <AnimatePresence mode="wait">
+              {/* No Company State */}
+              {userState === "no-company" && (
+                <motion.div
+                  key="no-company"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.4 }}
+                  className="space-y-8"
+                >
+                  <CompanySearch onSearch={handleSearch} isSearching={isSearching} error={searchError} />
 
-          {/* Assigned Courses */}
-          <Card className="shadow-md">
-            <CardHeader>
-              <CardTitle>Assigned Courses</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4 md:grid-cols-2">
-              {assignedCourses.length > 0 ? (
-                assignedCourses.map((course, index) => (
-                  <div key={course._id || index} className="border rounded-lg p-4 space-y-2">
-                    <h3 className="font-semibold">{course.title}</h3>
-                    <Progress value={course.progress} />
-                    <p className="text-sm text-gray-500">
-                      Status: {course.status.replace("-", " ")}
-                    </p>
-                    <Button variant="outline" className="w-full">
-                      View Course
-                    </Button>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-gray-500 italic text-center">
-                  No assigned courses yet. You’ll see them here once your company assigns some.
-                </p>
+                  {companyData && (
+                    <CompanyCard
+                      name={companyData.name}
+                      code={companyData.companyCode}
+                      employeeCount={employees.length}
+                      onViewProfile={openCompanyProfile}
+                      onJoinRequest={handleJoinRequest}
+                      onCancelRequest={() => setConfirmCancelOpen(true)}
+                      status={joinRequestStatus}
+                      isLoading={isActionLoading}
+                    />
+                  )}
+                </motion.div>
               )}
-            </CardContent>
-          </Card>
-        </>
+
+              {/* Has Company State */}
+              {userState === "has-company" && companyData && (
+                <motion.div
+                  key="has-company"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.4 }}
+                  className="space-y-12"
+                >
+                  <CompanyHero
+                    name={companyData.name}
+                    memberCount={companyData.employeesCount || employees.length}
+                    onViewProfile={openCompanyProfile}
+                    onLeave={() => setConfirmLeaveOpen(true)}
+                    isLoading={isActionLoading}
+                  />
+
+                  {employees.length > 0 && <TeamGrid members={employees} />}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Modals & Dialogs */}
+      <CompanyProfileModal
+        open={companyProfileOpen}
+        onOpenChange={setCompanyProfileOpen}
+        company={companyFullData}
+        isLoading={isCompanyLoading}
+      />
+
+      <ConfirmationDialog
+        open={confirmCancelOpen}
+        onOpenChange={setConfirmCancelOpen}
+        title="Cancel Join Request?"
+        description={`Are you sure you want to cancel your request to join ${companyData?.name}? You can search for them again later.`}
+        onConfirm={handleCancelRequest}
+        confirmText="Cancel Request"
+        cancelText="Keep Request"
+        isDangerous={true}
+        isLoading={isActionLoading}
+      />
+
+      <ConfirmationDialog
+        open={confirmLeaveOpen}
+        onOpenChange={setConfirmLeaveOpen}
+        title="Leave Company?"
+        description={`Are you sure you want to leave ${companyData?.name}? You'll lose access to team collaboration features.`}
+        onConfirm={handleLeaveCompany}
+        confirmText="Leave Company"
+        cancelText="Stay"
+        isDangerous={true}
+        isLoading={isActionLoading}
+      />
+
+      {/* Notification */}
+      {notification && (
+        <NotificationAlert
+          title={notification.title}
+          message={notification.message}
+          type={notification.type}
+          autoClose={true}
+          duration={4000}
+          onClose={() => setNotification(null)}
+        />
       )}
-
-      {/* ✅ CASE 2 — Not Joined */}
-      {companyStatus === "notJoined" && (
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle>Join a Company</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex gap-3">
-              <Input
-                placeholder="Enter company code..."
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-              />
-              <Button onClick={handleSearchCompany} disabled={isSearching}>
-                {isSearching ? "Searching..." : "Search"}
-              </Button>
-            </div>
-
-            {searchResult && (
-              <div className="border rounded-lg p-4 space-y-2">
-                <h3 className="font-semibold">{searchResult.name}</h3>
-                <p className="text-sm text-gray-500">{searchResult.email}</p>
-                <Button onClick={handleSendJoinRequest} disabled={isSendingRequest}>
-                  {isSendingRequest ? "Sending..." : "Send Join Request"}
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* ✅ CASE 3 — Pending Request */}
-      {companyStatus === "pendingRequest" && (
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle>Join Request Pending</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-gray-500">
-              You have already sent a join request. Please wait for approval.
-            </p>
-            <Button variant="destructive" onClick={handleCancelRequest}>
-              Cancel Request
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* 🧭 Leave Company Confirmation Modal */}
-      <Dialog open={showLeaveModal} onOpenChange={setShowLeaveModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Leave Company?</DialogTitle>
-          </DialogHeader>
-          <p>
-            Are you sure you want to leave{" "}
-            <strong>{company?.name}</strong>? This action cannot be undone.
-          </p>
-          <DialogFooter className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" onClick={() => setShowLeaveModal(false)}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleLeaveCompany}>
-              Confirm Leave
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-    </>
-  );
+    </main>
+  )
 }

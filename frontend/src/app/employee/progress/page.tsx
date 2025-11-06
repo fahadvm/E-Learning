@@ -4,6 +4,8 @@ import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { useRouter } from "next/navigation";
+
 import {
   BarChart,
   Bar,
@@ -20,7 +22,7 @@ import {
   Line,
   TooltipProps,
 } from "recharts";
-import { TrendingUp, Award, Target, Calendar, Clock } from "lucide-react";
+import { TrendingUp, Award, Target, Calendar, Clock, Users, Building2, ArrowRight } from "lucide-react";
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
 import { useEmployee } from "@/context/employeeContext";
 import { cn } from "@/lib/utils";
@@ -186,6 +188,8 @@ export default function ProgressPage() {
   const [progress, setProgress] = useState<ICourseProgress[]>([]);
   const { employee } = useEmployee();
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -222,6 +226,33 @@ export default function ProgressPage() {
         <p className="animate-pulse text-muted-foreground">Loading progress…</p>
       </div>
     );
+
+  if (!employee?.companyId) {
+    return (
+      <div className="mt-10 flex flex-col items-center justify-center text-center px-6">
+        <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full mb-6">
+          <Users className="w-12 h-12 text-blue-600" />
+        </div>
+
+        <h3 className="text-3xl font-bold text-gray-900 mb-3">
+          You’re not part of a company yet
+        </h3>
+
+        <p className="text-lg text-gray-600 mb-8 max-w-xl">
+          Join a company to unlock leaderboards, team learning paths, and collaborative growth.
+        </p>
+
+        <button
+          onClick={() => router.push('/employee/company')}
+          className="group inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+        >
+          <Building2 className="w-5 h-5" />
+          Join a Company
+          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+        </button>
+      </div>
+    );
+  }
 
   if (!records.length && !progress.length)
     return (

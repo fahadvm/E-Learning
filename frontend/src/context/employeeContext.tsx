@@ -15,8 +15,8 @@ import { employeeApiMethods } from '@/services/APIservices/employeeApiService';
 
 export interface SocialLinks {
   linkedin?: string;
-  twitter?: string;
-  instagram?: string;
+  github?: string;
+  portfolio?: string;
 }
 
 export interface ICourseProgress {
@@ -33,17 +33,20 @@ export interface IEmployee {
   _id: string;
   name: string;
   email: string;
+  employeeID: string;
   companyId: string;
   requestedCompanyId?: string;
   password?: string;
   profilePicture?: string;
   coursesAssigned: string[];
   position?: string;
+  department?: string;
   isBlocked: boolean;
   status: string;
   role: string;
   isVerified: boolean;
   subscription: boolean;
+  location?: string;
   googleId?: string;
   about?: string;
   phone?: string;

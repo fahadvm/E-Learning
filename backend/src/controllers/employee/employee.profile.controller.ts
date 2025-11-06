@@ -7,6 +7,7 @@ import { sendResponse, throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { IEmployeeProfileController } from '../../core/interfaces/controllers/employee/IEmployeeProfileController';
+import { AuthRequest } from '../../types/AuthenticatedRequest';
 
 @injectable()
 export class EmployeeProfileController implements IEmployeeProfileController{
@@ -24,10 +25,11 @@ export class EmployeeProfileController implements IEmployeeProfileController{
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.EMPLOYEE_DETAILS_FETCHED, true, employee);
   };
 
-  editProfile = async (req: Request, res: Response) => {
-    const decoded = decodeToken(req.cookies.token);
-    if (!decoded?.id) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
-    const updated = await this._employeeProfileService.updateEmployeeProfile(decoded.id, req.body);
+  editProfile = async (req: AuthRequest, res: Response) => {
+    const employeeId = req.user?.id;
+    if (!employeeId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+    console.log("req body while updating profile ",req.body)
+    const updated = await this._employeeProfileService.updateEmployeeProfile(employeeId, req.body);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.PROFILE_UPDATED, true, updated);
   };
 }

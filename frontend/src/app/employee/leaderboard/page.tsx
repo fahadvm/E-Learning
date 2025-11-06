@@ -4,18 +4,19 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Flame, Medal } from "lucide-react";
+import { Trophy, Flame, Medal, Users, Building2, ArrowRight } from "lucide-react";
 import type { LeaderboardUser, LeaderboardResponse } from "@/types/employee/leaderboard";
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
 import { useEmployee } from "@/context/employeeContext";
+import { useRouter } from "next/navigation";
 export default function LeaderboardPage() {
   const [selectedTab, setSelectedTab] = useState<"all-time" | "weekly" | "monthly">("all-time");
-
   const [allTimeData, setAllTimeData] = useState<LeaderboardUser[]>([]);
   const [weeklyData, setWeeklyData] = useState<LeaderboardUser[]>([]);
   const [monthlyData, setMonthlyData] = useState<LeaderboardUser[]>([]);
   const [userRank, setUserRank] = useState<LeaderboardUser | null>(null);
   const { employee } = useEmployee()
+  const router = useRouter();
 
   useEffect(() => {
     fetchAllTime();
@@ -58,11 +59,39 @@ export default function LeaderboardPage() {
     return <span className="text-lg font-bold text-muted-foreground">#{rank}</span>;
   };
 
+  if (!employee?.companyId) {
+    return (
+      <div className=" mt-10 flex flex-col items-center justify-center text-center px-6">
+        <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full mb-6">
+          <Users className="w-12 h-12 text-blue-600" />
+        </div>
+
+        <h3 className="text-3xl font-bold text-gray-900 mb-3">
+          You’re not part of a company yet
+        </h3>
+
+        <p className="text-lg text-gray-600 mb-8 max-w-xl">
+          Join a company to unlock leaderboards, team learning paths, and collaborative growth.
+        </p>
+
+        <button
+          onClick={() => router.push('/employee/company')}
+          className="group inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+        >
+          <Building2 className="w-5 h-5" />
+          Join a Company
+          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+        </button>
+      </div>
+    );
+  }
+
+
   return (
     <div className="p-8 space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Leaderboard of {employee?.name}</h1>
+        <h1 className="text-3xl font-bold">Leaderboard </h1>
         <p className="text-muted-foreground mt-2">See how you rank among your peers</p>
       </div>
 

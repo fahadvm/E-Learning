@@ -10,9 +10,9 @@ import { IEmployee } from '../../models/Employee';
 import mongoose from 'mongoose';
 
 export enum EmployeeStatus {
-  PENDING = 'pending',
+  REQUESTED = 'requested',
   APPROVED = 'approved',
-  NOT_REQUEST = 'notRequest',
+  NONE = 'none',
 }
 
 @injectable()
@@ -44,16 +44,17 @@ export class EmployeeCompanyService implements IEmployeeCompanyService {
     const employee = await this.employeeRepo.findById(employeeId);
     if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
-    if (employee.status === EmployeeStatus.PENDING)
+    if (employee.status === EmployeeStatus.REQUESTED)
       throwError(MESSAGES.ALREADY_REQUESTED_COMPANY, STATUS_CODES.CONFLICT);
 
     const requestedCompanyId = new mongoose.Types.ObjectId(companyId);
-    await this.employeeRepo.updateById(employeeId, { requestedCompanyId, status: EmployeeStatus.PENDING });
+    console.log("requested company id ", requestedCompanyId)
+    await this.employeeRepo.updateById(employeeId, { requestedCompanyId, status: EmployeeStatus.REQUESTED });
   }
 
   async cancelRequest(employeeId: string): Promise<void> {
     const employee = await this.employeeRepo.findById(employeeId);
-    if (!employee || employee.status === EmployeeStatus.NOT_REQUEST)
+    if (!employee || employee.status === EmployeeStatus.NONE)
       throwError(MESSAGES.NO_REQUEST_FOUND, STATUS_CODES.NOT_FOUND);
 
     await this.employeeRepo.updateCancelRequestById(employeeId);
@@ -65,7 +66,7 @@ export class EmployeeCompanyService implements IEmployeeCompanyService {
       throwError(MESSAGES.NOT_PART_OF_COMPANY, STATUS_CODES.BAD_REQUEST);
 
     await this.employeeRepo.updateById(employeeId, {
-      status: EmployeeStatus.NOT_REQUEST,
+      status: EmployeeStatus.NONE,
       companyId: undefined,
     });
   }

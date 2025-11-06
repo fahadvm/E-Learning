@@ -449,7 +449,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
       {/* Header */}
       <div className="bg-card border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <Link href="/employee/mycourses">
+          <Link href="/employee/learningpath">
             <Button variant="ghost" size="sm">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back

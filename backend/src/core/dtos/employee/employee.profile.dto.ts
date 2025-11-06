@@ -13,6 +13,8 @@ export const employeeProfileDto = (employee: IEmployee): IEmployeeProfileDTO => 
   isBlocked: employee.isBlocked,
   social_links: employee.social_links,
   position: employee.position,
+  department: employee.department,
+  location: employee.location,
   streakCount: employee.streakCount,
   lastLoginDate: employee.lastLoginDate,
   longestStreak: employee.longestStreak,
@@ -33,6 +35,8 @@ export interface IEmployeeProfileDTO {
   profilePicture?: string;
   coursesAssigned: string[];
   position?: string;
+  department?: string;
+  location?: string;
   isBlocked: boolean;
   status: string;
   role: string;
