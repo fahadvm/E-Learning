@@ -41,6 +41,7 @@ export interface IStudentBookingRepository {
   findPending(page: number, limit: number): Promise<IPendingResult>;
   findConfirmed(): Promise<IBooking[]>;
   findById(id: string): Promise<IBooking | null>;
+  findByPaymentId(paymentOrderId: string): Promise<IBooking | null>;
   rejectBooking(bookingId: string, reason: string): Promise<IBooking | null>;
   findByTeacherDateSlot(
     teacherId: string,
@@ -53,7 +54,7 @@ export interface IStudentBookingRepository {
     orderId: string
   ): Promise<IBooking | null>;
   findByOrderId(orderId: string): Promise<IBooking | null>;
-  verifyAndMarkPaid(orderId: string): Promise<IBooking | null>;
+  verifyAndMarkPaid(orderId: string, callId : string): Promise<IBooking | null>;
   getHistory(
     filter: IBookingFilter,
     skip: number,

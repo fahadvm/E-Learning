@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
 import {
   Select,
   SelectContent,
@@ -74,7 +75,7 @@ export default function StudentTeacherSlotPage() {
   const teacherId = params?.id as string;
   const searchParams = useSearchParams();
   const courseId = searchParams.get("courseId");
-
+  const router = useRouter()
   const [daysOfWeek, setDaysOfWeek] = useState<DayAvailability[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<SelectedSlot | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -172,18 +173,14 @@ export default function StudentTeacherSlotPage() {
       };
 
       const res = await studentBookingApi.slotBooking(bookingPayload);
-      console.log("res of booking confirmation ",res.ok)
+      console.log("res of booking confirmation ",res)
       if (res.ok) {
-        sendNotification({
-          receiverId: teacherId,
-          title: "New Booking Request",
-          message: `A student booked a slot on ${selectedSlot.date} (${selectedSlot.start} - ${selectedSlot.end})`,
-        });
-        showSuccessToast("Booking requested successfully")
         setIsModalOpen(false);
         setSelectedSlot(null);
         setNote("");
         setIsConfirmed(false);
+        const bookingId = res.data.id
+        router.push(`/student/booking/payment?bookingId=${bookingId}&courseId=${courseId}`)
       }
 
 

@@ -133,6 +133,12 @@ export class StudentBookingRepository implements IStudentBookingRepository {
   async findById(bookingId: string): Promise<IBooking | null> {
     return Booking.findById(bookingId).populate('studentId courseId teacherId');
   }
+ 
+
+
+   async findByPaymentId(paymentOrderId: string): Promise<IBooking | null>{
+    return Booking.findOne({paymentOrderId}).lean().exec();
+  }
 
   async rejectBooking(bookingId: string, reason: string): Promise<IBooking | null> {
     return Booking.findByIdAndUpdate(
@@ -157,10 +163,10 @@ export class StudentBookingRepository implements IStudentBookingRepository {
     return await Booking.findOne({ paymentOrderId: orderId });
   }
 
-  async verifyAndMarkPaid(orderId: string): Promise<IBooking | null> {
+  async verifyAndMarkPaid(orderId: string, callId:string): Promise<IBooking | null> {
     const paidBooking = await Booking.findOneAndUpdate(
       { paymentOrderId: orderId },
-      { status: 'paid' },
+      { status: 'paid',callId },
       { new: true }
     );
 

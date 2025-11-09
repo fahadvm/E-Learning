@@ -30,7 +30,8 @@ export interface IStudentBookingService {
   ): Promise<IPaginatedResult<IBooking>>; 
   getAvailableSlots(teacherId: string): Promise<IAvailableSlot[]>;
   getBookingDetails(bookingId: string): Promise<IBooking>;
-  getScheduledCalls(studentId: string): Promise<IBookingDTO[]>;
+  getBookingDetailsByPaymentId(paymentOrderId: string): Promise<IBooking>;
+  getScheduledCalls(studentId: string): Promise<IBooking[]>;
   verifyPayment(
     razorpay_order_id: string,
     razorpay_payment_id: string,

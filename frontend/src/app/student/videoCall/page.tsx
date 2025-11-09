@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
-import { Video, Mic, MicOff, PhoneOff , VideoOff } from "lucide-react";
+import { Video, Mic, MicOff, PhoneOff, VideoOff } from "lucide-react";
+import { useParams } from "next/navigation";
 
 
 
@@ -13,6 +14,7 @@ interface UserConnectedData {
 }
 
 export default function StudentPage() {
+  const { callId } = useParams();
   const [roomId, setRoomId] = useState<string>("");
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(false);
@@ -21,9 +23,16 @@ export default function StudentPage() {
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
 
+
   /* -------------------------------------------------------------
-     ALL WebRTC / socket logic stays EXACTLY the same as before
+  ALL WebRTC / socket logic stays EXACTLY the same as before
   ------------------------------------------------------------- */
+  useEffect(() => {
+    if (callId) {
+      setRoomId(callId as string);
+      socket.emit("join-room", callId, "student");
+    }
+  }, [callId]);
   useEffect(() => {
     const initWebRTC = async () => {
       peerConnectionRef.current = new RTCPeerConnection({
@@ -121,11 +130,7 @@ export default function StudentPage() {
     }
   };
 
-  const joinRoom = () => {
-    if (roomId) {
-      socket.emit("join-room", roomId, "student");
-    }
-  };
+
 
   const toggleMute = () => {
     const stream = localVideoRef.current?.srcObject as MediaStream;
@@ -171,23 +176,7 @@ export default function StudentPage() {
       {/* ---------- Main video area ---------- */}
       <main className="flex-1 w-full max-w-7xl flex flex-col items-center justify-center gap-4 mt-16">
         {/* Join room UI (only when not connected) */}
-        {!isConnected && (
-          <div className="bg-gray-800 rounded-xl p-6 flex items-center gap-3 shadow-lg">
-            <input
-              type="text"
-              placeholder="Enter Room ID"
-              value={roomId}
-              onChange={(e) => setRoomId(e.target.value)}
-              className="px-4 py-2 bg-gray-700 text-white rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-            <button
-              onClick={joinRoom}
-              className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition"
-            >
-              Join Room
-            </button>
-          </div>
-        )}
+
 
         {/* Video tiles – 1:1 grid on small screens, side-by-side on md+ */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
@@ -227,11 +216,10 @@ export default function StudentPage() {
           {/* Mic */}
           <button
             onClick={toggleMute}
-            className={`p-3 rounded-full transition-all ${
-              isMuted
+            className={`p-3 rounded-full transition-all ${isMuted
                 ? "bg-red-600 hover:bg-red-700"
                 : "bg-gray-700 hover:bg-gray-600"
-            }`}
+              }`}
             title={isMuted ? "Unmute" : "Mute"}
           >
             {isMuted ? <MicOff /> : <Mic />}
@@ -240,11 +228,10 @@ export default function StudentPage() {
           {/* Camera */}
           <button
             onClick={toggleVideo}
-            className={`p-3 rounded-full transition-all ${
-              isVideoOff
+            className={`p-3 rounded-full transition-all ${isVideoOff
                 ? "bg-red-600 hover:bg-red-700"
                 : "bg-gray-700 hover:bg-gray-600"
-            }`}
+              }`}
             title={isVideoOff ? "Turn on camera" : "Turn off camera"}
           >
             {isVideoOff ? <VideoOff /> : <Video />}

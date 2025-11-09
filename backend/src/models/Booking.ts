@@ -14,6 +14,7 @@ export interface IBooking extends Document {
   day: string;
   slot: ITimeSlot;
   note?: string;
+  callId: string;
   paymentOrderId?: string;
   status: 'pending' | 'booked' | 'cancelled' | 'rescheduled' | 'failed';
   rejectionReason?: string;
@@ -45,6 +46,7 @@ const bookingSchema = new Schema<IBooking>(
     day: { type: String, required: true },
     slot: { type: timeSlotSchema, required: true },
     note: { type: String, default: '' },
+    callId : { type: String },
     rejectionReason: { type: String },
     cancellationReason: { type: String },
     rescheduledFrom: { type: Schema.Types.ObjectId, ref: 'Booking' },

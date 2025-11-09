@@ -32,7 +32,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { convertTo12Hour } from "@/utils/timeConverter";
 import { studentBookingApi } from "@/services/APIservices/studentApiservice";
-import { showSuccessToast } from "@/utils/Toast";
+import { showInfoToast, showSuccessToast } from "@/utils/Toast";
 import { useRouter } from "next/navigation";
 
 interface Booking {
@@ -55,10 +55,10 @@ interface Booking {
   meetingLink?: string;
   createdAt: string;
   updatedAt: string;
+  callId: string;
 }
 
 export function ScheduledCalls() {
-  const router = useRouter()
   const [scheduledCalls, setScheduledCalls] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -67,6 +67,7 @@ export function ScheduledCalls() {
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
+  const router = useRouter()
 
   const fetchScheduledCalls = async () => {
     try {
@@ -77,8 +78,8 @@ export function ScheduledCalls() {
       });
 
       if (res.ok && res.data) {
-        console.log("setScheduledCalls",res.data.data)
-        setScheduledCalls(res.data.data || res.data);
+        console.log("setScheduledCalls", res.data)
+        setScheduledCalls(res.data);
         setTotalPages(res.data.totalPages || 1);
       } else {
         setScheduledCalls([]);
@@ -95,10 +96,28 @@ export function ScheduledCalls() {
     fetchScheduledCalls();
   }, [page]);
 
-  const handleJoinCall = (meetingLink?: string) => {
-    if (!meetingLink) return;
-    window.open(meetingLink, "_blank");
-  };
+  const handleJoinCall = (call: Booking) => {
+    const { date, slot } = call;
+    console.log("call ", call)
+
+    // Current time
+    const now = new Date();
+
+    // Combine date + start time → convert to Date()
+    const sessionStart = new Date(`${date}T${slot.start}:00`);
+    const sessionEnd = new Date(`${date}T${slot.end}:00`);
+
+    // Allow join window: 5 min before start and until end time
+    const joinOpen = new Date(sessionStart.getTime() - 5 * 60 * 1000);
+    console.log("call ", call)
+    if (now <= sessionEnd) {
+      router.push(`/student/videoCall?callId=${call.callId}`);
+    } else {
+      showInfoToast(
+        `You can join at ${convertTo12Hour(slot.start)} on ${date.split("-").reverse().join("-")}`
+      );
+    };
+  }
 
   const handleCancelCall = async (callId: string, reason: string) => {
     try {
@@ -210,8 +229,8 @@ export function ScheduledCalls() {
                             {call.status === "paid"
                               ? "Paid"
                               : call.status === "cancelled"
-                              ? "Cancelled"
-                              : "Booked"}
+                                ? "Cancelled"
+                                : "Booked"}
                           </Badge>
                         </div>
                       </div>
@@ -239,7 +258,7 @@ export function ScheduledCalls() {
 
                   <div className="gap-5 flex items-center">
                     <Button
-                      onClick={() => handleJoinCall(call.meetingLink)}
+                      onClick={() => handleJoinCall(call)}
                       className="bg-primary hover:bg-primary/90 min-w-[140px]"
                     >
                       <Video className="h-4 w-4 mr-2" />

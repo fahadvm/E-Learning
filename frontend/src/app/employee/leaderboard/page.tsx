@@ -31,7 +31,7 @@ export default function LeaderboardPage() {
       return
     }
     const res = await employeeApiMethods.getAllTimeLeaderBoard({ companyId: employee.companyId })
-    console.log("iam trying for fetch all time leaderboard")
+    console.log("iam trying for fetch all time leaderboard",res)
     const data: LeaderboardResponse = res.data;
     setAllTimeData(data.leaderboard);
     setUserRank(data.you ?? null);
@@ -40,6 +40,7 @@ export default function LeaderboardPage() {
   const fetchWeekly = async () => {
     if (!employee?.companyId) return
     const res = await employeeApiMethods.getWeeklyLeaderBoard({ companyId: employee.companyId })
+    console.log("weekly :", res)
     const data: LeaderboardResponse = res.data;
     setWeeklyData(data.leaderboard);
   };
@@ -47,6 +48,7 @@ export default function LeaderboardPage() {
   const fetchMonthly = async () => {
     if (!employee?.companyId) return
     const res = await employeeApiMethods.getMonthlyLeaderBoard({ companyId: employee.companyId })
+    console.log("weekly :", res)
 
     const data: LeaderboardResponse = res.data;
     setMonthlyData(data.leaderboard);
@@ -116,10 +118,10 @@ export default function LeaderboardPage() {
 
       {/* Tabs */}
       <Tabs value={selectedTab} onValueChange={(v) => setSelectedTab(v as any)} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-1">
           <TabsTrigger value="all-time">All Time</TabsTrigger>
-          <TabsTrigger value="monthly">Monthly</TabsTrigger>
-          <TabsTrigger value="weekly">Weekly</TabsTrigger>
+          {/* <TabsTrigger value="monthly">Monthly</TabsTrigger>
+          <TabsTrigger value="weekly">Weekly</TabsTrigger> */}
         </TabsList>
 
         {/* All Time */}
@@ -132,17 +134,17 @@ export default function LeaderboardPage() {
                   <th className="px-6 py-4 text-left">Name</th>
                   <th className="px-6 py-4 text-right">Hours</th>
                   <th className="px-6 py-4 text-right">Streak</th>
-                  <th className="px-6 py-4 text-right">Courses</th>
+                  <th className="px-3 py-3 text-right">Completed Courses</th>
                 </tr>
               </thead>
               <tbody>
-                {allTimeData.map((user) => (
+                {allTimeData.map((user,index) => (
                   <tr
                     key={user._id}
                     className={`border-b transition ${user.isYou ? "bg-primary/5" : "hover:bg-muted/50"
                       }`}
                   >
-                    <td className="px-6 py-4">{getRankIcon(user.rank)}</td>
+                    <td className="px-6 py-4">{getRankIcon(index + 1)}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-semibold">

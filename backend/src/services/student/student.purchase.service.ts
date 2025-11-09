@@ -48,6 +48,7 @@ export class StudentPurchaseService implements IStudentPurchaseService {
       receipt: `receipt_${Date.now()}`,
       notes: { studentId, courses: JSON.stringify(courses) },
     };
+
     const razorpayOrder = await this._razorpay.orders.create(options);
 
     const studentObjId = new mongoose.Types.ObjectId(studentId);

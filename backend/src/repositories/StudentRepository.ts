@@ -33,6 +33,7 @@ export class StudentRepository implements IStudentRepository {
   async findById(id: string): Promise<IStudent | null> {
     return Student.findById(id).lean().exec();
   }
+ 
 
   async update(id: string, data: Partial<IStudent>): Promise<IStudent> {
     const updated = await Student.findByIdAndUpdate(id, { $set: data }, { new: true }).lean().exec();

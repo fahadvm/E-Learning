@@ -21,6 +21,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useRouter } from "next/navigation";
+
 
 const CropperModal = dynamic(() => import("@/components/common/ImageCropper"), { ssr: false });
 
@@ -33,6 +35,8 @@ export default function ProfilePage() {
   const [showCropper, setShowCropper] = useState(false);
   const [rawImage, setRawImage] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const router = useRouter();
+
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -84,6 +88,16 @@ export default function ProfilePage() {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleLogout = async () => {
+    try {
+      await employeeApiMethods.logout();
+      localStorage.clear();
+      router.push("/employee/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   const handleSave = async () => {
@@ -196,8 +210,14 @@ export default function ProfilePage() {
                       <Edit2 className="w-4 h-4" /> Edit
                     </Button>
                   )}
-                  <Button size="lg" variant="destructive" className="gap-2">
-                    <LogOut className="w-4 h-4" /> Logout
+                  <Button
+                    size="lg"
+                    variant="destructive"
+                    className="gap-2"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
                   </Button>
                 </div>
               </div>

@@ -57,6 +57,7 @@ export const studentBookingApi = {
     get(STUDENT_ROUTES.bookings.history, params),
   payingBooking: (teacherId: string) => get(STUDENT_ROUTES.bookings.payments(teacherId)),
   getBookingDetails: (bookingId: string) => get(STUDENT_ROUTES.bookings.details(bookingId)),
+  getBookingDetailsBypaymentOrderId: (paymentOrderId: string) => get(STUDENT_ROUTES.bookings.paymentOrderIdDetails(paymentOrderId)),
   getScheduledCalls: (params: { page: number; limit: number }) => get(STUDENT_ROUTES.bookings.scheduledCalls, params),
 };
 

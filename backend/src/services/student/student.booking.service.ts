@@ -75,7 +75,7 @@ export class StudentBookingService implements IStudentBookingService {
   }
 
   async initiatePayment(bookingId: string, amount: number): Promise<{ razorpayOrderId: string, booking: IBooking | null }> {
-    
+
     if (!bookingId || !amount) throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
 
     const options = {
@@ -104,8 +104,8 @@ export class StudentBookingService implements IStudentBookingService {
 
     if (expectedSignature !== razorpay_signature)
       throwError('Payment verification failed', STATUS_CODES.BAD_REQUEST);
-
-    const updated = await this._bookingRepo.verifyAndMarkPaid(razorpay_order_id);
+    const callId = crypto.randomBytes(4).toString("hex");
+    const updated = await this._bookingRepo.verifyAndMarkPaid(razorpay_order_id, callId);
     if (!!updated) {
       await this._notificationRepo.createNotification(
         updated.teacherId.toString(),
@@ -126,13 +126,18 @@ export class StudentBookingService implements IStudentBookingService {
     const history = await this._bookingRepo.getBookingsByStudent(studentId, page, limit, status, teacher);
     return history;
   }
-  async getScheduledCalls(studentId: string): Promise<IBookingDTO[]> {
+  async getScheduledCalls(studentId: string): Promise<IBooking[]> {
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
     const scheduledCalls = await this._bookingRepo.getScheduledCalls(studentId);
-    return bookingsDto(scheduledCalls);
+    return scheduledCalls;
   }
   async getBookingDetails(bookingId: string): Promise<IBooking> {
     const details = await this._bookingRepo.findById(bookingId);
+    if (!details) throw new Error('Booking not found');
+    return details;
+  }
+  async getBookingDetailsByPaymentId(paymentOrderId: string): Promise<IBooking> {
+    const details = await this._bookingRepo.findByPaymentId(paymentOrderId);
     if (!details) throw new Error('Booking not found');
     return details;
   }

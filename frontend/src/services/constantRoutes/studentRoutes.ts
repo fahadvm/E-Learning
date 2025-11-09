@@ -58,6 +58,7 @@ export const STUDENT_ROUTES = {
     payments: (teacherId: string) => `${STUDENT_BOOKINGS}/payments/${teacherId}`,
     verify:  `${STUDENT_BOOKINGS}/payments/verify`,
     details: (bookingId: string) => `${STUDENT_BOOKINGS}/${bookingId}/details`,
+    paymentOrderIdDetails: (paymentOrderId: string) => `${STUDENT_BOOKINGS}/${paymentOrderId}/paymentOrderIdDetails`,
     scheduledCalls: `${STUDENT_BOOKINGS}/ScheduledCall`,
   },
 

@@ -12,7 +12,7 @@ export interface IBookingDTO {
   courseId: string;
   slot: ITimeSlotDTO;
   date:string;
-  status:'pending' | 'approved' | 'paid' | 'cancelled' | 'rejected';
+  status:'pending' | 'booked' | 'cancelled' | 'rescheduled' | 'failed';
   createdAt?: Date;
   updatedAt?: Date;
 }

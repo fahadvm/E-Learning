@@ -32,6 +32,7 @@ export class StudentBookingController implements IStudentBookingController {
       throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
 
     const booking = await this._bookingService.bookSlot(studentId, teacherId, courseId, date, day, startTime, endTime, note);
+    console.log("booking", booking)
     return sendResponse(res, STATUS_CODES.CREATED, MESSAGES.BOOKING_CREATED, true, booking);
   };
 
@@ -41,6 +42,14 @@ export class StudentBookingController implements IStudentBookingController {
       throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
 
     const booking = await this._bookingService.getBookingDetails(bookingId);
+    return sendResponse(res, STATUS_CODES.CREATED, MESSAGES.BOOKING_CREATED, true, booking);
+  };
+  bookingDetailsByPaymentId = async (req: AuthRequest, res: Response) => {
+    const paymentOrderId = req.params.paymentOrderId;
+    if (!paymentOrderId)
+      throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
+
+    const booking = await this._bookingService.getBookingDetailsByPaymentId(paymentOrderId);
     return sendResponse(res, STATUS_CODES.CREATED, MESSAGES.BOOKING_CREATED, true, booking);
   };
 
