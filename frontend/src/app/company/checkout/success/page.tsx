@@ -56,7 +56,7 @@ export default function PurchaseSuccess() {
     if (!orderId) return;
 
     try {
-      console.log("🔄 Starting receipt download for order:", orderId);
+      console.log(" Starting receipt download for order:", orderId);
 
       const res = await companyApiMethods.downloadReciept(orderId);
       console.log("response is now ",res)
@@ -72,9 +72,9 @@ export default function PurchaseSuccess() {
 
       window.URL.revokeObjectURL(url);
 
-      console.log("✅ Receipt download completed.");
+      console.log(" Receipt download completed.");
     } catch (error: any) {
-      console.error("❌ Receipt download failed:", error);
+      console.error(" Receipt download failed:", error);
       showErrorToast("Unable to download receipt. Try again.");
     }
   };
