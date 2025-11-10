@@ -2,6 +2,7 @@ import { ICompanyOrderRepository } from '../core/interfaces/repositories/ICompan
 import { ICompanyOrder, CompanyOrderModel } from '../models/CompanyOrder';
 import { injectable } from 'inversify';
 import { ICourse, Course } from '../models/Course';
+import { CourseResource } from '../models/CourseResource';
 
 @injectable()
 export class CompanyOrderRepository implements ICompanyOrderRepository {
@@ -11,7 +12,7 @@ export class CompanyOrderRepository implements ICompanyOrderRepository {
   }
 
   async findByStripeSessionId(orderId: string): Promise<ICompanyOrder | null> {
-    return await CompanyOrderModel.findOne({ stripeSessionId: orderId });
+    return await CompanyOrderModel.findOne({ stripeSessionId: orderId }).populate("courses", "title price")
   }
 
   async updateStatus(orderId: string, status: string): Promise<ICompanyOrder | null> {

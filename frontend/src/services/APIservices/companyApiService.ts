@@ -78,6 +78,8 @@ export const companyApiMethods = {
 
   verifyPayment: (data: { sessionId: string }) =>
     post(COMPANY_ROUTES.purchase.verifyPayment, data),
+  downloadReciept: (orderId:string) =>
+    get(COMPANY_ROUTES.purchase.Reciept(orderId)),
 
   getmycourses: () => get(COMPANY_ROUTES.purchase.myCourses),
   getmycourseDetails: (courseId: string) =>

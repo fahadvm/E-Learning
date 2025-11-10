@@ -83,7 +83,7 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
       await this._companyOrderRepo.updateStatus(sessionId, 'paid');
       await this._cartRepo.clearCart(companyId);
       const order = await this._companyOrderRepo.findByStripeSessionId(sessionId);
-      return { success: true, amount: order?.amount };
+      return { success: true, amount: order?.amount ,order:order};
     }
 
     await this._companyOrderRepo.updateStatus(sessionId, 'failed');

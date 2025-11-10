@@ -69,7 +69,8 @@ export const COMPANY_ROUTES = {
     verifyPayment: `${COMPANY_PURCHASE}/verify-payment`,
     myCourses: `${COMPANY_PURCHASE}/entrollments`,
     courseDetails: (id: string) => `${COMPANY_PURCHASE}/entrollments/`,
-    courseIds: `${COMPANY_PURCHASE}/entrollments-course/ids`
+    courseIds: `${COMPANY_PURCHASE}/entrollments-course/ids`,
+    Reciept:(orderId:string)=> `${COMPANY_PURCHASE}/receipt/${orderId}`
   },
 
   learningPath: {

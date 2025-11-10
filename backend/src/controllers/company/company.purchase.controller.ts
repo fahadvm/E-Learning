@@ -1,4 +1,4 @@
-import {  Response } from 'express';
+import { Response } from 'express';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../core/di/types';
 import { ICompanyPurchaseService } from '../../core/interfaces/services/company/ICompanyPurchaseService';
@@ -7,6 +7,8 @@ import { ICompanyPurchaseController } from '../../core/interfaces/controllers/co
 import { sendResponse, throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { CompanyOrderModel } from '../../models/CompanyOrder';
+import PDFDocument from "pdfkit";
 @injectable()
 export class CompanyPurchaseController implements ICompanyPurchaseController {
     constructor(
@@ -15,11 +17,11 @@ export class CompanyPurchaseController implements ICompanyPurchaseController {
     ) { }
 
     async createCheckoutSession(req: AuthRequest, res: Response) {
-        const { courses , amount} = req.body;
-        console.log("courses ids in controller,",courses)
+        const { courses, amount } = req.body;
+        console.log("courses ids in controller,", courses)
         const companyId = req.user?.id;
 
-        const session = await this._purchaseService.createCheckoutSession(courses, companyId as string , amount);
+        const session = await this._purchaseService.createCheckoutSession(courses, companyId as string, amount);
         const data = { url: session.url };
         sendResponse(res, STATUS_CODES.OK, MESSAGES.PAYMENT_PAID_SUCCESSFULLY, true, data);
 
@@ -33,10 +35,54 @@ export class CompanyPurchaseController implements ICompanyPurchaseController {
         }
         const result = await this._purchaseService.verifyPayment(sessionId, companyId);
         if (result.success) {
-           sendResponse(res,STATUS_CODES.OK,MESSAGES.PAYMENT_VERIFIED_SUCCESSFULLY,true,result);
+            sendResponse(res, STATUS_CODES.OK, MESSAGES.PAYMENT_VERIFIED_SUCCESSFULLY, true, result);
         } else {
-           sendResponse(res,STATUS_CODES.OK,MESSAGES.PAYMENT_VERIFICATION_FAILED,true,result);
+            sendResponse(res, STATUS_CODES.OK, MESSAGES.PAYMENT_VERIFICATION_FAILED, true, result);
         }
 
     }
+
+
+    // GET /api/company/orders/:orderId/receipt
+    async downloadReceipt(req: AuthRequest, res: Response) {
+        const { orderId } = req.params;
+        console.log("downloading reciept is working successfully")
+
+        const order = await CompanyOrderModel.findById(orderId).populate(
+            "courses",
+            "title price"
+        );
+
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        //  Create PDF
+        const doc = new PDFDocument();
+
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader(
+            "Content-Disposition",
+            `attachment; filename=receipt_${orderId}.pdf`
+        );
+
+        //  Pipe BEFORE writing
+        doc.pipe(res);
+
+        //  Content
+        doc.fontSize(20).text("Payment Receipt", { align: "center" });
+        doc.moveDown();
+
+        doc.fontSize(12).text(`Order ID: ${orderId}`);
+        doc.text(`Total Paid: ₹${order.amount}`);
+        doc.moveDown();
+
+        doc.text("Purchased Courses:");
+        order.courses.forEach((course: any) => {
+            doc.text(`• ${course.title} — ₹${course.price}`);
+        });
+
+        doc.end();
+    }
+
 }

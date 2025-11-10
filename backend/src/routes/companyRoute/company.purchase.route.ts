@@ -12,6 +12,7 @@ const companyCourseController = container.get<CompanyCourseController>(TYPES.Com
 
 router.post('/checkout-session',authMiddleware('company'),asyncHandler(companyPurchaseCtrl.createCheckoutSession.bind(companyPurchaseCtrl)));
 router.post('/verify-payment',authMiddleware('company'),asyncHandler(companyPurchaseCtrl.verifyPayment.bind(companyPurchaseCtrl)));
+router.get('/receipt/:orderId',authMiddleware('company'),asyncHandler(companyPurchaseCtrl.downloadReceipt.bind(companyPurchaseCtrl)));
 router.get('/entrollments', authMiddleware('company'), asyncHandler(companyCourseController.getMyCourses.bind(companyCourseController)));
 router.get('/entrollments-course/ids', authMiddleware('company'), asyncHandler(companyCourseController.getMyCoursesIds.bind(companyCourseController)));
 router.get('/entrollments/:courseId', authMiddleware('company'), asyncHandler(companyCourseController.getMyCourseDetails.bind(companyCourseController)));
