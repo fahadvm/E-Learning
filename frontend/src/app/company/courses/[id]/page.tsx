@@ -24,6 +24,8 @@ export default function CourseDetailPage() {
   const [modules, setModules] = useState<Module[]>([])
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(false);
+  const [alreadyPurchased, setAlreadyPurchased] = useState(false);
+
 
 
   const handleAddToWishlist = async () => {
@@ -62,6 +64,13 @@ export default function CourseDetailPage() {
       setCourseData(res.data)
       setModules(res.data.modules)
       setReviews(res.data.reviews)
+
+
+      const purchased = await companyApiMethods.getPurchasedCourseIds();
+      console.log("purchased:",purchased)
+      if (purchased.ok && purchased.data.includes(id)) {
+        setAlreadyPurchased(true);
+      }
     }
     fetchCourseData()
   }, [params.courseId])
@@ -102,7 +111,7 @@ export default function CourseDetailPage() {
                     alt={courseData.teacherId.name}
                     className="w-10 h-10 rounded-full"
                   />
-                  <div>
+                  <div> 
                     <Link href={`/student/teacher/${courseData.teacherId._id}`}>
                       <p className="font-semibold text-foreground hover:underline cursor-pointer">
                         {courseData.teacherId.name}
@@ -330,21 +339,31 @@ export default function CourseDetailPage() {
                   </div>
 
                   <div className="space-y-3 mb-6">
-                    <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3" onClick={handleAddToCart} disabled={loading}>
-                      <ShoppingCart className="w-4 h-4 mr-2" />
-                      Add to Cart
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full bg-transparent"
-                      onClick={handleAddToWishlist}
-                      disabled={loading}
-                    >
-                      <Heart className="w-4 h-4 mr-2" />
-                      {loading ? "Adding..." : "Add to Wishlist"}
-                    </Button>
-                  </div>
+                    {alreadyPurchased ? (
+                      <Link href={`/company/course/${id}`}>
+                        <Button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3">
+                          <Play className="w-4 h-4 mr-2" /> Go to Course
+                        </Button>
+                      </Link>
+                    ) : (
+                      <>
+                        <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3" onClick={handleAddToCart} disabled={loading}>
+                          <ShoppingCart className="w-4 h-4 mr-2" />
+                          Add to Cart
+                        </Button>
 
+                        <Button
+                          variant="outline"
+                          className="w-full bg-transparent"
+                          onClick={handleAddToWishlist}
+                          disabled={loading}
+                        >
+                          <Heart className="w-4 h-4 mr-2" />
+                          Add to Wishlist
+                        </Button>
+                      </>
+                    )}
+                  </div>
                   <div className="text-center mb-6">
                     <p className="text-sm text-muted-foreground mb-2">Secure payment with</p>
                     <div className="flex justify-center gap-2">

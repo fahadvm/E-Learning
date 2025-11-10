@@ -9,7 +9,7 @@ interface EmployeeCardProps {
   name: string;
   email: string;
   phone?: string;
-  address?: string;
+  location?: string;
   employeeId?: string;
   department?: string;
   position?: string;
@@ -85,9 +85,9 @@ export function EmployeeCard(props: EmployeeCardProps) {
                   <Phone size={18} /> {employeeData.phone}
                 </p>
               )}
-              {employeeData.address && (
+              {employeeData.location && (
                 <p className="flex items-center gap-2">
-                  <MapPin size={18} /> {employeeData.address}
+                  <MapPin size={18} /> {employeeData.location}
                 </p>
               )}
             </div>
@@ -169,7 +169,7 @@ function EmployeeProfileModal({
   const [formData, setFormData] = useState({
     name: employee.name || "",
     phone: employee.phone || "",
-    address: employee.address || "",
+    location: employee.location || "",
     department: employee.department || "",
     position: employee.position || "",
     linkedin: employee.linkedin || "",
@@ -244,14 +244,14 @@ function EmployeeProfileModal({
             {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
           </div>
 
-          {/* Address */}
+          {/* location */}
           <div>
             <label className="block text-sm font-medium mb-1 text-blue-700">
-              Address
+              location
             </label>
             <input
-              name="address"
-              value={formData.address}
+              name="location"
+              value={formData.location}
               onChange={handleChange}
               className="w-full border p-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />

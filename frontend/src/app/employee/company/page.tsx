@@ -256,7 +256,7 @@ export default function CompanyPage() {
               name={employee?.name || "Unknown"}
               email={employee?.email || "-"}
               phone={employee?.phone || "-"}
-              address={employee?.location || "-"}
+              location={employee?.location || "-"}
               employeeId={employee?.employeeID || "N/A"}
               department={employee?.department || "-"}
               position={employee?.position || "-"}

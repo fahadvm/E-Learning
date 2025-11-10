@@ -8,6 +8,7 @@ export interface ICompanyOrderRepository {
   updateStatus(orderId: string, status: string): Promise<ICompanyOrder | null>;
   getOrdersByCompanyId(companyId: string): Promise<(ICompanyOrder & { courses: ICourse[] })[]>;
   getOrdersById(companyId: string): Promise<(ICompanyOrder & { courses: ICourse[] })[]>
-    getCompanyOrders(): Promise<ICompanyOrder[]>;
+  getCompanyOrders(): Promise<ICompanyOrder[]>;
+  getPurchasedCourseIds(companyId: string): Promise<string[]>
 
 }

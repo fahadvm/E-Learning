@@ -10,6 +10,9 @@ import { ICompanyRepository } from '../../core/interfaces/repositories/ICompanyR
 import { ICompanyOrderRepository } from '../../core/interfaces/repositories/ICompanyOrderRepository';
 import { ICompanyOrder } from '../../models/CompanyOrder';
 import { ICourse } from '../../models/Course';
+import { throwError } from '../../utils/ResANDError';
+import { MESSAGES } from '../../utils/ResponseMessages';
+import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 
 dotenv.config();
 
@@ -26,7 +29,13 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
    * Create a Stripe Checkout session for a company
    */
   async createCheckoutSession(courseIds: string[], companyId: string, amount: number) {
-     const Company = await this._companyRepo.findById(companyId);
+    const Company = await this._companyRepo.findById(companyId);
+
+    const purchasedCourseIds = await this._companyOrderRepo.getPurchasedCourseIds(companyId);
+    const duplicates = courseIds.filter(id => purchasedCourseIds.includes(id));
+    if (duplicates.length > 0) {
+      throwError(MESSAGES.COURSES_ALREADY_PURCHASED,STATUS_CODES.CONFLICT);
+    }
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -74,7 +83,7 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
       await this._companyOrderRepo.updateStatus(sessionId, 'paid');
       await this._cartRepo.clearCart(companyId);
       const order = await this._companyOrderRepo.findByStripeSessionId(sessionId);
-      return { success: true , amount : order?.amount };
+      return { success: true, amount: order?.amount };
     }
 
     await this._companyOrderRepo.updateStatus(sessionId, 'failed');
@@ -86,7 +95,12 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
    */
   async getPurchasedCourses(companyId: string): Promise<(ICompanyOrder & { courses: ICourse[] })[]> {
     const courses = await this._companyOrderRepo.getOrdersByCompanyId(companyId);
-    console.log("course fetched more",courses)
+    console.log("course fetched more", courses)
     return courses
+  }
+  async getMycoursesIdsById(companyId: string): Promise<string[] | null> {
+    const courseIds = await this._companyOrderRepo.getPurchasedCourseIds(companyId);
+    console.log("course fetched more", courseIds)
+    return courseIds
   }
 }

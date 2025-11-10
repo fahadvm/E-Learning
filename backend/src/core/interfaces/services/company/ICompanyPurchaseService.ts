@@ -15,4 +15,5 @@ export interface ICompanyPurchaseService {
 
 
   getPurchasedCourses(companyId: string): Promise<(ICompanyOrder & { courses: ICourse[] })[]>; 
+  getMycoursesIdsById(companyId: string): Promise<string[] | null>;
 }

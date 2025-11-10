@@ -7,11 +7,13 @@ import { TYPES } from '../../core/di/types';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { ICompanyCourseController } from '../../core/interfaces/controllers/company/ICompanyCourseController';
 import { AuthRequest } from '../../types/AuthenticatedRequest';
+import { ICompanyPurchaseService } from '../../core/interfaces/services/company/ICompanyPurchaseService';
 
 @injectable()
 export class CompanyCourseController implements ICompanyCourseController {
   constructor(
-    @inject(TYPES.CompanyCourseService) private readonly _courseService: ICompanyCourseService
+    @inject(TYPES.CompanyCourseService) private readonly _courseService: ICompanyCourseService,
+    @inject(TYPES.CompanyPurchaseService) private readonly _purchaseService: ICompanyPurchaseService,
   ) { }
 
   async getAllCourses(req: Request, res: Response): Promise<void> {
@@ -51,7 +53,7 @@ export class CompanyCourseController implements ICompanyCourseController {
   async assignCourseToEmployee(req: Request, res: Response): Promise<void> {
     const { courseId, employeeId } = req.body;
     if (!courseId || !employeeId) {
-     throwError( MESSAGES.ID_REQUIRED , STATUS_CODES.BAD_REQUEST);
+      throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
     }
     const course = await this._courseService.assignCourseToEmployee(courseId, employeeId);
     sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, course);
@@ -64,8 +66,15 @@ export class CompanyCourseController implements ICompanyCourseController {
     const courses = await this._courseService.getMycoursesById(companyId);
     if (!courses) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     console.log("controller of get courses completed", courses)
-
     sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, courses);
+
+  }
+  async getMyCoursesIds(req: AuthRequest, res: Response): Promise<void> {
+    const companyId = req.user?.id;
+    if (!companyId) { throwError(MESSAGES.ALL_FIELDS_REQUIRED, STATUS_CODES.BAD_REQUEST); }
+    const courseIds = await this._purchaseService.getMycoursesIdsById(companyId);
+    console.log("controller of get courses completed", courseIds)
+    sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, courseIds);
 
   }
   async getMyCourseDetails(req: AuthRequest, res: Response): Promise<void> {
@@ -75,6 +84,13 @@ export class CompanyCourseController implements ICompanyCourseController {
     const courses = await this._courseService.getMycourseDetailsById(companyId, courseId);
     if (!courses) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, courses);
+
+  }
+  async getCourseResources(req: AuthRequest, res: Response): Promise<void> {
+    const { courseId } = req.params;
+    if (!courseId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
+    const resources = await this._courseService.getResources(courseId);
+    return sendResponse(res, STATUS_CODES.OK, MESSAGES.RESOURCES_FETCHED, true, resources);
 
   }
 }

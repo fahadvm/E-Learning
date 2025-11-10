@@ -49,6 +49,7 @@ export enum MESSAGES {
   LEARNING_PATH_ALREADY_ASSIGNED = "Learning Path already assigned",
   LEARNING_PATH_ASSIGNMENT_NOT_FOUND = "Learning Path Assignment not found",
   LEARNING_PATH_NOT_FOUND = "Learning Path not found",
+  COURSES_ALREADY_PURCHASED = "Some courses are already purchased by this company.",
  
 
 

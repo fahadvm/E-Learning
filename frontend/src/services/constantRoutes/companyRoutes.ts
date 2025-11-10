@@ -29,6 +29,10 @@ export const COMPANY_ROUTES = {
     base: COMPANY_COURSES,
     get: (id: string) => `${COMPANY_COURSES}/${id}`,
     assign: `${COMPANY_COURSES}/assign-course`,
+    resources: (courseId: string) => `${COMPANY_COURSES}/resources/${courseId}`,
+
+
+
   },
 
   employees: {
@@ -65,16 +69,17 @@ export const COMPANY_ROUTES = {
     verifyPayment: `${COMPANY_PURCHASE}/verify-payment`,
     myCourses: `${COMPANY_PURCHASE}/entrollments`,
     courseDetails: (id: string) => `${COMPANY_PURCHASE}/entrollments/`,
+    courseIds: `${COMPANY_PURCHASE}/entrollments-course/ids`
   },
 
   learningPath: {
     list: `${COMPANY_LEARNING_PATH}`,
     add: `${COMPANY_LEARNING_PATH}`,
-    assign :  `${COMPANY_LEARNING_PATH}/assign`,
-    unassign :`${COMPANY_LEARNING_PATH}/unassign/employee`,
+    assign: `${COMPANY_LEARNING_PATH}/assign`,
+    unassign: `${COMPANY_LEARNING_PATH}/unassign/employee`,
     delete: (id: string) => `${COMPANY_LEARNING_PATH}/${id}`,
     edit: (id: string) => `${COMPANY_LEARNING_PATH}/${id}`,
     details: (id: string) => `${COMPANY_LEARNING_PATH}/${id}`,
-    assigned : (id: string) => `${COMPANY_LEARNING_PATH}/assigned/${id}`,
+    assigned: (id: string) => `${COMPANY_LEARNING_PATH}/assigned/${id}`,
   },
 };

@@ -35,6 +35,9 @@ export const companyApiMethods = {
   }) => get(COMPANY_ROUTES.courses.base, params),
 
   getCourseById: (courseId: string) => get(COMPANY_ROUTES.courses.get(courseId)),
+  getPurchasedCourseIds: () => get(COMPANY_ROUTES.purchase.courseIds),
+  getCourseResources: (courseId: string) => get(COMPANY_ROUTES.courses.resources(courseId)),
+
 
   // Employees
   addEmployee: (data: any) => post(COMPANY_ROUTES.employees.base, data),
@@ -88,9 +91,9 @@ export const companyApiMethods = {
   updateLearningPath: (LearningPathId: string, payload: any) => get(COMPANY_ROUTES.learningPath.edit(LearningPathId), payload),
   deleteLearningPath: (LearningPathId: string) => del(COMPANY_ROUTES.learningPath.delete(LearningPathId)),
   detailsLearingPaths: (LearningPathId: string) => get(COMPANY_ROUTES.learningPath.details(LearningPathId)),
-  getLearningPaths: (params?: { page?: number; limit?: number; search?: string }) => get(COMPANY_ROUTES.learningPath.list,params),
+  getLearningPaths: (params?: { page?: number; limit?: number; search?: string }) => get(COMPANY_ROUTES.learningPath.list, params),
   getAssignedLearningPaths: (employeeId: string) => get(COMPANY_ROUTES.learningPath.assigned(employeeId)),
-  assignLearningPath: (data: { employeeId: string; learningPathId: string }) => post(COMPANY_ROUTES.learningPath.assign,data),
-  unassignLearningPath: (params?: { employeeId: string; learningPathId: string }) => del(COMPANY_ROUTES.learningPath.unassign,params),
+  assignLearningPath: (data: { employeeId: string; learningPathId: string }) => post(COMPANY_ROUTES.learningPath.assign, data),
+  unassignLearningPath: (params?: { employeeId: string; learningPathId: string }) => del(COMPANY_ROUTES.learningPath.unassign, params),
 
 };
