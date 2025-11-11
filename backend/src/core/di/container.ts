@@ -185,6 +185,9 @@ import { EmployeeLearningPathService } from '../../services/employee/employee.le
 import { EmployeeLeaderboardController } from '../../controllers/employee/employee.leaderboard.controller';
 import { EmployeeLeaderboardService } from '../../services/employee/employee.leaderboard.service';
 import { IEmployeeLeaderboardService } from '../interfaces/services/employee/IEmployeeLeaderboardService';
+import { ICompanyLeaderboardService } from '../interfaces/services/company/ICompanyLeaderboardService';
+import { CompanyLeaderboardService } from '../../services/company/company.leaderboard.service';
+import { CompanyLeaderboardController } from '../../controllers/company/company.leaderboard.controller';
 
 
 
@@ -336,6 +339,8 @@ container.bind<IEmployeeLearningPathService>(TYPES.EmployeeLearningPathService).
 container.bind<EmployeeLearningPathController>(TYPES.EmployeeLearningPathController).to(EmployeeLearningPathController);
 container.bind<EmployeeLeaderboardController>(TYPES.EmployeeLeaderboardController).to(EmployeeLeaderboardController);
 container.bind<IEmployeeLeaderboardService>(TYPES.EmployeeLeaderboardService).to(EmployeeLeaderboardService);
+container.bind<ICompanyLeaderboardService>(TYPES.CompanyLeaderboardService).to(CompanyLeaderboardService);
+container.bind<CompanyLeaderboardController>(TYPES.CompanyLeaderboardController).to(CompanyLeaderboardController);
 
 
 export default container;

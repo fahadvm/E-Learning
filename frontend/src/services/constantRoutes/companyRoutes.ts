@@ -12,6 +12,7 @@ const COMPANY_WISHLIST = `${COMPANY_BASE}/wishlist`;
 const COMPANY_CART = `${COMPANY_BASE}/cart`;
 const COMPANY_PURCHASE = `${COMPANY_BASE}/purchase`;
 const COMPANY_LEARNING_PATH = `${COMPANY_BASE}/learning-paths`;
+const COMPANY_LEADER_BOARD = `${COMPANY_BASE}/leaderboard`;
 
 export const COMPANY_ROUTES = {
   auth: {
@@ -56,6 +57,11 @@ export const COMPANY_ROUTES = {
   wishlist: {
     base: COMPANY_WISHLIST,
     get: (id: string) => `${COMPANY_WISHLIST}/${id}`,
+  },
+  leaderboard: {
+    base: COMPANY_LEADER_BOARD,
+    search: `${COMPANY_LEADER_BOARD}/search`,
+   
   },
 
   cart: {

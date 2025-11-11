@@ -97,5 +97,7 @@ export const companyApiMethods = {
   getAssignedLearningPaths: (employeeId: string) => get(COMPANY_ROUTES.learningPath.assigned(employeeId)),
   assignLearningPath: (data: { employeeId: string; learningPathId: string }) => post(COMPANY_ROUTES.learningPath.assign, data),
   unassignLearningPath: (params?: { employeeId: string; learningPathId: string }) => del(COMPANY_ROUTES.learningPath.unassign, params),
+  getCompanyLeaderboard: () => get(COMPANY_ROUTES.leaderboard.base ),
+  searchLeaderboard: (params:{name:string}) => get(COMPANY_ROUTES.leaderboard.search,params ),
 
 };

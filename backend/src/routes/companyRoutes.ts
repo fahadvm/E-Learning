@@ -9,6 +9,7 @@ import wishlistRoutes from './companyRoute/company.wishlist.route';
 import cartRoutes from './companyRoute/company.cart.route';
 import purchaseRoutes from './companyRoute/company.purchase.route';
 import learningPathRoutes from './companyRoute/company.learningpath.route';
+import leaderboard from './companyRoute/company.leaderboard.route';
 
 
 const companyRouter = Router();
@@ -22,5 +23,6 @@ companyRouter.use('/wishlist', wishlistRoutes);
 companyRouter.use('/cart', cartRoutes);
 companyRouter.use('/purchase', purchaseRoutes);
 companyRouter.use('/learning-paths', learningPathRoutes);
+companyRouter.use('/leaderboard', leaderboard);
 
 export default companyRouter;
