@@ -15,7 +15,7 @@ export interface IStudentSubscription extends Document {
 const StudentSubscriptionSchema = new Schema<IStudentSubscription>(
   {
     studentId: { type: Schema.Types.ObjectId, ref: 'Student', required: true },
-    planId: { type: Schema.Types.ObjectId, ref: 'Plan', required: true },
+    planId: { type: Schema.Types.ObjectId, ref: 'SubscriptionPlan', required: true },
     orderId: { type: String, required: true },
     paymentId: { type: String },
     status: {

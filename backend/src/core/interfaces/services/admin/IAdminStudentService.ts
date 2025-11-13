@@ -4,8 +4,8 @@ import { IAdminStudentDTO, PaginatedStudentDTO,  } from '../../../../core/dtos/a
 
 export interface IAdminStudentService {
   createStudent(data: Partial<IStudent>): Promise<IAdminStudentDTO>;
-  getAllStudents(page: number, limit: number, search?: string): Promise<PaginatedStudentDTO>;
-  getStudentById(id: string): Promise<IAdminStudentDTO | null>;
+  getAllStudents(page: number, limit: number, search?: string): Promise<any>;
+  getStudentById(id: string): Promise<any | null>;
   updateStudent(id: string, data: Partial<IStudent>): Promise<IAdminStudentDTO>;
   blockStudent(id: string): Promise<IAdminStudentDTO>;
   unblockStudent(id: string): Promise<IAdminStudentDTO>;

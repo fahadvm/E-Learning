@@ -24,5 +24,5 @@ export interface ISubscriptionPlanRepository {
     status: 'pending' | 'active' | 'expired' | 'cancelled',
     paymentId?: string
   ): Promise<IStudentSubscription | null>;
-  findActiveSubscription(studentId: string): Promise<IStudentSubscription | null>;
+  findActiveSubscription(studentId: string): Promise<any | null>;
 }

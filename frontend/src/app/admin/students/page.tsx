@@ -11,8 +11,8 @@ type User = {
   _id: string;
   name: string;
   email: string;
-  NOcourses?: number;
-  subscription?: boolean;
+  courseCount?: number;
+  currentPlan?: {name: string };
   isBlocked: boolean;
 };
 
@@ -33,6 +33,8 @@ export default function UserList() {
         page: currentPage,
         limit: rowsPerPage,
       });
+
+
 
       if (Array.isArray(res.data?.students)) {
         setUsers(res.data.students);
@@ -103,13 +105,13 @@ export default function UserList() {
               {
                 key: 'NOcourses',
                 label: 'Courses',
-                render: (u) => u.NOcourses ?? 0,
+                render: (u) => u.courseCount ?? 0,
                 className: 'hidden md:table-cell',
               },
               {
                 key: 'subscription',
                 label: 'Subscription',
-                render: (u) => (u.subscription ? 'Available' : 'No Package'),
+                render: (u) => (u.currentPlan? u.currentPlan.name : ' Not Activated'),
                 className: 'hidden md:table-cell',
               },
               {

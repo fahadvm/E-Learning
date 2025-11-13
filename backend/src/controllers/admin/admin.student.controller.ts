@@ -30,12 +30,15 @@ export class AdminStudentController implements IAdminStudentController {
             String(search || '')
         );
 
+        console.log("result :",result )
+
         sendResponse(res, STATUS_CODES.OK, MESSAGES.STUDENTS_FETCHED, true, result);
     }
 
     async getStudentById(req: Request, res: Response): Promise<void> {
         const { studentId } = req.params;
         const student = await this._studentService.getStudentById(studentId);
+        console.log("admin side details of student",student)
         sendResponse(res, STATUS_CODES.OK, MESSAGES.STUDENT_DETAILS_FETCHED, true, student);
     }
 

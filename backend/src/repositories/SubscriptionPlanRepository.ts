@@ -90,7 +90,7 @@ export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
     );
   }
 
-  async findActiveSubscription(studentId: string): Promise<IStudentSubscription | null> {
-    return await StudentSubscription.findOne({ studentId, status: 'active' });
+  async findActiveSubscription(studentId: string): Promise<any | null> {
+    return await StudentSubscription.findOne({ studentId, status: 'active' }).populate("planId");
   }
 }
