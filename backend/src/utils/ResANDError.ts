@@ -10,7 +10,7 @@ export function throwErrorWithRes(res: Response, message: string, statusCode = 4
 }
 
 export function throwError(message: string, statusCode = 400): never {
-   console.log('Throwing error:', message);
+   console.log('Throwing error in :', message);
   const error = new Error(message) as Error & { statusCode: number };
   error.statusCode = statusCode;
   throw error;

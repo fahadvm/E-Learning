@@ -5,17 +5,17 @@ import { showInfoToast } from "@/utils/Toast";
 export const baseURL = `${process.env.NEXT_PUBLIC_API_URL}`
 
 const axiosInstance = axios.create({
-    baseURL,
-    withCredentials:true
+  baseURL,
+  withCredentials: true
 })
 
 let activeRequests = 0
-const {start , stop} = useLoading.getState()
+const { start, stop } = useLoading.getState()
 
-axiosInstance.interceptors.request.use(config =>{
-    if(activeRequests === 0 ) start()
-        activeRequests++;
-    return config
+axiosInstance.interceptors.request.use(config => {
+  if (activeRequests === 0) start()
+  activeRequests++;
+  return config
 })
 
 const handleResponseCompletion = () => {
@@ -48,6 +48,18 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     handleResponseCompletion();
     const originalRequest = error.config;
+    if (error.response?.status === 403) {
+
+      const msg = error.response.data?.message || "";
+      if (msg.includes("blocked")) {
+        localStorage.clear();
+        sessionStorage.clear();
+        if (typeof window !== "undefined") {
+          window.location.href = "/admin/demo";
+        }
+      }
+      return Promise.reject(error);
+    }
 
     // Only handle 401 errors here
     if (error.response?.status === 401 && !originalRequest._retry) {
