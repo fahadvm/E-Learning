@@ -15,13 +15,17 @@ export class CompanyLeaderboardController {
     ) { }
 
     async getLeaderboard(req: AuthRequest, res: Response) {
+
         const companyId = req.user?.id
+        console.log("getting controller of  leaderboard ")
         if (!companyId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
         const leaderboard = await this._leaderboardService.getTop50(companyId);
+        console.log("top 50 leaderboard ", leaderboard)
         return sendResponse(res, 200, "SUCCESS", true, { leaderboard });
     }
 
     async search(req: AuthRequest, res: Response) {
+        console.log("search controller of  leaderboard ")
         const companyId = req.user?.id
         if (!companyId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
         const { name } = req.query as { name: string };

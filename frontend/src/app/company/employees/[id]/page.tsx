@@ -33,7 +33,7 @@ interface AssignedPath {
 }
 
 export default function EmployeeDetailsPage() {
-  const [activeTab, setActiveTab] = useState<"details" | "learningpaths">("details");
+  const [activeTab, setActiveTab] = useState<"details" | "learningpaths"|"progress">("details");
   const [employee, setEmployee] = useState<Employee | null>(null);
 
   const [learningPaths, setLearningPaths] = useState<LearningPath[]>([]);
@@ -134,6 +134,12 @@ export default function EmployeeDetailsPage() {
           >
             Learning Paths
           </button>
+          <button
+            onClick={() => setActiveTab("progress")}
+            className={activeTab === "learningpaths" ? "border-b-2 border-blue-600 font-semibold" : "text-gray-600"}
+          >
+            Progress
+          </button>
         </div>
 
         {/* -------------------------------- DETAILS TAB -------------------------------- */}
@@ -202,8 +208,17 @@ export default function EmployeeDetailsPage() {
                 Assign
               </button>
             </div>
+
           </div>
         )}
+        {activeTab === "progress" && (
+          <div className="bg-white p-6 rounded-xl shadow space-y-2">
+            <p><strong>progress:</strong> {employee.name}</p>
+            <p><strong>assigned courses:</strong> {employee.email}</p>
+            <p><strong>completed courses:</strong> {employee.position || "N/A"}</p>
+          </div>
+        )}
+
       </div>
 
       {/* Confirm Delete Modal */}

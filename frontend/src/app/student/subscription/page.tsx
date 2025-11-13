@@ -25,26 +25,33 @@ interface Plan {
 
 export default function SubscriptionPlansPage() {
     const [plans, setPlans] = useState<Plan[]>([]);
-    const { student } = useStudent()
+    const [currentPlanId, setCurrentPlanId] = useState<string | null>(null);
+    const { student } = useStudent();
     const [loading, setLoading] = useState(true);
     const [processingPlan, setProcessingPlan] = useState<string | null>(null);
 
     const router = useRouter();
 
     useEffect(() => {
-        const fetchPlans = async () => {
+        const fetchData = async () => {
             try {
                 const response = await studentSubscriptionApi.getAllPlans();
                 setPlans(response.data);
+
+                // Fetch current active plan
+                const curr = await studentSubscriptionApi.getMySubscription();
+                console.log("my current plan is ", curr)
+                setCurrentPlanId(curr?.data?.planId || null);
+
             } catch (error) {
-                console.error('Error fetching subscription plans:', error);
-                showErrorToast('Failed to load plans.');
+                console.error('Error fetching subscription data:', error);
+                showErrorToast('Failed to load subscription info.');
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchPlans();
+        fetchData();
     }, []);
 
     const cardVariants = {
@@ -60,15 +67,20 @@ export default function SubscriptionPlansPage() {
     const handleCompletePurchase = async (plan: Plan) => {
         if (!plan._id) return;
 
+        // prevent repurchase
+        if (currentPlanId === plan._id) {
+            showErrorToast("You already have this plan active.");
+            return;
+        }
+
         setProcessingPlan(plan._id);
 
+        // Free plan
         if (!plan.price || plan.price === 0 || String(plan.price).toLowerCase().includes('free')) {
             try {
                 await studentSubscriptionApi.activateFreePlan(plan._id);
                 showSuccessToast('Free plan activated!');
-                router.push(
-                    `/student/subscription/success?planName=${plan.name}&price=${plan.price}`
-                )
+                router.push(`/student/subscription/success?planName=${plan.name}&price=${plan.price}`);
             } catch (err) {
                 console.error('Error activating free plan:', err);
                 showErrorToast('Failed to activate free plan.');
@@ -78,7 +90,7 @@ export default function SubscriptionPlansPage() {
             return;
         }
 
-        // Paid plan → load Razorpay
+        // Paid plan
         const script = document.createElement('script');
         script.src = 'https://checkout.razorpay.com/v1/checkout.js';
         script.async = true;
@@ -87,8 +99,6 @@ export default function SubscriptionPlansPage() {
         script.onload = async () => {
             try {
                 const response = await studentSubscriptionApi.createOrder(plan._id!);
-                showSuccessToast("sending create order")
-                console.log("res is ", response)
                 const order = response.data;
 
                 const options = {
@@ -99,25 +109,21 @@ export default function SubscriptionPlansPage() {
                     description: plan.name,
                     image: '/logo.png',
                     order_id: order.id,
-                    handler: async (response: any) => {
+                    handler: async (resp: any) => {
                         try {
+                            if(!plan._id) return
                             const verifyResponse = await studentSubscriptionApi.verifyPayment({
-                                planId: plan._id ? plan._id : "",
-                                razorpay_order_id: response.razorpay_order_id,
-                                razorpay_payment_id: response.razorpay_payment_id,
-                                razorpay_signature: response.razorpay_signature,
+                                planId: plan._id,
+                                razorpay_order_id: resp.razorpay_order_id,
+                                razorpay_payment_id: resp.razorpay_payment_id,
+                                razorpay_signature: resp.razorpay_signature,
                             });
-                            console.log("verification is ", verifyResponse)
 
                             if (verifyResponse.ok) {
                                 showSuccessToast('Payment successful!');
-
-                                router.push(
-                                    `/student/subscription/success?planName=${plan.name}&price=${plan.price}`
-                                )
+                                router.push(`/student/subscription/success?planName=${plan.name}&price=${plan.price}`);
                             } else {
                                 showErrorToast('Payment verification failed.');
-                                console.error('Verification failed');
                             }
                         } catch (err) {
                             console.error('Verification error:', err);
@@ -133,10 +139,7 @@ export default function SubscriptionPlansPage() {
                 };
 
                 const rzp = new (window as any).Razorpay(options);
-                rzp.on('payment.failed', () => {
-                    showErrorToast('Payment failed.');
-                    console.error('Payment failed');
-                });
+                rzp.on('payment.failed', () => showErrorToast('Payment failed.'));
                 rzp.open();
             } catch (err) {
                 console.error('Order creation failed:', err);
@@ -146,75 +149,79 @@ export default function SubscriptionPlansPage() {
                 setProcessingPlan(null);
             }
         };
-
-        script.onerror = () => {
-            console.error('Failed to load Razorpay SDK');
-            showErrorToast('Failed to load payment gateway.');
-            document.body.removeChild(script);
-            setProcessingPlan(null);
-        };
     };
 
     return (
         <>
             <Header />
+
             <div className="bg-gray-100 min-h-screen py-16 px-4 md:px-10">
                 <h1 className="text-4xl font-bold text-center text-gray-800 mb-4">Choose Your Plan</h1>
-                <p className="text-center text-gray-600 mb-10 max-w-xl mx-auto">
-                    Unlock your potential with plans tailored for learners, professionals, and enterprises.
-                </p>
 
                 {loading ? (
                     <p className="text-center text-gray-500">Loading plans...</p>
                 ) : (
-                    <div className={`max-w-6xl mx-auto gap-8 ${plans.length === 1
-                        ? 'flex justify-center'
-                        : plans.length === 2
-                            ? 'grid grid-cols-1 md:grid-cols-2'
-                            : 'grid grid-cols-1 md:grid-cols-3'
+                    <div
+                        className={`max-w-6xl mx-auto gap-8 ${
+                            plans.length === 1
+                                ? 'flex justify-center'
+                                : plans.length === 2
+                                ? 'grid grid-cols-1 md:grid-cols-2'
+                                : 'grid grid-cols-1 md:grid-cols-3'
                         }`}
                     >
                         {plans.map((plan, index) => {
-                            const isCenter = index === 1;
+                            const isCurrent = currentPlanId === plan._id;
+
                             return (
                                 <motion.div
-                                    key={plan._id || plan.name}
-                                    className={`rounded-xl shadow-lg p-8 bg-white border-2 transform transition-all duration-300 ${isCenter ? 'border-indigo-500 scale-105 z-10' : 'border-gray-200 scale-95'
-                                        }`}
+                                    key={plan._id}
+                                    className={`rounded-xl shadow-lg p-8 bg-white border-2 transition-all duration-300 
+                                        ${isCurrent ? 'border-blue-600 ring-2 ring-blue-400' : 'border-gray-200'}`}
                                     variants={cardVariants}
                                     initial="hidden"
                                     animate="visible"
                                     custom={index}
                                 >
-                                    {isCenter && (
-                                        <div className="text-sm font-semibold text-white bg-indigo-500 px-3 py-1 rounded-full w-fit mb-4">
-                                            Most Popular
+                                    {isCurrent && (
+                                        <div className="text-sm font-semibold text-white bg-blue-600 px-3 py-1 rounded-full w-fit mb-4">
+                                            Current Plan
                                         </div>
                                     )}
+
                                     <h2 className="text-2xl font-bold text-gray-800 mb-2">{plan.name}</h2>
                                     <p className="text-3xl font-bold text-indigo-600 mb-2">
-                                        {typeof plan.price? `₹${plan.price}/Year` : plan.price}
+                                        {typeof plan.price ? `₹${plan.price}/Year` : plan.price}
                                     </p>
+
                                     <p className="text-gray-600 mb-6">{plan.description}</p>
 
                                     <ul className="space-y-3 mb-6">
-                                        {plan.features?.map((feature, idx) => (
-                                            <li key={idx} className="flex flex-col text-sm text-gray-700">
-                                                <div className="flex items-start">
-                                                    <Check className="text-green-500 w-5 h-5 mt-0.5 mr-2" />
+                                        {plan.features.map((feature, idx) => (
+                                            <li key={idx} className="text-sm text-gray-700 flex items-start">
+                                                <Check className="text-blue-500 w-5 h-5 mt-0.5 mr-2" />
+                                                <div>
                                                     <span className="font-semibold">{feature.name}</span>
+                                                    <p className="text-gray-600">{feature.description}</p>
                                                 </div>
-                                                <p className="ml-7 text-gray-600">{feature.description}</p>
                                             </li>
                                         ))}
                                     </ul>
 
                                     <button
-                                        disabled={processingPlan === plan._id}
+                                        disabled={isCurrent || processingPlan === plan._id}
                                         onClick={() => handleCompletePurchase(plan)}
-                                        className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className={`w-full py-3 rounded-lg font-semibold transition 
+                                            ${
+                                                isCurrent
+                                                    ? 'bg-gray-400 cursor-not-allowed text-white'
+                                                    : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                                            }`}
                                     >
-                                        {String(plan.price).toLowerCase().includes('free') || plan.price === 0
+                                        {isCurrent
+                                            ? 'Current Plan'
+                                            : String(plan.price).toLowerCase().includes('free') ||
+                                              plan.price === 0
                                             ? 'Get Started'
                                             : 'Subscribe Now'}
                                     </button>

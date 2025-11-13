@@ -6,6 +6,7 @@ import { ISubscriptionPlanRepository } from '../core/interfaces/repositories/ISu
 import { ISubscriptionPlan, SubscriptionPlan } from '../models/subscriptionPlan';
 import { IStudentSubscription, StudentSubscription } from '../models/StudentSubscription';
 import logger from '../utils/logger';
+import { Student } from '../models/Student';
 
 
 @injectable()
@@ -76,10 +77,12 @@ export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
   }
 
   async updatePaymentStatus(
+    studentId : string,
     orderId: string,
     status: 'pending' | 'active' | 'expired' | 'cancelled',
     paymentId?: string
   ): Promise<IStudentSubscription | null> {
+    const student = await Student.findByIdAndUpdate(studentId,{isPremium:true})
     return await StudentSubscription.findOneAndUpdate(
       { orderId },
       { status, paymentId },

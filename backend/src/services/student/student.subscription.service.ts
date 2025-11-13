@@ -60,6 +60,7 @@ export class StudentSubscriptionService implements IStudentSubscriptionService {
     }
 
     await this._planRepo.updatePaymentStatus(
+      studentId,
       razorpay_order_id,
       'active',
       razorpay_payment_id

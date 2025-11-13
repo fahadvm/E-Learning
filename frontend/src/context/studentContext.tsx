@@ -47,6 +47,7 @@ export interface IStudent {
   createdAt: Date;
   updatedAt: Date;
   coursesProgress : IcoursesProgress[]
+  
 }
 
 interface StudentContextType {

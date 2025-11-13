@@ -14,6 +14,7 @@ export interface IStudentProfileDTO {
   name: string;
   email: string;
   isVerified: boolean;
+  isPremium: boolean;
   isBlocked: boolean;
   role: string;
   googleUser: boolean;
@@ -38,6 +39,7 @@ export const studentProfileDto = (student: IStudent): IStudentProfileDTO => ({
   profilePicture: student.profilePicture,
   role: student.role,
   isVerified: student.isVerified,
+  isPremium: student.isPremium,
   isBlocked: student.isBlocked,
   googleUser: student.googleUser,
   social_links: student.social_links,

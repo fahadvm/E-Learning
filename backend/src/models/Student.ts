@@ -20,6 +20,7 @@ export interface IStudent extends Document {
   isVerified: boolean;
   about?: string;
   isBlocked: boolean;
+  isPremium: boolean;
   phone?: string;
   otp?: string;
   role: string;
@@ -61,6 +62,7 @@ const StudentSchema: Schema = new Schema<IStudent>({
   profilePicture: { type: String },
   role: { type: String, default: 'student' },
   isVerified: { type: Boolean, default: false },
+  isPremium: { type: Boolean, default: false },
   isBlocked: { type: Boolean, default: false },
   googleUser: { type: Boolean, default: false },
   otp: { type: String },

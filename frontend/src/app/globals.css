@@ -117,6 +117,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground font-sans;
   }
@@ -128,6 +129,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -140,4 +142,136 @@
 
 .star-rating {
   color: #fbbf24;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Added keyframe animations for stars and nebula effects */
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateX(-100%) translateY(0);
+  }
+  100% {
+    transform: translateX(100vw) translateY(100px);
+  }
+}
+
+@keyframes floatSlow {
+  0% {
+    transform: translateX(-100%) translateY(0);
+  }
+  100% {
+    transform: translateX(100vw) translateY(-50px);
+  }
+}
+
+@keyframes floatMedium {
+  0% {
+    transform: translateX(-100%) translateY(0);
+  }
+  100% {
+    transform: translateX(100vw) translateY(50px);
+  }
+}
+
+/* Galaxy background animation and styling */
+.galaxy-bg {
+  background: radial-gradient(ellipse at 20% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 40% 20%, rgba(168, 85, 247, 0.08) 0%, transparent 60%),
+    linear-gradient(135deg, #0a0a1a 0%, #0f051f 50%, #0a0a2e 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.galaxy-bg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Added twinkling animation to stars */
+  background-image: radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0)),
+    radial-gradient(2px 2px at 60px 70px, rgba(255, 255, 200, 0.9), rgba(255, 255, 200, 0)),
+    radial-gradient(1px 1px at 50px 50px, rgba(200, 200, 255, 0.7), rgba(200, 200, 255, 0)),
+    radial-gradient(1px 1px at 130px 80px, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
+  background-size: 200px 200px;
+  background-repeat: repeat;
+  pointer-events: none;
+  animation: twinkle 3s ease-in-out infinite;
+}
+
+/* Added multiple star layers with different speeds for parallax effect */
+.galaxy-bg::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(1px 1px at 10% 20%, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(1px 1px at 20% 80%, rgba(255, 255, 150, 0.8), transparent),
+    radial-gradient(2px 2px at 80% 10%, rgba(200, 200, 255, 0.85), transparent),
+    radial-gradient(1px 1px at 90% 60%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 30% 40%, rgba(255, 200, 255, 0.75), transparent),
+    radial-gradient(2px 2px at 70% 70%, rgba(100, 200, 255, 0.8), transparent);
+  background-size: 300px 300px, 400px 400px, 350px 350px, 450px 450px, 320px 320px, 380px 380px;
+  background-position: 0% 0%, 10% 10%, 20% 20%, 30% 30%, 40% 40%, 50% 50%;
+  pointer-events: none;
+  animation: twinkle 5s ease-in-out infinite;
+}
+
+.glow-border {
+  position: relative;
+  border: 1px solid rgba(96, 165, 250, 0.2);
+  box-shadow: inset 0 0 20px rgba(96, 165, 250, 0.1), 0 0 20px rgba(139, 92, 246, 0.1);
+}
+
+.glow-border:hover {
+  border-color: rgba(96, 165, 250, 0.4);
+  box-shadow: inset 0 0 20px rgba(96, 165, 250, 0.15), 0 0 30px rgba(139, 92, 246, 0.2);
+}
+
+/* Added floating star animations for moving effect */
+.floating-stars {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.star {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  animation: twinkle 2s ease-in-out infinite;
+}
+
+.star-1 {
+  animation: float 20s linear infinite, twinkle 2s ease-in-out infinite;
+}
+.star-2 {
+  animation: floatSlow 25s linear infinite, twinkle 3s ease-in-out infinite;
+}
+.star-3 {
+  animation: floatMedium 22s linear infinite, twinkle 2.5s ease-in-out infinite;
 }

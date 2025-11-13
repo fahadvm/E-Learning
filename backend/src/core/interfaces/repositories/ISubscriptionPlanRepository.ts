@@ -19,6 +19,7 @@ export interface ISubscriptionPlanRepository {
     paymentId?: string
   ): Promise<IStudentSubscription>;
   updatePaymentStatus(
+    studentId: string,
     orderId: string,
     status: 'pending' | 'active' | 'expired' | 'cancelled',
     paymentId?: string

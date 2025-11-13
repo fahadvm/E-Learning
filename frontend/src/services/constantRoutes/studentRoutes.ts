@@ -85,6 +85,7 @@ export const STUDENT_ROUTES = {
     createOrder: `${STUDENT_SUBSCRIPTIONS}/create-order`,
     verifyPayment: `${STUDENT_SUBSCRIPTIONS}/verify-payment`,
     activateFree: `${STUDENT_SUBSCRIPTIONS}/activate-free`,
+    myPlan: `${STUDENT_SUBSCRIPTIONS}/active`,
   },
 
   chat: {

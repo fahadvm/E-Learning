@@ -1,286 +1,220 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, Eye, Check, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Linkedin, Github, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { showSuccessToast } from "@/utils/Toast";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
-import { Linkedin, Github, Globe } from "lucide-react";
-
 
 interface EmployeeRequest {
-    profilePicture: string;
-    _id: string;
-    name: string;
-    email: string;
-    position?: string;
-    department?: string;
-    joinDate?: string;
-    location?: string;
-    social_links?: {
-        linkedin: string;
-        github: string;
-        portfolio: string;
-    };
-    status: "pending" | "approved" | "rejected";
-    requestDate?: string;
+  profilePicture: string;
+  _id: string;
+  name: string;
+  email: string;
+  position?: string;
+  department?: string;
+  location?: string;
+  social_links?: {
+    linkedin: string;
+    github: string;
+    portfolio: string;
+  };
+  status: "pending" | "approved" | "rejected";
 }
 
 export default function EmployeeRequestsTab() {
-    const [requests, setRequests] = useState<EmployeeRequest[]>([]);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
-    const [selectedEmployee, setSelectedEmployee] = useState<EmployeeRequest | null>(null);
-    const [loading, setLoading] = useState(false);
+  const [requests, setRequests] = useState<EmployeeRequest[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedEmployee, setSelectedEmployee] = useState<EmployeeRequest | null>(null);
+  const [loading, setLoading] = useState(false);
 
-    const itemsPerPage = 5;
+  const itemsPerPage = 5;
+  const [page, setPage] = useState(1);
 
-    const fetchRequests = async () => {
-        setLoading(true);
-        try {
-            const res = await companyApiMethods.getRequestedEmployees();
-            setRequests(res.data || []);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const fetchRequests = async () => {
+    setLoading(true);
+    try {
+      const res = await companyApiMethods.getRequestedEmployees();
+      setRequests(res.data || []);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    useEffect(() => {
-        fetchRequests();
-    }, []);
+  useEffect(() => {
+    fetchRequests();
+  }, []);
 
-    const filteredRequests = requests.filter((r) =>
-        r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        r.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (r.position?.toLowerCase() || "").includes(searchTerm.toLowerCase())
-    );
+  const filtered = requests.filter((r) =>
+    r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    r.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-    const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const paginatedRequests = filteredRequests.slice(startIndex, startIndex + itemsPerPage);
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paginated = filtered.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
-    const handleApprove = async (id: string) => {
-        setLoading(true);
-        try {
-            await companyApiMethods.approveEmployeeRequest(id, { status: "approve" });
-            setRequests((prev) => prev.filter((r) => r._id !== id));
-            showSuccessToast("Request Approved");
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const approve = async (id: string) => {
+    await companyApiMethods.approveEmployeeRequest(id, { status: "approve" });
+    setRequests((prev) => prev.filter((r) => r._id !== id));
+    showSuccessToast("Request Approved");
+  };
 
-    const handleReject = async (id: string) => {
-        setLoading(true);
-        try {
-            await companyApiMethods.rejectEmployeeRequest(id, { status: "reject" });
-            setRequests((prev) => prev.filter((r) => r._id !== id));
-            showSuccessToast("Request Rejected");
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const reject = async (id: string) => {
+    await companyApiMethods.rejectEmployeeRequest(id, { status: "reject" });
+    setRequests((prev) => prev.filter((r) => r._id !== id));
+    showSuccessToast("Request Rejected");
+  };
 
-    const getStatusBadge = (status: string) => {
-        switch (status) {
-            case "approved":
-                return <Badge className="bg-success text-success-foreground">Approved</Badge>;
-            case "rejected":
-                return <Badge variant="destructive">Rejected</Badge>;
-            default:
-                return <Badge variant="secondary">Pending</Badge>;
-        }
-    };
+  const avatar = (name: string) =>
+    name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 
-    return (
-        <div className="space-y-6">
-            <Card>
-                <CardContent className="p-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                    <div className="relative flex-1 max-w-md">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                        <Input
-                            placeholder="Search by name, email, or position..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10"
-                        />
+  return (
+    <div className="space-y-6 animate-fade-in-up">
+      {/* Search */}
+      <Input
+        placeholder="Search requests..."
+        value={searchTerm}
+        onChange={(e) => {
+          setSearchTerm(e.target.value);
+          setPage(1);
+        }}
+        className="max-w-sm bg-black/40 border-accent/20 text-accent-foreground placeholder:text-white/70"
+      />
+
+      {/* Table */}
+      <div className="glow-border rounded-xl bg-black/40 backdrop-blur-sm p-6 overflow-x-auto">
+        {loading ? (
+          <p className="text-center text-white/70 py-10">Loading...</p>
+        ) : paginated.length === 0 ? (
+          <p className="text-center text-white/70 py-10">No pending requests.</p>
+        ) : (
+          <table className="w-full text-sm">
+            <thead className="bg-black/30">
+              <tr>
+                {["Name", "Position", "Actions"].map((h) => (
+                  <th key={h} className="text-left px-6 py-3 font-semibold text-accent/90">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+
+            <tbody>
+              {paginated.map((emp) => (
+                <tr
+                  key={emp._id}
+                  className="border-b border-accent/10 hover:bg-black/30 transition"
+                >
+                  <td className="px-6 py-3 flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold">
+                      {avatar(emp.name)}
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                        Pending: {filteredRequests.length}
+                    <div>
+                      <p className="font-medium text-white">{emp.name}</p>
+                      <p className="text-xs text-white/70">{emp.email}</p>
                     </div>
-                </CardContent>
-            </Card>
+                  </td>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Employee Join Requests</CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                    {loading ? (
-                        <div className="p-8 text-center text-muted-foreground">Loading...</div>
-                    ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
-                                <thead className="border-b bg-muted/50">
-                                    <tr>
-                                        <th className="text-left p-4 font-medium">Employee</th>
-                                        <th className="text-left p-4 font-medium">Position</th>
-                                        <th className="text-right p-4 font-medium">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {paginatedRequests.map((r) => (
-                                        <tr key={r._id} className="border-b hover:bg-muted/30 transition-colors">
-                                            <td className="p-4">
-                                                <div className="font-medium">{r.name}</div>
-                                                <div className="text-sm text-muted-foreground">{r.email}</div>
-                                            </td>
-                                            <td className="p-4">{r.position || "Not specified"}</td>
-                                            <td className="p-4 flex gap-2 justify-end">
-                                                <Button variant="outline" size="sm" onClick={() => setSelectedEmployee(r)}>
-                                                    <Eye className="h-4 w-4" />
-                                                </Button>
-                                                <Button
-                                                    size="sm"
-                                                    className="bg-success hover:bg-success/90 text-success-foreground"
-                                                    onClick={() => handleApprove(r._id)}
-                                                >
-                                                    <Check className="h-4 w-4" />
-                                                </Button>
-                                                <Button variant="destructive" size="sm" onClick={() => handleReject(r._id)}>
-                                                    <X className="h-4 w-4" />
-                                                </Button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
+                  <td className="px-6 py-3 text-white">
+                    {emp.position || "Not specified"}
+                  </td>
 
-                    {totalPages > 1 && (
-                        <div className="p-4 flex justify-between items-center border-t text-sm text-muted-foreground">
-                            <span>
-                                Page {currentPage} of {totalPages}
-                            </span>
-                            <div className="flex gap-2">
-                                <Button variant="outline" size="sm" onClick={() => setCurrentPage((p) => p - 1)} disabled={currentPage === 1}>
-                                    <ChevronLeft className="h-4 w-4" />
-                                </Button>
-                                <Button variant="outline" size="sm" onClick={() => setCurrentPage((p) => p + 1)} disabled={currentPage === totalPages}>
-                                    <ChevronRight className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
+                  <td className="px-6 py-3 flex gap-3 justify-end">
+                    <Button
+                      variant="ghost"
+                      className="text-accent hover:text-accent/80"
+                      onClick={() => setSelectedEmployee(emp)}
+                    >
+                      View
+                    </Button>
 
-            <Dialog open={!!selectedEmployee} onOpenChange={() => setSelectedEmployee(null)}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Employee Details</DialogTitle>
-                    </DialogHeader>
-                    {selectedEmployee && (
-                        <div className="w-full">
-                            {/* Header */}
-                            <div className="bg-primary/10 px-6 py-5 border-b border-border flex items-center gap-4">
-                                {selectedEmployee.profilePicture ? (
-                                    <img
-                                        src={selectedEmployee.profilePicture}
-                                        alt={selectedEmployee.name}
-                                        className="w-16 h-16 rounded-full object-cover border border-border shadow-sm"
-                                    />
-                                ) : (
-                                    <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xl">
-                                        {selectedEmployee.name
-                                            .split(" ")
-                                            .map((n) => n[0])
-                                            .join("")
-                                            .toUpperCase()}
-                                    </div>
-                                )}
-                                <div>
-                                    <h2 className="text-xl font-bold text-foreground">{selectedEmployee.name}</h2>
-                                    <p className="text-sm text-muted-foreground">{selectedEmployee.email}</p>
-                                    <p className="text-xs text-muted-foreground mt-1">
-                                        {selectedEmployee.position || "Not specified"}
-                                    </p>
-                                </div>
-                            </div>
+                    <Button
+                      className="bg-green-600 hover:bg-green-700 text-white px-3"
+                      onClick={() => approve(emp._id)}
+                    >
+                      Approve
+                    </Button>
 
-                            {/* Body */}
-                            <div className="p-6 space-y-6">
-                                {/* Department */}
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                                    <div>
-                                        <p className="text-xs font-medium text-muted-foreground">Department</p>
-                                        <p className="text-sm font-medium text-foreground">{selectedEmployee.department || "Not specified"}</p>
-                                    </div>
+                    <Button
+                      className="bg-red-600 hover:bg-red-700 text-white px-3"
+                      onClick={() => reject(emp._id)}
+                    >
+                      Reject
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
 
-                                    <div>
-                                        <p className="text-xs font-medium text-muted-foreground">Position</p>
-                                        <p className="text-sm font-medium text-foreground">{selectedEmployee.position || "Not specified"}</p>
-                                    </div>
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="pt-6 flex justify-between items-center text-sm text-white/70">
+            <span>Page {page} of {totalPages}</span>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => setPage(page - 1)} disabled={page === 1}>
+                Prev
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setPage(page + 1)} disabled={page === totalPages}>
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
 
-                                    <div>
-                                        <p className="text-xs font-medium text-muted-foreground">Location</p>
-                                        <p className="text-sm font-medium text-foreground">{selectedEmployee.location || "Not specified"}</p>
-                                    </div>
-                                </div>
+      {/* View Modal */}
+      <Dialog open={!!selectedEmployee} onOpenChange={() => setSelectedEmployee(null)}>
+        <DialogContent className="bg-black/60 backdrop-blur-xl border border-accent/30">
+          <DialogHeader>
+            <DialogTitle className="text-accent">Employee Details</DialogTitle>
+          </DialogHeader>
 
+          {selectedEmployee && (
+            <div className="space-y-4 text-white">
+              <div className="flex items-center gap-4">
+                {selectedEmployee.profilePicture ? (
+                  <img
+                    src={selectedEmployee.profilePicture}
+                    className="w-16 h-16 rounded-full object-cover border border-accent/30"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center text-accent text-xl font-bold">
+                    {avatar(selectedEmployee.name)}
+                  </div>
+                )}
+                <div>
+                  <h2 className="text-lg font-bold">{selectedEmployee.name}</h2>
+                  <p className="text-sm text-white/70">{selectedEmployee.email}</p>
+                  <p className="text-xs text-white/50">{selectedEmployee.position || "Not specified"}</p>
+                </div>
+              </div>
 
-                                {/* Skills */}
-                                <div className="space-y-2">
-                                    <p className="text-xs font-medium text-muted-foreground">Social Links</p>
-
-                                    <div className="flex items-center gap-4 text-gray-700">
-                                        {selectedEmployee.social_links?.linkedin && (
-                                            <a
-                                                href={selectedEmployee.social_links.linkedin}
-                                                target="_blank"
-                                                className="hover:text-primary transition"
-                                            >
-                                                <Linkedin className="w-5 h-5" />
-                                            </a>
-                                        )}
-
-                                        {selectedEmployee.social_links?.github && (
-                                            <a
-                                                href={selectedEmployee.social_links.github}
-                                                target="_blank"
-                                                className="hover:text-primary transition"
-                                            >
-                                                <Github className="w-5 h-5" />
-                                            </a>
-                                        )}
-
-                                        {selectedEmployee.social_links?.portfolio && (
-                                            <a
-                                                href={selectedEmployee.social_links.portfolio}
-                                                target="_blank"
-                                                className="hover:text-primary transition"
-                                            >
-                                                <Globe className="w-5 h-5" />
-                                            </a>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </DialogContent>
-            </Dialog>
-        </div>
-    );
+              {/* Social Links */}
+              <div className="flex gap-4">
+                {selectedEmployee.social_links?.linkedin && (
+                  <a href={selectedEmployee.social_links.linkedin} target="_blank" className="hover:text-accent">
+                    <Linkedin />
+                  </a>
+                )}
+                {selectedEmployee.social_links?.github && (
+                  <a href={selectedEmployee.social_links.github} target="_blank" className="hover:text-accent">
+                    <Github />
+                  </a>
+                )}
+                {selectedEmployee.social_links?.portfolio && (
+                  <a href={selectedEmployee.social_links.portfolio} target="_blank" className="hover:text-accent">
+                    <Globe />
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 }
