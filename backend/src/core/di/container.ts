@@ -188,6 +188,9 @@ import { IEmployeeLeaderboardService } from '../interfaces/services/employee/IEm
 import { ICompanyLeaderboardService } from '../interfaces/services/company/ICompanyLeaderboardService';
 import { CompanyLeaderboardService } from '../../services/company/company.leaderboard.service';
 import { CompanyLeaderboardController } from '../../controllers/company/company.leaderboard.controller';
+import { IAdminProfileService } from '../interfaces/services/admin/IAdminProfileService';
+import { AdminProfileService } from '../../services/admin/Admin.Profile.Service';
+import { AdminProfileController } from '../../controllers/admin/admin.profile.controller';
 
 
 
@@ -341,6 +344,8 @@ container.bind<EmployeeLeaderboardController>(TYPES.EmployeeLeaderboardControlle
 container.bind<IEmployeeLeaderboardService>(TYPES.EmployeeLeaderboardService).to(EmployeeLeaderboardService);
 container.bind<ICompanyLeaderboardService>(TYPES.CompanyLeaderboardService).to(CompanyLeaderboardService);
 container.bind<CompanyLeaderboardController>(TYPES.CompanyLeaderboardController).to(CompanyLeaderboardController);
+container.bind<IAdminProfileService>(TYPES.AdminProfileService).to(AdminProfileService);
+container.bind<AdminProfileController>(TYPES.AdminProfileController).to(AdminProfileController);
 
 
 export default container;

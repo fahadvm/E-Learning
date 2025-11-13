@@ -29,7 +29,7 @@ export default function AdminSidebar() {
         <SidebarLink href="/admin/teachers" icon={<GraduationCap />}>Teachers</SidebarLink>
         <SidebarLink href="/admin/orders" icon={<BarChart2 />}>Orders</SidebarLink>
         <SidebarLink href="/admin/notifications" icon={<Bell />}>Notification</SidebarLink>
-        <SidebarLink href="/admin/settings" icon={<Settings />}>Settings</SidebarLink>
+        <SidebarLink href="/admin/profile" icon={<Settings />}>Settings</SidebarLink>
         <SidebarLink onClick={handleLogout} icon={<LogOut />}>Logout</SidebarLink>
       </nav>
     </aside>

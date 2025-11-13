@@ -9,6 +9,7 @@ const ADMIN_TEACHERS = `${ADMIN_BASE}/teachers`;
 const ADMIN_COURSES = `${ADMIN_BASE}/courses`;
 const ADMIN_SUBSCRIPTIONS = `${ADMIN_BASE}/subscriptions`;
 const ADMIN_ORDERS = `${ADMIN_BASE}/orders`;
+const ADMIN_PROFILE = `${ADMIN_BASE}/profile`;
 
 export const ADMIN_ROUTES = {
   auth: {
@@ -65,5 +66,8 @@ export const ADMIN_ROUTES = {
   orders: {
     companyOrders: `${ADMIN_ORDERS}/company`,
     studentOrders: `${ADMIN_ORDERS}/student`,
+  },
+  profile: {
+    base: ADMIN_PROFILE,
   },
 };

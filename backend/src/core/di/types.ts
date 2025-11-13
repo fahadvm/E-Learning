@@ -48,6 +48,7 @@ export const TYPES = {
     CompanyCartService: Symbol.for('CompanyCartService'),
     CompanyPurchaseService: Symbol.for('CompanyPurchaseService'),
     CompanyLeaderboardService: Symbol.for('CompanyLeaderboardService'),
+    AdminProfileService: Symbol.for('AdminProfileService'),
 
 
     AdminAuthService: Symbol.for('AdminAuthService'),
@@ -93,6 +94,7 @@ export const TYPES = {
     CompanyPurchaseController: Symbol.for('CompanyPurchaseController'),
     CompanyLearningPathController: Symbol.for('CompanyLearningPathController'),
     CompanyLeaderboardController: Symbol.for('CompanyLeaderboardController'),
+    AdminProfileController: Symbol.for('AdminProfileController'),
 
 
     AdminAuthController: Symbol.for('AdminAuthController'),

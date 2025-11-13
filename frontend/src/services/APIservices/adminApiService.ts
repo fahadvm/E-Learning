@@ -11,6 +11,8 @@ const del = deleteRequest;
 export const adminApiMethods = {
   login: (data: any) => post(ADMIN_ROUTES.auth.login, data),
   logout: () => post(ADMIN_ROUTES.auth.logout, {}),
+  getProfile: () => get(ADMIN_ROUTES.profile.base),
+  updateProfile: (data: any) => get(ADMIN_ROUTES.profile.base),
 
   // Students
   getStudents: (params?: { page?: number; limit?: number; search?: string }) => get(ADMIN_ROUTES.students.base, params),

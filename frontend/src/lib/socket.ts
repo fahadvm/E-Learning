@@ -39,7 +39,7 @@ export const initSocket = (
 
   socket.on("receive_notification", (data) => {
   console.log("🔔 Notification received:", data);
-  showSuccessToast(`${data.title}: ${data.message}`);
+  showSuccessToast(`🔔 ${data.title}: ${data.message}`);
 });
 
   return socket;
@@ -82,6 +82,7 @@ export const sendEditMessage = (data: { chatId: string; messageId: string; sende
 };
 export const sendNotification = (data: {receiverId: string ; title: string; message: string;}) => {
   if (socket) {
+    console.log("emiting send notification here")
     socket.emit("send_notification", data);
   }
 };

@@ -45,6 +45,7 @@ export enum MESSAGES {
   CREATED_SUCCESS= 'Learning Path created successfully.',
   FETCHED_SUCCESS= 'Learning Path fetched successfully.',
   UPDATED_SUCCESS= 'Learning Path updated successfully.',
+  PROFILE_UPDATE_FAILED= 'Profile updatation failed.',
   DELETED_SUCCESS= 'Learning Path deleted successfully.',
   LEARNING_PATH_ALREADY_ASSIGNED = "Learning Path already assigned",
   LEARNING_PATH_ASSIGNMENT_NOT_FOUND = "Learning Path Assignment not found",
@@ -130,6 +131,7 @@ export enum MESSAGES {
   LOGIN_SUCCESS = 'Login successful',
   LOGOUT_SUCCESS = 'Logout successful',
   PASSWORD_CHANGED = 'Password changed successfully',
+  NEW_PASSWORD_SAME_AS_OLD = 'New password and old password are same',
   PASSWORD_INCORRECT = 'Incorrect password',
   PASSWORD_RESET_FAILED = 'Password reset failed',
   PASSWORD_RESET_SUCCESS = 'Password reset successful',
@@ -155,6 +157,7 @@ export enum MESSAGES {
   STUDENT_DELETED = 'Student deleted successfully',
   STUDENT_DETAILS_FETCHED = 'Student details fetched successfully',
   STUDENT_NOT_FOUND = 'Student not found',
+  ADMIN_NOT_FOUND = 'Admin not found',
   STUDENT_UNBLOCKED = 'Student unblocked successfully',
   STUDENT_UPDATED = 'Student updated successfully',
   STUDENTS_FETCHED = 'Students fetched successfully',
@@ -191,6 +194,7 @@ export enum MESSAGES {
   TEACHERS_FETCHED = 'Teachers fetched successfully',
   UNVERIFIED_TEACHERS_FETCHED = 'Unverified teachers fetched successfully',
   TEACHER_PROFILE_FETCHED = 'teacher profile fetched successfully',
+  ADMIN_PROFILE_FETCHED = 'admin profile fetched successfully',
 
   // -------------------- EMPLOYEE --------------------
   EMPLOYEE_ALREADY_EXISTS = 'Employee already exists',

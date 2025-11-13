@@ -10,22 +10,14 @@ import {
 } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { StudentApiMethods } from '@/services/APImethods';
-import { showErrorToast } from '@/utils/Toast';
+import { initSocket } from '@/lib/socket';
 
-export interface SocialLinks {
-  linkedin: string;
-  twitter: string;
-  instagram: string;
+interface NotificationType {
+  title: string;
+  message: string;
+  createdAt: Date;
+  isRead?: boolean;
 }
-export interface IcoursesProgress {
-  _id:string;
-  courseId: string;
-  completedLessons: string[];
-  completedModules: string[];
-  percentage:number;
-  lastVisitedLesson:string
-}
-
 
 export interface IStudent {
   _id?: string;
@@ -33,12 +25,16 @@ export interface IStudent {
   isBlocked: boolean;
   role: string;
   about: string;
-  plans:[]
+  plans: [];
   profilePicture: string;
   location: string;
   phone: string;
   website: string;
-  social_links: SocialLinks;
+  social_links: {
+    linkedin: string;
+    twitter: string;
+    instagram: string;
+  };
   name: string;
   email: string;
   password: string;
@@ -46,25 +42,41 @@ export interface IStudent {
   isPremium: boolean;
   createdAt: Date;
   updatedAt: Date;
-  coursesProgress : IcoursesProgress[]
-  
+  coursesProgress: any[];
 }
 
 interface StudentContextType {
   student: IStudent | null;
   setStudent: React.Dispatch<React.SetStateAction<IStudent | null>>;
+  socket: any | null;
+  notifications: NotificationType[];
+  setNotifications: React.Dispatch<React.SetStateAction<NotificationType[]>>;
 }
 
 const StudentContext = createContext<StudentContextType | null>(null);
 
 export const StudentContextProvider = ({ children }: { children: ReactNode }) => {
   const [student, setStudent] = useState<IStudent | null>(null);
+  const [socket, setSocket] = useState<any | null>(null);
+  const [notifications, setNotifications] = useState<NotificationType[]>([]);
+
   const router = useRouter();
   const pathname = usePathname();
 
-  const publicPaths = ['/student/login', '/student/signup', '/student/forgetPassword' , '/student/resetPassword', '/student/verify-forget-otp' , '/student/verify-otp'];
+  // Public Routes (No Protection)
+  const publicPaths = [
+    '/student/login',
+    '/student/signup',
+    '/student/forgetPassword',
+    '/student/resetPassword',
+    '/student/verify-forget-otp',
+    '/student/verify-otp'
+  ];
   const isPublicPage = publicPaths.includes(pathname);
 
+  /* ------------------------------------------------------------
+      FETCH STUDENT DETAILS
+  ------------------------------------------------------------ */
   const getStudentDetails = useCallback(async () => {
     try {
       const res = await StudentApiMethods.getStudent();
@@ -85,8 +97,40 @@ export const StudentContextProvider = ({ children }: { children: ReactNode }) =>
     }
   }, [getStudentDetails, isPublicPage]);
 
+  /* ------------------------------------------------------------
+      SOCKET INITIALIZATION (ONLY ONCE)
+  ------------------------------------------------------------ */
+  useEffect(() => {
+    if (!student?._id) return;
+
+    const s = initSocket(
+      student._id,
+      (msg) => console.log("Message received: ", msg),
+      () => { },
+      () => { },
+      () => { },
+      () => { },
+      () => { }
+    );
+
+    setSocket(s);
+
+    return () => {
+      s?.disconnect();
+      setSocket(null);
+    };
+  }, [student?._id]);
+
   return (
-    <StudentContext.Provider value={{ student, setStudent }}>
+    <StudentContext.Provider
+      value={{
+        student,
+        setStudent,
+        socket,
+        notifications,
+        setNotifications,
+      }}
+    >
       {children}
     </StudentContext.Provider>
   );

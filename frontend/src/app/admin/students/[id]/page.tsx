@@ -5,8 +5,9 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import AdminSidebar from "@/components/admin/sidebar";
 import ConfirmationDialog from "@/reusable/ConfirmationDialog";
-import { showSuccessToast } from "@/utils/Toast";
+import { showInfoToast, showSuccessToast } from "@/utils/Toast";
 import { adminApiMethods } from "@/services/APIservices/adminApiService";
+import { sendNotification } from "@/lib/socket";
 
 /* ------------------------ Interfaces ------------------------ */
 
@@ -95,6 +96,9 @@ export default function StudentProfileAdmin() {
   const [student, setStudent] = useState<StudentBackend | null>(null);
   const [courses, setCourses] = useState<CourseBackend[]>([]);
   const [plan, setPlan] = useState<Plan | null>(null);
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [notifTitle, setNotifTitle] = useState("");
+  const [notifMessage, setNotifMessage] = useState("");
 
   const [activeTab, setActiveTab] = useState<TabType>("Details");
   const [expandedCourseIds, setExpandedCourseIds] = useState<
@@ -150,6 +154,27 @@ export default function StudentProfileAdmin() {
       setLoading(false);
     }
   };
+
+  const handleSendNotification = () => {
+    if (!notifTitle.trim() || !notifMessage.trim()) {
+      return showInfoToast("Please enter both title and message");
+    }
+
+    if(!student?._id)return
+    sendNotification({
+      receiverId: student?._id,
+      title: notifTitle,
+      message: notifMessage,
+    });
+
+    showSuccessToast("Notification Sent!");
+
+    // Reset modal
+    setNotifTitle("");
+    setNotifMessage("");
+    setShowNotificationModal(false);
+  };
+
 
   const handleBlockToggle = async () => {
     try {
@@ -272,7 +297,12 @@ export default function StudentProfileAdmin() {
                       }
                     />
 
-                    <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Send Notification</button>
+                    <button
+                      onClick={() => setShowNotificationModal(true)}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    >
+                      Send Notification
+                    </button>
                   </div>
                 </div>
 
@@ -425,6 +455,48 @@ export default function StudentProfileAdmin() {
           </div>
         </div>
       </div>
+
+      {showNotificationModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-semibold mb-4">Send Notification</h2>
+
+            <div className="space-y-3">
+              <input
+                type="text"
+                placeholder="Title"
+                value={notifTitle}
+                onChange={(e) => setNotifTitle(e.target.value)}
+                className="w-full border rounded-md px-3 py-2"
+              />
+
+              <textarea
+                placeholder="Message"
+                value={notifMessage}
+                onChange={(e) => setNotifMessage(e.target.value)}
+                className="w-full border rounded-md px-3 py-2 h-28 resize-none"
+              ></textarea>
+            </div>
+
+            <div className="mt-5 flex justify-end gap-3">
+              <button
+                onClick={() => setShowNotificationModal(false)}
+                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleSendNotification}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Send
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

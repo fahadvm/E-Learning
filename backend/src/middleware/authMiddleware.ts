@@ -6,7 +6,7 @@ import { STATUS_CODES } from '../utils/HttpStatuscodes';
 import { Student } from '../models/Student';
 import { MESSAGES } from '../utils/ResponseMessages';
 
-export const authMiddleware = (role: 'student' | 'teacher' | 'company' | 'Admin' | 'employee') => {
+export const authMiddleware = (role: 'student' | 'teacher' | 'company' | 'admin' | 'employee') => {
   return async (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies?.token;
     // console.log(' authMiddleware token is :', token);
