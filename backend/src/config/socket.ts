@@ -94,17 +94,17 @@ export function initSocket(server: HTTPServer) {
       }
     });
 
-    socket.on("send_notification", async (data: { receiverId: string; title: string; message: string }) => {
-      try {
-        console.log("here the notification event on in ", data)
-        await notificationService.createNotification(data.receiverId, data.title, data.message, "general");
-        const receiverSocketId = onlineUsers.get(data.receiverId);
-        console.log("now onwanrd student will get the notification")
-        if (receiverSocketId) io.to(receiverSocketId).emit("receive_notification", data);
-      } catch (err) {
-        logger.error("Error sending notification:", err);
-      }
-    });
+      socket.on("send_notification", async (data: { receiverId: string; title: string; message: string }) => {
+        try {
+          console.log("here the notification event on in ", data)
+          await notificationService.createNotification(data.receiverId, data.title, data.message, "general");
+          const receiverSocketId = onlineUsers.get(data.receiverId);
+          console.log("now onwanrd student will get the notification")
+          if (receiverSocketId) io.to(receiverSocketId).emit("receive_notification", data);
+        } catch (err) {
+          logger.error("Error sending notification:", err);
+        }
+      });
 
     /** ------------------- VIDEO CALL ------------------- **/
 

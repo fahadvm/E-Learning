@@ -49,7 +49,7 @@ export const studentTeacherApi = {
 
 export const studentBookingApi = {
   getAvailableSlots: (teacherId: string) => get(STUDENT_ROUTES.bookings.availableSlots(teacherId)),
-  slotBooking: (data: { teacherId: string; endTime: string; courseId?: string; date: string; day: string; startTime: string; note: string }) =>
+  slotLocking: (data: { teacherId: string; endTime: string; courseId?: string; date: string; day: string; startTime: string; note: string }) =>
     post(STUDENT_ROUTES.bookings.base, data),
   cancelBooking: (bookingId: string, data: { reason: string }) => patch(STUDENT_ROUTES.bookings.cancel(bookingId), data),
   approveBooking: (teacherId: string) => get(STUDENT_ROUTES.bookings.approveAvailability(teacherId)),

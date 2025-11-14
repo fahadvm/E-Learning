@@ -24,16 +24,16 @@ export class StudentBookingController implements IStudentBookingController {
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.AVAILABILITY_FETCHED, true, availability);
   };
 
-  bookSlot = async (req: AuthRequest, res: Response) => {
+  lockSlot = async (req: AuthRequest, res: Response) => {
     const studentId = req.user?.id;
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
     const { teacherId, courseId, date, day, startTime, endTime, note } = req.body;
     if (!teacherId || !courseId || !date || !day || !startTime || !endTime)
       throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
 
-    const booking = await this._bookingService.bookSlot(studentId, teacherId, courseId, date, day, startTime, endTime, note);
-    console.log("booking", booking)
-    return sendResponse(res, STATUS_CODES.CREATED, MESSAGES.BOOKING_CREATED, true, booking);
+    const locking = await this._bookingService.lockingSlot(studentId, teacherId, courseId, date, day, startTime, endTime, note);
+    console.log("locking", locking)
+    return sendResponse(res, STATUS_CODES.CREATED, MESSAGES.BOOKING_CREATED, true, locking);
   };
 
   bookingDetails = async (req: AuthRequest, res: Response) => {

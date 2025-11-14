@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LayoutDashboard, Building, Users, BookOpen, BarChart2, Settings, Package, Bell, GraduationCap, LogOut } from "lucide-react";
+import { LayoutDashboard, Building, Users, BookOpen, BarChart2, User , Package, ArrowLeftRight, GraduationCap, LogOut } from "lucide-react";
 import { adminApiMethods } from "@/services/APIservices/adminApiService";
 
 interface SidebarLinkProps { href?: string; onClick?: () => void; icon: React.ReactNode; children: React.ReactNode; }
@@ -27,9 +27,9 @@ export default function AdminSidebar() {
         <SidebarLink href="/admin/courses" icon={<BookOpen />}>Courses</SidebarLink>
         <SidebarLink href="/admin/subscriptions" icon={<Package />}>Subscription</SidebarLink>
         <SidebarLink href="/admin/teachers" icon={<GraduationCap />}>Teachers</SidebarLink>
-        <SidebarLink href="/admin/orders" icon={<BarChart2 />}>Orders</SidebarLink>
-        <SidebarLink href="/admin/notifications" icon={<Bell />}>Notification</SidebarLink>
-        <SidebarLink href="/admin/profile" icon={<Settings />}>Settings</SidebarLink>
+        <SidebarLink href="/admin/orders" icon={<BarChart2 />}>Entrollments</SidebarLink>
+        <SidebarLink href="/admin/notifications" icon={<ArrowLeftRight />}>Transactions</SidebarLink>
+        <SidebarLink href="/admin/profile" icon={<User />}>Profile</SidebarLink>
         <SidebarLink onClick={handleLogout} icon={<LogOut />}>Logout</SidebarLink>
       </nav>
     </aside>

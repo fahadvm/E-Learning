@@ -28,7 +28,7 @@ export const sendOtpEmail = async (toEmail: string, otp: string): Promise<void> 
     html: `<h3>Your OTP code is: <b>${otp}</b></h3><p>It is valid for 1 minutes.</p>`,
   };
 
-  logger.info('otp is :',otp);
+  logger.debug(`otp is : ${otp}`);
 
   await transporter.sendMail(mailOptions);
 };

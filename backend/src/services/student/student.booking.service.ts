@@ -36,13 +36,23 @@ export class StudentBookingService implements IStudentBookingService {
     return bookingsDto(availability);
   }
 
-  async bookSlot(studentId: string, teacherId: string, courseId: string, date: string, day: string, startTime: string, endTime: string, note: string): Promise<IBookingDTO> {
+  async lockingSlot(studentId: string, teacherId: string, courseId: string, date: string, day: string, startTime: string, endTime: string, note: string): Promise<IBookingDTO> {
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
     if (!teacherId || !courseId || !date || !day || !startTime || !endTime) throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
     const studentIdObj = new Types.ObjectId(studentId);
     const teacherIdObj = new Types.ObjectId(teacherId);
     const courseIdObj = new Types.ObjectId(courseId);
+
+    const conflict = await this._bookingRepo.findConflictingSlot(
+      teacherId,
+      date,
+      startTime,
+      endTime
+    );
+
+    if (conflict) throwError("Slot already locked or booked", STATUS_CODES.CONFLICT);
+
 
     const booking = await this._bookingRepo.createBooking({
       studentId: studentIdObj,
@@ -180,6 +190,11 @@ export class StudentBookingService implements IStudentBookingService {
       nextWeek.format('YYYY-MM-DD')
     );
 
+        console.log("findBookedSlots slots ",bookings)
+
+
+
+
     // convert booked slots into ISO strings
     const bookedSlots = new Set(
       bookings.map(b => dayjs(`${b.date}T${b.slot.start}`).toISOString())
@@ -194,6 +209,8 @@ export class StudentBookingService implements IStudentBookingService {
     const uniqueSlots = Array.from(
       new Map(availableSlots.map(s => [`${s.date}-${s.start}-${s.end}`, s])).values()
     );
+
+    console.log("available slots ",uniqueSlots)
 
 
     return uniqueSlots;

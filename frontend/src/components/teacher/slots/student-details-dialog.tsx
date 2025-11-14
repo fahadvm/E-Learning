@@ -40,12 +40,12 @@ export default function StudentDetailsDialog({
 
   function statusBadge(status: Slot["status"]) {
     switch (status) {
-      case "paid":
+      case "booked":
         return <Badge className="bg-green-600 text-white hover:bg-green-600">Booked</Badge>
       case "cancelled":
         return <Badge className="bg-red-600 text-white hover:bg-red-600">Cancelled</Badge>
-      case "requested":
-        return <Badge className="bg-amber-500 text-white hover:bg-amber-500">Requested</Badge>
+      case "rescheduled":
+        return <Badge className="bg-amber-500 text-white hover:bg-amber-500">Rescheduled</Badge>
       default:
         return <Badge variant="outline">Available</Badge>
     }
@@ -94,9 +94,9 @@ export default function StudentDetailsDialog({
         )}
 
         <DialogFooter className="gap-5 sm:gap-2">
-          {slot?.status === "paid" ? (
+          {slot?.status === "booked" ? (
             <Button variant="destructive" onClick={() => alert("Cancel booking (wire to API)")}>
-              Cancel Booking
+              Reschedule Booking
             </Button>
           ) : (
             <div className="text-xs text-muted-foreground">No actions available for this status.</div>

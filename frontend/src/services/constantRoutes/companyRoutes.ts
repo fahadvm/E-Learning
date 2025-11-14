@@ -1,5 +1,7 @@
 // companyRoutes.ts
 
+import { verify } from "crypto";
+
 // Base path
 const COMPANY_BASE = '/company';
 
@@ -48,6 +50,7 @@ export const COMPANY_ROUTES = {
 
   profile: {
     base: COMPANY_PROFILE,
+    verify: `${COMPANY_PROFILE}/verify`,
   },
 
   subscriptions: {

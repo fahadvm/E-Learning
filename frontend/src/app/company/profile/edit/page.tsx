@@ -21,6 +21,8 @@ export default function EditCompanyProfile() {
     phone: "",
     website: "",
     about: "",
+    address: "",
+    pincode: "",
     social_links: { linkedin: "", instagram: "", twitter: "" },
     profilePicture: "",
   });
@@ -39,6 +41,8 @@ export default function EditCompanyProfile() {
         phone: company.phone || "",
         website: company.website || "",
         about: company.about || "",
+        address: company.address || "",
+        pincode: company.pincode || "",
         social_links: {
           linkedin: company.social_links?.linkedin || "",
           instagram: company.social_links?.instagram || "",
@@ -83,6 +87,9 @@ export default function EditCompanyProfile() {
     const newErrors: any = {};
     if (!formData.name.trim()) newErrors.name = "Company name is required.";
     if (!formData.email.trim()) newErrors.email = "Email is required.";
+    if (!formData.address.trim()) newErrors.address = "Address is required.";
+    if (!/^\d{6}$/.test(formData.pincode)) newErrors.pincode = "Enter valid 6-digit pincode.";
+
     else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(formData.email))
       newErrors.email = "Invalid email format.";
     if (formData.phone && !/^[0-9]{10}$/.test(formData.phone))
@@ -178,6 +185,34 @@ export default function EditCompanyProfile() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
+                <label className="block mb-1 font-medium">Address</label>
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  className={`border rounded-md p-2 w-full ${errors.address ? "border-red-500" : ""}`}
+                />
+                {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+              </div>
+
+              <div>
+                <label className="block mb-1 font-medium">Pincode</label>
+                <input
+                  type="text"
+                  name="pincode"
+                  maxLength={6}
+                  value={formData.pincode}
+                  onChange={handleChange}
+                  className={`border rounded-md p-2 w-full ${errors.pincode ? "border-red-500" : ""}`}
+                />
+                {errors.pincode && <p className="text-red-500 text-sm mt-1">{errors.pincode}</p>}
+              </div>
+            </div>
+
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
                 <label className="block mb-1 font-medium">Phone</label>
                 <input
                   type="text"
@@ -224,9 +259,8 @@ export default function EditCompanyProfile() {
                       placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
                       value={formData.social_links[key as keyof typeof formData.social_links]}
                       onChange={handleChange}
-                      className={`border rounded-md p-2 w-full ${
-                        errors.social_links?.[key] ? "border-red-500" : ""
-                      }`}
+                      className={`border rounded-md p-2 w-full ${errors.social_links?.[key] ? "border-red-500" : ""
+                        }`}
                     />
                     {errors.social_links?.[key] && (
                       <p className="text-red-500 text-sm mt-1">{errors.social_links[key]}</p>

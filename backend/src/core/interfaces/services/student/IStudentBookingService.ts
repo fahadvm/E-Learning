@@ -5,7 +5,7 @@ import { IPaginatedResult } from '../../repositories/IStudentBookingRepository';
 
 export interface IStudentBookingService {
   getAvailability(teacherId: string): Promise<IBookingDTO[]>;
-  bookSlot(
+  lockingSlot(
     studentId: string,
     teacherId: string,
     courseId: string,

@@ -3,16 +3,20 @@
 import Link from 'next/link';
 import Header from '@/components/company/Header';
 import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, Globe, Linkedin, Instagram, Twitter,MapPin , Clipboard, Check } from 'lucide-react';
+import { Mail, Phone, Globe, Linkedin, Instagram, Twitter, MapPin, Clipboard, Check } from 'lucide-react';
 import { useCompany } from '@/context/companyContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { showSuccessToast } from '@/utils/Toast';
+import VerificationModal from '@/components/company/profile/VerificationModal';
+import { companyApiMethods } from '@/services/APIservices/companyApiService';
 
 export default function CompanyProfilePage() {
   const { company, setCompany } = useCompany();
   const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
 
   // Wait until company data is fully loaded
   useEffect(() => {
@@ -35,6 +39,31 @@ export default function CompanyProfilePage() {
     setTimeout(() => setCopied(false), 2000); // reset after 2s
   };
 
+  const submitVerification = async (data: {
+    name: string;
+    address: string;
+    phone: string;
+    certificate: File | null;
+    taxId: File | null;
+  }) => {
+
+    if (!company._id) return
+    const form = new FormData();
+    form.append('name', data.name);
+    form.append('address', data.address);
+    form.append('phone', data.phone);
+    if (data.certificate) form.append('certificate', data.certificate);
+    if (data.taxId) form.append('taxId', data.taxId);
+    form.append('companyId', company?._id);
+
+    const res = await companyApiMethods.verifyCompanyProfile(form)
+
+    if (res.ok) {
+      setCompany({ ...company, isVerified: false, status: 'pending' });
+      showSuccessToast('Verification request sent! We’ll review it shortly.');
+    }
+  };
+
   return (
     <>
       <Header />
@@ -53,14 +82,40 @@ export default function CompanyProfilePage() {
 
               {/* Company Code with Copy Button */}
               <div className="mt-2 flex items-center justify-center gap-2">
-                <Badge variant="outline">{company.isVerified ? "verfied" : (
-                  <Link href="/company/verify">
-                    <div className="text-blue-900 text-md px-5 py-2 rounded-lg  transition">
-                      Verify
-                    </div>
-                  </Link>
-                )}</Badge>
-              </div>
+                {company.status === "verified" && (
+                  <Badge variant="outline" className="text-green-700">
+                    Verified
+                  </Badge>
+                )}
+
+                {company.status === "pending" && (
+                  <Badge variant="outline" className="text-yellow-700">
+                    Pending Review
+                  </Badge>
+                )}
+
+                {company.status === "rejected" && (
+                  <div className="flex flex-col items-center">
+                    <Badge variant="outline" className="text-red-700 mb-2">
+                      Rejected
+                    </Badge>
+                    <button
+                      onClick={() => setModalOpen(true)}
+                      className="text-blue-900 text-md px-5 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 transition"
+                    >
+                      Re-submit Verification
+                    </button>
+                  </div>
+                )}
+
+                {company.status === "none" && (
+                  <button
+                    onClick={() => setModalOpen(true)}
+                    className="text-blue-900 text-md px-5 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 transition"
+                  >
+                    Verify
+                  </button>
+                )}              </div>
 
               <Link href="/company/profile/edit">
                 <button className="mt-4 bg-emerald-600 text-white px-5 py-2 rounded-lg hover:bg-emerald-700 transition">
@@ -102,7 +157,10 @@ export default function CompanyProfilePage() {
                   <Globe size={16} /> {company.website || 'No website'}
                 </li>
                 <li className="flex items-center gap-2">
-                  <MapPin  size={16} /> {company.companyCode || 'No website'}
+                  <MapPin size={16} /> {company.address || 'No address'}
+                </li>
+                <li className="flex items-center gap-2">
+                  <MapPin size={16} /> {company.pincode || 'N/A'}
                 </li>
 
               </ul>
@@ -159,6 +217,13 @@ export default function CompanyProfilePage() {
             </section>
           </main>
         </div>
+        <VerificationModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          onSubmit={submitVerification}
+          company={company}
+        />
+
       </div>
     </>
   );

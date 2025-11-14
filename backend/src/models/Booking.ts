@@ -63,5 +63,8 @@ const bookingSchema = new Schema<IBooking>(
   { timestamps: true }
 );
 
+
+
+bookingSchema.index({ teacherId: 1, date: 1, "slot.start": 1, "slot.end": 1 },{ unique: true, partialFilterExpression: { status: { $in: ["pending", "booked", "rescheduled"] } } });
 bookingSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0, partialFilterExpression: { status: 'pending' } });
 export const Booking = model<IBooking>('Booking', bookingSchema);

@@ -18,7 +18,7 @@ export class StudentBookingRepository implements IStudentBookingRepository {
     const today = new Date().toISOString().split('T')[0];
     return Booking.find({
       studentId,
-      status: 'paid',
+      status: 'booked',
       date: { $gte: today }
     })
       .populate('teacherId', 'name email profilePicture')
@@ -41,7 +41,7 @@ export class StudentBookingRepository implements IStudentBookingRepository {
       date,
       'slot.start': slot.start,
       'slot.end': slot.end,
-      status: { $in: ['paid', 'cancelled'] },
+      status: { $in: ['booked', 'cancelled'] },
     }).populate({
       path: 'studentId',
       select: 'name email',
@@ -54,7 +54,7 @@ export class StudentBookingRepository implements IStudentBookingRepository {
 
   async updateBookingStatus(
     bookingId: string,
-    status: 'pending' | 'approved' | 'paid' | 'cancelled' | 'rejected',
+    status: 'pending' | 'approved' | 'booked' | 'cancelled' | 'rejected',
     reason?: string
   ): Promise<IBooking | null> {
     const updateData =
@@ -99,11 +99,13 @@ export class StudentBookingRepository implements IStudentBookingRepository {
     today: string,
     nextWeek: string
   ): Promise<IBooking[]> {
+
+    console.log("findBookedSlots in repository:", teacherId, today, nextWeek)
     return await Booking.find({
       teacherId,
-      slots: { $gte: today, $lte: nextWeek },
-      status: { $in: ['pending', 'approved', 'paid'] },
-    });
+      date: { $gte: today, $lte: nextWeek },
+      status: { $in: ["pending", "booked", "rescheduled"] }
+    }).lean();
   }
 
   async findPending(page: number, limit: number): Promise<IPendingResult> {
@@ -133,11 +135,11 @@ export class StudentBookingRepository implements IStudentBookingRepository {
   async findById(bookingId: string): Promise<IBooking | null> {
     return Booking.findById(bookingId).populate('studentId courseId teacherId');
   }
- 
 
 
-   async findByPaymentId(paymentOrderId: string): Promise<IBooking | null>{
-    return Booking.findOne({paymentOrderId}).lean().exec();
+
+  async findByPaymentId(paymentOrderId: string): Promise<IBooking | null> {
+    return Booking.findOne({ paymentOrderId }).lean().exec();
   }
 
   async rejectBooking(bookingId: string, reason: string): Promise<IBooking | null> {
@@ -163,10 +165,10 @@ export class StudentBookingRepository implements IStudentBookingRepository {
     return await Booking.findOne({ paymentOrderId: orderId });
   }
 
-  async verifyAndMarkPaid(orderId: string, callId:string): Promise<IBooking | null> {
+  async verifyAndMarkPaid(orderId: string, callId: string): Promise<IBooking | null> {
     const paidBooking = await Booking.findOneAndUpdate(
       { paymentOrderId: orderId },
-      { status: 'paid',callId },
+      { status: 'booked', callId },
       { new: true }
     );
 
@@ -212,7 +214,7 @@ export class StudentBookingRepository implements IStudentBookingRepository {
   async rescheduleBooking(
     bookingId: string,
     reason: string,
-    nextSlot: { start: string; end: string; date: string ,day:string}
+    nextSlot: { start: string; end: string; date: string, day: string }
   ): Promise<IBooking> {
     const oldBooking = await Booking.findById(bookingId);
     if (!oldBooking) throwError(MESSAGES.BOOKING_NOT_FOUND, STATUS_CODES.NOT_FOUND);
@@ -221,15 +223,15 @@ export class StudentBookingRepository implements IStudentBookingRepository {
       teacherId: oldBooking.teacherId,
       studentId: oldBooking.studentId,
       courseId: oldBooking.courseId,
-      note:oldBooking.note,
-      paymentOrderId:oldBooking.paymentOrderId,
-      day: nextSlot.day,  
+      note: oldBooking.note,
+      paymentOrderId: oldBooking.paymentOrderId,
+      day: nextSlot.day,
       date: nextSlot.date,
       slot: {
         start: nextSlot.start,
         end: nextSlot.end,
       },
-      status: 'paid',
+      status: 'booked',
       rescheduledFrom: oldBooking._id,
     });
 
@@ -242,5 +244,27 @@ export class StudentBookingRepository implements IStudentBookingRepository {
 
     return newBooking;
   }
+
+
+  async findConflictingSlot(
+    teacherId: string,
+    date: string,
+    startTime: string,
+    endTime: string
+  ): Promise<IBooking | null> {
+    return await Booking.findOne({
+      teacherId,
+      date,
+      status: { $in: ["pending", "booked", "rescheduled"] },
+
+      $or: [
+        {
+          "slot.start": { $lt: endTime },
+          "slot.end": { $gt: startTime }
+        }
+      ]
+    });
+  }
+
 
 }

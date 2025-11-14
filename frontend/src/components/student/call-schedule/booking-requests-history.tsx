@@ -38,7 +38,7 @@ import { useRouter } from "next/navigation";
 import { convertTo12Hour } from "@/utils/timeConverter";
 import Link from "next/link";
 
-type BookingStatus = "pending" | "approved" | "rejected" | "booked" | "paid" | "cancelled";
+type BookingStatus = "pending" | "rescheduled" | "failed" | "booked"  | "cancelled";
 
 interface Slot {
   start: string;
@@ -65,7 +65,7 @@ export interface BookingRequest {
   date: string;
   status: BookingStatus;
   rejectionReason?: string;
-  cancellationReason?: string;
+  rescheduledReason?: string;
   createdAt: string;
 }
 
@@ -119,16 +119,8 @@ export function BookingRequestsHistory() {
             <Clock className="h-3 w-3 mr-1" /> Pending
           </Badge>
         );
-      case "approved":
-        return (
-          <Badge
-            variant="outline"
-            className="bg-success/10 text-blue-900 border-success/20"
-          >
-            Approved
-          </Badge>
-        );
-      case "paid":
+      
+      case "booked":
         return (
           <Badge
             variant="outline"
@@ -137,7 +129,7 @@ export function BookingRequestsHistory() {
             <Check className="h-3 w-3 mr-1" /> Booked
           </Badge>
         );
-      case "rejected":
+      case "rescheduled":
         return (
           <Badge
             variant="outline"
@@ -303,8 +295,8 @@ export function BookingRequestsHistory() {
                       </span>
                     </div>
 
-                    {booking.status === "rejected" &&
-                      booking.rejectionReason && (
+                    {booking.status === "rescheduled" &&
+                      booking.rescheduledReason && (
                         <div className="mt-3 p-3 bg-destructive/5 border border-destructive/20 rounded-lg">
                           <div className="flex items-start gap-2">
                             <AlertCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
@@ -320,16 +312,16 @@ export function BookingRequestsHistory() {
                         </div>
                       )}
                     {booking.status === "cancelled" &&
-                      booking.cancellationReason && (
+                      booking.rescheduledReason && (
                         <div className="mt-3 p-3 bg-destructive/5 border border-destructive/20 rounded-lg">
                           <div className="flex items-start gap-2">
                             <AlertCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
                             <div>
                               <p className="text-sm font-medium text-destructive">
-                                Cancellation Reason
+                                Rescheduled Reason
                               </p>
                               <p className="text-sm text-muted-foreground mt-1">
-                                {booking.cancellationReason}
+                                {booking.rescheduledReason}
                               </p>
                             </div>
                           </div>
@@ -339,17 +331,7 @@ export function BookingRequestsHistory() {
                 </div>
 
                 <div className="flex items-center gap-2 sm:flex-col sm:items-stretch">
-                  {booking.status === "approved" && (
-                    <Button
-                      onClick={() => handlePayment(booking)}
-                      className="bg-primary hover:bg-primary/90"
-                    >
-                      <CreditCard className="h-4 w-4 mr-2" />
-                      Proceed to Payment
-                    </Button>
-                  )}
-
-                  {booking.status === "pending" && (
+                  {booking.status === "booked" && (
                     <Button
                       onClick={() => handleCancelConfirm(booking)}
                       className="bg-destructive hover:bg-destructive/90"

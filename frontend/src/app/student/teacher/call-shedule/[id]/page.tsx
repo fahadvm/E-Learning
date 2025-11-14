@@ -172,8 +172,8 @@ export default function StudentTeacherSlotPage() {
         note,
       };
 
-      const res = await studentBookingApi.slotBooking(bookingPayload);
-      console.log("res of booking confirmation ",res)
+      const res = await studentBookingApi.slotLocking(bookingPayload);
+      console.log("res of locking confirmation ",res)
       if (res.ok) {
         setIsModalOpen(false);
         setSelectedSlot(null);

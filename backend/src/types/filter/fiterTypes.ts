@@ -81,9 +81,9 @@ export interface ITeacherSlot {
     start: string;
     end: string;
   };
-  status: 'available' | 'pending' | 'approved' | 'paid' | 'cancelled' | 'rejected';
-  student?: string;
-  course?: string;
+  status: "available" | "pending" | "booked" | "cancelled" | "rescheduled" | "failed";
+  student?: any;
+  course?: any;
 }
  export interface TemporaryCompanyData {
   name: string;

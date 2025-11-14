@@ -23,7 +23,7 @@ export interface IStudentBookingRepository {
   createBooking(booking: Partial<IBooking>): Promise<IBooking>;
   updateBookingStatus(
     bookingId: string,
-    status: 'pending' | 'approved' | 'paid' | 'cancelled' | 'rejected' | 'reschedulled',
+    status: 'pending' | 'approved' | 'booked' | 'cancelled' | 'rejected' | 'reschedulled',
     reason?: string
   ): Promise<IBooking | null>;
   getBookingsByStudent(
@@ -54,7 +54,7 @@ export interface IStudentBookingRepository {
     orderId: string
   ): Promise<IBooking | null>;
   findByOrderId(orderId: string): Promise<IBooking | null>;
-  verifyAndMarkPaid(orderId: string, callId : string): Promise<IBooking | null>;
+  verifyAndMarkPaid(orderId: string, callId: string): Promise<IBooking | null>;
   getHistory(
     filter: IBookingFilter,
     skip: number,
@@ -64,6 +64,14 @@ export interface IStudentBookingRepository {
   rescheduleBooking(
     bookingId: string,
     reason: string,
-    nextSlot: { start: string; end: string; date: string ,day:string}
+    nextSlot: { start: string; end: string; date: string, day: string }
   ): Promise<IBooking>
+
+
+  findConflictingSlot(
+    teacherId: string,
+    date: string,
+    startTime: string,
+    endTime: string
+  ): Promise<IBooking | null>;
 }

@@ -76,8 +76,8 @@ export class TeacherCallRequestService implements ITeacherCallRequestService {
                     day: dayName,
                     slot,
                     status: booking ? booking.status : 'available',
-                    student: booking?.studentId?.toString(),
-                    course: booking?.courseId?.toString(),
+                    student: booking?.studentId ,
+                    course: booking?.courseId ,
                 });
             }
         }

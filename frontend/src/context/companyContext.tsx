@@ -29,11 +29,13 @@ export interface IEmployee {
 export interface ICompany {
     _id?: string;
     isVerified: boolean;
+    status: string;
     isBlocked: boolean;
     role: string;
     about: string;
     profilePicture: string;
-    location: string;
+    address: string;
+    pincode:string
     companyCode:string;
     phone: string;
     website: string;

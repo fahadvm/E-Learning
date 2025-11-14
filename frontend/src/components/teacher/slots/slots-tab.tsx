@@ -28,7 +28,7 @@ function fmtDayTitle(dateKey: string) {
 function statusBadge(status: Slot["status"]) {
   // Keep to 3-5 color system: neutrals + primary + success/warn/danger accents
   switch (status) {
-    case "paid":
+    case "booked":
       return <Badge className="bg-green-600 text-white hover:bg-green-600">Booked</Badge>
     case "cancelled":
       return <Badge className="bg-red-600 text-white hover:bg-red-600">Cancelled</Badge>

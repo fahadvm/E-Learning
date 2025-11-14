@@ -10,7 +10,7 @@ import Header from "@/components/teacher/header"
 import { teacherCallRequestApi } from "@/services/APIservices/teacherApiService"
 import RequestCallList from "@/components/teacher/callSchedule/callRequests"
 
-type SlotStatus = "booked" | "cancelled" | "requested" | "available" | "approved" | "paid"
+type SlotStatus = "booked" | "cancelled" | "rescheduled" | "available" 
 
 export type Student = {
   name: string
@@ -80,6 +80,8 @@ export default function Page() {
         })
 
         setAllSlots(transformedSlots)
+                console.log("setAllSlots:", transformedSlots)
+
       } catch (err) {
         console.error("Failed to load slots", err)
       } finally {
@@ -111,7 +113,7 @@ export default function Page() {
 
 
 
-  const bookedUpcoming = allSlots.filter((s) => s.status === "paid")
+  const bookedUpcoming = allSlots.filter((s) => s.status === "booked")
   const paginatedUpcoming = bookedUpcoming.slice((upcomingPage - 1) * upcomingLimit, upcomingPage * upcomingLimit)
   const upcomingTotalPages = Math.ceil(bookedUpcoming.length / upcomingLimit)
 
@@ -142,9 +144,8 @@ export default function Page() {
               <p>Loading slots...</p>
             ) : (
               <Tabs defaultValue="slots" className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="slots">Slots</TabsTrigger>
-                  <TabsTrigger value="Requests">Requests</TabsTrigger>
                   <TabsTrigger value="upcoming">Booked</TabsTrigger>
                   <TabsTrigger value="history">History</TabsTrigger>
                 </TabsList>
@@ -153,9 +154,7 @@ export default function Page() {
                   <SlotsTab slots={allSlots} />
                 </TabsContent>
 
-                <TabsContent value="Requests" className="mt-6">
-                  <RequestCallList />
-                </TabsContent>
+        
 
                 <TabsContent value="upcoming" className="mt-6">
                   <UpcomingTab

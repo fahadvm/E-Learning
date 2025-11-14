@@ -19,6 +19,7 @@ export interface ICompany extends Document {
   website?: string;
   profilePicture?: string;
   address?: string;
+  pincode?: string;
   companyCode: string;
   email: string;
   password: string;
@@ -42,6 +43,7 @@ const CompanySchema: Schema = new Schema(
     website: { type: String },
     profilePicture: { type: String },
     address:  { type: String },
+    pincode:  { type: String },
     companyCode: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },

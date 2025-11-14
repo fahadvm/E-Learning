@@ -57,6 +57,7 @@ export const companyApiMethods = {
   // Profile
   getCompanyProfile: () => get(COMPANY_ROUTES.profile.base),
   updateCompanyProfile: (data: any) => put(COMPANY_ROUTES.profile.base, data),
+  verifyCompanyProfile: (data: any) => post(COMPANY_ROUTES.profile.verify, data),
 
   // Subscriptions
   getAllCompanyPlans: () => get(COMPANY_ROUTES.subscriptions.base),

@@ -165,7 +165,7 @@ export default function UpcomingTab({
                   <Video className="h-4 w-4" />
                 </Button>
 
-                {s.status === "paid" && (
+                {s.status === "booked" && (
                   <Button
                     variant="destructive"
                     className="flex items-center gap-1"

@@ -13,7 +13,7 @@ const bookingCtrl = container.get<StudentBookingController>(TYPES.StudentBooking
 router.get('/:teacherId/available-slots', authMiddleware('student'), asyncHandler(bookingCtrl.AvailableBookingSlots.bind(bookingCtrl)));
 router.get('/:bookingId/details', authMiddleware('student'), asyncHandler(bookingCtrl.bookingDetails.bind(bookingCtrl)));
 router.get('/:paymentOrderId/paymentOrderIdDetails', authMiddleware('student'), asyncHandler(bookingCtrl.bookingDetailsByPaymentId.bind(bookingCtrl)));
-router.post('/', authMiddleware('student'), asyncHandler(bookingCtrl.bookSlot.bind(bookingCtrl)));
+router.post('/', authMiddleware('student'), asyncHandler(bookingCtrl.lockSlot.bind(bookingCtrl)));
 router.patch('/:bookingId/cancel', authMiddleware('student'), asyncHandler(bookingCtrl.cancelBooking.bind(bookingCtrl)));
 router.patch('/:bookingId/approve', authMiddleware('student'), asyncHandler(bookingCtrl.approveBooking.bind(bookingCtrl)));
 router.post('/payments', authMiddleware('student'), asyncHandler(bookingCtrl.payBooking.bind(bookingCtrl)));
