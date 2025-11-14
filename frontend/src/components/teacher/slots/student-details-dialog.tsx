@@ -94,13 +94,13 @@ export default function StudentDetailsDialog({
         )}
 
         <DialogFooter className="gap-5 sm:gap-2">
-          {slot?.status === "booked" ? (
-            <Button variant="destructive" onClick={() => alert("Cancel booking (wire to API)")}>
-              Reschedule Booking
-            </Button>
+          {/* {slot?.status === "booked" ? (
+            // <Button variant="destructive" onClick={() => alert("Cancel booking (wire to API)")}>
+            //   Reschedule Booking
+            // </Button>
           ) : (
             <div className="text-xs text-muted-foreground">No actions available for this status.</div>
-          )}
+          )} */}
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close
           </Button>

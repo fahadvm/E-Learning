@@ -15,7 +15,7 @@ router.get('/:bookingId/details', authMiddleware('student'), asyncHandler(bookin
 router.get('/:paymentOrderId/paymentOrderIdDetails', authMiddleware('student'), asyncHandler(bookingCtrl.bookingDetailsByPaymentId.bind(bookingCtrl)));
 router.post('/', authMiddleware('student'), asyncHandler(bookingCtrl.lockSlot.bind(bookingCtrl)));
 router.patch('/:bookingId/cancel', authMiddleware('student'), asyncHandler(bookingCtrl.cancelBooking.bind(bookingCtrl)));
-router.patch('/:bookingId/approve', authMiddleware('student'), asyncHandler(bookingCtrl.approveBooking.bind(bookingCtrl)));
+router.get('/:bookingId/approve', authMiddleware('student'), asyncHandler(bookingCtrl.approveBooking.bind(bookingCtrl)));
 router.post('/payments', authMiddleware('student'), asyncHandler(bookingCtrl.payBooking.bind(bookingCtrl)));
 router.post('/payments/verify', authMiddleware('student'), asyncHandler(bookingCtrl.verifyPayment.bind(bookingCtrl)));
 router.get('/history', authMiddleware('student'), asyncHandler(bookingCtrl.getHistory.bind(bookingCtrl)));

@@ -72,14 +72,14 @@ export class StudentBookingService implements IStudentBookingService {
 
   async cancelBooking(bookingId: string, reason: string): Promise<IBookingDTO> {
     if (!bookingId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
-    const cancelled = await this._bookingRepo.updateBookingStatus(bookingId, 'cancelled', reason);
+    const cancelled = await this._bookingRepo.updateBookingStatus(bookingId, 'booked', reason);
     if (!cancelled) throwError(MESSAGES.BOOKING_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     return bookingDto(cancelled);
   }
 
-  async approveBooking(bookingId: string): Promise<IBookingDTO> {
+  async approveReschedule(bookingId: string): Promise<IBookingDTO> {
     if (!bookingId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
-    const approved = await this._bookingRepo.updateBookingStatus(bookingId, 'approved');
+    const approved = await this._bookingRepo.approveReschedule(bookingId);
     if (!approved) throwError(MESSAGES.BOOKING_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     return bookingDto(approved);
   }

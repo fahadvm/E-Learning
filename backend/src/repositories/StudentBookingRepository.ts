@@ -41,7 +41,7 @@ export class StudentBookingRepository implements IStudentBookingRepository {
       date,
       'slot.start': slot.start,
       'slot.end': slot.end,
-      status: { $in: ['booked', 'cancelled'] },
+      status: { $in: ['booked', 'cancelled', 'rescheduled'] },
     }).populate({
       path: 'studentId',
       select: 'name email',
@@ -139,7 +139,9 @@ export class StudentBookingRepository implements IStudentBookingRepository {
 
 
   async findByPaymentId(paymentOrderId: string): Promise<IBooking | null> {
-    return Booking.findOne({ paymentOrderId }).lean().exec();
+    return Booking.findOne({ paymentOrderId })
+      .populate("courseId")
+      .populate("teacherId").lean().exec();
   }
 
   async rejectBooking(bookingId: string, reason: string): Promise<IBooking | null> {
@@ -224,6 +226,7 @@ export class StudentBookingRepository implements IStudentBookingRepository {
       studentId: oldBooking.studentId,
       courseId: oldBooking.courseId,
       note: oldBooking.note,
+      callId: oldBooking.callId,
       paymentOrderId: oldBooking.paymentOrderId,
       day: nextSlot.day,
       date: nextSlot.date,
@@ -265,6 +268,59 @@ export class StudentBookingRepository implements IStudentBookingRepository {
       ]
     });
   }
+
+
+
+  async requestReschedule(bookingId: string,
+    reason: string,
+    nextSlot: { start: string; end: string; date: string, day: string }): Promise<IBooking | null> {
+    return Booking.findByIdAndUpdate(bookingId, {
+      requestedDate: nextSlot.date,
+      requestedSlot: {
+        start: nextSlot.start,
+        end: nextSlot.end
+      },
+      rescheduledReason: reason,
+      rescheduleStatus: "requested"
+    }, { new: true });
+  }
+
+
+  async approveReschedule(bookingId: string): Promise<IBooking> {
+    const oldBooking = await Booking.findById(bookingId);
+
+    if (!oldBooking) throwError("Booking not found.", STATUS_CODES.NOT_FOUND);
+
+    if (oldBooking.rescheduleStatus !== "requested") {
+      throwError("No pending reschedule request.", STATUS_CODES.BAD_REQUEST);
+    }
+
+    const newBooking = await Booking.create({
+      studentId: oldBooking.studentId,
+      teacherId: oldBooking.teacherId,
+      courseId: oldBooking.courseId,
+      date: oldBooking.requestedDate,
+      day: oldBooking.day,
+      slot: oldBooking.requestedSlot,
+      note: oldBooking.note,
+      callId: oldBooking.callId,
+      status: "booked",
+      rescheduledFrom: oldBooking._id,
+    });
+
+    oldBooking.status = "rescheduled";
+    oldBooking.rescheduleStatus = "approved";
+    oldBooking.rescheduledTo = newBooking._id;
+    oldBooking.rescheduledAt = new Date();
+    oldBooking.requestedDate = undefined;
+    oldBooking.requestedSlot = undefined;
+
+    await oldBooking.save();
+
+    return newBooking;
+  }
+
+
 
 
 }

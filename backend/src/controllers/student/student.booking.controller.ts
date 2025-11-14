@@ -67,7 +67,7 @@ export class StudentBookingController implements IStudentBookingController {
     const { bookingId } = req.params;
     if (!bookingId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
 
-    const result = await this._bookingService.approveBooking(bookingId);
+    const result = await this._bookingService.approveReschedule(bookingId);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.BOOKING_APPROVED, true, result);
   };
 

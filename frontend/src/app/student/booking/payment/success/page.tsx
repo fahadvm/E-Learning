@@ -7,10 +7,15 @@ import { CheckCircle, ArrowRight, Download, Calendar, Clock } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { studentBookingApi } from "@/services/APIservices/studentApiservice"; // your existing API layer
+import { convertTo12Hour } from "@/utils/timeConverter";
 
 interface BookingDetails {
-    teacherName: string;
-    courseName: string;
+    teacherId: {
+        name: string
+    };
+    courseId: {
+        title: string
+    };
     date: string;
     day: string;
     slot: { start: string; end: string };
@@ -71,11 +76,11 @@ export default function PurchaseSuccess() {
                                 <div className="space-y-4 text-gray-700">
                                     <div className="flex justify-between">
                                         <span>Teacher</span>
-                                        <span className="font-medium">{booking.teacherName}</span>
+                                        <span className="font-medium">{booking.teacherId.name}</span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Course</span>
-                                        <span className="font-medium">{booking.courseName}</span>
+                                        <span className="font-medium">{booking.courseId.title}</span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Date</span>
@@ -86,7 +91,7 @@ export default function PurchaseSuccess() {
                                     <div className="flex justify-between">
                                         <span>Time</span>
                                         <span className="font-medium flex items-center gap-2">
-                                            <Clock className="w-4 h-4" /> {booking.slot.start} - {booking.slot.end}
+                                            <Clock className="w-4 h-4" /> {convertTo12Hour (booking.slot.start)} - {convertTo12Hour(booking.slot.end)}
                                         </span>
                                     </div>
                                     <div className="pt-4 border-t border-gray-200 flex justify-between items-center">

@@ -66,6 +66,11 @@ export interface IStudentBookingRepository {
     reason: string,
     nextSlot: { start: string; end: string; date: string, day: string }
   ): Promise<IBooking>
+  requestReschedule(
+    bookingId: string,
+    reason: string,
+    nextSlot: { start: string; end: string; date: string, day: string }
+  ): Promise<IBooking | null>
 
 
   findConflictingSlot(
@@ -74,4 +79,5 @@ export interface IStudentBookingRepository {
     startTime: string,
     endTime: string
   ): Promise<IBooking | null>;
+  approveReschedule(bookingId: string): Promise<IBooking>
 }

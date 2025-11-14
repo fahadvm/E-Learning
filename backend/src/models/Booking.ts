@@ -23,6 +23,12 @@ export interface IBooking extends Document {
   rescheduledTo?: Types.ObjectId;
   rescheduledReason?: string;
   rescheduledAt?: Date;
+  rescheduleStatus: 'none'| 'requested'| 'approved'| 'rejected';
+  requestedDate?: string;
+  requestedSlot?: {
+    start: string;
+    end: string;
+  };
   expireAt?: Date,
   createdAt: Date;
   updatedAt: Date;
@@ -46,7 +52,7 @@ const bookingSchema = new Schema<IBooking>(
     day: { type: String, required: true },
     slot: { type: timeSlotSchema, required: true },
     note: { type: String, default: '' },
-    callId : { type: String },
+    callId: { type: String },
     rejectionReason: { type: String },
     cancellationReason: { type: String },
     rescheduledFrom: { type: Schema.Types.ObjectId, ref: 'Booking' },
@@ -59,12 +65,23 @@ const bookingSchema = new Schema<IBooking>(
       enum: ['pending', 'booked', 'cancelled', 'rescheduled', 'failed'],
       default: 'pending',
     },
+    rescheduleStatus: {
+      type: String,
+      enum: ['none', 'requested', 'approved', 'rejected'],
+      default: 'none'
+    },
+    requestedDate: { type: String },
+    requestedSlot: {
+      start: { type: String },
+      end: { type: String }
+    }
+
   },
   { timestamps: true }
 );
 
 
 
-bookingSchema.index({ teacherId: 1, date: 1, "slot.start": 1, "slot.end": 1 },{ unique: true, partialFilterExpression: { status: { $in: ["pending", "booked", "rescheduled"] } } });
+bookingSchema.index({ teacherId: 1, date: 1, "slot.start": 1, "slot.end": 1 }, { unique: true, partialFilterExpression: { status: { $in: ["pending", "booked", "rescheduled"] } } });
 bookingSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0, partialFilterExpression: { status: 'pending' } });
 export const Booking = model<IBooking>('Booking', bookingSchema);

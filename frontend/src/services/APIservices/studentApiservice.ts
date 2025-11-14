@@ -52,13 +52,15 @@ export const studentBookingApi = {
   slotLocking: (data: { teacherId: string; endTime: string; courseId?: string; date: string; day: string; startTime: string; note: string }) =>
     post(STUDENT_ROUTES.bookings.base, data),
   cancelBooking: (bookingId: string, data: { reason: string }) => patch(STUDENT_ROUTES.bookings.cancel(bookingId), data),
-  approveBooking: (teacherId: string) => get(STUDENT_ROUTES.bookings.approveAvailability(teacherId)),
+  approveBooking: (teacherId: string) => get(STUDENT_ROUTES.bookings.approveReschedule(teacherId)),
   getBookingHistory: (params?: { page?: number; limit?: number; status?: string; teacher?: string }) =>
     get(STUDENT_ROUTES.bookings.history, params),
   payingBooking: (teacherId: string) => get(STUDENT_ROUTES.bookings.payments(teacherId)),
   getBookingDetails: (bookingId: string) => get(STUDENT_ROUTES.bookings.details(bookingId)),
   getBookingDetailsBypaymentOrderId: (paymentOrderId: string) => get(STUDENT_ROUTES.bookings.paymentOrderIdDetails(paymentOrderId)),
   getScheduledCalls: (params: { page: number; limit: number }) => get(STUDENT_ROUTES.bookings.scheduledCalls, params),
+  approveReschedule: (bookingId : string) => get(STUDENT_ROUTES.bookings.scheduledCalls),
+  rejectReschedule: (bookingId : string) => get(STUDENT_ROUTES.bookings.scheduledCalls ),
 };
 
 export const studentWishlistApi = {

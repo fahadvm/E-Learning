@@ -53,7 +53,7 @@ export const STUDENT_ROUTES = {
     base: STUDENT_BOOKINGS,
     availableSlots: (teacherId: string) => `${STUDENT_BOOKINGS}/${teacherId}/available-slots`,
     cancel: (bookingId: string) => `${STUDENT_BOOKINGS}/${bookingId}/cancel`,
-    approveAvailability: (teacherId: string) => `${STUDENT_BOOKINGS}/availability/${teacherId}`,
+    approveReschedule: (bookingId: string) => `${STUDENT_BOOKINGS}/${bookingId}/approve`,
     history: `${STUDENT_BOOKINGS}/history`,
     payments: (teacherId: string) => `${STUDENT_BOOKINGS}/payments/${teacherId}`,
     verify:  `${STUDENT_BOOKINGS}/payments/verify`,

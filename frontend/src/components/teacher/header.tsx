@@ -146,7 +146,7 @@ export default function Header() {
           My Courses
         </Link>
         <Link href="/teacher/callSchedule" className="text-gray-300 hover:text-white font-medium transition">
-          Call Schedule
+          Availability
         </Link>
         <Link href="/teacher/callSchedule" className="text-gray-300 hover:text-white font-medium transition">
           Earnings

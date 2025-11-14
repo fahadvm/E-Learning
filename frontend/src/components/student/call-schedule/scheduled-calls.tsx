@@ -36,7 +36,7 @@ import { showInfoToast, showSuccessToast } from "@/utils/Toast";
 import { useRouter } from "next/navigation";
 
 interface Booking {
-  id: string;
+  _id: string;
   studentId: string;
   studentName: string;
   teacherId: {
@@ -55,6 +55,13 @@ interface Booking {
   meetingLink?: string;
   createdAt: string;
   updatedAt: string;
+  rescheduleStatus: 'none' | 'requested' | 'approved' | 'rejected';
+  requestedDate?: string;
+  requestedSlot?: {
+    start: string;
+    end: string;
+  };
+
   callId: string;
 }
 
@@ -119,12 +126,39 @@ export function ScheduledCalls() {
     };
   }
 
+  const handleApproveReschedule = async (bookingId: string) => {
+    try {
+      const res = await studentBookingApi.approveBooking(bookingId);
+
+      if (res.ok) {
+        showSuccessToast("Reschedule approved successfully!");
+        fetchScheduledCalls(); // refresh
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleRejectReschedule = async (bookingId: string) => {
+    try {
+      const res = await studentBookingApi.rejectReschedule(bookingId);
+
+      if (res.ok) {
+        showSuccessToast("Reschedule request rejected.");
+        fetchScheduledCalls(); // refresh
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+
   const handleCancelCall = async (callId: string, reason: string) => {
     try {
       const res = await studentBookingApi.cancelBooking(callId, { reason });
 
       if (res.ok) {
-        setScheduledCalls((prev) => prev.filter((b) => b.id !== callId));
+        setScheduledCalls((prev) => prev.filter((b) => b._id !== callId));
         showSuccessToast(res.message);
       }
     } catch (err) {
@@ -190,7 +224,7 @@ export function ScheduledCalls() {
           <div className="grid gap-4">
             {scheduledCalls.map((call) => (
               <Card
-                key={call.id}
+                key={call._id}
                 className="p-6 hover:shadow-md transition-shadow"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -254,9 +288,43 @@ export function ScheduledCalls() {
                         Booked on {new Date(call.createdAt).toLocaleString()}
                       </p>
                     </div>
+
                   </div>
 
                   <div className="gap-5 flex items-center">
+                    {call.rescheduleStatus === "requested" ? (
+                      <div className="bg-blue-50 border border-blue-200 p-3 rounded-md mt-3">
+                        <p className="text-sm text-yellow-700 font-medium">
+                          Teacher requested to reschedule your session.
+                        </p>
+
+                        <p className="text-sm mt-1">
+                          New Slot:
+                          <strong>
+                            {convertTo12Hour(call.requestedSlot?.start || "")} -{" "}
+                            {convertTo12Hour(call.requestedSlot?.end || "")}
+                          </strong>{" "}
+                          on{" "}
+                          <strong>{call.requestedDate?.split("-").reverse().join("-")}</strong>
+                        </p>
+
+                        <div className= "flex justify-between items-center mt-3">
+                          <Button
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                            onClick={() => handleApproveReschedule(call._id)}
+                          >
+                            Approve
+                          </Button>
+
+                          <Button
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                            onClick={() => handleRejectReschedule(call._id)}
+                          >
+                            Reject
+                          </Button>
+                        </div>
+                      </div>
+                    ):(
                     <Button
                       onClick={() => handleJoinCall(call)}
                       className="bg-primary hover:bg-primary/90 min-w-[140px]"
@@ -264,11 +332,12 @@ export function ScheduledCalls() {
                       <Video className="h-4 w-4 mr-2" />
                       Join
                     </Button>
+                    )}
 
                     <DropdownMenu
-                      open={dropdownOpen === call.id}
+                      open={dropdownOpen === call._id}
                       onOpenChange={(open) =>
-                        setDropdownOpen(open ? call.id : null)
+                        setDropdownOpen(open ? call._id : null)
                       }
                     >
                       <DropdownMenuTrigger asChild>
@@ -365,7 +434,7 @@ export function ScheduledCalls() {
               disabled={!cancelReason.trim()}
               onClick={() =>
                 selectedCall &&
-                handleCancelCall(selectedCall.id, cancelReason)
+                handleCancelCall(selectedCall._id, cancelReason)
               }
             >
               Yes, Cancel

@@ -32,6 +32,8 @@ function statusBadge(status: Slot["status"]) {
       return <Badge className="bg-green-600 text-white hover:bg-green-600">Booked</Badge>
     case "cancelled":
       return <Badge className="bg-red-600 text-white hover:bg-red-600">Cancelled</Badge>
+    case "rescheduled":
+      return <Badge className="bg-yellow-600 text-white hover:bg-yellow-600">Rescheduled</Badge>
     default:
       return <Badge variant="outline">Available</Badge>
   }
@@ -67,7 +69,7 @@ export default function SlotsTab({ slots }: { slots: Slot[] }) {
             <div className="p-4">
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                 {grouped[dk].map((slot) => (
-                  <Card key={slot.id} className="transition-colors">
+                  <Card key={slot._id} className="transition-colors">
                     <CardContent className="flex items-center justify-between gap-4 p-4">
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-foreground">

@@ -67,9 +67,9 @@ export default function UpcomingTab({
     setSelectedSlotId(slotId);
     setIsModalOpen(true);
   };
-  const handleVideoCallClick = (slotId: string) => {
-    console.log("here slectslot id for video call is ", slotId)
-    router.push(`/teacher/videoCall`)
+  const handleVideoCallClick = (callId: string) => {
+    console.log("here slectslot id for video call is ", callId)
+    router.push(`/teacher/videoCall?callid=${callId}`)
   };
 
   const handleRescheduleConfirm = async () => {
@@ -116,6 +116,8 @@ export default function UpcomingTab({
     );
   }
 
+  console.log("updated slot is :",updatedSlots)
+
   return (
     <>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -133,6 +135,8 @@ export default function UpcomingTab({
                 <CardTitle className="text-md font-medium text-gray-700">
                   {convertTo12Hour(s.startISO)} - {convertTo12Hour(s.endISO)}
                 </CardTitle>
+
+                
               </div>
               {s.status === "booked" && (
                 <Badge className="bg-blue-500 text-white text-xs font-semibold">Booked</Badge>
@@ -158,7 +162,7 @@ export default function UpcomingTab({
                 <Button
                   variant="default"
                   className="flex items-center gap-1 bg-blue-700 hover:bg-blue-800"
-                  onClick={() => handleVideoCallClick(s._id)}
+                  onClick={() => handleVideoCallClick(s.callId)}
                   aria-label="Join video call"
                   title="Join video call"
                 >

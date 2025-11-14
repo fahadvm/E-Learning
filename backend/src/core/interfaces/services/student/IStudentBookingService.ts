@@ -16,7 +16,7 @@ export interface IStudentBookingService {
     note: string
   ): Promise<IBookingDTO>;
   cancelBooking(bookingId: string, reason: string): Promise<IBookingDTO>;
-  approveBooking(bookingId: string): Promise<IBookingDTO>;
+  approveReschedule(bookingId: string): Promise<IBookingDTO>;
   initiatePayment(
     bookingId: string,
     amount: number

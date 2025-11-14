@@ -33,7 +33,7 @@ export class TeacherCallRequestService implements ITeacherCallRequestService {
 
     async rescheduleBooking(bookingId: string, reason: string, nextSlot: { start: string; end: string; date: string ,day:string}): Promise<IBookingDTO> {
         if (!bookingId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
-        const reschedulled = await this._callRequestRepo.rescheduleBooking(bookingId, reason, nextSlot);
+        const reschedulled = await this._callRequestRepo.requestReschedule(bookingId, reason, nextSlot);
         if (!reschedulled) throwError(MESSAGES.BOOKING_NOT_FOUND, STATUS_CODES.NOT_FOUND);
         return bookingDto(reschedulled);
     }
@@ -78,6 +78,7 @@ export class TeacherCallRequestService implements ITeacherCallRequestService {
                     status: booking ? booking.status : 'available',
                     student: booking?.studentId ,
                     course: booking?.courseId ,
+                    callId:booking?.callId
                 });
             }
         }
