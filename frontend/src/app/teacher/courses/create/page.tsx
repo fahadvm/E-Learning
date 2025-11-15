@@ -40,6 +40,7 @@ interface CourseData {
   level: string;
   language: string;
   price: number;
+  isTechnicalCourse:boolean,
   currency: string;
   coverImage: File | null;
   tags: string[];
@@ -69,6 +70,7 @@ export default function CreateCoursePage() {
     language: 'English',
     price: 0,
     currency: 'INR',
+    isTechnicalCourse:false,
     coverImage: null,
     tags: [],
     learningOutcomes: [''],
@@ -145,6 +147,7 @@ export default function CreateCoursePage() {
       formData.append('subtitle', courseData.subtitle || '');
       formData.append('description', courseData.description);
       formData.append('category', courseData.category);
+      formData.append('isTechnicalCourse', courseData.isTechnicalCourse);
       formData.append('level', courseData.level);
       formData.append('totalDuration', getTotalDuration().toString());
       formData.append('language', courseData.language);

@@ -163,9 +163,7 @@ export default function Header() {
         <Link href="/teacher/profile" title="Profile" className="hover:text-blue-400 transition">
           <Settings size={20} />
         </Link>
-        <Link href="/teacher/salary" title="Profile" className="hover:text-blue-400 transition">
-          <Settings size={20} />
-        </Link>
+        
         <div className="relative">
           <button
             title="Notifications"

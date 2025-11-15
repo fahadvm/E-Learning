@@ -25,6 +25,7 @@ export interface ICourse extends Document {
   level: string;
   category: string;
   language: string;
+  isTechnicalCourse : boolean;
   price?: number;
   coverImage?: string;
   isBlocked: boolean;
@@ -78,6 +79,7 @@ const CourseSchema = new Schema<ICourse>(
     
     isBlocked: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: false },
+    isTechnicalCourse: { type: Boolean, default: false },
     isPublished: { type: Boolean, default: false },
     status: { type: String, default: 'published' },
     rejectionReason: { type: String },

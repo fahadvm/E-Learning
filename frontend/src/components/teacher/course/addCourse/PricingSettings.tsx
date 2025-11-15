@@ -16,6 +16,7 @@ interface CourseData {
   language: string;
   price: number;
   currency: string;
+  isTechnicalCourse: boolean;
   coverImage: File | null;
   tags: string[];
   learningOutcomes: string[];

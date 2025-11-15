@@ -15,14 +15,12 @@ export class AdminSubscriptionPlanController implements IAdminSubscriptionContro
   ) {}
 
   async createPlan(req: Request, res: Response): Promise<void> {
-    console.log("coming requests ", req.body)
     const plan = await this._planService.createPlan(req.body);
     sendResponse(res, STATUS_CODES.CREATED, MESSAGES.SUBSCRIPTION_PLAN_CREATED, true, plan);
   }
 
   async getAllPlans(req: Request, res: Response): Promise<void> {
     const plans = await this._planService.getAllPlans();
-        console.log("coming plan  ", plans)
 
     sendResponse(res, STATUS_CODES.OK, MESSAGES.SUBSCRIPTION_PLANS_FETCHED, true, plans);
   }

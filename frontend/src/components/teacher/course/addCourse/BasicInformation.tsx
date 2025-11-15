@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Upload, Plus, Trash2, X } from 'lucide-react';
 import Cropper, { Area } from 'react-easy-crop';
-import 'react-easy-crop/react-easy-crop.css'; 
+import 'react-easy-crop/react-easy-crop.css';
 
 interface CourseData {
   title: string;
@@ -17,6 +17,7 @@ interface CourseData {
   language: string;
   price: number;
   currency: string;
+  isTechnicalCourse: boolean;
   coverImage: File | null;
   tags: string[];
   learningOutcomes: string[];
@@ -47,7 +48,7 @@ const languages = ['English', 'Malayalam', 'Hindi'];
 
 export default function BasicInformation({ courseData, setCourseData }: BasicInformationProps) {
   const [newTag, setNewTag] = useState('');
-  const [imageSrc, setImageSrc] = useState<string | null>(null); // Data URL for cropping
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
@@ -160,7 +161,7 @@ export default function BasicInformation({ courseData, setCourseData }: BasicInf
         }
         const file = new File([blob], 'cropped_coverImage.jpg', { type: 'image/jpeg' });
         resolve(file);
-      }, 'image/jpeg', 0.9); // 0.9 quality for JPEG
+      }, 'image/jpeg', 0.9);
     });
   };
 
@@ -260,6 +261,24 @@ export default function BasicInformation({ courseData, setCourseData }: BasicInf
                 ))}
               </select>
             </div>
+          </div>
+
+          {/* NEW CHECKBOX */}
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="isTechnicalCourse"
+              checked={courseData.isTechnicalCourse}
+              onChange={(e) => setCourseData(prev => ({ ...prev, isTechnicalCourse: e.target.checked }))}
+              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+              data-testid="checkbox-is-technical-course"
+            />
+            <Label
+              htmlFor="isTechnicalCourse"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              This is a technical course that requires a compiler
+            </Label>
           </div>
 
           <div>

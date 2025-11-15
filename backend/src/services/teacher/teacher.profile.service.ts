@@ -46,17 +46,19 @@ export class TeacherProfileService implements ITeacherProfileService {
 
     if (teacher.verificationStatus === VerificationStatus.PENDING)
       throwError(MESSAGES.ALREADY_REQUESTED_VERIFICATION, STATUS_CODES.CONFLICT);
+    
 
-    const isComplete = await this._teacherRepository.isProfileComplete(teacherId);
-    if (!isComplete) throwError(MESSAGES.COMPLETE_PROFILE, STATUS_CODES.CONFLICT);
-     const uploadResult = await cloudinary.uploader.upload(file.path, {
-      folder: 'teacher_resumes',
-      resource_type: 'auto',
-      use_filename: true,
-    });
+    // const isComplete = await this._teacherRepository.isProfileComplete(teacherId);
+    // if (!isComplete) throwError(MESSAGES.COMPLETE_PROFILE, STATUS_CODES.CONFLICT);
+    //  const uploadResult = await cloudinary.uploader.upload(file.path, {
+    //   folder: 'teacher_resumes',
+    //   resource_type: 'auto',
+    //   use_filename: true,
+    // });
 
-    const resumeUrl = uploadResult.secure_url;
-    const updated = await this._teacherRepository.sendVerificationRequest(teacherId,VerificationStatus.PENDING,resumeUrl);
+    // const resumeUrl = uploadResult.secure_url;
+    // console.log("resumeUrl",resumeUrl)
+    const updated = await this._teacherRepository.verifyTeacherById(teacherId);
     if(!updated) throwError(MESSAGES.VERIFICATION_FAILED,STATUS_CODES.BAD_REQUEST);
 
     return updated;

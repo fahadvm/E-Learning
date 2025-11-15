@@ -4,7 +4,7 @@ import type { Slot } from "@/app/teacher/slots/page";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Video, CalendarClock } from "lucide-react";
+import { MessageSquare, Video, CalendarClock, Copy, Check } from "lucide-react";
 import { convertTo12Hour } from "@/utils/timeConverter";
 import { useEffect, useState } from "react";
 import { teacherCallRequestApi } from "@/services/APIservices/teacherApiService";
@@ -31,7 +31,13 @@ export default function UpcomingTab({
   const [selectedNewSlot, setSelectedNewSlot] = useState<Slot | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter()
+
+  // Call ID Modal State
+  const [callIdModalOpen, setCallIdModalOpen] = useState(false);
+  const [modalCall, setModalCall] = useState<Slot | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const router = useRouter();
 
   useEffect(() => {
     if (isModalOpen) {
@@ -45,12 +51,11 @@ export default function UpcomingTab({
             .map((item: any) => ({
               _id: item._id,
               dateKey: item.date,
-              day:item.day,
+              day: item.day,
               startISO: item.slot.start,
               endISO: item.slot.end,
               status: item.status,
             }));
-            console.log("setAvailableSlots",available)
           setAvailableSlots(available);
         } catch (err) {
           setError("Failed to fetch available slots. Please try again.");
@@ -63,31 +68,48 @@ export default function UpcomingTab({
   }, [isModalOpen]);
 
   const handleRescheduleClick = (slotId: string) => {
-    console.log("here slectslot id is ", slotId)
     setSelectedSlotId(slotId);
     setIsModalOpen(true);
   };
+
+  const openCallIdModal = (slot: Slot) => {
+    setModalCall(slot);
+    setCallIdModalOpen(true);
+    setCopied(false);
+  };
+
   const handleVideoCallClick = (callId: string) => {
-    console.log("here slectslot id for video call is ", callId)
-    router.push(`/teacher/videoCall?callid=${callId}`)
+    router.push(`/teacher/videoCall?callid=${callId}`);
+  };
+
+  const copyCallId = async (id: string) => {
+    try {
+      await navigator.clipboard.writeText(id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      const textarea = document.createElement("textarea");
+      textarea.value = id;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   const handleRescheduleConfirm = async () => {
-    console.log("reschedulling is working ")
-    console.log("reschedulling is working for res",selectedSlotId,rescheduleReason.trim() , selectedNewSlot)
     if (selectedSlotId && rescheduleReason.trim() && selectedNewSlot) {
-
       setIsLoading(true);
       try {
-            console.log("reschedulling is working for res")
-
         const res = await teacherCallRequestApi.rescheduleRequests(selectedSlotId, {
           reason: rescheduleReason,
           nextSlot: {
             start: selectedNewSlot.startISO,
             end: selectedNewSlot.endISO,
             date: selectedNewSlot.dateKey,
-            day:selectedNewSlot.day,
+            day: selectedNewSlot.day,
           },
         });
         if (res.ok) {
@@ -116,7 +138,69 @@ export default function UpcomingTab({
     );
   }
 
-  console.log("updated slot is :",updatedSlots)
+  // Call ID Modal Component
+  const CallIdModal = () => {
+    if (!modalCall) return null;
+
+    return (
+      <motion.div
+        className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={() => setCallIdModalOpen(false)}
+      >
+        <motion.div
+          className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl"
+          initial={{ scale: 0.9, y: 20 }}
+          animate={{ scale: 1, y: 0 }}
+          exit={{ scale: 0.9, y: 20 }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h2 className="text-xl font-bold text-gray-900 mb-3">Video Call ID</h2>
+          <p className="text-sm text-gray-600 mb-4">
+            Share this ID with your student.
+          </p>
+
+          <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg font-mono text-sm break-all">
+            <span className="flex-1">{modalCall.callId}</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => copyCallId(modalCall.callId)}
+              className="h-8 w-8 shrink-0"
+            >
+              {copied ? (
+                <Check className="h-4 w-4 text-green-600" />
+              ) : (
+                <Copy className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+
+          <div className="flex justify-end gap-2 mt-6">
+            <Button
+              variant="outline"
+              onClick={() => setCallIdModalOpen(false)}
+            >
+              Close
+            </Button>
+            <Button
+              variant="default"
+              className="bg-blue-700 hover:bg-blue-800"
+              onClick={() => {
+                setCallIdModalOpen(false);
+                handleVideoCallClick(modalCall.callId);
+              }}
+            >
+              <Video className="h-4 w-4 mr-2" />
+              Join Now
+            </Button>
+          </div>
+        </motion.div>
+      </motion.div>
+    );
+  };
 
   return (
     <>
@@ -135,11 +219,11 @@ export default function UpcomingTab({
                 <CardTitle className="text-md font-medium text-gray-700">
                   {convertTo12Hour(s.startISO)} - {convertTo12Hour(s.endISO)}
                 </CardTitle>
-
-                
               </div>
               {s.status === "booked" && (
-                <Badge className="bg-blue-500 text-white text-xs font-semibold">Booked</Badge>
+                <Badge className="bg-blue-500 text-white text-xs font-semibold">
+                  Booked
+                </Badge>
               )}
             </CardHeader>
             <CardContent className="flex items-center justify-between gap-4 pt-4 border-t">
@@ -159,12 +243,13 @@ export default function UpcomingTab({
                 >
                   <MessageSquare className="h-4 w-4" />
                 </Button>
+
                 <Button
                   variant="default"
                   className="flex items-center gap-1 bg-blue-700 hover:bg-blue-800"
-                  onClick={() => handleVideoCallClick(s.callId)}
-                  aria-label="Join video call"
-                  title="Join video call"
+                  onClick={() => openCallIdModal(s)}
+                  aria-label="Show video call ID"
+                  title="Show video call ID"
                 >
                   <Video className="h-4 w-4" />
                 </Button>
@@ -186,6 +271,7 @@ export default function UpcomingTab({
         ))}
       </div>
 
+      {/* Reschedule Modal */}
       {isModalOpen && (
         <motion.div
           className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
@@ -220,11 +306,12 @@ export default function UpcomingTab({
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {availableSlots.length ? (
                   availableSlots.map((slot) => (
-                    
                     <label
                       key={slot._id}
                       className={`flex items-center p-2 border rounded-lg cursor-pointer ${
-                        selectedNewSlot?._id === slot._id ? "border-blue-500 bg-blue-50": "hover:bg-gray-50"
+                        selectedNewSlot?._id === slot._id
+                          ? "border-blue-500 bg-blue-50"
+                          : "hover:bg-gray-50"
                       }`}
                     >
                       <input
@@ -236,7 +323,10 @@ export default function UpcomingTab({
                       />
                       <div>
                         <div className="text-sm font-medium">
-                          {new Date(slot.dateKey).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                          {new Date(slot.dateKey).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                          })}
                         </div>
                         <div className="text-xs text-gray-500">
                           {convertTo12Hour(slot.startISO)} - {convertTo12Hour(slot.endISO)}
@@ -276,6 +366,10 @@ export default function UpcomingTab({
         </motion.div>
       )}
 
+      {/* Call ID Modal */}
+      {callIdModalOpen && <CallIdModal />}
+
+      {/* Pagination */}
       {totalPages && totalPages > 1 && onPageChange && (
         <div className="flex justify-center items-center gap-4 mt-6">
           <Button

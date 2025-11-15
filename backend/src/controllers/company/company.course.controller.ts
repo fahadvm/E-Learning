@@ -60,12 +60,10 @@ export class CompanyCourseController implements ICompanyCourseController {
   }
 
   async getMyCourses(req: AuthRequest, res: Response): Promise<void> {
-    console.log("controller of get courses")
     const companyId = req.user?.id;
     if (!companyId) { throwError(MESSAGES.ALL_FIELDS_REQUIRED, STATUS_CODES.BAD_REQUEST); }
     const courses = await this._courseService.getMycoursesById(companyId);
     if (!courses) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    console.log("controller of get courses completed", courses)
     sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, courses);
 
   }
@@ -73,7 +71,6 @@ export class CompanyCourseController implements ICompanyCourseController {
     const companyId = req.user?.id;
     if (!companyId) { throwError(MESSAGES.ALL_FIELDS_REQUIRED, STATUS_CODES.BAD_REQUEST); }
     const courseIds = await this._purchaseService.getMycoursesIdsById(companyId);
-    console.log("controller of get courses completed", courseIds)
     sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, courseIds);
 
   }

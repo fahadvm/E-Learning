@@ -15,7 +15,6 @@ export class AdminOrderController implements IAdminOrderController {
     private readonly _orderService: IAdminOrderService
   ) {}
 
-  // ✅ Get all company purchases
   async getCompanyOrders(req: Request, res: Response): Promise<void> {
     const orders = await this._orderService.getCompanyOrders();
 

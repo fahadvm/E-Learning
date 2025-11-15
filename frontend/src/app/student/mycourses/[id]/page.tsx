@@ -74,6 +74,7 @@ interface Course {
   category: string;
   coverImage?: string;
   totalDuration: number;
+  isTechnicalCourse: boolean;
   teacherId?: {
     _id: string;
     name: string;
@@ -449,10 +450,14 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                 Notes
               </TabsTrigger>
 
-              <TabsTrigger value="compiler" className="flex items-center gap-2">
-                <Code2 className="w-4 h-4" />
-                Compiler
-              </TabsTrigger>
+              {course?.isTechnicalCourse && (
+                <TabsTrigger value="compiler" className="flex items-center gap-2">
+                  <Code2 className="w-4 h-4" />
+                  Compiler
+                </TabsTrigger>
+              )}
+
+
 
               <TabsTrigger value="community" className="flex items-center gap-2">
                 <MessageSquare className="w-4 h-4" />
@@ -534,7 +539,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <BookOpen className="w-5 h-5 mr-2" />
-                    Course Description
+                    Course Description {course.isTechnicalCourse}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>

@@ -12,6 +12,8 @@ import {
   MoreVertical,
   MessageSquare,
   XCircle,
+  Copy,
+  Check,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -29,6 +31,14 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { convertTo12Hour } from "@/utils/timeConverter";
 import { studentBookingApi } from "@/services/APIservices/studentApiservice";
@@ -61,7 +71,6 @@ interface Booking {
     start: string;
     end: string;
   };
-
   callId: string;
 }
 
@@ -74,7 +83,13 @@ export function ScheduledCalls() {
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
-  const router = useRouter()
+
+  // Modal state
+  const [callIdModalOpen, setCallIdModalOpen] = useState(false);
+  const [modalCall, setModalCall] = useState<Booking | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const router = useRouter();
 
   const fetchScheduledCalls = async () => {
     try {
@@ -85,7 +100,6 @@ export function ScheduledCalls() {
       });
 
       if (res.ok && res.data) {
-        console.log("setScheduledCalls", res.data)
         setScheduledCalls(res.data);
         setTotalPages(res.data.totalPages || 1);
       } else {
@@ -103,36 +117,55 @@ export function ScheduledCalls() {
     fetchScheduledCalls();
   }, [page]);
 
+  // Copy call ID to clipboard
+  const copyCallId = async (id: string) => {
+    try {
+      await navigator.clipboard.writeText(id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      // Fallback for older browsers
+      const textarea = document.createElement("textarea");
+      textarea.value = id;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  // Open modal with call ID
+  const openCallIdModal = (call: Booking) => {
+    setModalCall(call);
+    setCallIdModalOpen(true);
+    setCopied(false);
+  };
+
+  // Join call with 5-minute early join logic
   const handleJoinCall = (call: Booking) => {
     const { date, slot } = call;
-    console.log("call ", call)
-
-    // Current time
     const now = new Date();
-
-    // Combine date + start time → convert to Date()
     const sessionStart = new Date(`${date}T${slot.start}:00`);
     const sessionEnd = new Date(`${date}T${slot.end}:00`);
-
-    // Allow join window: 5 min before start and until end time
     const joinOpen = new Date(sessionStart.getTime() - 5 * 60 * 1000);
-    console.log("call ", call)
-    if (now <= sessionEnd) {
       router.push(`/student/videoCall?callId=${call.callId}`);
-    } else {
-      showInfoToast(
-        `You can join at ${convertTo12Hour(slot.start)} on ${date.split("-").reverse().join("-")}`
-      );
-    };
-  }
+
+    // if (now >= joinOpen && now <= sessionEnd) {
+    // } else {
+    //   showInfoToast(
+    //     `You can join at ${convertTo12Hour(slot.start)} on ${date.split("-").reverse().join("-")}`
+    //   );
+    // }
+  };
 
   const handleApproveReschedule = async (bookingId: string) => {
     try {
       const res = await studentBookingApi.approveBooking(bookingId);
-
       if (res.ok) {
         showSuccessToast("Reschedule approved successfully!");
-        fetchScheduledCalls(); // refresh
+        fetchScheduledCalls();
       }
     } catch (err) {
       console.error(err);
@@ -142,21 +175,18 @@ export function ScheduledCalls() {
   const handleRejectReschedule = async (bookingId: string) => {
     try {
       const res = await studentBookingApi.rejectReschedule(bookingId);
-
       if (res.ok) {
         showSuccessToast("Reschedule request rejected.");
-        fetchScheduledCalls(); // refresh
+        fetchScheduledCalls();
       }
     } catch (err) {
       console.error(err);
     }
   };
 
-
   const handleCancelCall = async (callId: string, reason: string) => {
     try {
       const res = await studentBookingApi.cancelBooking(callId, { reason });
-
       if (res.ok) {
         setScheduledCalls((prev) => prev.filter((b) => b._id !== callId));
         showSuccessToast(res.message);
@@ -173,6 +203,55 @@ export function ScheduledCalls() {
 
   const handleChat = (teacherId: string) => {
     router.push(`/student/chat/${teacherId}`);
+  };
+
+  // Call ID Modal Component
+  const CallIdModal = () => {
+    if (!modalCall) return null;
+
+    return (
+      <Dialog open={callIdModalOpen} onOpenChange={setCallIdModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Video Call ID</DialogTitle>
+            <DialogDescription>
+              Share this ID with your teacher or keep it for your records.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex items-center gap-2 p-3 bg-muted rounded-md font-mono text-sm break-all">
+            <span className="flex-1">{modalCall.callId}</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => copyCallId(modalCall.callId)}
+              className="h-8 w-8 shrink-0"
+            >
+              {copied ? (
+                <Check className="h-4 w-4 text-green-600" />
+              ) : (
+                <Copy className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+
+          <DialogFooter className="sm:justify-between gap-2">
+            <Button variant="outline" onClick={() => setCallIdModalOpen(false)}>
+              Close
+            </Button>
+            <Button
+              onClick={() => {
+                setCallIdModalOpen(false);
+                handleJoinCall(modalCall);
+              }}
+            >
+              <Video className="h-4 w-4 mr-2" />
+              Join Now
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
   };
 
   return (
@@ -288,16 +367,14 @@ export function ScheduledCalls() {
                         Booked on {new Date(call.createdAt).toLocaleString()}
                       </p>
                     </div>
-
                   </div>
 
-                  <div className="gap-5 flex items-center">
+                  <div className="flex items-center gap-3">
                     {call.rescheduleStatus === "requested" ? (
-                      <div className="bg-blue-50 border border-blue-200 p-3 rounded-md mt-3">
+                      <div className="bg-blue-50 border border-blue-200 p-3 rounded-md">
                         <p className="text-sm text-yellow-700 font-medium">
                           Teacher requested to reschedule your session.
                         </p>
-
                         <p className="text-sm mt-1">
                           New Slot:
                           <strong>
@@ -307,31 +384,29 @@ export function ScheduledCalls() {
                           on{" "}
                           <strong>{call.requestedDate?.split("-").reverse().join("-")}</strong>
                         </p>
-
-                        <div className= "flex justify-between items-center mt-3">
+                        <div className="flex justify-between items-center mt-3 gap-2">
                           <Button
-                            className="bg-green-600 hover:bg-green-700 text-white"
+                            className="bg-green-600 hover:bg-green-700 text-white text-xs"
                             onClick={() => handleApproveReschedule(call._id)}
                           >
                             Approve
                           </Button>
-
                           <Button
-                            className="bg-red-600 hover:bg-red-700 text-white"
+                            className="bg-red-600 hover:bg-red-700 text-white text-xs"
                             onClick={() => handleRejectReschedule(call._id)}
                           >
                             Reject
                           </Button>
                         </div>
                       </div>
-                    ):(
-                    <Button
-                      onClick={() => handleJoinCall(call)}
-                      className="bg-primary hover:bg-primary/90 min-w-[140px]"
-                    >
-                      <Video className="h-4 w-4 mr-2" />
-                      Join
-                    </Button>
+                    ) : (
+                      <Button
+                        onClick={() => openCallIdModal(call)}
+                        className="bg-primary hover:bg-primary/90 min-w-[140px]"
+                      >
+                        <Video className="h-4 w-4 mr-2" />
+                        Video Call
+                      </Button>
                     )}
 
                     <DropdownMenu
@@ -354,12 +429,10 @@ export function ScheduledCalls() {
                         >
                           <MessageSquare className="mr-2 h-4 w-4" /> Chat
                         </DropdownMenuItem>
-
                         <DropdownMenuItem
                           className="text-destructive"
                           onClick={() => {
                             setDropdownOpen(null);
-                            // Delay opening dialog until dropdown fully closes
                             setTimeout(() => {
                               setSelectedCall(call);
                               setCancelReason("");
@@ -399,6 +472,9 @@ export function ScheduledCalls() {
           </div>
         </>
       )}
+
+      {/* Call ID Modal */}
+      <CallIdModal />
 
       {/* Cancel Confirmation Dialog */}
       <AlertDialog open={confirmCancelOpen} onOpenChange={setConfirmCancelOpen}>

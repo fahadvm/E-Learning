@@ -92,6 +92,7 @@ export class TeacherCourseService implements ITeacherCourseService {
       category: req.body.category,
       level: req.body.level,
       language: req.body.language,
+      isTechnicalCourse: req.body.isTechnicalCourse,
       price,
       coverImage: coverImageUrl,
       learningOutcomes: JSON.parse(req.body.learningOutcomes || '[]'),

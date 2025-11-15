@@ -55,6 +55,7 @@ export interface CreateCourseRequest extends Express.Request {
     language: string;
     price?: string | number;
     learningOutcomes?: string;
+    isTechnicalCourse: boolean
     requirements?: string;
     modules?: string;
     totalDuration?: number | string;

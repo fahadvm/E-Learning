@@ -20,9 +20,7 @@ export class AdminProfileController implements IAdminProfileController {
     const adminId = req.user?.id;
     if (!adminId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
-    const profile = await this._profileService.getProfile(adminId);
-    console.log("updated profile is ", profile )
-    return sendResponse(res, STATUS_CODES.OK, MESSAGES.ADMIN_PROFILE_FETCHED, true, profile);
+    const profile = await this._profileService.getProfile(adminId);    return sendResponse(res, STATUS_CODES.OK, MESSAGES.ADMIN_PROFILE_FETCHED, true, profile);
   };
 
   updateProfile = async (req: AuthRequest, res: Response) => {

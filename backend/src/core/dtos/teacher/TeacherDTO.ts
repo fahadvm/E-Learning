@@ -53,6 +53,7 @@ export interface CourseCreateDTO {
   learningOutcomes?: string[];
   requirements?: string[];
   isPublished: boolean;
+  isTechnicalCourse: boolean;
   modules: ModuleDTO[];
   teacherId?: mongoose.Types.ObjectId;
 }

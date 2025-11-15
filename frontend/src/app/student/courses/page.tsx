@@ -32,7 +32,7 @@ interface ICourse {
   createdAt?: string
 }
 
-const ITEMS_PER_PAGE = 8
+const ITEMS_PER_PAGE = 2
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState<ICourse[]>([])
