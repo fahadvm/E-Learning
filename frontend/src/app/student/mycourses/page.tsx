@@ -19,6 +19,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { studentCourseApi, studentProfileApi } from "@/services/APIservices/studentApiservice"
+import Header from "@/components/student/header"
 
 interface Review {
   rating: number
@@ -80,9 +81,10 @@ export default function MyCourses() {
       const studentRes =  await studentProfileApi.getProfile()
       const studentData: StudentProfile = studentRes.data
       setStudent(studentRes)
-      console.log("student res", studentRes.data)
 
       const allCourses = res.data.flatMap((order) => order.courses)
+      console.log("alll courses response",res)
+      console.log("alll courses are",allCourses)
       const mergedCourses = allCourses.map((course) => {
         const progressData = studentData.coursesProgress?.find(
           (p) => p.courseId === course._id
@@ -123,21 +125,9 @@ export default function MyCourses() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header Section */}
+      <Header/>
       <div className="bg-card border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-start justify-between mb-6">
-            <div className="flex items-center space-x-4">
-              <Link href="/student/home">
-                <Button variant="ghost" size="sm" >
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Dashboard
-                </Button>
-              </Link>
-            </div>
-            <Badge variant="secondary" className="text-sm font-medium">
-              {courses.length} Active Courses
-            </Badge>
-          </div>
 
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-foreground mb-2">

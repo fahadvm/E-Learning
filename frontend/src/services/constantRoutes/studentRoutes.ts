@@ -33,7 +33,7 @@ export const STUDENT_ROUTES = {
     base: STUDENT_COURSES,
     getById: (id: string) => `${STUDENT_COURSES}/${id}`,
     compilerRun: `${STUDENT_COURSES}/compiler/run`,
-    lessonComplete: (courseId: string, lessonIndex: string) =>`${STUDENT_COURSES}/${courseId}/lesson/${lessonIndex}/complete`,
+    lessonComplete: (courseId: string, lessonIndex: string) => `${STUDENT_COURSES}/${courseId}/lesson/${lessonIndex}/complete`,
     notes: `${STUDENT_COURSES}/notes`,
     resources: (courseId: string) => `${STUDENT_COURSES}/resources/${courseId}`,
     comments: (courseId: string) => `${STUDENT_COURSES}/comment/${courseId}`,
@@ -56,7 +56,7 @@ export const STUDENT_ROUTES = {
     approveReschedule: (bookingId: string) => `${STUDENT_BOOKINGS}/${bookingId}/approve`,
     history: `${STUDENT_BOOKINGS}/history`,
     payments: (teacherId: string) => `${STUDENT_BOOKINGS}/payments/${teacherId}`,
-    verify:  `${STUDENT_BOOKINGS}/payments/verify`,
+    verify: `${STUDENT_BOOKINGS}/payments/verify`,
     details: (bookingId: string) => `${STUDENT_BOOKINGS}/${bookingId}/details`,
     paymentOrderIdDetails: (paymentOrderId: string) => `${STUDENT_BOOKINGS}/${paymentOrderId}/paymentOrderIdDetails`,
     scheduledCalls: `${STUDENT_BOOKINGS}/ScheduledCall`,
@@ -78,6 +78,9 @@ export const STUDENT_ROUTES = {
     verifyPayment: `${STUDENT_PURCHASE}/verify-payment`,
     myCourses: `${STUDENT_PURCHASE}/enrolled`,
     myCourseDetails: (courseId: string) => `${STUDENT_PURCHASE}/enrolled/${courseId}`,
+    getPurchasedIds: `${STUDENT_PURCHASE}/entrolled-ids`,
+    getOrderDetails: (razorpayOrderId: string)=> `${STUDENT_PURCHASE}/orderDetails/${razorpayOrderId}`
+
   },
 
   subscriptions: {

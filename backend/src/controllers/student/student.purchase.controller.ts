@@ -24,6 +24,7 @@ export class StudentPurchaseController implements IStudentPurchaseController {
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
     const { courses, amount } = req.body;
+    console.log("creating order new coureses are:",req.body)
     if (!courses || !amount)
       throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
 
@@ -33,10 +34,10 @@ export class StudentPurchaseController implements IStudentPurchaseController {
 
   verifyPayment = async (req: AuthRequest, res: Response) => {
     const studentId = req.user?.id;
-    if(!studentId){
-      throwError(MESSAGES.UNAUTHORIZED , STATUS_CODES.UNAUTHORIZED);
+    if (!studentId) {
+      throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
     }
-    const verified = await this._PurchaseService.verifyPayment(req.body , studentId);
+    const verified = await this._PurchaseService.verifyPayment(req.body, studentId);
     return verified.success
       ? sendResponse(res, STATUS_CODES.OK, MESSAGES.PAYMENT_VERIFIED_SUCCESSFULLY, true, verified)
       : sendResponse(res, STATUS_CODES.BAD_REQUEST, MESSAGES.PAYMENT_VERIFICATION_FAILED, false, verified);
@@ -44,24 +45,35 @@ export class StudentPurchaseController implements IStudentPurchaseController {
 
 
   getMyCourses = async (req: AuthRequest, res: Response) => {
-
     const studentId = req.user?.id;
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
-
     const courses = await this._PurchaseService.getPurchasedCourses(studentId);
-
+    console.log("get my courses  aare: ",courses)
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, courses);
   };
 
   getMyCourseDetails = async (req: AuthRequest, res: Response) => {
     const studentId = req.user?.id;
-    const courseId  = req.params.courseId;
-     
+    const courseId = req.params.courseId;
     if (!courseId || !studentId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.NOT_FOUND);
-    
-    const course = await this._PurchaseService.getPurchasedCourseDetails(courseId,studentId);
-
-
+    const course = await this._PurchaseService.getPurchasedCourseDetails(courseId, studentId);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, course);
+  };
+  public async getPurchasedCourseIds(req: AuthRequest, res: Response) {
+    const studentId = req.user?.id
+    if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED)
+    const courseIds = await this._PurchaseService.getPurchasedCourseIds(studentId);
+    console.log("entrolled course ids:", courseIds)
+    return sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_IDS_FETCHED, true, courseIds);
+  }
+
+  getOrderDetails = async (req: AuthRequest, res: Response) => {
+    const studentId = req.user?.id;
+    if (!studentId) throwError(MESSAGES.UNAUTHORIZED);
+
+    const { orderId } = req.params;
+
+    const order = await this._PurchaseService.getOrderDetails(studentId, orderId);
+    return sendResponse(res, STATUS_CODES.OK, MESSAGES.ORDER_FETCHED_SUCCESSFULLY, true, order);
   };
 }

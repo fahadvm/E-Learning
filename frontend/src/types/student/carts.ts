@@ -1,5 +1,5 @@
 export interface CartCourse {
-    id: string
+    _id: string
     title: string
     teacherId: TeacherDetails | string
     coverImage: string
@@ -9,7 +9,7 @@ export interface CartCourse {
 }
 
 export interface TeacherDetails {
-    id: string
+    _id: string
     name: string
     email: string
 }

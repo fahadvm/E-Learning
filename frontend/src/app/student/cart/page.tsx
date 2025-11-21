@@ -9,8 +9,8 @@ import { EmptyCart } from "@/components/student/cart/empty-cart"
 import { CartItemSkeleton, CartSummarySkeleton } from "@/components/student/cart/cart-skeleton"
 import { studentCartApi } from "@/services/APIservices/studentApiservice"
 import type { CartData, CartSummary as CartSummaryType } from "@/types/student/carts"
-import { showSuccessToast } from "@/utils/Toast"
 import { useRouter } from "next/navigation"
+import Header from "@/components/student/header"
 
 
 export default function CartPage() {
@@ -143,15 +143,10 @@ export default function CartPage() {
 
     return (
         <div className="min-h-screen bg-background">
+                <Header />
             <div className="container mx-auto px-4 py-8 max-w-7xl">
                 {/* Header */}
                 <div className="mb-8">
-                    <div className="flex items-center gap-4 mb-4">
-                        <Button variant="ghost" size="sm" onClick={handleGoBack}>
-                            <ArrowLeft className="h-4 w-4 mr-2" />
-                            Back
-                        </Button>
-                    </div>
                     <h1 className="text-3xl font-bold text-balance">Shopping Cart</h1>
                     {summary.courseCount > 0 && (
                         <p className="text-muted-foreground mt-2">

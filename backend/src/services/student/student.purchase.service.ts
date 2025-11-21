@@ -41,7 +41,7 @@ export class StudentPurchaseService implements IStudentPurchaseService {
     amount: number,
     currency = 'INR'
   ): Promise<Partial<IOrder>> {
-     logger.debug('amount is ', amount);
+    logger.debug('amount is ', amount);
     const options = {
       amount: amount * 100,
       currency,
@@ -79,7 +79,7 @@ export class StudentPurchaseService implements IStudentPurchaseService {
     razorpay_payment_id: string;
     razorpay_signature: string;
   }, studentId: string): Promise<{ success: boolean }> {
-     logger.debug(
+    logger.debug(
       details.razorpay_order_id,
       details.razorpay_payment_id,
       details.razorpay_signature);
@@ -108,6 +108,10 @@ export class StudentPurchaseService implements IStudentPurchaseService {
     const orders = await this._orderRepo.getOrdersByStudentId(studentId);
     return orders;
   }
+  async getPurchasedCourseIds(studentId: string): Promise<string[]> {
+    const courseIds = await this._orderRepo.getOrderedCourseIds(studentId);
+    return courseIds;
+  }
 
   async getPurchasedCourseDetails(courseId: string, studentId: string): Promise<{ course: ICourse; progress: ICourseProgress }> {
     if (!courseId || !studentId) throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
@@ -117,5 +121,11 @@ export class StudentPurchaseService implements IStudentPurchaseService {
     if (!student) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     const progress = await this._studentRepo.getOrCreateCourseProgress(studentId, courseId);
     return { course, progress };
+  }
+
+  async getOrderDetails(studentId: string, orderId: string):Promise<IOrder> {
+    const order = await this._orderRepo.getOrderDetailsByrazorpayOrderId(studentId, orderId);
+    if (!order) throwError(MESSAGES.ORDER_NOT_FOUND,STATUS_CODES.NOT_FOUND);
+    return order;
   }
 }

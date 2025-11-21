@@ -10,6 +10,7 @@ import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { IStudentCourseController } from '../../core/interfaces/controllers/student/IStudentCourseController';
 import { AuthRequest } from '../../types/AuthenticatedRequest';
 import axios from 'axios';
+import { Messages } from 'openai/resources/chat/completions';
 
 @injectable()
 export class StudentCourseController implements IStudentCourseController {
@@ -80,24 +81,24 @@ export class StudentCourseController implements IStudentCourseController {
     const languageId = languageMap[language.toLowerCase()];
     if (!languageId) throwError('Unsupported language', STATUS_CODES.CONFLICT);
 
-      const response = await axios.post(
-        JUDGE0_URL,
-        {
-          source_code: code,
-          language_id: languageId,
+    const response = await axios.post(
+      JUDGE0_URL,
+      {
+        source_code: code,
+        language_id: languageId,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-RapidAPI-Key': process.env.JUDGE0_API_KEY || '0d5115fdbcmsh30c67d2f61ef3e7p142104jsn296e045ea6a4',
+          'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com',
         },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'X-RapidAPI-Key': process.env.JUDGE0_API_KEY || '0d5115fdbcmsh30c67d2f61ef3e7p142104jsn296e045ea6a4',
-            'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com',
-          },
-        }
-      );
+      }
+    );
 
-      const output = response.data.stdout || response.data.stderr || 'No output';
-      return sendResponse(res, STATUS_CODES.OK, MESSAGES.CODE_RUN_SUCCESSFULLY, true, output);
-   
+    const output = response.data.stdout || response.data.stderr || 'No output';
+    return sendResponse(res, STATUS_CODES.OK, MESSAGES.CODE_RUN_SUCCESSFULLY, true, output);
+
   };
 
   noteSaving = async (req: AuthRequest, res: Response) => {
@@ -108,7 +109,7 @@ export class StudentCourseController implements IStudentCourseController {
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.NOTE_SAVED_SUCCESSFULLY, true, saving);
   };
   getCourseResources = async (req: AuthRequest, res: Response) => {
-    const {courseId}  = req.params;
+    const { courseId } = req.params;
     if (!courseId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
     const resources = await this._courseService.getResources(courseId);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.RESOURCES_FETCHED, true, resources);

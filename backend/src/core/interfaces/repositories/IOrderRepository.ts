@@ -8,5 +8,7 @@ export interface IOrderRepository {
   updateStatus(orderId: string, status: string): Promise<IOrder | null>;
   getOrdersByStudentId(studentId: string): Promise<(IOrder & { courses: ICourse[] })[]>;
   getStudentOrders(): Promise<IOrder[]>;
+  getOrderedCourseIds(studentId: string): Promise<string[]>
+  getOrderDetailsByrazorpayOrderId(studentId: string, orderId: string): Promise<IOrder | null>
 
 }

@@ -32,6 +32,7 @@ export const studentCourseApi = {
   saveNotes: (data: { courseId: string; notes: string }) => post(STUDENT_ROUTES.courses.notes, data),
   getCourseResources: (courseId: string) => get(STUDENT_ROUTES.courses.resources(courseId)),
   getCourseComments: (courseId: string) => get(STUDENT_ROUTES.courses.comments(courseId)),
+  getPurchasedCourseIds: () => get(STUDENT_ROUTES.purchase.getPurchasedIds),
   addCourseComment: (courseId: string, data: { content: string }) => post(STUDENT_ROUTES.courses.comments(courseId), data),
   deleteCourseComment: (commentId: string) => del(`${STUDENT_ROUTES.courses.comments('')}${commentId}`), // dynamic delete
 };
@@ -83,6 +84,7 @@ export const paymentApi = {
   bookingPayment: (data: { amount: number; bookingId: string }) => post(STUDENT_ROUTES.bookings.payments(''), data),
   verifyBookingPayment: (data: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) =>
     post(STUDENT_ROUTES.bookings.verify, data),
+  getOrderDetails: (razorpayOrderId : string ) => get(STUDENT_ROUTES.purchase.getOrderDetails(razorpayOrderId))
 };
 
 export const studentSubscriptionApi = {

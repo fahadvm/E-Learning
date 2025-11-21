@@ -35,6 +35,7 @@ export enum MESSAGES {
   COMPLETD_LESSON_MARKED = 'Lesson completed marked successfully.',
   CODE_RUN_SUCCESSFULLY = 'Code completed run successfully.',
   NOTE_SAVED_SUCCESSFULLY = 'Note saved successfully.',
+  ORDER_FETCHED_SUCCESSFULLY = 'Order Details fetched successfully.',
   RECORD_CREATION_FAILED = "Failed to update or create learning record",
   
   COMPANY_VERIFICATION_SUBMITTED = "company verification submitted successfully",
@@ -226,6 +227,7 @@ export enum MESSAGES {
   COURSE_UPDATED = 'Course updated successfully',
   COURSES_FETCHED = 'Courses fetched successfully',
   COURSE_FETCHED = 'Course fetched successfully',
+  COURSE_IDS_FETCHED = 'Course ids fetched successfully',
 
 
   // -------------------- SUBSCRIPTION PLAN --------------------

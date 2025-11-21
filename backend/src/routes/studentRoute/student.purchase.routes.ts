@@ -13,4 +13,7 @@ router.post('/create-order', authMiddleware('student'), asyncHandler(StudentPurc
 router.post('/verify-payment', authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.verifyPayment.bind(StudentPurchaseCtrl)));
 router.get('/enrolled',  authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.getMyCourses.bind(StudentPurchaseCtrl)));
 router.get('/enrolled/:courseId',  authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.getMyCourseDetails.bind(StudentPurchaseCtrl)));
+router.get( '/entrolled-ids', authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.getPurchasedCourseIds.bind(StudentPurchaseCtrl)));
+router.get( '/orderDetails/:razorpayOrderId', authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.getOrderDetails.bind(StudentPurchaseCtrl)));
+
 export default router;

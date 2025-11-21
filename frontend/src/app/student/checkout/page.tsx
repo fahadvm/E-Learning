@@ -72,9 +72,11 @@ export default function CheckoutPage() {
 
     script.onload = async () => {
       try {
+        const checking = cartData.courses.map((c) => c._id)
+        console.log("sending course ids are :", checking)
         const response = await paymentApi.createOrder({
           amount: total,
-          courses: cartData.courses.map((c) => c.id),
+          courses: cartData.courses.map((c) => c._id),
         });
 
         const order = response.data;
@@ -97,7 +99,7 @@ export default function CheckoutPage() {
               if (verifyResponse.ok) {
                 showSuccessToast("Payment successful!");
                 router.push(
-                  `/student/checkout/success?orderId=${response.razorpay_order_id}&paymentId=${response.razorpay_payment_id}&amount=${order.amount}`
+                  `/student/checkout/success?orderId=${response.razorpay_order_id}&amount=${order.amount}`
                 );
               } else {
                 console.error("Verification failed");
@@ -231,7 +233,7 @@ export default function CheckoutPage() {
                 {/* Courses */}
                 <div className="space-y-4">
                   {cartData.courses.map((course) => (
-                    <div key={course.id} className="flex items-center gap-4">
+                    <div key={course._id} className="flex items-center gap-4">
                       <div className="relative">
                         <img
                           src={course.coverImage || "/placeholder.svg"}

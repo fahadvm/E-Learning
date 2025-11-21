@@ -7,7 +7,9 @@ import { ICommentRepository } from '../core/interfaces/repositories/ICommentRepo
 export class CommentRepository implements ICommentRepository {
     async addComment(comment: IComment): Promise<IComment> {
         const newComment = new Comment(comment);
-        return await newComment.save();
+        const saved = await newComment.save();
+
+        return await saved.populate("userId", "_id name profilePicture");
     }
 
     async getCommentsByCourse(courseId: string): Promise<IComment[]> {

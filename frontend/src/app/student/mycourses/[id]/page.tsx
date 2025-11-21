@@ -19,6 +19,8 @@ import {
   VideoIcon,
   FileText,
   MessageCircle,
+  Copy,
+  RotateCcw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -145,11 +147,25 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     fetchComments();
   }, [courseId]);
 
+
+  const handleCopyOutput = () => {
+    if (!output) return
+    navigator.clipboard.writeText(output)
+    showSuccessToast("Output copied successfull")
+  }
+
+  const handleReset = () => {
+    setCode("")
+    setOutput("")
+  }
+
+
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
     try {
       const res = await studentCourseApi.addCourseComment(courseId, { content: newComment });
       if (res.ok) {
+        console.log("added comment backend response is :", res.data)
         setComments((prev) => [...prev, res.data]);
         setNewComment("");
         showSuccessToast("Comment added");
@@ -393,7 +409,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
       </div>
     );
 
-  if (!course || !progress)
+  if (!course)
     return (
       <div className="flex justify-center items-center h-screen text-lg">
         Course not found
@@ -470,8 +486,13 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
               </TabsTrigger>
             </TabsList>
 
+
+
+
+
+
             {/* Overview Tab */}
-            <TabsContent value="overview">
+            {/* <TabsContent value="overview">
               <Card className="rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 border border-gray-200">
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center gap-2">
@@ -556,6 +577,193 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent> */}
+            {/* Overview Tab - Upgraded with Related Courses */}
+            <TabsContent value="overview" className="space-y-6">
+              {/* Instructor Card */}
+              <Card className="rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 border border-gray-200">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2">
+                    <UserRound className="w-5 h-5" />
+                    About Instructor
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-full overflow-hidden border-4 border-white shadow-lg">
+                      <img
+                        src={course.teacherId?.profilePicture || "/gallery/avatar.jpg"}
+                        alt="Instructor"
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                    <div className="flex flex-col flex-1">
+                      <div className="flex items-center justify-between flex-wrap gap-3">
+                        <div>
+                          <Link
+                            href={`/student/teacher/${course.teacherId?._id}?courseId=${course._id}`}
+                            className="text-lg font-semibold hover:text-primary transition-colors"
+                          >
+                            {course.teacherId?.name || "Unknown Instructor"}
+                          </Link>
+                          <p className="text-sm text-muted-foreground">Expert Instructor • {course.totalStudents || 1200}+ Students</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Link href={`/student/chat/${course.teacherId?._id}`}>
+                            <Button size="sm" className="rounded-full bg-blue-600 hover:bg-blue-700">
+                              <MessageCircle className="w-4 h-4 mr-1" /> Chat
+                            </Button>
+                          </Link>
+                          <Link href={`/student/teacher/call-shedule/${course.teacherId?._id}?courseId=${course._id}`}>
+                            <Button size="sm" variant="outline" className="rounded-full border-green-600 text-green-600 hover:bg-green-700">
+                              <VideoIcon className="w-4 h-4 mr-1" /> Book Call
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-2 leading-relaxed">
+                        {course.teacherId?.about || "Passionate educator helping students master programming and technology."}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Course Description */}
+              <Card className="bg-white">
+                <CardHeader>
+                  <CardTitle className="flex items-center text-purple-700 dark:text-purple-300">
+                    <BookOpen className="w-5 h-5 mr-2" />
+                    Course Description
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-foreground leading-relaxed">{course.description}</p>
+                  <Separator className="my-6" />
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                    <div className="flex items-center gap-3 p-3 bg-white/70 dark:bg-gray-800/50 rounded-lg">
+                      <Clock2 className="w-6 h-6 text-purple-600" />
+                      <div>
+                        <p className="font-medium">Duration</p>
+                        <p className="text-muted-foreground">{Math.floor(course.totalDuration / 60)}h {course.totalDuration % 60}m</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-white/70 dark:bg-gray-800/50 rounded-lg">
+                      <Star className="w-6 h-6 text-yellow-500" />
+                      <div>
+                        <p className="font-medium">Rating</p>
+                        <p className="text-muted-foreground">4.8 (1.2k reviews)</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-white/70 dark:bg-gray-800/50 rounded-lg">
+                      <Code2 className="w-6 h-6 text-blue-600" />
+                      <div>
+                        <p className="font-medium">Type</p>
+                        <p className="text-muted-foreground">{course.isTechnicalCourse ? "Technical" : "Conceptual"}</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Related Courses Section - MOCK DATA */}
+              <div>
+                <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                  More Courses You Might Like
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {[
+                    { title: "Advanced React & Next.js Mastery", instructor: "Sarah Chen", students: "8.2k", rating: 4.9, price: "₹2999", color: "from-blue-500 to-cyan-500" },
+                    { title: "Python for Data Science & ML", instructor: "Dr. Raj Mehta", students: "12.5k", rating: 4.8, price: "₹3499", color: "from-green-500 to-emerald-600" },
+                    { title: "Full-Stack MERN Bootcamp 2025", instructor: "Alex Kumar", students: "15.8k", rating: 5.0, price: "₹4499", color: "from-purple-600 to-pink-600" },
+                    { title: "Advanced React & Next.js Mastery", instructor: "Sarah Chen", students: "8.2k", rating: 4.9, price: "₹2999", color: "from-blue-500 to-cyan-500" },
+                    { title: "Python for Data Science & ML", instructor: "Dr. Raj Mehta", students: "12.5k", rating: 4.8, price: "₹3499", color: "from-green-500 to-emerald-600" },
+                    { title: "Full-Stack MERN Bootcamp 2025", instructor: "Alex Kumar", students: "15.8k", rating: 5.0, price: "₹4499", color: "from-purple-600 to-pink-600" },
+
+                  ].map((c, i) => (
+                    <Card key={i} className="overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer border-0 shadow-lg">
+                      <div className={`h-32 bg-gradient-to-r ${c.color} relative overflow-hidden`}>
+                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors" />
+                        <div className="absolute bottom-3 left-4 text-white">
+                          <p className="text-sm font-light opacity-90">{c.students} students</p>
+                          <p className="text-2xl font-bold">{c.price}</p>
+                        </div>
+                      </div>
+                      <CardContent className="pt-4">
+                        <h4 className="font-bold text-lg line-clamp-2 group-hover:text-primary transition-colors">{c.title}</h4>
+                        <p className="text-sm text-muted-foreground mt-1">by {c.instructor}</p>
+                        <div className="flex items-center justify-between mt-3">
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
+                            <span className="font-medium">{c.rating}</span>
+                          </div>
+                          <Button size="sm" className="rounded-full">View Course</Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+
+
+
+            {/* Community Tab - Modern Chat UI */}
+            <TabsContent value="community">
+              <Card className="border-0 shadow-xl bg-white dark:bg-gray-900 h-full">
+
+                <CardContent className="p-0 flex flex-col h-96">
+                  <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                    {comments.length === 0 ? (
+                      <div className="text-center py-10">
+                        <MessageCircle className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                        <p className="text-muted-foreground">No comments yet. Be the first to ask!</p>
+                      </div>
+                    ) : (
+                      comments.map((comment) => (
+                        <div key={comment._id} className="flex gap-3 group">
+                          <img
+                            src={comment.userId?.profilePicture || "/gallery/avatar.jpg"}
+                            alt={comment.userId?.name}
+                            className="w-10 h-10 rounded-full ring-2 ring-gray-200"
+                          />
+                          <div className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-2xl px-4 py-3">
+                            <div className="flex items-center justify-between">
+                              <p className="font-semibold text-sm">{comment.userId?.name || "Anonymous"}</p>
+                              <span className="text-xs text-muted-foreground">
+                                {new Date(comment.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </div>
+                            <p className="text-sm mt-1 text-foreground">{comment.content}</p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => handleDeleteComment(comment._id)}
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </Button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <div className="p-4 border-t bg-gray-50 dark:bg-gray-800">
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Ask a question or share a tip..."
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleAddComment()}
+                        className="flex-1"
+                      />
+                      <Button onClick={handleAddComment} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                        <Send className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             {/* Notes Tab */}
@@ -582,128 +790,146 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
 
             {/* Compiler Tab */}
             <TabsContent value="compiler">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Code2 className="w-5 h-5 mr-2" />
-                    Online Compiler
-                  </CardTitle>
-                  <select
-                    value={language}
-                    onChange={(e) => setLanguage(e.target.value)}
-                    className="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-500 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-gray-500"
-                  >
-                    <option value="python">Python</option>
-                    <option value="javascript">JavaScript</option>
-                    <option value="cpp">C++</option>
-                    <option value="java">Java</option>
-                    <option value="c">C</option>
-                    <option value="csharp">C#</option>
-                    <option value="php">PHP</option>
-                    <option value="go">Go</option>
-                    <option value="ruby">Ruby</option>
-                    <option value="sql">SQL</option>
-                  </select>
-                </CardHeader>
-                <CardContent>
-                  <Textarea
-                    spellCheck={false}
-                    autoCorrect="off"
-                    autoCapitalize="off"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    rows={10}
-                    className="font-mono text-sm"
-                  />
-                  <div className="flex justify-between items-center mt-3">
-                    <Button onClick={handleRunCode} disabled={loading}>
-                      {loading ? "Running..." : "Run Code"}
-                    </Button>
-                  </div>
-                  <div className="bg-muted mt-4 p-3 rounded text-sm whitespace-pre-wrap overflow-auto">
-                    {language === "sql" && output.trim() ? (() => {
-                      const rows = output.trim().split("\n").map(r => r.split("|"));
-                      const headers = rows.shift();
-                      if (!headers) return <p>No output</p>;
+              <div className="min-h-screen bg-gradient-to-br from-background via-background to-card/20 p-4">
+                <div className="grid grid-cols-1 gap-6">
 
-                      return (
-                        <table className="border-collapse border border-gray-600 text-sm w-full text-left">
-                          <thead>
-                            <tr>
-                              {headers.map((h, i) => (
-                                <th key={i} className="border border-gray-600 p-2 bg-gray-200 dark:bg-gray-800">{h}</th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {rows.map((row, i) => (
-                              <tr key={i}>
-                                {row.map((col, j) => (
-                                  <td key={j} className="border border-gray-600 p-2">{col}</td>
-                                ))}
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      );
-                    })() : (
-                      <div>{output || "Output will appear here..."}</div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
 
-            {/* Community Tab */}
-            <TabsContent value="community">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Community Discussion</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 max-h-64 overflow-y-auto">
-                    {comments.length === 0 && (
-                      <p className="text-muted-foreground">No messages yet. Start the conversation!</p>
-                    )}
-                    {comments.map((comment) => (
-                      <div
-                        key={comment._id}
-                        className="flex items-start justify-between bg-muted p-3 rounded"
-                      >
-                        <div className="flex items-start gap-3">
-                          <img
-                            src={comment.userId?.profilePicture || "/gallery/avatar.jpg"}
-                            alt="User"
-                            className="w-8 h-8 rounded-full object-cover"
-                          />
-                          <div>
-                            <p className="font-medium text-sm">{comment.userId?.name || "Anonymous"}</p>
-                            <p className="text-sm text-gray-700">{comment.content}</p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {new Date(comment.createdAt).toLocaleString()}
-                            </p>
-                          </div>
+                  {/* Editor Section */}
+                  <div className=" space-y-4">
+                    <Card className="border border-primary/10 shadow-lg">
+                      <CardHeader className="pb-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            <Code2 className="w-5 h-5 text-primary" />
+                            Code Editor
+                          </CardTitle>
+
+                          <select
+                            value={language}
+                            onChange={(e) => setLanguage(e.target.value)}
+                            className="bg-primary/5 border border-primary/20 text-foreground rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200 hover:bg-primary/10"
+                          >
+                            <option value="python">Python</option>
+                            <option value="javascript">JavaScript</option>
+                            <option value="cpp">C++</option>
+                            <option value="java">Java</option>
+                            <option value="c">C</option>
+                            <option value="csharp">C#</option>
+                            <option value="php">PHP</option>
+                            <option value="go">Go</option>
+                            <option value="ruby">Ruby</option>
+                            <option value="sql">SQL</option>
+                          </select>
                         </div>
-                        <Trash2
-                          className="w-4 h-4 cursor-pointer text-muted-foreground hover:text-red-500"
-                          onClick={() => handleDeleteComment(comment._id)}
+                      </CardHeader>
+
+                      <CardContent className="space-y-4">
+                        <Textarea
+                          spellCheck={false}
+                          autoCorrect="off"
+                          autoCapitalize="off"
+                          value={code}
+                          onChange={(e) => setCode(e.target.value)}
+                          rows={12}
+                          className="font-mono text-sm bg-card border-primary/20 text-foreground placeholder:text-muted-foreground focus:ring-primary/50 resize-none"
+                          placeholder="Write your code here..."
                         />
-                      </div>
-                    ))}
+
+                        {/* Action Buttons */}
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            onClick={handleRunCode}
+                            disabled={loading}
+                            className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2 flex-1 sm:flex-none"
+                          >
+                            <Play className="w-4 h-4" />
+                            {loading ? "Running..." : "Run Code"}
+                          </Button>
+
+                          <Button
+                            onClick={handleReset}
+                            variant="outline"
+                            className="border-primary/20 hover:bg-primary/5 gap-2 flex-1 sm:flex-none"
+                          >
+                            <RotateCcw className="w-4 h-4" />
+                            Reset
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
-                  <div className="mt-4 flex space-x-2">
-                    <Input
-                      placeholder="Type your message..."
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                    />
-                    <Button onClick={handleAddComment}>
-                      <Send className="w-4 h-4 mr-1" />
-                    </Button>
+
+                  {/* Output Section */}
+                  <div className="space-y-4">
+                    <Card className="border border-primary/10 shadow-lg h-full flex flex-col">
+                      <CardHeader className="pb-4">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg">Output</CardTitle>
+                          {output && (
+                            <Button
+                              onClick={handleCopyOutput}
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                            >
+                              <Copy className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </CardHeader>
+
+                      <CardContent className="flex-1 overflow-hidden flex flex-col">
+                        <div className="flex-1 bg-card/50 border border-primary/10 rounded-md p-4 overflow-auto font-mono text-sm text-foreground/80 whitespace-pre-wrap break-words">
+
+                          {/* SQL TABLE OUTPUT */}
+                          {language === "sql" && output.trim() ? (() => {
+                            const rows = output.trim().split("\n").map(r => r.split("|"))
+                            const headers = rows.shift()
+                            if (!headers) return <p className="text-muted-foreground">No output</p>
+
+                            return (
+                              <div className="overflow-x-auto">
+                                <table className="w-full text-left text-xs border-collapse">
+                                  <thead>
+                                    <tr>
+                                      {headers.map((h, i) => (
+                                        <th key={i} className="border border-primary/20 px-3 py-2 bg-primary/5 font-semibold text-foreground">
+                                          {h}
+                                        </th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {rows.map((row, i) => (
+                                      <tr key={i}>
+                                        {row.map((col, j) => (
+                                          <td key={j} className="border border-primary/20 px-3 py-2">
+                                            {col}
+                                          </td>
+                                        ))}
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            )
+                          })() : (
+                            <div className="text-muted-foreground">
+                              {output || "Output will appear here..."}
+                            </div>
+                          )}
+
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
-                </CardContent>
-              </Card>
+
+                </div>
+              </div>
             </TabsContent>
+
+
+
 
             {/* Resources Tab */}
             <TabsContent value="resources">
@@ -747,7 +973,9 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                 </CardContent>
               </Card>
             </TabsContent>
+
           </Tabs>
+
         </div>
 
         {/* Right Sidebar */}
@@ -757,7 +985,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
               <CardTitle>Your Progress</CardTitle>
             </CardHeader>
             <CardContent>
-              <Progress value={progress.percentage} className="h-2 mb-3" />
+              <Progress value={progress?.percentage ?? 0} className="h-2 mb-3" />
               <p className="text-sm text-muted-foreground">
                 {completedLessonsCount}/{totalLessonsCount} lessons completed
               </p>
@@ -810,7 +1038,6 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
         </div>
       </div>
 
-      // here i need impliment chat with ai
       <div className="fixed bottom-6 right-6">
         <div className="fixed bottom-6 right-6">
           <AiTutorChat courseId={courseId} />

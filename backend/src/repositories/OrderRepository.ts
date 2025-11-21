@@ -30,6 +30,21 @@ export class OrderRepository implements IOrderRepository {
       .populate<{ courses: ICourse[] }>('courses')
       .exec();
   }
+  async getOrderedCourseIds(studentId: string): Promise<string[]> {
+    const orders = await OrderModel.find({
+      studentId,
+      status: 'paid',
+    })
+      .select("courses") 
+      .exec();
+
+    const courseIds = orders.flatMap((order) =>
+      order.courses.map((id: any) => id.toString())
+    );
+
+    return courseIds;
+  }
+
 
   async getStudentOrders(): Promise<IOrder[]> {
     return OrderModel.find()
@@ -38,6 +53,14 @@ export class OrderRepository implements IOrderRepository {
       .sort({ createdAt: -1 });
   }
 
+
+
+
+  async getOrderDetailsByrazorpayOrderId(studentId: string, orderId: string):Promise<IOrder | null> {
+    return OrderModel.findOne({ studentId, razorpayOrderId : orderId, status: 'paid'})
+    .populate<{ courses: ICourse[] }>('courses')
+    .lean();
+  }
 
 
 
