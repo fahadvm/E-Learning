@@ -48,7 +48,6 @@ export class StudentPurchaseController implements IStudentPurchaseController {
     const studentId = req.user?.id;
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
     const courses = await this._PurchaseService.getPurchasedCourses(studentId);
-    console.log("get my courses  aare: ",courses)
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, courses);
   };
 
@@ -70,10 +69,9 @@ export class StudentPurchaseController implements IStudentPurchaseController {
   getOrderDetails = async (req: AuthRequest, res: Response) => {
     const studentId = req.user?.id;
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED);
+    const { razorpayOrderId } = req.params;
 
-    const { orderId } = req.params;
-
-    const order = await this._PurchaseService.getOrderDetails(studentId, orderId);
+    const order = await this._PurchaseService.getOrderDetails(studentId, razorpayOrderId);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.ORDER_FETCHED_SUCCESSFULLY, true, order);
   };
 }

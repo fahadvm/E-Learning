@@ -124,7 +124,9 @@ export class StudentPurchaseService implements IStudentPurchaseService {
   }
 
   async getOrderDetails(studentId: string, orderId: string):Promise<IOrder> {
+    console.log("checking for details ids are", studentId ,  orderId)
     const order = await this._orderRepo.getOrderDetailsByrazorpayOrderId(studentId, orderId);
+
     if (!order) throwError(MESSAGES.ORDER_NOT_FOUND,STATUS_CODES.NOT_FOUND);
     return order;
   }

@@ -35,7 +35,7 @@ export class OrderRepository implements IOrderRepository {
       studentId,
       status: 'paid',
     })
-      .select("courses") 
+      .select("courses")
       .exec();
 
     const courseIds = orders.flatMap((order) =>
@@ -56,10 +56,17 @@ export class OrderRepository implements IOrderRepository {
 
 
 
-  async getOrderDetailsByrazorpayOrderId(studentId: string, orderId: string):Promise<IOrder | null> {
-    return OrderModel.findOne({ studentId, razorpayOrderId : orderId, status: 'paid'})
-    .populate<{ courses: ICourse[] }>('courses')
-    .lean();
+  async getOrderDetailsByrazorpayOrderId(studentId: string, orderId: string): Promise<IOrder | null> {
+    return OrderModel.findOne({ studentId, razorpayOrderId: orderId, status: 'paid' })
+      .populate({
+        path: "courses",
+        select: "coverImage title totalDuration teacherId",
+        populate: {
+          path: "teacherId",
+          select: "name",
+        },
+      })
+      .lean();
   }
 
 

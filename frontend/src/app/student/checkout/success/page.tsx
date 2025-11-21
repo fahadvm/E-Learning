@@ -7,6 +7,7 @@ import { CheckCircle, ArrowRight, Download, Calendar, Clock, User } from "lucide
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { paymentApi } from "@/services/APIservices/studentApiservice"
+import { formatMinutesToHours } from "@/utils/timeConverter"
 
 export default function PurchaseSuccess() {
   const params = useSearchParams()
@@ -20,9 +21,9 @@ export default function PurchaseSuccess() {
 
     const fetchOrder = async () => {
       try {
-        const data = await paymentApi.getOrderDetails(orderId)
-        console.log("data is ", data)
-        setOrder(data)
+        const res = await paymentApi.getOrderDetails(orderId)
+        console.log("response is",res.data)
+        setOrder(res.data)
       } catch (error) {
         console.error("Failed to fetch order:", error)
       } finally {
@@ -73,7 +74,7 @@ export default function PurchaseSuccess() {
 
             <div className="flex items-center text-gray-600 gap-2 mb-4">
               <Calendar className="w-4 h-4" />
-              <span>Purchased on: {new Date(order.date).toLocaleString()}</span>
+              <span>Purchased on: {new Date(order.updatedAt).toLocaleString()}</span>
             </div>
 
             <p className="text-gray-600 mb-4">
@@ -96,11 +97,11 @@ export default function PurchaseSuccess() {
             <div className="space-y-6">
               {order.courses.map((course: any) => (
                 <div
-                  key={course.id}
+                  key={course._id}
                   className="flex gap-4 bg-white p-4 rounded-lg border border-gray-200 hover:shadow"
                 >
                   <img
-                    src={course.thumbnail}
+                    src={course.coverImage}
                     alt={course.title}
                     className="w-28 h-20 rounded object-cover"
                   />
@@ -111,11 +112,11 @@ export default function PurchaseSuccess() {
                     <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
                       <div className="flex items-center gap-1">
                         <User className="w-4 h-4" />
-                        {course.instructor}
+                        {course.teacherId.name}
                       </div>
                       <div className="flex items-center gap-1">
                         <Clock className="w-4 h-4" />
-                        {course.duration}
+                        {formatMinutesToHours(course.totalDuration)}
                       </div>
                     </div>
 
