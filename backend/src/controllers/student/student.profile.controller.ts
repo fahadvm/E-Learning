@@ -9,11 +9,11 @@ import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { IStudentProfileController } from '../../core/interfaces/controllers/student/IStudentProfileController';
 
 @injectable()
-export class StudentProfileController implements IStudentProfileController{
+export class StudentProfileController implements IStudentProfileController {
   constructor(
     @inject(TYPES.StudentProfileService)
     private readonly _studentProfileService: IStudentProfileService
-  ) {}
+  ) { }
 
   getProfile = async (req: Request, res: Response) => {
     const decoded = decodeToken(req.cookies.token);
@@ -29,4 +29,23 @@ export class StudentProfileController implements IStudentProfileController{
     const updated = await this._studentProfileService.updateStudentProfile(decoded.id, req.body);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.PROFILE_UPDATED, true, updated);
   };
+
+
+  getContributions = async (req: Request, res: Response) => {
+    const leetcode = req.params.leetcode;
+    const github = req.params.github;
+    if (!leetcode || !github) {
+      throwError(MESSAGES.INVALID_DATA, STATUS_CODES.BAD_REQUEST);
+    }
+    const contributions = await this._studentProfileService.getContributions(leetcode,github);
+    console.log('contributions are:',contributions)
+    return sendResponse(res,STATUS_CODES.OK,"CONTRIBUTIONS_FETCHED",true,contributions);
+  };
+
+
+
+
+
+
+
 }

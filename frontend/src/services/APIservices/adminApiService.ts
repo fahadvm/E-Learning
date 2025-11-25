@@ -15,7 +15,7 @@ export const adminApiMethods = {
   updateProfile: (data: any) => get(ADMIN_ROUTES.profile.base),
 
   // Students
-  getStudents: (params?: { page?: number; limit?: number; search?: string }) => get(ADMIN_ROUTES.students.base, params),
+  getStudents: (params?: { page?: number; limit?: number; search?: string , status: string }) => get(ADMIN_ROUTES.students.base, params),
   getStudentById: (id: string) => get(ADMIN_ROUTES.students.getById(id)),
   blockStudent: (id: string) => patch(ADMIN_ROUTES.students.block(id), {}),
   unblockStudent: (id: string) => patch(ADMIN_ROUTES.students.unblock(id), {}),
@@ -42,8 +42,8 @@ export const adminApiMethods = {
   unblockCourse: (id: string) => patch(ADMIN_ROUTES.courses.unblock(id), {}),
 
   // Teachers
-  getTeachers: (params?: { page?: number; limit?: number; search?: string }) => get(ADMIN_ROUTES.teachers.base, params),
-  getUnverifiedTeachers: (params?: { page?: number; limit?: number; search?: string }) => get(ADMIN_ROUTES.teachers.unverified, params),
+  getTeachers: (params?: { page?: number; limit?: number; search?: string , status : string }) => get(ADMIN_ROUTES.teachers.base, params),
+  getUnverifiedTeachers: (params?: { page?: number; limit?: number; search?: string ,status:string}) => get(ADMIN_ROUTES.teachers.unverified, params),
   getTeacherById: (id: string) => get(ADMIN_ROUTES.teachers.getById(id)),
   verifyTeacher: (id: string) => patch(ADMIN_ROUTES.teachers.verify(id), {}),
   rejectTeacher: (id: string, rejectReason: string) => patch(ADMIN_ROUTES.teachers.reject(id), { rejectReason }),

@@ -40,6 +40,7 @@ export const studentCourseApi = {
 export const studentProfileApi = {
   getProfile: () => get(STUDENT_ROUTES.profile.base),
   editProfile: (data: any) => patch(STUDENT_ROUTES.profile.base, data),
+  getcontributions: (leetcode:string ,github: string) => get(STUDENT_ROUTES.profile.contribution(leetcode,github)),
 };
 
 export const studentTeacherApi = {

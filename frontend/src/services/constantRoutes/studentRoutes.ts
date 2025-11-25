@@ -41,6 +41,7 @@ export const STUDENT_ROUTES = {
 
   profile: {
     base: STUDENT_PROFILE,
+    contribution:(leetcode:string , github: string) => `${STUDENT_PROFILE}/contributions/${leetcode}/${github}`
   },
 
   teacher: {

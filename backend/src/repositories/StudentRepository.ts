@@ -21,8 +21,18 @@ export class StudentRepository implements IStudentRepository {
     return Student.findOne({ googleId }).lean().exec();
   }
 
-  async findAll(skip: number, limit: number, search?: string): Promise<IStudent[]> {
-    const filter: FilterQuery<IStudent> = search ? { name: { $regex: search, $options: 'i' } } : {};
+  async findAll(
+    skip: number,
+    limit: number,
+    search?: string,
+    status?: string
+  ): Promise<IStudent[]> {
+    const filter: FilterQuery<IStudent> = {};
+
+    if (search) filter.name = { $regex: search, $options: 'i' };
+    if (status === 'blocked') filter.isBlocked = true;
+    if (status === 'active') filter.isBlocked = false;
+
     return Student.find(filter).skip(skip).limit(limit).lean().exec();
   }
 
@@ -33,7 +43,7 @@ export class StudentRepository implements IStudentRepository {
   async findById(id: string): Promise<IStudent | null> {
     return Student.findById(id).lean().exec();
   }
- 
+
 
   async update(id: string, data: Partial<IStudent>): Promise<IStudent> {
     const updated = await Student.findByIdAndUpdate(id, { $set: data }, { new: true }).lean().exec();
@@ -49,19 +59,25 @@ export class StudentRepository implements IStudentRepository {
     return Student.findByIdAndUpdate(studentId, profileData, { new: true }).lean().exec();
   }
 
-  async count(search?: string): Promise<number> {
-    const filter: FilterQuery<IStudent> = search ? { name: { $regex: search, $options: 'i' } } : {};
-    return Student.countDocuments(filter).exec();
+  async count(search?: string, status?: string): Promise<number> {
+    const filter: FilterQuery<IStudent> = {};
+
+    if (search) filter.name = { $regex: search, $options: 'i' };
+    if (status === 'blocked') filter.isBlocked = true;
+    if (status === 'active') filter.isBlocked = false;
+
+    return Student.countDocuments(filter);
   }
+
 
   async updateStudentProgress(studentId: string, courseId: string, lessonId: string): Promise<ICourseProgress> {
     if (!Types.ObjectId.isValid(studentId) || !Types.ObjectId.isValid(courseId) || !Types.ObjectId.isValid(lessonId)) throw new Error('Invalid ID');
 
     const student = await Student.findById(studentId);
-    if (!student) throwError(MESSAGES.STUDENT_NOT_FOUND,STATUS_CODES.NOT_FOUND);
+    if (!student) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
     const course = await Course.findById(courseId);
-    if (!course) throwError(MESSAGES.COURSE_NOT_FOUND,STATUS_CODES.NOT_FOUND);
+    if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
     let progress = student.coursesProgress.find(p => p.courseId.toString() === courseId);
     if (!progress) {
@@ -104,17 +120,17 @@ export class StudentRepository implements IStudentRepository {
 
   async saveNotes(studentId: string, courseId: string, notes: string): Promise<ICourseProgress> {
     const student = await Student.findById(studentId);
-    if (!student) throwError(MESSAGES.STUDENT_NOT_FOUND,STATUS_CODES.NOT_FOUND);
+    if (!student) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
     let courseProgress = student.coursesProgress.find(p => p.courseId.toString() === courseId);
     if (!courseProgress) {
       courseProgress = { courseId: new Types.ObjectId(courseId), completedLessons: [], completedModules: [], percentage: 0, lastVisitedLesson: undefined, notes: notes };
       student.coursesProgress.push(courseProgress);
-    }else{
+    } else {
       courseProgress.notes = notes;
     }
     await student.save();
     return courseProgress;
   }
-  
+
 }

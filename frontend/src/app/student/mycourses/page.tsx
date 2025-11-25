@@ -263,7 +263,7 @@ export default function MyCourses() {
                       <span className="font-medium">
                         {getProgressStatus(course.progress || 0)}
                       </span>
-                      <span>{course.progress || 0}%</span>
+                      <span>{Math.round(course.progress || 0)}%</span>
                     </div>
                     <Progress
                       value={course.progress || 0}

@@ -6,51 +6,45 @@ import { sendResponse } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { validatePagination } from '../../utils/validatePagination';
-import { IAdminStudentController } from '../../core/interfaces/controllers/admin/IAdminStudentController';
 
 @injectable()
-export class AdminStudentController implements IAdminStudentController {
-    constructor(
-        @inject(TYPES.AdminStudentService)
-        private readonly _studentService: IAdminStudentService
-    ) {}
+export class AdminStudentController {
+  constructor(
+    @inject(TYPES.AdminStudentService)
+    private readonly _studentService: IAdminStudentService
+  ) {}
 
-    async getAllStudents(req: Request, res: Response): Promise<void> {
-        const { page = '1', limit = '5', search = '' } = req.query;
-        const { pageNum, limitNum, error } = validatePagination( String(page),String(limit)
-   );
+  async getAllStudents(req: Request, res: Response): Promise<void> {
+    const { page = '1', limit = '10', search = '', status = 'all' } = req.query;
 
-        if (error || pageNum === null || limitNum === null) {
-            return sendResponse(res, STATUS_CODES.BAD_REQUEST, error, false);
-        }
+    const { pageNum, limitNum, error } = validatePagination(String(page), String(limit));
+    if (error) return sendResponse(res, STATUS_CODES.BAD_REQUEST, error, false);
 
-        const result = await this._studentService.getAllStudents(
-            pageNum,
-            limitNum,
-            String(search || '')
-        );
+    const data = await this._studentService.getAllStudents(
+      Number(pageNum),
+      Number(limitNum),
+      String(search),
+      String(status)
+    );
+    sendResponse(res, STATUS_CODES.OK, MESSAGES.STUDENTS_FETCHED, true, data);
+  }
 
-        console.log("result :",result )
+  async getStudentById(req: Request, res: Response): Promise<void> {
+    const { studentId } = req.params;
+    const result = await this._studentService.getStudentById(studentId);
 
-        sendResponse(res, STATUS_CODES.OK, MESSAGES.STUDENTS_FETCHED, true, result);
-    }
+    sendResponse(res, STATUS_CODES.OK, MESSAGES.STUDENT_DETAILS_FETCHED, true, result);
+  }
 
-    async getStudentById(req: Request, res: Response): Promise<void> {
-        const { studentId } = req.params;
-        const student = await this._studentService.getStudentById(studentId);
-        console.log("admin side details of student",student)
-        sendResponse(res, STATUS_CODES.OK, MESSAGES.STUDENT_DETAILS_FETCHED, true, student);
-    }
+  async blockStudent(req: Request, res: Response): Promise<void> {
+    const { studentId } = req.params;
+    const student = await this._studentService.blockStudent(studentId);
+    sendResponse(res, STATUS_CODES.OK, MESSAGES.STUDENT_BLOCKED, true, student);
+  }
 
-    async blockStudent(req: Request, res: Response): Promise<void> {
-        const { studentId } = req.params;
-        const updatedStudent = await this._studentService.blockStudent(studentId);
-        sendResponse(res, STATUS_CODES.OK, MESSAGES.STUDENT_BLOCKED, true, updatedStudent);
-    }
-
-    async unblockStudent(req: Request, res: Response): Promise<void> {
-        const { studentId } = req.params;
-        const updatedStudent = await this._studentService.unblockStudent(studentId);
-        sendResponse(res, STATUS_CODES.OK, MESSAGES.STUDENT_UNBLOCKED, true, updatedStudent);
-    }
+  async unblockStudent(req: Request, res: Response): Promise<void> {
+    const { studentId } = req.params;
+    const student = await this._studentService.unblockStudent(studentId);
+    sendResponse(res, STATUS_CODES.OK, MESSAGES.STUDENT_UNBLOCKED, true, student);
+  }
 }

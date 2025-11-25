@@ -1,3 +1,4 @@
+import { PublicApiRepository } from "../../repositories/PublicApiRepository";
 
 export const TYPES = {
     // Repositories
@@ -10,6 +11,7 @@ export const TYPES = {
     TeacherRepository: Symbol.for('TeacherRepository'),
     OtpRepository: Symbol.for('OtpRepository'),
     CourseRepository: Symbol.for('CourseRepository'),
+    PublicApiRepository: Symbol.for('PublicApiRepository'),
     CourseResourceRepository: Symbol.for('CourseResourceRepository'),
     SubscriptionPlanRepository: Symbol.for('SubscriptionPlanRepository'),
     WishlistRepository: Symbol.for('WishlistRepository'),

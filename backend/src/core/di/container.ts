@@ -191,6 +191,8 @@ import { CompanyLeaderboardController } from '../../controllers/company/company.
 import { IAdminProfileService } from '../interfaces/services/admin/IAdminProfileService';
 import { AdminProfileService } from '../../services/admin/Admin.Profile.Service';
 import { AdminProfileController } from '../../controllers/admin/admin.profile.controller';
+import { IPublicApiRepository } from '../interfaces/repositories/IPublicApiRepository';
+import { PublicApiRepository } from '../../repositories/PublicApiRepository';
 
 
 
@@ -221,6 +223,7 @@ container.bind<ICompanyOrderRepository>(TYPES.CompanyOrderRepository).to(Company
 container.bind<ITeacherAvailabilityRepository>(TYPES.TeacherAvailabilityRepository).to(TeacherAvailabilityRepository);
 container.bind<IStudentBookingRepository>(TYPES.StudentBookingRepository).to(StudentBookingRepository);
 container.bind<ICourseResourceRepository>(TYPES.CourseResourceRepository).to(CourseResourceRepository);
+container.bind<IPublicApiRepository>(TYPES.PublicApiRepository).to(PublicApiRepository);
 
 
 container.bind<IChatRepository>(TYPES.ChatRepository).to(ChatRepository);

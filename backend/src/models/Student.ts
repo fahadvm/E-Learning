@@ -12,6 +12,8 @@ export interface ICourseProgress {
 
 
 
+
+
 export interface IStudent extends Document {
   _id: Types.ObjectId;
   name: string;
