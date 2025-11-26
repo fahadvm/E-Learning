@@ -80,6 +80,7 @@ export default function CheckoutPage() {
         });
 
         const order = response.data;
+        console.log("data pritned",order)
 
         const options = {
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,

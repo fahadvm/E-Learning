@@ -2,6 +2,7 @@ import { IOrderRepository } from '../core/interfaces/repositories/IOrderReposito
 import { IOrder, OrderModel } from '../models/Order';
 import { injectable } from 'inversify';
 import { ICourse } from '../models/Course';
+import { Types } from 'mongoose';
 
 @injectable()
 export class OrderRepository implements IOrderRepository {
@@ -12,6 +13,10 @@ export class OrderRepository implements IOrderRepository {
 
   async findByRazorpayOrderId(orderId: string): Promise<IOrder | null> {
     return await OrderModel.findOne({ razorpayOrderId: orderId });
+  }
+
+  async update(id: Types.ObjectId | string, update: Partial<IOrder>): Promise<IOrder | null> {
+    return await OrderModel.findByIdAndUpdate(id, update, { new: true });
   }
 
   async updateStatus(orderId: string, status: string): Promise<IOrder | null> {

@@ -1,75 +1,83 @@
+// services/admin/AdminTeacherService.ts
 import { inject, injectable } from 'inversify';
+import { TYPES } from '../../core/di/types';
 import { IAdminTeacherService } from '../../core/interfaces/services/admin/IAdminTeacherService';
 import { ITeacherRepository } from '../../core/interfaces/repositories/ITeacherRepository';
 import { ICourseRepository } from '../../core/interfaces/repositories/ICourseRepository';
-import { TYPES } from '../../core/di/types';
 import { throwError } from '../../utils/ResANDError';
-import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
-import { IAdminTeacherDTO, PaginatedTeacherDTO, adminTeacherDto } from '../../core/dtos/admin/Admin.teacher.Dto';
-import { IAdminCourseDTO ,AdminCourseDTO } from '../../core/dtos/admin/Admin.course.Dto';
-import { VerificationStatus } from '../../models/Teacher';
+import { MESSAGES } from '../../utils/ResponseMessages';
+import {
+  adminTeacherDto,
+  adminTeacherDetailsDto,
+  IAdminTeacherDTO,
+  PaginatedTeacherDTO
+} from '../../core/dtos/admin/Admin.teacher.Dto';
 
 @injectable()
 export class AdminTeacherService implements IAdminTeacherService {
-    constructor(
-        @inject(TYPES.TeacherRepository) private readonly _teacherRepo: ITeacherRepository,
-        @inject(TYPES.CourseRepository) private readonly _courseRepo: ICourseRepository
-    ) { }
+  constructor(
+    @inject(TYPES.TeacherRepository) private readonly _teacherRepo: ITeacherRepository,
+    @inject(TYPES.CourseRepository) private readonly _courseRepo: ICourseRepository
+  ) {}
 
-    async getAllTeachers(page: number, limit: number, search?: string): Promise<PaginatedTeacherDTO> {
-        const skip = (page - 1) * limit;
-        const teachers = await this._teacherRepo.findAll({ skip, limit, search });
-        const total = await this._teacherRepo.count(search);
-        const totalPages = Math.ceil(total / limit);
+  async getAllTeachers(page: number, limit: number, search?: string, status?: string): Promise<PaginatedTeacherDTO> {
+    const skip = (page - 1) * limit;
+    const teachers = await this._teacherRepo.findAll({ skip, limit, search, status });
+    const total = await this._teacherRepo.count(search, status);
+    const totalPages = Math.ceil(total / limit);
 
-        return {
-            data: teachers.map(adminTeacherDto),
-            total,
-            totalPages
-        };
-    }
+    const data = teachers.map(adminTeacherDto);
+    return { data, total, totalPages };
+  }
 
-    async getUnverifiedTeachers(): Promise<IAdminTeacherDTO[]> {
-        const teachers = await this._teacherRepo.findUnverified();
-        if (!teachers) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-        return teachers.map(adminTeacherDto);
-    }
+  // get paginated verification requests (pending)
+  async getVerificationRequests(page: number, limit: number, search: string): Promise<PaginatedTeacherDTO> {
+    const skip = (page - 1) * limit;
+    const teachers = await this._teacherRepo.findPendingRequests({ skip, limit, search });
+    const total = await this._teacherRepo.countPendingRequests(search);
+    const totalPages = Math.ceil(total / limit);
 
-    async verifyTeacher(teacherId: string): Promise<IAdminTeacherDTO> {
-        const updated = await this._teacherRepo.updateStatus(teacherId, { verificationStatus: VerificationStatus.VERIFIED, isRejected: false });
-        if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-        return adminTeacherDto(updated);
-    }
+    const data = teachers.map(adminTeacherDto);
+    return { data, total, totalPages };
+  }
 
-    async getTeacherById(teacherId: string): Promise<IAdminTeacherDTO> {
-        const teacher = await this._teacherRepo.findById(teacherId);
-        if (!teacher) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-        return adminTeacherDto(teacher);
-    }
-
-    async getTeacherCourses(teacherId: string): Promise<IAdminCourseDTO[]> {
-    const teacher = await this._teacherRepo.findById(teacherId);
+  // get teacher by id plus courses
+  async getTeacherById(teacherId: string): Promise<any> {
+    let teacher = await this._teacherRepo.findById(teacherId);
     if (!teacher) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    const courses = await this._courseRepo.findByTeacherId(teacherId); 
-    return courses.map(AdminCourseDTO);
-}
+    const courses = await this._courseRepo.findByTeacherId(teacherId);
 
-    async rejectTeacher(teacherId: string): Promise<IAdminTeacherDTO> {
-        const updated = await this._teacherRepo.updateStatus(teacherId, { verificationStatus: VerificationStatus.UNVERIFIED, isRejected: true });
-        if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-        return adminTeacherDto(updated);
-    }
+    return adminTeacherDetailsDto({ teacher, courses });
+  }
 
-    async blockTeacher(teacherId: string): Promise<IAdminTeacherDTO> {
-        const updated = await this._teacherRepo.updateStatus(teacherId, { isBlocked: true });
-        if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-        return adminTeacherDto(updated);
-    }
+  async getUnverifiedTeachers(): Promise<IAdminTeacherDTO[]> {
+    const teachers = await this._teacherRepo.findUnverified();
+    if (!teachers) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    return teachers.map(adminTeacherDto);
+  }
 
-    async unblockTeacher(teacherId: string): Promise<IAdminTeacherDTO> {
-        const updated = await this._teacherRepo.updateStatus(teacherId, { isBlocked: false });
-        if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-        return adminTeacherDto(updated);
-    }
+  async verifyTeacher(teacherId: string): Promise<IAdminTeacherDTO> {
+    const updated = await this._teacherRepo.verifyTeacherById(teacherId);
+    if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    return adminTeacherDto(updated);
+  }
+
+  async rejectTeacher(teacherId: string, reason: string): Promise<IAdminTeacherDTO> {
+    const updated = await this._teacherRepo.rejectTeacherById(teacherId, reason);
+    if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    return adminTeacherDto(updated);
+  }
+
+  async blockTeacher(teacherId: string): Promise<IAdminTeacherDTO> {
+    const updated = await this._teacherRepo.updateStatus(teacherId, { isBlocked: true });
+    if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    return adminTeacherDto(updated);
+  }
+
+  async unblockTeacher(teacherId: string): Promise<IAdminTeacherDTO> {
+    const updated = await this._teacherRepo.updateStatus(teacherId, { isBlocked: false });
+    if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    return adminTeacherDto(updated);
+  }
 }

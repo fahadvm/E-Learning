@@ -1,3 +1,4 @@
+// controllers/admin/admin.teacher.controller.ts
 import { inject, injectable } from 'inversify';
 import { Request, Response } from 'express';
 import { TYPES } from '../../core/di/types';
@@ -10,71 +11,59 @@ import { IAdminTeacherController } from '../../core/interfaces/controllers/admin
 
 @injectable()
 export class AdminTeacherController implements IAdminTeacherController {
-    constructor(
-        @inject(TYPES.AdminTeacherService)
-        private readonly _teacherService: IAdminTeacherService
-    ) { }
+  constructor(
+    @inject(TYPES.AdminTeacherService)
+    private readonly _teacherService: IAdminTeacherService
+  ) {}
 
-    async getAllTeachers(req: Request, res: Response): Promise<void> {
-        const { page = '1', limit = '10', search = '' } = req.query;
-        const { pageNum, limitNum, error } = validatePagination(
-            page as string,
-            limit as string
-        );
+  async getAllTeachers(req: Request, res: Response): Promise<void> {
+    const { page = '1', limit = '10', search = '', status = '' } = req.query;
+    const { pageNum, limitNum, error } = validatePagination(String(page), String(limit));
+    if (error) return sendResponse(res, STATUS_CODES.BAD_REQUEST, error, false);
 
-        if (error) {
-            return sendResponse(res, STATUS_CODES.BAD_REQUEST, error, false);
-        }
+    const result = await this._teacherService.getAllTeachers(pageNum!, limitNum!, String(search || ''), String(status || ''));
+    sendResponse(res, STATUS_CODES.OK, MESSAGES.TEACHERS_FETCHED, true, result);
+  }
 
-        const result = await this._teacherService.getAllTeachers(
-            pageNum!,
-            limitNum!,
-            String(search || '')
-        );
-        sendResponse(res, STATUS_CODES.OK, MESSAGES.TEACHERS_FETCHED, true, result);
-    }
+  async getVerificationRequests(req: Request, res: Response): Promise<void> {
+    const { page = '1', limit = '10', search = '' } = req.query;
+    const { pageNum, limitNum, error } = validatePagination(String(page), String(limit));
+    if (error) return sendResponse(res, STATUS_CODES.BAD_REQUEST, error, false);
 
-    async getTeacherById(req: Request, res: Response): Promise<void> {
+    const result = await this._teacherService.getVerificationRequests(pageNum!, limitNum!, String(search || ''));
+    sendResponse(res, STATUS_CODES.OK, MESSAGES.VERIFICATION_REQUESTS_FETCHED, true, result);
+  }
 
-        const { teacherId } = req.params;
-        const teacher = await this._teacherService.getTeacherById(teacherId);
-        if (!teacher) return sendResponse(res, STATUS_CODES.NOT_FOUND, MESSAGES.TEACHER_NOT_FOUND, false);
-        sendResponse(res, STATUS_CODES.OK, MESSAGES.TEACHER_DETAILS_FETCHED, true, teacher);
+  async getTeacherById(req: Request, res: Response): Promise<void> {
+    const { teacherId } = req.params;
+    const teacher = await this._teacherService.getTeacherById(teacherId);
+    sendResponse(res, STATUS_CODES.OK, MESSAGES.TEACHER_DETAILS_FETCHED, true, teacher);
+  }
 
-    }
 
-    async getTeacherCourses(req: Request, res: Response): Promise<void> {
-        const { teacherId } = req.params;
-        const courses = await this._teacherService.getTeacherCourses(teacherId);
-        sendResponse(res, STATUS_CODES.OK, MESSAGES.TEACHER_COURSES_FETCHED, true, courses);
-    }
 
-    async getUnverifiedTeachers(req: Request, res: Response): Promise<void> {
-        const result = await this._teacherService.getUnverifiedTeachers();
-        sendResponse(res, STATUS_CODES.OK, MESSAGES.UNVERIFIED_TEACHERS_FETCHED, true, result);
-    }
+  async verifyTeacher(req: Request, res: Response): Promise<void> {
+    const { teacherId } = req.params;
+    const updated = await this._teacherService.verifyTeacher(teacherId);
+    sendResponse(res, STATUS_CODES.OK, MESSAGES.VERIFIED, true, updated);
+  }
 
-    async verifyTeacher(req: Request, res: Response): Promise<void> {
-        const { teacherId } = req.params;
-        const updated = await this._teacherService.verifyTeacher(teacherId);
-        sendResponse(res, STATUS_CODES.OK, MESSAGES.VERIFIED, true, updated);
-    }
+  async rejectTeacher(req: Request, res: Response): Promise<void> {
+    const { teacherId } = req.params;
+    const { reason } = req.body;
+    const updated = await this._teacherService.rejectTeacher(teacherId, String(reason || ''));
+    sendResponse(res, STATUS_CODES.OK, MESSAGES.REJECTED, true, updated);
+  }
 
-    async rejectTeacher(req: Request, res: Response): Promise<void> {
-        const { teacherId } = req.params;
-        const updated = await this._teacherService.rejectTeacher(teacherId);
-        sendResponse(res, STATUS_CODES.OK, MESSAGES.REJECTED, true, updated);
-    }
+  async blockTeacher(req: Request, res: Response): Promise<void> {
+    const { teacherId } = req.params;
+    const updated = await this._teacherService.blockTeacher(teacherId);
+    sendResponse(res, STATUS_CODES.OK, MESSAGES.TEACHER_BLOCKED, true, updated);
+  }
 
-    async blockTeacher(req: Request, res: Response): Promise<void> {
-        const { teacherId } = req.params;
-        const updated = await this._teacherService.blockTeacher(teacherId);
-        sendResponse(res, STATUS_CODES.OK, MESSAGES.TEACHER_BLOCKED, true, updated);
-    }
-
-    async unblockTeacher(req: Request, res: Response): Promise<void> {
-        const { teacherId } = req.params;
-        const updated = await this._teacherService.unblockTeacher(teacherId);
-        sendResponse(res, STATUS_CODES.OK, MESSAGES.TEACHER_UNBLOCKED, true, updated);
-    }
+  async unblockTeacher(req: Request, res: Response): Promise<void> {
+    const { teacherId } = req.params;
+    const updated = await this._teacherService.unblockTeacher(teacherId);
+    sendResponse(res, STATUS_CODES.OK, MESSAGES.TEACHER_UNBLOCKED, true, updated);
+  }
 }

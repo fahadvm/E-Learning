@@ -1,55 +1,21 @@
-// src/core/dtos/admin/AdminTeacher.dto.ts
-import { ITeacher, Education, Experience, SocialLinks } from '../../../models/Teacher';
-
-export interface AdminEducationDTO {
-  degree: string;
-  description: string;
-  from: string;
-  to: string;
-  institution: string;
-}
-
-export interface AdminExperienceDTO {
-  company: string;
-  title: string;
-  type: string;
-  location: string;
-  from: string;
-  to: string;
-  duration: string;
-  description: string;
-}
-
-export interface AdminSocialLinksDTO {
-  linkedin: string;
-  twitter: string;
-  instagram: string;
-}
-
+// core/dtos/admin/Admin.teacher.Dto.ts
 export interface IAdminTeacherDTO {
   _id: string;
   name: string;
-  email: string;
-  verificationStatus: string;
-  isRejected: boolean;
+  email: string;           
+  bio: string;           
+  avatar?: string;
   isBlocked: boolean;
-  googleUser: boolean;
-  role: string;
-  profilePicture: string;
-  about: string;
-  location: string;
-  phone: string;
-  website: string;
-  social_links: AdminSocialLinksDTO;
-  education: AdminEducationDTO[];
-  experiences: AdminExperienceDTO[];
-  skills: string[];
-  review?: string;
-  comment?: string;
-  rating?: number;
-  userId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  verificationStatus: string;
+  verificationReason?: string;
+  resumeUrl?: string;
+  phone?: string;
+  joinDate?: string;
+  totalCourses?: number;
+  totalStudents?: number;
+  totalEarnings?: number;
+  verified?: boolean;
+  skills: string[]
 }
 
 export interface PaginatedTeacherDTO {
@@ -58,33 +24,40 @@ export interface PaginatedTeacherDTO {
   totalPages: number;
 }
 
-// Mappers
-export const mapEducationDTO = (edu: Education): AdminEducationDTO => ({ ...edu });
-export const mapExperienceDTO = (exp: Experience): AdminExperienceDTO => ({ ...exp });
-export const mapSocialLinksDTO = (links: SocialLinks): AdminSocialLinksDTO => ({ ...links });
-
-export const adminTeacherDto = (teacher: ITeacher): IAdminTeacherDTO => ({
-  _id: teacher._id.toString(),
-  name: teacher.name,
-  email: teacher.email,
-  verificationStatus: teacher.verificationStatus,
-  isRejected: teacher.isRejected,
-  isBlocked: teacher.isBlocked,
-  googleUser: teacher.googleUser,
-  role: teacher.role,
-  profilePicture: teacher.profilePicture,
-  about: teacher.about,
-  location: teacher.location,
-  phone: teacher.phone,
-  website: teacher.website,
-  social_links: mapSocialLinksDTO(teacher.social_links),
-  education: teacher.education?.map(mapEducationDTO) || [],
-  experiences: teacher.experiences?.map(mapExperienceDTO) || [],
-  skills: teacher.skills,
-  review: teacher.review,
-  comment: teacher.comment,
-  rating: teacher.rating,
-  userId: teacher.userId,
-  createdAt: teacher.createdAt!,
-  updatedAt: teacher.updatedAt!,
+// simple mapper
+export const adminTeacherDto = (t: any): IAdminTeacherDTO => ({
+  _id: t._id?.toString(),
+  name: t.name,
+  email: t.email,
+  bio: t.about,
+  avatar: t.profilePicture || t.avatar || '',
+  isBlocked: !!t.isBlocked,
+  verificationStatus: t.verificationStatus,
+  verificationReason: t.verificationReason || '',
+  resumeUrl: t.resumeUrl || '',
+  phone: t.phone || '',
+  joinDate: t.createdAt ? new Date(t.createdAt).toISOString().split('T')[0] : '',
+  totalCourses: t.totalCourses ?? 0,
+  totalStudents: t.totalStudents ?? 0,
+  totalEarnings: t.totalEarnings ?? 0,
+  verified: t.verificationStatus === 'verified',
+  skills: Array.isArray(t.skills) ? t.skills : [],
 });
+
+export const adminTeacherDetailsDto = (payload: { teacher: any; courses: any[] }) => {
+  const { teacher, courses } = payload;
+  return {
+    teacher: adminTeacherDto(teacher),
+    courses: courses.map((c: any) => ({
+      _id: c._id?.toString(),
+      title: c.title,
+      thumbnail: c.coverImage || c.thumbnail || '',
+      category: c.category,
+      price: c.price ?? 0,
+      rating: c.rating ?? 0,
+      studentsEnrolled: c.totalStudents ?? 0,
+      status: c.status ?? 'published',
+    })),
+    
+  };
+};

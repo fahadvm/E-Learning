@@ -47,9 +47,10 @@ export default function TeacherListPage() {
         search,
         status,
       });
+      console.log("response:", res)
 
-      setTeachers(res.data);
-      setTotal(res.total);
+      setTeachers(res.data.data);
+      setTotal(res.data.total);
     } catch (error) {
       console.error("Failed to fetch teachers:", error);
     }
@@ -64,17 +65,22 @@ export default function TeacherListPage() {
   return (
     <div className="space-y-6">
       {/* HEADER */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Teachers</h1>
-          <p className="text-sm text-slate-500">Manage instructors & course creators.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Teachers</h1>
+          <p className="text-sm text-slate-500">Manage course creators and instructors.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link href={`/admin/teachers/verification`}>
+            <Button>Verify</Button>
+          </Link>
         </div>
       </div>
 
       <Card>
         <CardHeader>
           <div className="flex flex-col md:flex-row justify-between gap-4">
-            
+
             {/* SEARCH */}
             <div className="relative w-full md:w-72">
               <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />

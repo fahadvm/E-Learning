@@ -1,6 +1,6 @@
 export enum MESSAGES {
   COMPANY_FETCHED = 'Company fetched',
-  LEARNING_PATHS_FETCHED ="Learning paths fetched",
+  LEARNING_PATHS_FETCHED = "Learning paths fetched",
   LEARNING_PATH_ASSIGNED = "Learning path assigned",
   LEARNING_PATH_UNASSIGNED = "Learning path unassigned",
   COMPANY_FOUND = 'Company found',
@@ -22,6 +22,7 @@ export enum MESSAGES {
   ORDERS_NOT_FOUND = 'No orders found',
   COMPANY_ORDERS_FETCHED = 'Company orders fetched successfully',
   STUDENT_ORDERS_FETCHED = 'Student orders fetched successfully',
+  VERIFICATION_REQUESTS_FETCHED= 'Verification requests fetched.',
   AVAILABILITY_FETCHED = 'Teacher availability fetched successfully.',
   BOOKING_CREATED = 'Booking created successfully.',
   BOOKING_CANCELLED = 'Booking cancelled successfully.',
@@ -37,23 +38,23 @@ export enum MESSAGES {
   NOTE_SAVED_SUCCESSFULLY = 'Note saved successfully.',
   ORDER_FETCHED_SUCCESSFULLY = 'Order Details fetched successfully.',
   RECORD_CREATION_FAILED = "Failed to update or create learning record",
-  
+
   COMPANY_VERIFICATION_SUBMITTED = "company verification submitted successfully",
   STREAK_FAILED = "Failed to update or create streak",
 
-  NOTIFICATION_MARKED_AS_READ= 'Notification marked as read successfully.',
-  NOTIFICATION_ID_REQUIRED= 'Notification ID is required.',
-  MAX_4_ALLOWED= 'Max 4 slots allowed per day.',
-  CREATED_SUCCESS= 'Learning Path created successfully.',
-  FETCHED_SUCCESS= 'Learning Path fetched successfully.',
-  UPDATED_SUCCESS= 'Learning Path updated successfully.',
-  PROFILE_UPDATE_FAILED= 'Profile updatation failed.',
-  DELETED_SUCCESS= 'Learning Path deleted successfully.',
+  NOTIFICATION_MARKED_AS_READ = 'Notification marked as read successfully.',
+  NOTIFICATION_ID_REQUIRED = 'Notification ID is required.',
+  MAX_4_ALLOWED = 'Max 4 slots allowed per day.',
+  CREATED_SUCCESS = 'Learning Path created successfully.',
+  FETCHED_SUCCESS = 'Learning Path fetched successfully.',
+  UPDATED_SUCCESS = 'Learning Path updated successfully.',
+  PROFILE_UPDATE_FAILED = 'Profile updatation failed.',
+  DELETED_SUCCESS = 'Learning Path deleted successfully.',
   LEARNING_PATH_ALREADY_ASSIGNED = "Learning Path already assigned",
   LEARNING_PATH_ASSIGNMENT_NOT_FOUND = "Learning Path Assignment not found",
   LEARNING_PATH_NOT_FOUND = "Learning Path not found",
   COURSES_ALREADY_PURCHASED = "Some courses are already purchased by this company.",
- 
+
 
 
 
@@ -187,8 +188,8 @@ export enum MESSAGES {
   TEACHER_VERIFIED = 'Teacher verified successfully',
   TEACHER_NOT_VERIFIED = 'Teacher unverified successfully',
   TEACHER_DETAILS_FETCHED = 'Teacher details fetched successfully',
-  VERIFICATION_REQUESTED =  'Verification request sent successfully',
-  VERIFICATION_FAILED =  'Verification request sent failed',
+  VERIFICATION_REQUESTED = 'Verification request sent successfully',
+  VERIFICATION_FAILED = 'Verification request sent failed',
   TEACHER_COURSES_FETCHED = 'Teacher courses fetched successfully',
   TEACHER_NOT_FOUND = 'Teacher not found',
   TEACHER_UNBLOCKED = 'Teacher unblocked successfully',

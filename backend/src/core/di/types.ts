@@ -1,4 +1,6 @@
 import { PublicApiRepository } from "../../repositories/PublicApiRepository";
+import { TransactionRepository } from "../../repositories/TransactionRepository";
+import { WalletRepository } from "../../repositories/WalletRepository";
 
 export const TYPES = {
     // Repositories
@@ -73,6 +75,8 @@ export const TYPES = {
     EmployeeProfileService: Symbol.for('EmployeeProfileService'),
     EmployeeCompanyService: Symbol.for('EmployeeCompanyService'),
     EmployeeCourseService: Symbol.for('EmployeeCourseService'),
+    WalletRepository: Symbol.for('WalletRepository'),
+    TransactionRepository: Symbol.for('TransactionRepository'),
     
     ChatService: Symbol.for('ChatService'),
 

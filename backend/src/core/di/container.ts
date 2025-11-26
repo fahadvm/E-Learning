@@ -193,6 +193,10 @@ import { AdminProfileService } from '../../services/admin/Admin.Profile.Service'
 import { AdminProfileController } from '../../controllers/admin/admin.profile.controller';
 import { IPublicApiRepository } from '../interfaces/repositories/IPublicApiRepository';
 import { PublicApiRepository } from '../../repositories/PublicApiRepository';
+import { IWalletRepository } from '../interfaces/repositories/IwalletRepository';
+import { WalletRepository } from '../../repositories/WalletRepository';
+import { TransactionRepository } from '../../repositories/TransactionRepository';
+import { ITransactionRepository } from '../interfaces/repositories/ITransactionRepository';
 
 
 
@@ -333,6 +337,8 @@ container.bind<IStudentAiTutorService>(TYPES.StudentAiTutorService).to(StudentAi
 
 
 
+container.bind<IWalletRepository>(TYPES.WalletRepository).to(WalletRepository);
+container.bind<ITransactionRepository>(TYPES.TransactionRepository).to(TransactionRepository);
 container.bind<INotificationRepository>(TYPES.NotificationRepository).to(NotificationRepository);
 container.bind<NotificationController>(TYPES.NotificationController).to(NotificationController);
 container.bind<INotificationService>(TYPES.NotificationService).to(NotificationService);

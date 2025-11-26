@@ -5,7 +5,7 @@ import {
   Search,
   BadgeCheck,
   XCircle,
-  Eye,
+  FileText,
   Filter,
 } from "lucide-react";
 
@@ -39,7 +39,7 @@ export default function TeacherVerificationPage() {
   const [total, setTotal] = useState(0);
 
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<"pending" | "approved" | "rejected" | "all">("pending");
+  const [status, setStatus] = useState<"pending">("pending");
 
   const [page, setPage] = useState(1);
   const limit = 10;
@@ -55,9 +55,10 @@ export default function TeacherVerificationPage() {
         search,
         status,
       });
+    console.log("requests", res)
 
-    setRequests(res.data);
-    setTotal(res.total);
+    setRequests(res.data.data);
+    setTotal(res.data.total);
   };
 
   useEffect(() => {
@@ -103,7 +104,7 @@ export default function TeacherVerificationPage() {
             {/* FILTER */}
             <div className="flex gap-2">
               <div className="flex border p-1 rounded-lg gap-1">
-                {["all", "pending", "approved", "rejected"].map((s) => (
+                {["pending"].map((s) => (
                   <Button
                     key={s}
                     variant={status === s ? "secondary" : "ghost"}
@@ -129,8 +130,7 @@ export default function TeacherVerificationPage() {
               <TableRow>
                 <TableHead>Teacher</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Submitted</TableHead>
-                <TableHead>Documents</TableHead>
+                <TableHead>Resume</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -155,33 +155,34 @@ export default function TeacherVerificationPage() {
                     <TableCell>
                       <Badge
                         variant={
-                          req.status === "pending"
-                            ? "secondary"
-                            : req.status === "approved"
-                            ? "success"
-                            : "destructive"
+                          req.isBlocked === true
+                            ? "destructive"      // blocked → red
+                            : req.isBlocked === false
+                              ? "success"        // active → green
+                              : "secondary"      // fallback (null / undefined)
                         }
                       >
-                        {req.status}
+                        {req.isBlocked === true
+                          ? "Blocked"
+                          : req.isBlocked === false
+                            ? "Active"
+                            : "Unknown"}
                       </Badge>
                     </TableCell>
 
-                    <TableCell>{req.submittedAt}</TableCell>
 
                     <TableCell>
-                      {req.documents.length > 0 ? (
-                        <Link href={`/admin/teachers/verification/${req._id}`}>
-                          <Button size="sm" variant="outline">
-                            <Eye className="h-4 w-4 mr-1" /> View Docs
+                      {req.resumeUrl && (
+                        <Link href={`/admin/teachers/verification/${req.resumeUrl}`}>
+                          <Button variant="ghost" size="icon">
+                            <FileText className="h-4 w-4" />
                           </Button>
                         </Link>
-                      ) : (
-                        <span className="text-slate-500 text-sm">No documents</span>
                       )}
                     </TableCell>
 
                     <TableCell className="text-right flex justify-end gap-2">
-                      {req.status === "pending" && (
+                      {req.verificationStatus === "pending" && (
                         <>
                           <Button
                             size="sm"

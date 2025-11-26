@@ -43,30 +43,53 @@ export class TeacherRepository implements ITeacherRepository {
     return Teacher.findOne({ userId }).lean();
   }
 
-  async findAll(params?: { skip?: number; limit?: number; search?: string }): Promise<ITeacher[]> {
+  async findAll(params?: { skip?: number; limit?: number; search?: string; status?: string; }): Promise<ITeacher[]> {
     const query: FilterQuery<ITeacher> = {};
+
     if (params?.search) {
       query.$or = [
         { name: { $regex: params.search, $options: 'i' } },
-        { email: { $regex: params.search, $options: 'i' } }
+        { email: { $regex: params.search, $options: 'i' } },
       ];
     }
-    return Teacher.find(query)
 
+    // status can be 'active' | 'blocked' | 'unverified' | 'pending' | 'verified' | 'rejected'
+    if (params?.status) {
+      const s = params.status;
+      if (s === 'active') {
+        query.isBlocked = false;
+      } else if (s === 'blocked') {
+        query.isBlocked = true;
+      } else if (Object.values(VerificationStatus).includes(s as VerificationStatus)) {
+        query.verificationStatus = s;
+      }
+    }
+
+    return Teacher.find(query)
       .skip(params?.skip || 0)
       .limit(params?.limit || 0)
       .lean();
   }
 
-  async count(search?: string): Promise<number> {
+  async count(search?: string, status?: string): Promise<number> {
     const query: FilterQuery<ITeacher> = {};
+
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } }
+        { email: { $regex: search, $options: 'i' } },
       ];
     }
-    return Teacher.countDocuments(query);
+
+    if (status) {
+      if (status === 'active') query.isBlocked = false;
+      else if (status === 'blocked') query.isBlocked = true;
+      else if (Object.values(VerificationStatus).includes(status as VerificationStatus)) {
+        query.verificationStatus = status;
+      }
+    }
+
+    return Teacher.countDocuments(query).exec();
   }
 
   async getUnverifiedTeachers(): Promise<ITeacher[]> {
@@ -74,17 +97,23 @@ export class TeacherRepository implements ITeacherRepository {
   }
 
   async findUnverified(): Promise<ITeacher[]> {
-    return Teacher.find({ isVerified: false }).lean();
+    return Teacher.find({ verificationStatus: "pending" }).lean();
   }
 
   async verifyTeacherById(id: string): Promise<ITeacher | null> {
-    return Teacher.findByIdAndUpdate(id, { isVerified: true, isRejected: false }, { new: true }).lean();
+    return Teacher.findByIdAndUpdate(
+      id,
+      { verificationStatus: VerificationStatus.VERIFIED, isRejected: false, verificationReason: '' },
+      { new: true }
+    ).lean();
   }
-
-  async rejectTeacherById(id: string): Promise<ITeacher | null> {
-    return Teacher.findByIdAndUpdate(id, { isVerified: false, isRejected: true }, { new: true }).lean();
+  async rejectTeacherById(id: string, reason: string): Promise<ITeacher | null> {
+    return Teacher.findByIdAndUpdate(
+      id,
+      { verificationStatus: VerificationStatus.REJECTED, isRejected: true, verificationReason: reason },
+      { new: true }
+    ).lean();
   }
-
   async updateStatus(teacherId: string, updates: Partial<ITeacher>): Promise<ITeacher | null> {
     return Teacher.findByIdAndUpdate(teacherId, updates, { new: true }).lean();
   }
@@ -113,5 +142,33 @@ export class TeacherRepository implements ITeacherRepository {
     sendVerificationRequest(id: string, status: VerificationStatus ,resumeUrl:string): Promise<ITeacher | null>{
     return Teacher.findByIdAndUpdate(id, { verificationStatus: status ,resumeUrl  }, { new: true });
   }
+
+
+
+   async findPendingRequests(params?: { skip?: number; limit?: number; search?: string }): Promise<ITeacher[]> {
+    const query: FilterQuery<ITeacher> = { verificationStatus: VerificationStatus.PENDING };
+    if (params?.search) {
+      query.$or = [
+        { name: { $regex: params.search, $options: 'i' } },
+        { email: { $regex: params.search, $options: 'i' } },
+      ];
+    }
+    return Teacher.find(query)
+      .skip(params?.skip || 0)
+      .limit(params?.limit || 0)
+      .lean();
+  }
+
+  async countPendingRequests(search?: string): Promise<number> {
+    const query: FilterQuery<ITeacher> = { verificationStatus: VerificationStatus.PENDING };
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+      ];
+    }
+    return Teacher.countDocuments(query).exec();
+  }
+
   
 }

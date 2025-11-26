@@ -7,6 +7,7 @@ export interface ITeacher {
     isBlocked: boolean;
     verified: boolean;
     joinDate: string;
+    resumeUrl:string
 
     totalCourses: number;
     totalStudents: number;
@@ -14,13 +15,15 @@ export interface ITeacher {
     rating: number;
     reviews: number;
 
-    expertise: string[];
+    skills: string[];
     bio?: string;
 }
 
 export interface ITeacherListResponse {
-    data: ITeacher[];
-    total: number;
+    data:{
+        data: ITeacher[];
+        total: number;
+    }
 }
 
 export interface ITeacherCourse {
@@ -45,16 +48,18 @@ export interface ITeacherVerificationRequest {
     name: string;
     email: string;
     avatar?: string;
+    resumeUrl:string
+    isBlocked:boolean
 
     submittedAt: string;
-    status: "pending" | "approved" | "rejected";
+    verificationStatus: "pending" | "approved" | "rejected";
 
     documents: string[]; // URLs of uploaded proof docs
     rejectionReason?: string;
 }
 
 export interface ITeacherVerificationListResponse {
-    data: ITeacherVerificationRequest[];
-    total: number;
+   data:{ data: ITeacherVerificationRequest[];
+    total: number;}
 }
 
