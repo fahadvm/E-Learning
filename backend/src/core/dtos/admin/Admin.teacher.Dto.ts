@@ -55,7 +55,7 @@ export const adminTeacherDetailsDto = (payload: { teacher: any; courses: any[] }
       category: c.category,
       price: c.price ?? 0,
       rating: c.rating ?? 0,
-      studentsEnrolled: c.totalStudents ?? 0,
+      totalStudents: c.totalStudents ?? 0,
       status: c.status ?? 'published',
     })),
     

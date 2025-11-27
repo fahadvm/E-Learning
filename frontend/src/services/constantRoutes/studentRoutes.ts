@@ -41,9 +41,11 @@ export const STUDENT_ROUTES = {
 
   profile: {
     base: STUDENT_PROFILE,
-    contribution:(leetcode:string , github: string) => `${STUDENT_PROFILE}/contributions/${leetcode}/${github}`
+    contribution:(leetcode:string , github: string) => `${STUDENT_PROFILE}/contributions/${leetcode}/${github}`,
+    changePassword:`${STUDENT_AUTH}/change-password/`,
+    sendEmailOtp: `${STUDENT_AUTH}/change-email/send-otp/`,
+    verifyEmailOtp: `${STUDENT_AUTH}/change-email/verify-otp/`,
   },
-
   teacher: {
     base: STUDENT_TEACHER,
     getById: (id: string) => `${STUDENT_TEACHER}/${id}`,

@@ -18,7 +18,7 @@ export interface ICourseRepository {
     }
   ): Promise<{ data: ICourse[]; totalPages: number; totalCount: number }>;
   findByIdAndTeacherId(courseId: string, teacherId: string): Promise<ICourse | null>;
-   findAllCourses(
+  findAllCourses(
     query: FilterQuery<ICourse>,
     sort: Record<string, SortOrder>,
     skip: number,
@@ -32,4 +32,5 @@ export interface ICourseRepository {
   findById(courseId: string): Promise<ICourse | null>;
   updateStatus(courseId: string, updates: Partial<ICourse>): Promise<ICourse | null>;
   getPremiumCourses(): Promise<ICourse[]>;
+  incrementStudentCount(courseId: string): Promise<void>
 }

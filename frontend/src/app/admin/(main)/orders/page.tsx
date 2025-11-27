@@ -69,38 +69,8 @@ export default function OrdersPage() {
     };
 
     return (
-        <div className="flex min-h-screen bg-gray-100 overflow-x-hidden relative">
-            {/* Mobile Hamburger */}
-            <button
-                className="absolute top-4 left-4 z-50 lg:hidden p-2 bg-gray-900 text-white rounded-md"
-                onClick={() => setSidebarOpen(true)}
-            >
-                <Menu size={24} />
-            </button>
-
-            {/* Sidebar for desktop */}
-            <div className="hidden lg:block w-64 h-screen sticky top-0">
-                <AdminSidebar />
-            </div>
-
-            {/* Mobile Sidebar Overlay */}
-            {sidebarOpen && (
-                <div className="fixed inset-0 z-50 flex">
-                    <div className="w-64 h-full bg-gray-900 text-white p-6 shadow-lg">
-                        <div className="flex justify-end mb-4">
-                            <button onClick={() => setSidebarOpen(false)}>
-                                <X size={24} />
-                            </button>
-                        </div>
-                        <AdminSidebar />
-                    </div>
-                    <div
-                        className="flex-1 bg-black/50"
-                        onClick={() => setSidebarOpen(false)}
-                    />
-                </div>
-            )}
-
+        <div className="flex min-h-screen bg-white overflow-x-hidden relative">
+            
             {/* Page Content */}
             <div className="flex-1 p-6">
                 <h1 className="text-3xl font-bold mb-6">Orders Management</h1>

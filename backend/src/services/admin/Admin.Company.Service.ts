@@ -18,13 +18,28 @@ export class AdminCompanyService implements IAdminCompanyService {
   private readonly _employeeRepo: IEmployeeRepository
 ) { }
 
-  async getAllCompanies(page: number, limit: number, search: string):
-    Promise<{ companies: IAdminCompanyDto[]; total: number; totalPages: number }> {
+    async getAllCompanies(
+    page: number,
+    limit: number,
+    search: string
+  ): Promise<{ companies: IAdminCompanyDto[]; total: number; totalPages: number }> {
     const companies = await this._companyRepo.getAllCompanies(page, limit, search);
     const total = await this._companyRepo.countCompanies(search);
     const totalPages = Math.ceil(total / limit);
 
     return { companies: companies.map(adminCompanyDto), total, totalPages };
+  }
+
+  async getCompanyById(companyId: string): Promise<any> {
+    const company = await this._companyRepo.findById(companyId);
+    if (!company) throwError(MESSAGES.COMPANY_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
+    const employees = company.employees || [];
+
+    return {
+      company: adminCompanyDto(company),
+      employees
+    };
   }
 
   async getUnverifiedCompanies(
@@ -39,11 +54,7 @@ export class AdminCompanyService implements IAdminCompanyService {
     return { companies: companies.map(adminCompanyDto), total, totalPages };
   }
 
-  async getCompanyById(companyId: string): Promise<IAdminCompanyDto> {
-    const company = await this._companyRepo.findById(companyId);
-    if (!company) throwError(MESSAGES.COMPANY_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    return adminCompanyDto(company);
-  }
+
   
 
   async getEmployeeById(employeeId: string): Promise<IAdminCompanyEmployeeDto> {

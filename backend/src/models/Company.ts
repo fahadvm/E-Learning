@@ -16,6 +16,7 @@ export interface ICompany extends Document {
   name: string;
   about?: string;
   phone?: string;
+  industry: string;
   website?: string;
   profilePicture?: string;
   address?: string;
@@ -24,6 +25,7 @@ export interface ICompany extends Document {
   email: string;
   password: string;
   status: string;
+  activePlan: string;
   rejectReason?: string;
   employees: mongoose.Types.ObjectId[];
   isPremium: boolean;
@@ -41,6 +43,7 @@ const CompanySchema: Schema = new Schema(
     about: { type: String },
     phone: { type: String },
     website: { type: String },
+    industry: { type: String },
     profilePicture: { type: String },
     address:  { type: String },
     pincode:  { type: String },
@@ -49,6 +52,7 @@ const CompanySchema: Schema = new Schema(
     password: { type: String, required: true },
     rejectReason: { type: String },
     status: { type: String },
+    activePlan: { type: String },
     isPremium: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: false },
     isBlocked: { type: Boolean, default: false },

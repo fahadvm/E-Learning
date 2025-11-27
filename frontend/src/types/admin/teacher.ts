@@ -33,7 +33,7 @@ export interface ITeacherCourse {
     thumbnail: string;
     price: number;
     rating: number;
-    studentsEnrolled: number;
+    totalStudents: number;
     status: "active" | "draft" | "archived";
 }
 

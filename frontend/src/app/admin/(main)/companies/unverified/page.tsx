@@ -1,215 +1,269 @@
 "use client";
+
 import { useEffect, useState } from "react";
-import AdminSidebar from "@/components/admin/sidebar";
-import DataTable from "@/reusable/DataTable";
-import { useRouter } from "next/navigation";
+import { Search, Check, X, Ban, Building2 } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
 import { adminApiMethods } from "@/services/APIservices/adminApiService";
-import { showErrorToast } from "@/utils/Toast";
+import {
+  ICompanyVerification,
+  ICompanyVerificationResponse,
+} from "@/types/admin/company";
 
-type User = {
-  _id: string;
-  name: string;
-  email: string;
-  isPremium?: boolean;
-  employees?: any[];
-};
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
-export default function CompanyList() {
-  const [users, setCompanies] = useState<User[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+export default function CompanyVerificationPage() {
+  const [loading, setLoading] = useState(true);
+  const [companies, setCompanies] = useState<ICompanyVerification[]>([]);
+
+  const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const rowsPerPage = 2;
-  const router = useRouter();
 
-  // Reject modal state
-  const [isRejectModalOpen, setRejectModalOpen] = useState(false);
+  const [search, setSearch] = useState("");
+
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
-  const [rejectCompanyId, setRejectCompanyId] = useState<string | null>(null);
-  const [rejectAllMode, setRejectAllMode] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState<ICompanyVerification | null>(null);
 
+  // Fetch Pending Verification Requests
   const fetchCompanies = async () => {
     try {
-      const res = await adminApiMethods.UnVerifiedCompanies({
-        search: searchTerm,
-        page: currentPage,
-        limit: rowsPerPage,
-      });
+      setLoading(true);
+      const data: ICompanyVerificationResponse =
+        await adminApiMethods.UnVerifiedCompanies(page, search);
 
-      if (Array.isArray(res.data?.companies)) {
-        setCompanies(res.data.companies);
-        setTotalPages(res.data.totalPages || 1);
-      } else {
-        console.error("Unexpected response format:", res.data);
-      }
+      setCompanies(data.data);
+      setTotalPages(data.totalPages);
     } catch (error) {
       console.error("Error fetching companies:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchCompanies();
-  }, [searchTerm, currentPage]);
+  }, [page, search]);
 
-  const handleAccept = async (id: string) => {
-    try {
-      await adminApiMethods.verifyCompany(id);
-      fetchCompanies();
-    } catch (err) {
-      console.error("Error approving company:", err);
-    }
+  // Approve Single Company
+  const handleApprove = async (id: string) => {
+    await adminApiMethods.verifyCompany(id);
+    fetchCompanies();
   };
 
-  const handleReject = async () => {
-    if (!rejectCompanyId) return;
-
-    if (!rejectReason.trim()) {
-      showErrorToast("please provide a reason ")
-      return;
-    }
-
-    try {
-      await adminApiMethods.rejectCompany(rejectCompanyId, rejectReason);
-      closeRejectModal();
-      fetchCompanies();
-    } catch (err) {
-      console.error("Error rejecting company:", err);
-    }
+  // Reject Single Company (opens dialog)
+  const handleReject = (company: ICompanyVerification) => {
+    setSelectedCompany(company);
+    setRejectDialogOpen(true);
   };
 
-  const handleAcceptAll = async () => {
-    try {
-      await adminApiMethods.approveAllCompanies();
-      fetchCompanies();
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  // Confirm Reject
+  const confirmReject = async () => {
+    if (!selectedCompany) return;
 
-  const handleRejectAll = () => {
-    setRejectAllMode(true);
-    setRejectModalOpen(true);
-  };
+    await adminApiMethods.rejectCompany(selectedCompany._id, rejectReason);
 
-  const confirmRejectAll = async () => {
-    try {
-      await adminApiMethods.rejectAllCompanies(rejectReason);
-      closeRejectModal();
-      fetchCompanies();
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const closeRejectModal = () => {
-    setRejectModalOpen(false);
+    setRejectDialogOpen(false);
     setRejectReason("");
-    setRejectCompanyId(null);
-    setRejectAllMode(false);
+    setSelectedCompany(null);
+    fetchCompanies();
+  };
+
+  // Approve All
+  const handleApproveAll = async () => {
+    await adminApiMethods.approveAllCompanies();
+    fetchCompanies();
+  };
+
+  // Reject All
+  const handleRejectAll = async () => {
+    await adminApiMethods.rejectAllCompanies("Rejected by admin");
+    fetchCompanies();
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-black">
-      <aside className="w-64 bg-gray-900 border-r border-gray-700">
-        <AdminSidebar />
-      </aside>
-
-      <main className="flex-1 p-6 md:p-10 bg-white overflow-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Unverified Companies</h1>
-          <div className="flex gap-2">
-            <button
-              className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-              onClick={handleAcceptAll}
-            >
-              Accept All
-            </button>
-            <button
-              className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-              onClick={handleRejectAll}
-            >
-              Reject All
-            </button>
-          </div>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+            Company Verification Requests
+          </h1>
+          <p className="text-sm text-slate-500">
+            Review, approve, or reject company verification submissions.
+          </p>
         </div>
+      </div>
 
-        <DataTable<User>
-          data={users}
-          searchPlaceholder="Search by name"
-          columns={[
-            { key: "name", label: "Name" },
-            { key: "email", label: "Email" },
-            {
-              key: "actions",
-              label: "Actions",
-              render: (u) => (
-                <div className="flex gap-2">
-                  <button
-                    className="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-                    onClick={() => router.push(`/admin/company/${u._id}`)}
-                  >
-                    Details
-                  </button>
-                  <button
-                    className="px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-                    onClick={() => handleAccept(u._id)}
-                  >
-                    Accept
-                  </button>
-                  <button
-                    className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                    onClick={() => {
-                      setRejectCompanyId(u._id);
-                      setRejectModalOpen(true);
-                    }}
-                  >
-                    Reject
-                  </button>
-                </div>
-              ),
-            },
-          ]}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onSearch={(term) => {
-            setSearchTerm(term);
-            setCurrentPage(1);
-          }}
-          onPageChange={(page) => setCurrentPage(page)}
-        />
-
-        {/* Reject Modal */}
-        {isRejectModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-white p-6 rounded-lg w-96 shadow-lg">
-              <h2 className="text-xl font-semibold mb-4">
-                {rejectAllMode ? "Reason for Rejecting All" : "Reason for Rejection"}
-              </h2>
-              <textarea
-                className="w-full border p-2 rounded mb-4"
-                rows={4}
-                placeholder="Enter reason..."
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
+      <Card>
+        {/* Filters */}
+        <CardHeader className="pb-4">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="relative w-full md:w-72">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder="Search companies..."
+                className="pl-9"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
               />
-              <div className="flex justify-end gap-2">
-                <button
-                  className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400"
-                  onClick={closeRejectModal}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                  onClick={rejectAllMode ? confirmRejectAll : handleReject}
-                >
-                  Reject
-                </button>
-              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={handleRejectAll}>
+                Reject All
+              </Button>
+              <Button onClick={handleApproveAll}>
+                Approve All
+              </Button>
             </div>
           </div>
-        )}
-      </main>
+        </CardHeader>
+
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Company</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Industry</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Documents</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+
+            <TableBody>
+              {companies.map((company) => (
+                <TableRow key={company._id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="rounded-lg">
+                        <AvatarImage src={company.logo} />
+                        <AvatarFallback className="rounded-lg">
+                          <Building2 className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="font-medium text-slate-900">
+                          {company.name}
+                        </div>
+                      </div>
+                    </div>
+                  </TableCell>
+
+                  <TableCell className="text-slate-600">{company.email}</TableCell>
+                  <TableCell className="text-slate-600">{company.industry}</TableCell>
+
+                  <TableCell>
+                    <Badge variant="secondary">{company.verificationStatus}</Badge>
+                  </TableCell>
+
+                  <TableCell>
+                    <a
+                      href={company.documentUrl}
+                      target="_blank"
+                      className="text-blue-600 underline text-sm"
+                    >
+                      View Document
+                    </a>
+                  </TableCell>
+
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                        onClick={() => handleApprove(company._id)}
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => handleReject(company)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+
+              {companies.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-10 text-slate-500">
+                    No verification requests found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+
+          {/* Pagination */}
+          <div className="flex justify-end items-center gap-2 mt-4">
+            <Button
+              variant="outline"
+              disabled={page === 1}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              Previous
+            </Button>
+
+            <span className="text-sm text-slate-600">
+              Page {page} of {totalPages}
+            </span>
+
+            <Button
+              variant="outline"
+              disabled={page === totalPages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Reject Reason Dialog */}
+      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject Verification</DialogTitle>
+          </DialogHeader>
+
+          <Textarea
+            placeholder="Enter rejection reason..."
+            value={rejectReason}
+            onChange={(e) => setRejectReason(e.target.value)}
+          />
+
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmReject}>
+              Reject
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

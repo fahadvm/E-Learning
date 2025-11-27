@@ -24,7 +24,11 @@ const StudentSubscriptionSchema = new Schema<IStudentSubscription>(
       default: 'pending'
     },
     startDate: { type: Date, default: Date.now },
-    endDate: { type: Date }
+    endDate: { type: Date, default: function () {
+        const now = new Date();
+        return new Date(now.setFullYear(now.getFullYear() + 1));
+      },
+    }
   },
   { timestamps: true }
 );

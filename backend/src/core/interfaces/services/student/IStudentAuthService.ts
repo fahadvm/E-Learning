@@ -9,5 +9,8 @@ export interface IStudentAuthService {
   googleAuth(idToken: string): Promise<{ token: string; refreshToken: string; user: { id: string; role: string } }>;
   sendForgotPasswordOtp(email: string): Promise<void>;
   verifyForgotOtp(email: string, otp: string): Promise<void>;
+ verifyEmailChangeOtp(studentId: string, newEmail: string, otp: string):Promise<IStudent> 
+  changePassword(studentId: string, currentPassword: string, newPassword: string): Promise<void>;
   setNewPassword(email: string, newPassword: string): Promise<void>;
+  sendEmailChangeOtp(studentId: string, newEmail: string): Promise<void>;
 }

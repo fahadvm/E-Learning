@@ -10,6 +10,7 @@ import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import logger from '../../utils/logger';
 
 import { IStudentAuthController } from '../../core/interfaces/controllers/student/IStudentAuthController';
+import { AuthRequest } from '../../types/AuthenticatedRequest';
 
 
 @injectable()
@@ -46,7 +47,7 @@ export class StudentAuthController implements IStudentAuthController {
   };
 
   googleAuth = async (req: Request, res: Response) => {
-    const {  tokenId  } = req.body;
+    const { tokenId } = req.body;
     // console.log('tokenId',tokenId);
     if (!tokenId) throwError(MESSAGES.GOOGLE_AUTH_REQUIRED, STATUS_CODES.BAD_REQUEST);
     const result = await this._studentAuthService.googleAuth(tokenId);
@@ -79,6 +80,44 @@ export class StudentAuthController implements IStudentAuthController {
     if (!email || !purpose) throwError(MESSAGES.EMAIL_PURPOSE_REQUIRED, STATUS_CODES.BAD_REQUEST);
     await this._studentAuthService.resendOtp(email, purpose);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.OTP_RESENT, true);
+  };
+
+
+  changePassword = async (req: AuthRequest, res: Response) => {
+    const { currentPassword, newPassword } = req.body;
+    console.log("new password",req.body)
+    const studentId = req.user?.id; // from auth middleware
+    if (!studentId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.NOT_FOUND);
+
+
+    if (!currentPassword || !newPassword)
+      throwError("Current and new password required", STATUS_CODES.BAD_REQUEST);
+
+    await this._studentAuthService.changePassword(studentId, currentPassword, newPassword);
+
+    return sendResponse(res, STATUS_CODES.OK, "Password updated successfully", true);
+  };
+
+  // SEND OTP FOR EMAIL CHANGE
+  sendEmailChangeOtp = async (req: AuthRequest, res: Response) => {
+    const { newEmail } = req.body;
+    const studentId = req.user?.id;
+    if (!studentId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.NOT_FOUND);
+    if (!newEmail)
+      throwError("New email is required", STATUS_CODES.BAD_REQUEST);
+    await this._studentAuthService.sendEmailChangeOtp(studentId, newEmail);
+    return sendResponse(res, STATUS_CODES.OK, "OTP sent to new email", true);
+  };
+
+  // VERIFY OTP + UPDATE EMAIL
+  verifyAndUpdateEmail = async (req: AuthRequest, res: Response) => {
+    const { newEmail, otp } = req.body;
+    const studentId = req.user?.id;
+    if (!studentId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.NOT_FOUND);
+    if (!newEmail || !otp)
+      throwError("Email and OTP are required", STATUS_CODES.BAD_REQUEST);
+    const updatedUser = await this._studentAuthService.verifyEmailChangeOtp(studentId, newEmail, otp);
+    return sendResponse(res, STATUS_CODES.OK, "Email updated successfully", true, updatedUser);
   };
 
 

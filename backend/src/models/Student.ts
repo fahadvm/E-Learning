@@ -32,8 +32,8 @@ export interface IStudent extends Document {
   googleUser: boolean;
   social_links?: {
     linkedin?: string;
-    twitter?: string;
-    instagram?: string;
+    gitHub?: string;
+    leetCode?: string;
   };
   coursesProgress: ICourseProgress[];
 
@@ -71,8 +71,8 @@ const StudentSchema: Schema = new Schema<IStudent>({
   otpExpiry: { type: Date },
   social_links: {
     linkedin: { type: String },
-    twitter: { type: String },
-    instagram: { type: String }
+    gitHub: { type: String },
+    leetCode: { type: String }
   },
   coursesProgress: [CourseProgressSchema]
 

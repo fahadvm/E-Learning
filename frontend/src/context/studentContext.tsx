@@ -32,8 +32,8 @@ export interface IStudent {
   website: string;
   social_links: {
     linkedin: string;
-    twitter: string;
-    instagram: string;
+    gitHub: string;
+    leetCode: string;
   };
   name: string;
   email: string;

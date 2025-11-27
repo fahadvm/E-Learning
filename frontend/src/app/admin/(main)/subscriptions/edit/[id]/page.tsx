@@ -5,11 +5,16 @@ import { useRouter, useParams } from "next/navigation";
 import { adminApiMethods } from "@/services/APIservices/adminApiService";
 import { showInfoToast, showSuccessToast } from "@/utils/Toast";
 
+const builtInFeatures: Record<string, string> = {
+  Compiler: "Write and run code directly on the platform.",
+  "Video Call": "Connect with instructors or peers in real time.",
+};
+
 interface SubscriptionPlan {
   name: string;
   price: string | number;
   description: string;
-  features: string[];
+  features: string[]; // only feature names
   popular: boolean;
   planFor: "Student" | "Company" | "";
 }
@@ -22,9 +27,9 @@ const EditSubscriptionPlan = () => {
     name: "",
     price: "",
     description: "",
-    features: [""],
+    features: [],
     popular: false,
-    planFor: ""
+    planFor: "",
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -36,19 +41,16 @@ const EditSubscriptionPlan = () => {
       if (!id) return;
       try {
         const res = await adminApiMethods.getPlanById(id);
-        console.log("Response from edit page:", res);
-
-        // Adjust this line depending on your API shape
-        const plan = res?.data?.data ?? res?.data ?? null;
+        const plan = res?.data?.data ?? res?.data;
 
         if (res.ok && plan) {
           setForm({
-            name: plan.name || "",
-            price: plan.price || "",
-            description: plan.description || "",
-            features: Array.isArray(plan.features) ? plan.features : [""],
-            popular: Boolean(plan.popular),
-            planFor: plan.planFor || ""
+            name: plan.name,
+            price: plan.price,
+            description: plan.description,
+            features: plan.features?.map((f: any) => f.name) || [],
+            popular: plan.popular,
+            planFor: plan.planFor,
           });
         }
       } catch (error) {
@@ -61,7 +63,7 @@ const EditSubscriptionPlan = () => {
     fetchPlan();
   }, [id]);
 
-  // Handle input changes
+  // Change handler
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
@@ -70,48 +72,56 @@ const EditSubscriptionPlan = () => {
 
     setForm((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  // Handle feature input changes
-  const handleFeatureChange = (index: number, value: string) => {
-    const updatedFeatures = [...form.features];
-    updatedFeatures[index] = value;
-    setForm((prev) => ({ ...prev, features: updatedFeatures }));
+  // Toggle feature checkbox
+  const toggleFeature = (feature: string) => {
+    setForm((prev) => {
+      const exists = prev.features.includes(feature);
+      const updated = exists
+        ? prev.features.filter((f) => f !== feature)
+        : [...prev.features, feature];
+
+      return { ...prev, features: updated };
+    });
   };
 
-  // Add new feature field
-  const addFeatureField = () => {
-    setForm((prev) => ({ ...prev, features: [...prev.features, ""] }));
-  };
-
-  // Form validation
+  // Validation
   const validateForm = () => {
-    const newErrors: { [key: string]: string } = {};
+    const newErrors: any = {};
 
     if (!form.name.trim()) newErrors.name = "Name is required";
-    if (!form.price && form.price !== 0) newErrors.price = "Price is required";
-    if (!form.planFor) newErrors.planFor = "Please select a plan type";
+    if (!form.price) newErrors.price = "Price is required";
     if (!form.description.trim()) newErrors.description = "Description is required";
-    if (!form.features.length || form.features.some((f) => !f.trim())) {
-      newErrors.features = "All feature fields must be filled";
-    }
+    if (!form.planFor) newErrors.planFor = "Please select a plan type";
+    if (form.features.length === 0)
+      newErrors.features = "Select at least one feature";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submit
+  // Submit Handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     try {
-      const res = await adminApiMethods.updatePlan(id, form);
+      const payload = {
+        ...form,
+        features: form.features.map((name) => ({
+          name,
+          description: builtInFeatures[name],
+        })),
+      };
+
+      const res = await adminApiMethods.updatePlan(id, payload);
+
       if (res.ok) {
-        showSuccessToast(res.message);
+        showSuccessToast("Plan updated successfully");
         router.push("/admin/subscriptions");
       } else {
         showInfoToast(res.message);
@@ -135,7 +145,6 @@ const EditSubscriptionPlan = () => {
             value={form.name}
             onChange={handleChange}
             className="w-full border p-2 rounded"
-            placeholder="Enter plan name"
           />
           {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
         </div>
@@ -148,7 +157,6 @@ const EditSubscriptionPlan = () => {
             value={form.price}
             onChange={handleChange}
             className="w-full border p-2 rounded"
-            placeholder="Enter price"
           />
           {errors.price && <p className="text-red-500 text-sm">{errors.price}</p>}
         </div>
@@ -161,9 +169,10 @@ const EditSubscriptionPlan = () => {
             value={form.description}
             onChange={handleChange}
             className="w-full border p-2 rounded"
-            placeholder="Enter description"
           />
-          {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
+          {errors.description && (
+            <p className="text-red-500 text-sm">{errors.description}</p>
+          )}
         </div>
 
         {/* Plan For */}
@@ -179,7 +188,9 @@ const EditSubscriptionPlan = () => {
             <option value="Student">Student</option>
             <option value="Company">Company</option>
           </select>
-          {errors.planFor && <p className="text-red-500 text-sm">{errors.planFor}</p>}
+          {errors.planFor && (
+            <p className="text-red-500 text-sm">{errors.planFor}</p>
+          )}
         </div>
 
         {/* Popular */}
@@ -193,27 +204,27 @@ const EditSubscriptionPlan = () => {
           />
         </div>
 
-        {/* Features */}
+        {/* Features (CHECKBOXES like Add Page) */}
         <div>
-          <label className="block font-semibold">Features *</label>
-          {form.features.map((feature, idx) => (
-            <input
-              key={idx}
-              type="text"
-              value={feature}
-              onChange={(e) => handleFeatureChange(idx, e.target.value)}
-              className="w-full border p-2 rounded my-1"
-              placeholder={`Feature ${idx + 1}`}
-            />
-          ))}
-          {errors.features && <p className="text-red-500 text-sm">{errors.features}</p>}
-          <button
-            type="button"
-            onClick={addFeatureField}
-            className="text-blue-600 mt-2 text-sm"
-          >
-            + Add Feature
-          </button>
+          <label className="block font-semibold mb-1">Features *</label>
+          <div className="flex flex-wrap gap-3">
+            {Object.keys(builtInFeatures).map((feature) => (
+              <label
+                key={feature}
+                className="flex items-center gap-2 border px-3 py-1 rounded cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  checked={form.features.includes(feature)}
+                  onChange={() => toggleFeature(feature)}
+                />
+                {feature}
+              </label>
+            ))}
+          </div>
+          {errors.features && (
+            <p className="text-red-500 text-sm">{errors.features}</p>
+          )}
         </div>
 
         {/* Submit */}

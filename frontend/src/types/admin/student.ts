@@ -46,6 +46,7 @@ export interface IStudentDetails {
     email: string;
     phone: string;
     avatar?: string;
+    activePlan?: string;
     status: "active" | "blocked";
     verified: boolean;
     joinDate: string;

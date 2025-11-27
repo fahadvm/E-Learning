@@ -1,146 +1,209 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import AdminSidebar from '@/components/admin/sidebar';
-import DataTable from '@/reusable/DataTable';
-import { useRouter } from 'next/navigation';
-import { adminApiMethods } from '@/services/APIservices/adminApiService';
-import Link from 'next/link';
-import { Check, Menu, X } from 'lucide-react';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import {
+  Search,
+  Eye,
+  Ban,
+  Building2,
+} from "lucide-react";
 
-type User = {
-  _id: string;
-  name: string;
-  email: string;
-  isPremium?: boolean;
-  isVerified?: boolean;
-  employees?: any[];
-};
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/Table";
 
-export default function CompanyList() {
-  const [users, setCompanies] = useState<User[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const rowsPerPage = 5;
-  const router = useRouter();
+import { ICompany, ICompanyListResponse } from "@/types/admin/company";
+import { adminApiMethods } from "@/services/APIservices/adminApiService";
 
+export default function CompanyListPage() {
+  const [companies, setCompanies] = useState<ICompany[]>([]);
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<"all" | "active" | "blocked">("all");
+
+  // Fetch companies (replace dummy data)
   const fetchCompanies = async () => {
     try {
-      const res = await adminApiMethods.getCompanies({
-        search: searchTerm,
-        page: currentPage,
-        limit: rowsPerPage,
+      const response: ICompanyListResponse = await adminApiMethods.getCompanies({
+        search,
+        status,
       });
 
-      if (Array.isArray(res.data?.companies)) {
-        setCompanies(res.data.companies);
-        setTotalPages(res.data.totalPages || 1);
-      } else {
-        console.error('Unexpected response format:', res.data);
-      }
+      console.log("response of company list:", response)
+
+      setCompanies(response.data.companies);
     } catch (error) {
-      console.error('Error fetching companies:', error);
+      console.error("Failed to fetch companies:", error);
     }
   };
 
   useEffect(() => {
     fetchCompanies();
-  }, [searchTerm, currentPage]);
+  }, [search, status]);
 
   return (
-    <div className="flex min-h-screen bg-gray-100 overflow-x-hidden relative">
-      {/* Mobile Hamburger */}
-      <button
-        className="absolute top-4 left-4 z-50 lg:hidden p-2 bg-gray-900 text-white rounded-md"
-        onClick={() => setSidebarOpen(true)}
-      >
-        <Menu size={24} />
-      </button>
+    <div className="space-y-6">
 
-      {/* Sidebar */}
-      <aside className="hidden lg:block w-64 h-screen sticky top-0">
-        <AdminSidebar />
-      </aside>
-
-      {/* Mobile Sidebar Overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-50 flex lg:hidden">
-          <div className="w-64 h-full bg-gray-900 text-white p-6 shadow-lg">
-            <div className="flex justify-end mb-4">
-              <button onClick={() => setSidebarOpen(false)}>
-                <X size={24} />
-              </button>
-            </div>
-            <AdminSidebar />
-          </div>
-          <div
-            className="flex-1 bg-black/50"
-            onClick={() => setSidebarOpen(false)}
-          />
+      {/* HEADER */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Companies</h1>
+          <p className="text-sm text-slate-500">
+            Manage corporate clients and subscriptions.
+          </p>
         </div>
-      )}
 
-      {/* Main Content */}
-      <main className="flex-1 p-4 sm:p-6 md:p-8 lg:p-10 overflow-auto">
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 sm:mb-8 gap-4">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
-            Companies
-          </h1>
-          <Link href="/admin/companies/unverified">
-            <button
-              type="button"
-              className="bg-gray-900 text-white px-4 sm:px-5 py-2 rounded-md text-sm sm:text-base font-medium hover:bg-gray-800 transition"
-            >
-              + Verification Request
-            </button>
+        <div className="flex items-center gap-2">
+          <Link href={`/admin/companies/verification`}>
+            <Button>Verify</Button>
           </Link>
         </div>
+      </div>
 
-        <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6">
-          <DataTable<User>
-            data={users}
-            searchPlaceholder="Search by name"
-            columns={[
-              {
-                key: 'name',
-                label: 'Name',
-                render: (u) => (
-                  <div className="flex items-center gap-2">
-                    <span>{u.name}</span>
-                    {u.isVerified && <Check className="text-green-500 w-5 h-5" />}
-                  </div>
-                ),
-              },
-              { key: 'email', label: 'Email', className: 'hidden sm:table-cell' },
-              {
-                key: 'employees',
-                label: 'Employees',
-                render: (u) => u.employees?.length ?? 0,
-                className: 'hidden md:table-cell',
-              },
-              {
-                key: 'isPremium',
-                label: 'Subscription',
-                render: (u) => (u.isPremium ? 'Available' : 'No Package'),
-                className: 'hidden md:table-cell',
-              },
-            ]}
-            onDetailClick={(company) => {
-              router.push(`/admin/companies/${company._id}`);
-            }}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onSearch={(term) => {
-              setSearchTerm(term);
-              setCurrentPage(1);
-            }}
-            onPageChange={(page) => setCurrentPage(page)}
-            className="w-full"
-          />
-        </div>
-      </main>
+      <Card>
+        <CardHeader className="pb-4">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+            {/* SEARCH */}
+            <div className="relative w-full md:w-72">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder="Search companies..."
+                className="pl-9"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+
+            {/* FILTER */}
+            <div className="flex items-center gap-2">
+              <div className="border border-slate-200 bg-white rounded-lg p-1 flex gap-2">
+                <Button
+                  variant={status === "all" ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setStatus("all")}
+                >
+                  All
+                </Button>
+                <Button
+                  variant={status === "active" ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setStatus("active")}
+                >
+                  Active
+                </Button>
+                <Button
+                  variant={status === "blocked" ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setStatus("blocked")}
+                >
+                  Blocked
+                </Button>
+              </div>
+            </div>
+
+          </div>
+        </CardHeader>
+
+        {/* TABLE */}
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Company</TableHead>
+                <TableHead>Industry</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Plan</TableHead>
+                <TableHead>Employees</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+
+            <TableBody>
+              {companies.length > 0 ? (
+                companies.map((company) => (
+                  <TableRow key={company._id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar className="rounded-lg">
+                          <AvatarImage src={company.logo} />
+                          <AvatarFallback className="rounded-lg">
+                            <Building2 className="h-4 w-4" />
+                          </AvatarFallback>
+                        </Avatar>
+
+                        <div>
+                          <div className="font-medium text-slate-900">
+                            {company.name}
+                          </div>
+                          <p className="text-xs text-slate-500">{company.email}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="text-slate-600">
+                      {company.industry}
+                    </TableCell>
+
+                    <TableCell>
+                      <Badge variant={company.isBlocked ? "destructive" : "success"}>
+                        {company.isBlocked ? "blocked" : "active"}
+                      </Badge>
+                    </TableCell>
+
+                    <TableCell>
+                      <Badge variant="outline" className="bg-slate-50">
+                        {company.activePlan ? company.activePlan : "free"}
+                      </Badge>
+                    </TableCell>
+
+                    <TableCell>{company.employees?company.employees.length : 0}</TableCell>
+
+                    <TableCell className="text-right">
+                      <div className="flex justify-end items-center gap-2">
+                        <Link href={`/admin/companies/${company._id}`}>
+                          <Button variant="ghost" size="icon">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </Link>
+
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-red-600 hover:bg-red-50"
+                        >
+                          <Ban className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="text-center p-6 text-slate-500"
+                  >
+                    No companies found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 }

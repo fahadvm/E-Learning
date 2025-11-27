@@ -11,10 +11,13 @@ import { IStudentCourseController } from '../../core/interfaces/controllers/stud
 import { AuthRequest } from '../../types/AuthenticatedRequest';
 import axios from 'axios';
 import { Messages } from 'openai/resources/chat/completions';
+import { IStudentSubscriptionService } from '../../core/interfaces/services/student/IStudentSubscriptionService';
 
 @injectable()
 export class StudentCourseController implements IStudentCourseController {
-  constructor(@inject(TYPES.StudentCourseService) private readonly _courseService: IStudentCourseService) { }
+  constructor(@inject(TYPES.StudentCourseService) private readonly _courseService: IStudentCourseService,
+    @inject(TYPES.StudentSubscriptionService) private readonly _subscriptionService: IStudentSubscriptionService,
+  ) { }
 
 
   getAllCourses = async (req: Request, res: Response) => {
@@ -62,9 +65,13 @@ export class StudentCourseController implements IStudentCourseController {
   codecompiler = async (req: AuthRequest, res: Response) => {
     const JUDGE0_URL = 'https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true';
     const { language, code } = req.body;
-
+    const studentId = req.user?.id
+    if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
     if (!language || !code) throwError('Language and code are required', STATUS_CODES.BAD_REQUEST);
-
+    const canAccess = await this._subscriptionService.hasFeature(studentId, "Compiler");
+    if (!canAccess) {
+      return throwError("You don't have access to this feature.", 403);
+    }
     const languageMap: Record<string, number> = {
       python: 71,        // Python 3
       javascript: 63,    // Node.js

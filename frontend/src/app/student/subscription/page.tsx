@@ -111,7 +111,7 @@ export default function SubscriptionPlansPage() {
                     order_id: order.id,
                     handler: async (resp: any) => {
                         try {
-                            if(!plan._id) return
+                            if (!plan._id) return
                             const verifyResponse = await studentSubscriptionApi.verifyPayment({
                                 planId: plan._id,
                                 razorpay_order_id: resp.razorpay_order_id,
@@ -152,23 +152,24 @@ export default function SubscriptionPlansPage() {
     };
 
     return (
-        <>
+
+        <div className="bg-gray-100 h-screen overflow-hidden flex flex-col">
             <Header />
 
-            <div className="bg-gray-100 min-h-screen py-16 px-4 md:px-10">
-                <h1 className="text-4xl font-bold text-center text-gray-800 mb-4">Choose Your Plan</h1>
-
+            <div className="px-4 md:px-10 flex-1 overflow-auto">
+                <h1 className="text-4xl font-bold text-center text-gray-800 mb-4">
+                    Choose Your Plan
+                </h1>
                 {loading ? (
                     <p className="text-center text-gray-500">Loading plans...</p>
                 ) : (
                     <div
-                        className={`max-w-6xl mx-auto gap-8 ${
-                            plans.length === 1
+                        className={`max-w-3xl mx-auto gap-6 ${plans.length === 1
                                 ? 'flex justify-center'
                                 : plans.length === 2
-                                ? 'grid grid-cols-1 md:grid-cols-2'
-                                : 'grid grid-cols-1 md:grid-cols-3'
-                        }`}
+                                    ? 'grid grid-cols-1 md:grid-cols-2'
+                                    : 'grid grid-cols-1 md:grid-cols-3'
+                            }`}
                     >
                         {plans.map((plan, index) => {
                             const isCurrent = currentPlanId === plan._id;
@@ -176,13 +177,15 @@ export default function SubscriptionPlansPage() {
                             return (
                                 <motion.div
                                     key={plan._id}
-                                    className={`rounded-xl shadow-lg p-8 bg-white border-2 transition-all duration-300 
-                                        ${isCurrent ? 'border-blue-600 ring-2 ring-blue-400' : 'border-gray-200'}`}
+                                    className={`rounded-xl shadow-lg p-5 bg-white border-2 max-w-sm w-full mx-auto transition-all duration-300
+          ${isCurrent ? 'border-blue-600 ring-2 ring-blue-400' : 'border-gray-200'}
+        `}
                                     variants={cardVariants}
                                     initial="hidden"
                                     animate="visible"
                                     custom={index}
                                 >
+
                                     {isCurrent && (
                                         <div className="text-sm font-semibold text-white bg-blue-600 px-3 py-1 rounded-full w-fit mb-4">
                                             Current Plan
@@ -212,18 +215,17 @@ export default function SubscriptionPlansPage() {
                                         disabled={isCurrent || processingPlan === plan._id}
                                         onClick={() => handleCompletePurchase(plan)}
                                         className={`w-full py-3 rounded-lg font-semibold transition 
-                                            ${
-                                                isCurrent
-                                                    ? 'bg-gray-400 cursor-not-allowed text-white'
-                                                    : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                                            ${isCurrent
+                                                ? 'bg-gray-400 cursor-not-allowed text-white'
+                                                : 'bg-indigo-600 text-white hover:bg-indigo-700'
                                             }`}
                                     >
                                         {isCurrent
                                             ? 'Current Plan'
                                             : String(plan.price).toLowerCase().includes('free') ||
-                                              plan.price === 0
-                                            ? 'Get Started'
-                                            : 'Subscribe Now'}
+                                                plan.price === 0
+                                                ? 'Get Started'
+                                                : 'Subscribe Now'}
                                     </button>
                                 </motion.div>
                             );
@@ -231,6 +233,7 @@ export default function SubscriptionPlansPage() {
                     </div>
                 )}
             </div>
-        </>
+        </div>
+
     );
 }

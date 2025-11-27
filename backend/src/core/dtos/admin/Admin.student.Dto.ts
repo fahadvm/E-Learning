@@ -91,14 +91,14 @@ export const adminStudentDetailsDto = (data: {
       : "",
 
     // Corrected coursesProgress mapping
-    coursesProgress: student.coursesProgress.map((c: any) => ({
+    coursesProgress: student.coursesProgress?student.coursesProgress.map((c: any) => ({
       courseId: c.courseId.toString(),
       completedLessons: c.completedLessons.map((l: any) => l.toString()),
       completedModules: c.completedModules.map((m: any) => m.toString()),
       percentage: c.percentage,
       lastVisitedLesson: c.lastVisitedLesson?.toString(),
       notes: c.notes || "",
-    })),
+    })):[],
 
     coursesEnrolled: data.courses.length,
     totalSpent: data.purchases.reduce((sum, p) => sum + p.amount, 0),

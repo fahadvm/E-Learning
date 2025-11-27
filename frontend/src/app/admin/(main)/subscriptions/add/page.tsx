@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import AdminSidebar from '@/components/admin/sidebar'
 import { Star, Tag, ChevronLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { adminApiMethods } from '@/services/APIservices/adminApiService'
@@ -14,9 +13,9 @@ export default function AddSubscriptionPlanPage() {
   const builtInFeatures: Record<string, string> = {
     'Compiler': 'Write and run code directly on the platform.',
     'Video Call': 'Connect with instructors or peers in real time.',
-    'Chat': 'Instant messaging for questions and discussions.',
-    'AI Bot': 'Get AI-powered guidance and learning support.',
-    'Course Resources': 'Access all course materials and references.',
+    // 'Chat': 'Instant messaging for questions and discussions.',
+    // 'AI Bot': 'Get AI-powered guidance and learning support.',
+    // 'Course Resources': 'Access all course materials and references.',
   }
 
   const [form, setForm] = useState({
@@ -110,9 +109,7 @@ export default function AddSubscriptionPlanPage() {
 
   return (
     <div className="min-h-screen flex bg-gray-50">
-      <aside className="w-64 bg-white border-r shadow-sm">
-        <AdminSidebar />
-      </aside>
+
 
       <div className="flex-1 p-6">
         <div className="mb-6 flex justify-between items-center">

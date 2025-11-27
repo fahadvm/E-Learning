@@ -40,7 +40,10 @@ export const studentCourseApi = {
 export const studentProfileApi = {
   getProfile: () => get(STUDENT_ROUTES.profile.base),
   editProfile: (data: any) => patch(STUDENT_ROUTES.profile.base, data),
-  getcontributions: (leetcode:string ,github: string) => get(STUDENT_ROUTES.profile.contribution(leetcode,github)),
+  changePassword: (data:{currentPassword:string , newPassword:string}) => put(STUDENT_ROUTES.profile.changePassword,data),
+  sendEmailOtp: (data:{ newEmail:string}) => post(STUDENT_ROUTES.profile.sendEmailOtp,data),
+  verifyEmailOtp: (data:{ newEmail:string,otp: string}) => post(STUDENT_ROUTES.profile.verifyEmailOtp,data),
+  getContributions: (leetcode:string ,github: string) => get(STUDENT_ROUTES.profile.contribution(leetcode,github)),
 };
 
 export const studentTeacherApi = {

@@ -250,7 +250,7 @@ export default function TeacherDetailsPage() {
                                                 <div className="flex items-center gap-3 text-sm text-slate-500">
                                                     {course.category}
                                                     <span>•</span>
-                                                    {course.studentsEnrolled} students
+                                                    {course.totalStudents} students
                                                     <span className="flex items-center gap-1 text-yellow-500">
                                                         <Star className="h-3 w-3 fill-current" /> {course.rating}
                                                     </span>

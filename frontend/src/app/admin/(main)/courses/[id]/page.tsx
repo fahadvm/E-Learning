@@ -117,7 +117,7 @@ export default function CourseDetailPage() {
                 {course.category}
               </span>
               {course.price && (
-                <span className="inline-flex items-center px-3 py-1 bg-cyan-100 text-cyan-700 rounded-full text-sm font-medium">
+                <span className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
                   ₹{course.price}
                 </span>
               )}
@@ -178,7 +178,7 @@ export default function CourseDetailPage() {
                     "Build RESTful APIs and work with third-party APIs",
                   ].map((outcome, index) => (
                     <div key={index} className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-cyan-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
                       <span className="text-foreground">{outcome}</span>
                     </div>
                   ))}
@@ -192,13 +192,13 @@ export default function CourseDetailPage() {
               <div key={i} className="bg-white border rounded-lg shadow-sm overflow-hidden">
                 <button
                   onClick={() => toggleModule(i)}
-                  className="w-full flex justify-between items-center p-4 bg-cyan-50 hover:bg-cyan-100 transition-colors"
+                  className="w-full flex justify-between items-center p-4 bg-blue-50 hover:bg-blue-100 transition-colors"
                 >
-                  <h3 className="text-lg font-semibold text-cyan-700">
-                    Module {i + 1}: {mod.title}
+                  <h3 className="text-lg font-semibold text-blue-700">
+                     {mod.title}
                   </h3>
                   <svg
-                    className={`w-5 h-5 text-cyan-700 transform transition-transform ${openModules[i] ? 'rotate-180' : ''}`}
+                    className={`w-5 h-5 text-blue-700 transform transition-transform ${openModules[i] ? 'rotate-180' : ''}`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -218,7 +218,7 @@ export default function CourseDetailPage() {
                           const isVideoPlaying = playingVideos[videoKey] || false
 
                           return (
-                            <div key={j} className="border-l-4 border-cyan-200 pl-4">
+                            <div key={j} className="border-l-4 border-blue-200 pl-4">
                               <div className="flex items-center justify-between">
                                 <strong className="text-gray-800">{lesson.title}</strong>
                                 {lesson.videoFile && (

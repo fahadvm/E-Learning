@@ -13,7 +13,7 @@ const studentCommentCtrl = container.get<StudentCommentController>(TYPES.Student
 
 router.get('/', authMiddleware('student'), asyncHandler(studentCourseCtrl.getAllCourses.bind(studentCourseCtrl)));
 router.get('/:courseId', authMiddleware('student'), asyncHandler(studentCourseCtrl.getCourseDetailById.bind(studentCourseCtrl)));
-router.post('/compiler/run', asyncHandler(studentCourseCtrl.codecompiler.bind(studentCourseCtrl)));
+router.post('/compiler/run',authMiddleware('student'), asyncHandler(studentCourseCtrl.codecompiler.bind(studentCourseCtrl)));
 router.post('/notes', authMiddleware('student'), asyncHandler(studentCourseCtrl.noteSaving.bind(studentCourseCtrl)));
 router.get( '/:courseId/lesson/:lessonIndex/complete', authMiddleware('student'), asyncHandler(studentCourseCtrl.markLessonComplete.bind(studentCourseCtrl)));
 router.get( '/resources/:courseId', authMiddleware('student'), asyncHandler(studentCourseCtrl.getCourseResources.bind(studentCourseCtrl)));

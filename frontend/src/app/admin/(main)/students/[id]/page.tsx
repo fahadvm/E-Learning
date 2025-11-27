@@ -37,7 +37,7 @@ export default function StudentDetailsPage() {
   const fetchStudent = async () => {
     try {
       const data = await adminApiMethods.getStudentById(studentId);
-      console.log("data:",data)
+      console.log("data:", data)
       setStudent(data.data);
     } catch (error) {
       console.log("Failed to fetch student:", error);
@@ -211,14 +211,78 @@ export default function StudentDetailsPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Current Plan</CardTitle>
+              <CardTitle>Subscription</CardTitle>
             </CardHeader>
-
             <CardContent>
-              <p className="text-sm italic text-slate-600">
-                {student.notes || "No Plan added."}
-              </p>
+              <div className="space-y-4 text-sm">
+                <div className="flex justify-between">
+                  <span>Plan</span>
+                  <Badge
+                    variant="outline"
+                    className="bg-blue-50 text-blue-700 border-blue-200"
+                  >
+                    {student.activePlan ? student.activePlan : "Free"}
+                  </Badge>
+                </div>
 
+                <div className="flex justify-between">
+                  <span>Status</span>
+                  <Badge
+                    variant={
+
+                      "success"
+                    }
+                  >
+                    {student.activePlan ? student.subscriptionStatus : "active"}
+                  </Badge>
+                </div>
+
+                <div className="flex justify-between">
+                  <span>Expires</span>
+                  <span className="font-medium">
+                    {student.activePlan ? student.subscriptionExpiry : "Unlimited"}
+                  </span>
+                </div>
+
+                {/* CREDITS */}
+                {/* <div className="pt-4 border-t">
+                            <h4 className="font-medium mb-3">Credits Remaining</h4>
+          
+                            <div className="space-y-3">
+                              <div>
+                                <div className="flex justify-between text-xs mb-1">
+                                  <span className="text-slate-500">
+                                    Subscription Credits
+                                  </span>
+                                  <span className="font-medium">
+                                    {company.credits.subscription}
+                                  </span>
+                                </div>
+                                <div className="h-1.5 w-full bg-slate-100 rounded-full">
+                                  <div
+                                    className="h-full bg-blue-600 rounded-full"
+                                    style={{ width: "75%" }}
+                                  />
+                                </div>
+                              </div>
+          
+                              <div>
+                                <div className="flex justify-between text-xs mb-1">
+                                  <span className="text-slate-500">Course Credits</span>
+                                  <span className="font-medium">
+                                    {company.credits.course}
+                                  </span>
+                                </div>
+                                <div className="h-1.5 w-full bg-slate-100 rounded-full">
+                                  <div
+                                    className="h-full bg-purple-600 rounded-full"
+                                    style={{ width: "50%" }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div> */}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -289,7 +353,7 @@ export default function StudentDetailsPage() {
                             : ""
                         }
                       >
-                        { course.percentage === 100
+                        {course.percentage === 100
                           ? "Completed"
                           : "In Progress"}
                       </span>

@@ -21,8 +21,8 @@ export const adminApiMethods = {
   unblockStudent: (id: string) => patch(ADMIN_ROUTES.students.unblock(id), {}),
 
   // Companies
-  getCompanies: (params?: { page?: number; limit?: number; search?: string }) => get(ADMIN_ROUTES.companies.base, params),
-  UnVerifiedCompanies: (params?: { page?: number; limit?: number; search?: string }) => get(ADMIN_ROUTES.companies.unverified, params),
+  getCompanies: (params?: { page?: number; limit?: number; search?: string ; status:string }) => get(ADMIN_ROUTES.companies.base, params),
+  UnVerifiedCompanies: (params?: { page?: number; limit?: number; search?: string ;  }) => get(ADMIN_ROUTES.companies.unverified, params),
   getCompanyById: (id: string) => get(ADMIN_ROUTES.companies.getById(id)),
   blockCompany: (id: string) => patch(ADMIN_ROUTES.companies.block(id), {}),
   unblockCompany: (id: string) => patch(ADMIN_ROUTES.companies.unblock(id), {}),

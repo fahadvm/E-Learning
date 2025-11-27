@@ -8,12 +8,16 @@ import { AuthRequest } from '../../types/AuthenticatedRequest';
 import { sendResponse, throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
+import { IStudentSubscriptionService } from '../../core/interfaces/services/student/IStudentSubscriptionService';
 
 @injectable()
 export class StudentBookingController implements IStudentBookingController {
   constructor(
     @inject(TYPES.StudentBookingService)
-    private readonly _bookingService: IStudentBookingService
+    private readonly _bookingService: IStudentBookingService,
+
+    @inject(TYPES.StudentSubscriptionService)
+    private readonly _subscriptionService: IStudentSubscriptionService
   ) { }
 
   getAvailability = async (req: AuthRequest, res: Response) => {
@@ -27,6 +31,10 @@ export class StudentBookingController implements IStudentBookingController {
   lockSlot = async (req: AuthRequest, res: Response) => {
     const studentId = req.user?.id;
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+    const canAccess = await this._subscriptionService.hasFeature(studentId, "Video Call");
+    if (!canAccess) {
+      return throwError("You don't have access to this feature.", 403);
+    }
     const { teacherId, courseId, date, day, startTime, endTime, note } = req.body;
     if (!teacherId || !courseId || !date || !day || !startTime || !endTime)
       throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
@@ -55,11 +63,11 @@ export class StudentBookingController implements IStudentBookingController {
 
   cancelBooking = async (req: AuthRequest, res: Response) => {
     const { bookingId } = req.params;
-    const {reason} = req.body;
+    const { reason } = req.body;
     if (!bookingId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
 
-    const result = await this._bookingService.cancelBooking(bookingId , reason);
-     
+    const result = await this._bookingService.cancelBooking(bookingId, reason);
+
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.BOOKING_CANCELLED, true, result);
   };
 
@@ -105,7 +113,7 @@ export class StudentBookingController implements IStudentBookingController {
     const { page = 1, limit = 5, status } = req.query;
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
-    const history = await this._bookingService.getHistory(studentId , Number(page), Number(limit), status as string );
+    const history = await this._bookingService.getHistory(studentId, Number(page), Number(limit), status as string);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.HISTORY_FETCHED, true, history);
   };
 

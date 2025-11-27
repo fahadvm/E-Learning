@@ -61,6 +61,8 @@ export class AdminStudentService implements IAdminStudentService {
     const courses = orders.flatMap((o) => o.courses || []);
     const purchases = orders;
 
+    console.log()
+
     return adminStudentDetailsDto({
       student,
       courses,

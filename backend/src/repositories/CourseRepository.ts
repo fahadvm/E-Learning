@@ -117,4 +117,13 @@ export class CourseRepository implements ICourseRepository {
   async updateStatus(courseId: string, updates: Partial<ICourse>): Promise<ICourse | null> {
     return Course.findByIdAndUpdate(courseId, updates, { new: true }).lean();
   }
+
+
+  async incrementStudentCount(courseId: string): Promise<void> {
+    await Course.findByIdAndUpdate(
+      courseId,
+      { $inc: { totalStudents: 1 } },
+      { new: true }
+    );
+  }
 }

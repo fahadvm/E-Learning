@@ -1,12 +1,11 @@
 'use client';
 
-import Link from 'next/link';
-import Header from '@/components/student/header';
-import { Mail, Phone, Linkedin, Instagram, Twitter, Edit2, User, Trophy, Target } from 'lucide-react';
-import { useStudent } from '@/context/studentContext';
+import { Mail, Phone, Linkedin, Edit2, User, Target, Github, Code2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { studentProfileApi } from "@/services/APIservices/studentApiservice";
 import React, { useEffect, useState } from "react";
+import Header from '@/components/student/header';
+import Link from "next/link";  // ✅ FIXED
+import { studentProfileApi } from '@/services/APIservices/studentApiservice';
 
 interface IGithubContribution {
   date: string;
@@ -26,98 +25,133 @@ interface IContributionResponse {
   leetcode: ILeetCodeStats;
 }
 
+interface IStudentProfile {
+  _id: string;
+  name: string;
+  role?: string;
+  email: string;
+  phone?: string;
+  profilePicture?: string;
+  about?: string;
+  planName?: string;
+  planStatus?: "active" | "expired" | "none";
+  social_links?: {
+    linkedin?: string;
+    gitHub?: string;
+    leetCode?: string;
+  };
+}
+
 const GITHUB_COLORS = {
-  0: "bg-[#161b22]",
-  1: "bg-[#0e4429]",
-  2: "bg-[#006d32]",
-  3: "bg-[#26a641]",
-  4: "bg-[#39d353]",
+  0: "bg-gray-100",
+  1: "bg-emerald-200",
+  2: "bg-emerald-400",
+  3: "bg-emerald-600",
+  4: "bg-emerald-800",
 };
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6, ease: 'easeOut' }
+  transition: { duration: 0.5, ease: 'easeOut' }
 };
 
 export default function StudentProfilePage() {
-  const { student } = useStudent();
-
-  // -------------------------------
-  //    FETCH GITHUB + LEETCODE
-  // -------------------------------
 
   const [contribData, setContribData] = useState<IContributionResponse | null>(null);
+  const [student, setStudent] = useState<IStudentProfile | null>(null);
+  const [loadingStudent, setLoadingStudent] = useState(true);
   const [loadingContrib, setLoadingContrib] = useState(true);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await studentProfileApi.getcontributions("fahad_fad", "fahadvm");
-        if (!res.ok || !res.data) return;
-
-        const today = new Date();
-        const todayStr = today.toISOString().split("T")[0];
-
-        const eventsRes = await fetch(
-          `https://api.github.com/users/fahadvm/events/public?per_page=100`
-        );
-        const events = await eventsRes.json();
-
-        const todayEvents = Array.isArray(events)
-          ? events.filter((e: any) => e.created_at.split("T")[0] === todayStr)
-          : [];
-
-        const todayCount = todayEvents.filter((e: any) => e.type === "PushEvent").length;
-
-        const level =
-          todayCount === 0 ? 0 : todayCount <= 2 ? 1 : todayCount <= 5 ? 2 : todayCount <= 10 ? 3 : 4;
-
-        const todayContribution: IGithubContribution = {
-          date: todayStr,
-          count: todayCount,
-          level,
-        };
-
-        const updatedGithub = res.data.github.filter((d: any) => d.date !== todayStr);
-        updatedGithub.push(todayContribution);
-
-        setContribData({ github: updatedGithub, leetcode: res.data.leetcode });
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingContrib(false);
-      }
+  const fetchStudent = async () => {
+    try {
+      const response = await studentProfileApi.getProfile();
+      setStudent(response.data);
+    } catch (err) {
+      console.error("Failed to load student profile", err);
+    } finally {
+      setLoadingStudent(false);
     }
-    load();
+  };
+
+  const fetchContributions = async () => {
+    if (!student?.social_links) {
+      setContribData({
+        github: [],
+        leetcode: { totalSolved: 0, easySolved: 0, mediumSolved: 0, hardSolved: 0 }
+      });
+      setLoadingContrib(false);
+      return;
+    }
+
+    setLoadingContrib(true); // ← Important
+
+    try {
+      const leetCodeUsername = student.social_links.leetCode
+        ? student.social_links.leetCode
+          .trim()
+          .replace(/\/+$/, '')
+          .split('/')
+          .pop()
+          ?.replace(/^u\//, '') || null
+        : null;
+
+      const gitHubUsername = student.social_links.gitHub
+        ? student.social_links.gitHub
+          .trim()
+          .replace(/\/+$/, '')
+          .split('/')
+          .pop() || null
+        : null;
+
+      if (!leetCodeUsername && !gitHubUsername) {
+        setContribData({
+          github: [],
+          leetcode: { totalSolved: 0, easySolved: 0, mediumSolved: 0, hardSolved: 0 }
+        });
+        return; // finally will set loading to false
+      }
+
+      const response = await studentProfileApi.getContributions(
+        leetCodeUsername ?? '',
+        gitHubUsername ?? ''
+      );
+
+      setContribData(response.data);
+    } catch (err) {
+      console.error("Failed to load contribution stats", err);
+    } finally {
+      setLoadingContrib(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStudent();
   }, []);
 
-  // ------------------------------------------------------------------------
-  //                         LOADING STUDENT
-  // ------------------------------------------------------------------------
+  useEffect(() => {
+    if (student) {
+      fetchContributions();
+    }
+  }, [student]);
 
   if (!student) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-gray-300 border-t-indigo-900 rounded-full animate-spin mb-4"></div>
+          <div className="w-16 h-16 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600 font-medium">Loading profile...</p>
         </div>
       </div>
     );
   }
 
-  // ------------------------------------------------------------------------
-  //                     PREPARE GITHUB HEATMAP DATA
-  // ------------------------------------------------------------------------
-
+  // GitHub Heatmap
   let weeks: (IGithubContribution | null)[][] = [];
   let totalContributions = 0;
 
   if (contribData && !loadingContrib) {
     const today = new Date();
-    today.setDate(today.getDate() + 1);
-
     const oneYearAgo = new Date();
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
@@ -165,159 +199,230 @@ export default function StudentProfilePage() {
     (contribData?.leetcode.hardSolved || 0);
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50">
       <Header />
 
-      <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
 
-          {/* ---------------- LEFT SIDEBAR ---------------- */}
-          <aside className="lg:col-span-4 space-y-8">
+          {/* LEFT SIDEBAR */}
+          <aside className="lg:col-span-1 space-y-6">
 
-            {/* Profile */}
-            <motion.div {...fadeIn} className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
-              <div className="p-8 text-center">
-                <div className="relative inline-block mb-6">
-                  <img
-                    src={student.profilePicture || "/avatar.jpg"}
-                    alt={student.name}
-                    className="w-36 h-36 rounded-full object-cover border-4 border-white shadow-xl"
-                  />
-                  <Link href="/student/profile/edit">
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      className="absolute bottom-2 right-2 bg-indigo-900 text-white p-3 rounded-full shadow-lg"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </motion.button>
-                  </Link>
+            {/* Profile Card */}
+            <motion.div {...fadeIn} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="p-8">
+                {/* Profile Image + Edit Icon */}
+                <div className="relative w-32 h-32 mx-auto">
+                  <div className="w-full h-full rounded-full bg-indigo-900 p-1">
+                    <img
+                      src={student.profilePicture || "/avatar.jpg"}
+                      alt={student.name}
+                      className="w-full h-full rounded-full object-cover bg-white"
+                    />
+                  </div>
+
+                  <button
+                    className="absolute bottom-1 right-1 bg-indigo-900 text-white p-2.5 rounded-full shadow-md hover:bg-indigo-700 transition-colors"
+                    aria-label="Edit profile picture"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
                 </div>
 
-                <h2 className="text-2xl font-bold text-indigo-900">{student.name}</h2>
-                <p className="text-gray-600 mt-1">{student.role}</p>
+                {/* Name + Role */}
+                <div className="text-center mt-6">
+                  <h2 className="text-2xl font-semibold text-gray-900">{student.name}</h2>
+                  <p className="text-gray-600 text-sm mt-1">{student.role}</p>
+                </div>
 
-                <Link href="/student/profile/edit">
-                  <button className="mt-8 w-full py-3.5 bg-indigo-900 text-white font-medium rounded-2xl">
-                    Edit Profile
-                  </button>
-                </Link>
+                {/* Edit Profile Button */}
+                <div className="mt-5 flex justify-center">
+                  <Link href="/student/profile/edit">
+                    <button className="px-6 py-2 text-sm bg-indigo-900 text-white font-medium rounded-lg shadow hover:bg-indigo-700 transition-colors">
+                      Edit Profile
+                    </button>
+                  </Link>
+                </div>
               </div>
+
             </motion.div>
 
-            {/* Contact */}
-            <motion.div {...fadeIn} className="bg-white rounded-3xl shadow-lg border border-gray-100 p-8">
-              <h3 className="text-lg font-semibold text-indigo-900 mb-6 flex items-center gap-3">
-                <Mail className="w-5 h-5" /> Contact
-              </h3>
+            {/* Contact Card */}
+            <motion.div {...fadeIn} transition={{ delay: 0.1 }} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
 
-              <div className="space-y-5">
-                <div className="flex items-center gap-4">
-                  <div className="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center">
-                    <Mail className="w-5 h-5 text-gray-700" />
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Mail className="w-5 h-5 text-blue-600" />
                   </div>
-                  <span className="text-gray-700 font-medium">{student.email}</span>
+                  <span className="text-gray-700 text-sm break-all">{student.email}</span>
                 </div>
 
                 {student.phone && (
-                  <div className="flex items-center gap-4">
-                    <div className="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center">
-                      <Phone className="w-5 h-5 text-gray-700" />
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Phone className="w-5 h-5 text-blue-600" />
                     </div>
-                    <span className="text-gray-700 font-medium">{student.phone}</span>
+                    <span className="text-gray-700 text-sm">{student.phone}</span>
                   </div>
                 )}
               </div>
             </motion.div>
 
-            {/* Social */}
-            <motion.div {...fadeIn} className="bg-white rounded-3xl shadow-lg border border-gray-100 p-8">
-              <h3 className="text-lg font-semibold text-indigo-900 mb-6">Connect</h3>
+            {/* Social Links */}
+            {/* Social Links - IMPROVED */}
+            <motion.div {...fadeIn} transition={{ delay: 0.2 }} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Social Links</h3>
 
-              <div className="space-y-3">
-                {student.social_links?.linkedin && (
-                  <a href={student.social_links.linkedin} target="_blank" className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition">
-                    <Linkedin className="w-5 h-5 text-gray-700" />
-                    <span className="text-gray-700">LinkedIn</span>
+              <div className="space-y-4">
+                {/* LinkedIn */}
+                {student.social_links?.linkedin ? (
+                  <a
+                    href={student.social_links.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+                  >
+                    <Linkedin className="w-5 h-5 text-gray-600 group-hover:text-blue-600 transition-colors" />
+                    <div>
+                      <span className="text-gray-700 text-sm font-medium">LinkedIn</span>
+                      <p className="text-xs text-gray-500">linkedin.com/in/...</p>
+                    </div>
                   </a>
+                ) : (
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50/50">
+                    <Linkedin className="w-5 h-5 text-gray-400" />
+                    <span className="text-gray-500 text-sm">You haven't added your LinkedIn yet</span>
+                  </div>
                 )}
-                {student.social_links?.instagram && (
-                  <a href={student.social_links.instagram} target="_blank" className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition">
-                    <Instagram className="w-5 h-5 text-gray-700" />
-                    <span className="text-gray-700">Instagram</span>
-                  </a>
+
+                {/* GitHub - Extract username from URL */}
+                {student.social_links?.gitHub ? (
+                  (() => {
+                    const githubUrl = student.social_links!.gitHub!;
+                    const githubUsername = githubUrl.trim().replace(/\/+$/, '').split('/').pop() || 'Unknown';
+                    return (
+                      <a
+                        href={githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+                      >
+                        <Github className="w-5 h-5 text-gray-600 group-hover:text-green-600 transition-colors" />
+                        <div>
+                          <span className="text-gray-700 text-sm font-medium">GitHub</span>
+                          <p className="text-xs text-gray-500">@{githubUsername}</p>
+                        </div>
+                      </a>
+                    );
+                  })()
+                ) : (
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50/50">
+                    <Github className="w-5 h-5 text-gray-400" />
+                    <span className="text-gray-500 text-sm">You haven't added your GitHub yet</span>
+                  </div>
                 )}
-                {student.social_links?.twitter && (
-                  <a href={student.social_links.twitter} target="_blank" className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition">
-                    <Twitter className="w-5 h-5 text-gray-700" />
-                    <span className="text-gray-700">Twitter / X</span>
-                  </a>
+
+                {/* LeetCode - Extract username from URL */}
+                {student.social_links?.leetCode ? (
+                  (() => {
+                    const leetCodeUrl = student.social_links!.leetCode!;
+                    const leetCodeUsername = leetCodeUrl
+                      .trim()
+                      .replace(/\/+$/, '')
+                      .split('/')
+                      .pop()
+                      ?.replace(/^u\//, '') || 'Unknown'; // Handles both /u/username and direct username format
+
+                    return (
+                      <a
+                        href={leetCodeUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+                      >
+                        <Code2 className="w-5 h-5 text-gray-600 group-hover:text-amber-600 transition-colors" />
+                        <div>
+                          <span className="text-gray-700 text-sm font-medium">LeetCode</span>
+                          <p className="text-xs text-gray-500">@{leetCodeUsername}</p>
+                        </div>
+                      </a>
+                    );
+                  })()
+                ) : (
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50/50">
+                    <Code2 className="w-5 h-5 text-gray-400" />
+                    <span className="text-gray-500 text-sm">You haven't added your LeetCode yet</span>
+                  </div>
                 )}
               </div>
             </motion.div>
-          </aside>
 
-          {/* ---------------- MAIN CONTENT ---------------- */}
-          <main className="lg:col-span-8 space-y-10">
-
-            {/* About */}
-            <motion.section {...fadeIn} className="bg-white rounded-3xl shadow-lg border border-gray-100 p-10">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="p-3 bg-gray-100 rounded-2xl">
-                  <User className="w-7 h-7 text-gray-700" />
-                </div>
-                <h3 className="text-2xl font-bold text-indigo-900">About</h3>
+            {/* Current Plan — FIXED FIELD */}
+            <motion.div {...fadeIn} transition={{ delay: 0.3 }} className="rounded-2xl shadow-sm p-6 text-black bg-white border border-gray-200">
+              <div className="flex items-center gap-3 mb-3">
+                <Target className="w-6 h-6" />
+                <h3 className="text-lg font-semibold">Current Plan</h3>
               </div>
 
-              <p className="text-gray-700 text-lg">
+              <p className="text-2xl font-bold mb-2">{student.planName || "Free Plan"}</p>
+
+              <span className="inline-block px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">
+                {student.planStatus || "active"}
+              </span>
+            </motion.div>
+
+          </aside>
+
+          {/* ========================== MAIN CONTENT ========================== */}
+
+          <main className="lg:col-span-2 space-y-6">
+
+            {/* About */}
+            <motion.section {...fadeIn} transition={{ delay: 0.1 }} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 lg:p-8">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-blue-50 rounded-lg">
+                  <User className="w-6 h-6 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">About</h3>
+              </div>
+
+              <p className="text-gray-700 leading-relaxed">
                 {student.about || "Building things with code. Learning every day."}
               </p>
             </motion.section>
 
-            {/* Plan */}
-            <motion.div {...fadeIn} className="bg-white rounded-3xl shadow-lg border border-gray-100 p-10">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="p-3 bg-gray-100 rounded-2xl">
-                  <Target className="w-7 h-7 text-gray-700" />
-                </div>
-                <h3 className="text-2xl font-bold text-indigo-900">Current Plan</h3>
-              </div>
-
-              <p className="text-xl font-semibold text-gray-800">
-                {student.plans || "Free Plan"}
-              </p>
-
-              {student.plans && (
-                <span className="inline-block mt-4 px-5 py-2 bg-indigo-900 text-white text-sm rounded-full">
-                  Active
-                </span>
-              )}
-            </motion.div>
-            {/* ---------------- GITHUB CONTRIBUTIONS BLOCK ---------------- */}
-
-            <motion.div {...fadeIn} className="bg-white rounded-3xl shadow-lg border border-gray-100 p-10">
-
+            {/* GitHub Contributions */}
+            <motion.div {...fadeIn} transition={{ delay: 0.2 }} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 lg:p-8">
               {loadingContrib ? (
-                <div className="text-center py-10 text-gray-500">Loading GitHub...</div>
+                <div className="text-center py-12">
+                  <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-3"></div>
+                  <p className="text-gray-500 text-sm">Loading contributions...</p>
+                </div>
               ) : (
-                <div className="text-black">
-                  <h2 className="text-2xl font-bold mb-6 text-indigo-900">GitHub Contributions</h2>
+                <div>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 bg-gray-900 rounded-lg">
+                      <Github className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900">GitHub Contributions</h3>
+                  </div>
 
-                  <p className="text-3xl font-bold mb-6">
-                    {totalContributions}
-                    <span className="text-lg text-gray-500"> this year</span>
-                  </p>
+                  <div className="mb-6">
+                    <p className="text-4xl font-bold text-gray-900">{totalContributions}</p>
+                    <p className="text-gray-600 text-sm mt-1">contributions this year</p>
+                  </div>
 
-                  <div className="overflow-x-auto">
-                    <div className="flex gap-3">
+                  <div className="overflow-x-auto pb-4">
+                    <div className="inline-flex gap-1">
                       {weeks.map((week, i) => (
                         <div key={i} className="flex flex-col gap-1">
                           {week.map((day, j) => (
                             <div
                               key={j}
-                              className={`w-4 h-4 rounded ${
-                                day ? GITHUB_COLORS[day.level] : "bg-gray-200"
-                              }`}
-                              title={day ? `${day.count} on ${day.date}` : "No activity"}
+                              className={`w-3 h-3 rounded-sm ${day ? GITHUB_COLORS[day.level] : "bg-gray-100"}`}
+                              title={day ? `${day.count} contributions on ${day.date}` : "No activity"}
                             />
                           ))}
                         </div>
@@ -325,62 +430,77 @@ export default function StudentProfilePage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 mt-6 text-sm">
-                    <span className="text-gray-600">Less</span>
+                  <div className="flex items-center gap-2 mt-4 text-xs text-gray-600">
+                    <span>Less</span>
                     {[0, 1, 2, 3, 4].map((l) => (
-                      <div
-                        key={l}
-                        className={`w-4 h-4 rounded ${GITHUB_COLORS[l]}`}
-                      />
+                      <div key={l} className={`w-3 h-3 rounded-sm ${GITHUB_COLORS[l]}`} />
                     ))}
-                    <span className="text-gray-600">More</span>
+                    <span>More</span>
                   </div>
                 </div>
               )}
             </motion.div>
 
-            {/* ---------------- LEETCODE BLOCK ---------------- */}
-            <motion.div {...fadeIn} className="bg-white rounded-3xl shadow-lg border border-gray-100 p-10">
-
+            {/* LeetCode Stats */}
+            <motion.div {...fadeIn} transition={{ delay: 0.3 }} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 lg:p-8">
               {loadingContrib ? (
-                <div className="text-center py-10 text-gray-500">Loading LeetCode...</div>
+                <div className="text-center py-12">
+                  <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-3"></div>
+                  <p className="text-gray-500 text-sm">Loading LeetCode stats...</p>
+                </div>
               ) : (
                 <div>
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/LeetCode_logo_black.png"
-                       className="h-10 opacity-80 mx-auto" />
-
-                  <div className="text-6xl font-black text-center mt-4 bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500">
-                    {computedTotalSolved}
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 bg-amber-50 rounded-lg">
+                      <Code2 className="w-6 h-6 text-amber-600" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900">LeetCode Stats</h3>
                   </div>
 
-                  <p className="text-center text-gray-600 mt-2 mb-10 text-lg">
-                    Problems Solved
-                  </p>
+                  <div className="text-center mb-8">
+                    <div className="text-6xl font-bold bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
+                      {computedTotalSolved}
+                    </div>
+                    <p className="text-gray-600 mt-2">Problems Solved</p>
+                  </div>
 
-                  <div className="space-y-4">
-                    <div className="p-4 bg-green-500/10 rounded-xl flex justify-between">
-                      <span className="text-green-500 font-semibold">Easy</span>
-                      <span className="text-3xl font-bold">{contribData?.leetcode.easySolved}</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
+                      <div className="flex justify-between items-center">
+                        <span className="text-emerald-700 font-semibold text-sm">Easy</span>
+                        <span className="text-2xl font-bold text-emerald-900">
+                          {contribData?.leetcode.easySolved}
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="p-4 bg-yellow-500/10 rounded-xl flex justify-between">
-                      <span className="text-yellow-500 font-semibold">Medium</span>
-                      <span className="text-3xl font-bold">{contribData?.leetcode.mediumSolved}</span>
+                    <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
+                      <div className="flex justify-between items-center">
+                        <span className="text-amber-700 font-semibold text-sm">Medium</span>
+                        <span className="text-2xl font-bold text-amber-900">
+                          {contribData?.leetcode.mediumSolved}
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="p-4 bg-red-500/10 rounded-xl flex justify-between">
-                      <span className="text-red-500 font-semibold">Hard</span>
-                      <span className="text-3xl font-bold">{contribData?.leetcode.hardSolved}</span>
+                    <div className="bg-red-50 rounded-xl p-4 border border-red-100">
+                      <div className="flex justify-between items-center">
+                        <span className="text-red-700 font-semibold text-sm">Hard</span>
+                        <span className="text-2xl font-bold text-red-900">
+                          {contribData?.leetcode.hardSolved}
+                        </span>
+                      </div>
                     </div>
                   </div>
+
                 </div>
               )}
             </motion.div>
 
-
           </main>
+
         </div>
       </div>
-    </>
+    </div>
   );
 }

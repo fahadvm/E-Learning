@@ -29,7 +29,7 @@ export class StudentSubscriptionService implements IStudentSubscriptionService {
 
 
     if (plan.price <= 0) {
-      
+
       throwError(MESSAGES.INVALID_DATA);
     }
 
@@ -85,4 +85,18 @@ export class StudentSubscriptionService implements IStudentSubscriptionService {
   async getActiveSubscription(studentId: string): Promise<IStudentSubscription | null> {
     return this._planRepo.findActiveSubscription(studentId);
   }
+
+
+
+  async hasFeature(studentId: string, featureName: string): Promise<boolean> {
+    const subscription = await this._planRepo.findActiveSubscription(studentId);
+    if (!subscription) return false;
+
+    const plan = await this._planRepo.getById(subscription.planId);
+    if (!plan) return false;
+    console.log("checking access now ",plan)
+
+    return plan.features.some(feature => feature.name === featureName);
+  }
+
 }

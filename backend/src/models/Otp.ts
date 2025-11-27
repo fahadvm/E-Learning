@@ -11,7 +11,7 @@ export interface IOtp extends Document {
   email: string;
   otp: string;
   expiresAt: Date;
-  purpose?: 'signup' | 'forgot-password';
+  purpose?: 'signup' | 'forgot-password' | 'change-email';
   tempUserData?: TempUserData;
 }
 
@@ -24,7 +24,7 @@ const OtpSchema = new Schema<IOtp>({
     default: () => new Date(Date.now() + 10 * 60 * 1000),  //ttl
     index: { expires: '10m' } 
   },
-  purpose: { type: String, enum: ['signup', 'forgot-password'] },
+  purpose: { type: String, enum: ['signup', 'forgot-password','change-email'] },
   tempUserData: {
     name: String,
     password: String,
