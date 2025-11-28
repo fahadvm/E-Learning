@@ -82,8 +82,8 @@ export default function HeroSection() {
                   <div className="grid grid-cols-2 gap-6">
                     {[
                       { icon: TrendingUp, label: "Active Students", value: "2,847" },
-                      { icon: Calendar, label: "Courses Live", value: "156" },
-                      { icon: Users, label: "Expert Instructors", value: "89" },
+                      { icon: Calendar, label: "Courses", value: "156" },
+                      { icon: Users, label: "Active Companies", value: "89" },
                       { icon: Bell, label: "Daily Updates", value: "24/7" },
                     ].map((stat, i) => (
                       <div key={i} className="text-center space-y-2">
