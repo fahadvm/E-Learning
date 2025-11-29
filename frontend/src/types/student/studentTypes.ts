@@ -1,4 +1,4 @@
-export interface Course {
+export interface ICourse {
   _id: string;
   title: string;
   subtitle: string;
@@ -15,6 +15,7 @@ export interface Course {
   totalStudents: number;
   modules: Module[];
   reviews: Review[];
+  teacherName:string;
   status: "published" | "draft" | "archived" | string;
   isPublished: boolean;
   isBlocked: boolean;

@@ -15,13 +15,15 @@ import { useParams } from "next/navigation"
 import { studentWishlistApi } from "@/services/APIservices/studentApiservice"
 import { showSuccessToast } from "@/utils/Toast"
 import { formatMinutesToHours } from "@/utils/timeConverter"
-import { Course, Module, Review } from "@/types/student/studentTypes"
+import { ICourse, Module, Review } from "@/types/student/studentTypes"
+import RecommendedCourses from "@/components/student/course/RecommendedCourses"
 
 export default function CourseDetailPage() {
   const params = useParams();
   const id = params?.id as string;
   const [expandedModules, setExpandedModules] = useState<number[]>([])
-  const [courseData, setCourseData] = useState<Course | null>(null)
+  const [courseData, setCourseData] = useState<ICourse | null>(null)
+  const [recommended, setRecommended] = useState<ICourse[] >([])
   const [modules, setModules] = useState<Module[]>([])
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(false);
@@ -60,10 +62,11 @@ export default function CourseDetailPage() {
   useEffect(() => {
     async function fetchCourseData() {
       const res = await studentCourseApi.getCourseDetailById(id)
-      console.log("res.data is", res.data)
-      setCourseData(res.data)
-      setModules(res.data.modules)
-      setReviews(res.data.reviews)
+      console.log("res.data is", res.data)  
+      setCourseData(res.data.course)
+      setModules(res.data.course.modules)
+      setReviews(res.data.course.reviews)
+      setRecommended(res.data.recommendedCourses)
       const purchased = await studentCourseApi.getPurchasedCourseIds();
       console.log("purchased:", purchased)
       if (purchased.ok && purchased.data.includes(id)) {
@@ -270,6 +273,9 @@ export default function CourseDetailPage() {
                 </CardContent>
               </Card>
             </section>
+            <section>
+              <RecommendedCourses courses={recommended} />
+            </section>
 
             {/* Student Reviews */}
             {/* <section>
@@ -335,9 +341,9 @@ export default function CourseDetailPage() {
                       <span className="text-3xl font-bold text-foreground">₹{courseData.price}</span>
                       {/* <span className="text-lg text-muted-foreground line-through">${courseData.originalPrice}</span> */}
                     </div>
-                    <Badge variant="destructive" className="mb-4">
+                    {/* <Badge variant="destructive" className="mb-4">
                       55% OFF - Limited Time
-                    </Badge>
+                    </Badge> */}
                   </div>
 
                   <div className="space-y-3 mb-6">

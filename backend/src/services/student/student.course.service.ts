@@ -51,12 +51,20 @@ export class StudentCourseService implements IStudentCourseService {
   };
 
 
-  async getCourseDetail(courseId: string): Promise<ICourse> {
+  async getCourseDetail(courseId: string): Promise<{course:ICourse ,recommendedCourses:ICourse[]}> {
     if (!courseId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
     const course = await this._courseRepo.findById(courseId);
 
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    return course;
+
+    const recommended = await this._courseRepo.findRecommendedCourses(
+      courseId,
+      course.category,
+      course.level,
+      6 
+    );
+
+    return {course, recommendedCourses: recommended};
   }
 
   async markLessonComplete(

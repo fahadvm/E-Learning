@@ -219,10 +219,7 @@ export class StudentPurchaseService implements IStudentPurchaseService {
 
   async getPurchasedCourses(studentId: string): Promise<IOrder[] | ICourse[]> {
     const ispremium = await this._subscriptionRepo.findActiveSubscription(studentId);
-    if (ispremium) {
-      // const courses = await this._courseRepo.getPremiumCourses();  
-      // return courses
-    }
+
     const orders = await this._orderRepo.getOrdersByStudentId(studentId);
     return orders;
   }
@@ -231,14 +228,15 @@ export class StudentPurchaseService implements IStudentPurchaseService {
     return courseIds;
   }
 
-  async getPurchasedCourseDetails(courseId: string, studentId: string): Promise<{ course: ICourse; progress: ICourseProgress }> {
+  async getPurchasedCourseDetails(courseId: string, studentId: string): Promise<{ course: ICourse; progress: ICourseProgress , recommended: ICourse[] }> {
     if (!courseId || !studentId) throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
     const course = await this._courseRepo.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     const student = await this._studentRepo.findById(studentId);
     if (!student) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     const progress = await this._studentRepo.getOrCreateCourseProgress(studentId, courseId);
-    return { course, progress };
+    const recommended = await  this._courseRepo.findRecommendedCourses(courseId,course.category,course.level,6)
+    return { course, progress ,recommended};
   }
 
   async getOrderDetails(studentId: string, orderId: string): Promise<IOrder> {

@@ -34,6 +34,8 @@ import { studentCourseApi } from "@/services/APIservices/studentApiservice";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";
 import React from "react";
 import AiTutorChat from "@/components/student/aiBot/AiTutorChat";
+import RecommendedCourses from "@/components/student/course/RecommendedCourses";
+import { ICourse } from "@/types/student/studentTypes";
 
 interface Lesson {
   _id: string;
@@ -93,6 +95,7 @@ interface Course {
 interface StudentCourseResponse {
   course: Course;
   progress: CourseProgress;
+  recommended:ICourse[]
 }
 
 interface Resource {
@@ -116,6 +119,8 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
   const [language, setLanguage] = useState("javascript");
   const [output, setOutput] = useState("");
   const [resources, setResources] = useState<Resource[]>([]);
+  const [recommended, setRecommended] = useState<ICourse[]>([])
+
 
 
 
@@ -202,7 +207,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
       setLoading(true);
       const res = await studentCourseApi.getMyCourseDetails(courseId);
       if (res.ok) {
-        const { course: courseData, progress: progressData }: StudentCourseResponse = res.data;
+        const { course: courseData, progress: progressData ,recommended: recommendedCourses }: StudentCourseResponse = res.data;
 
         // Map module and lesson IDs and completion status
         const updatedModules = courseData.modules?.map((module, moduleIndex) => ({
@@ -219,6 +224,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
         setCourse({ ...courseData, modules: updatedModules });
         setProgress(progressData);
         setNotes(progressData.notes)
+        setRecommended(recommendedCourses)
 
         // Set current lesson to last visited or first lesson
         const lastVisitedLessonId = progressData.lastVisitedLesson;
@@ -667,43 +673,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
               </Card>
 
               {/* Related Courses Section - MOCK DATA */}
-              <div>
-                <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                  More Courses You Might Like
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {[
-                    { title: "Advanced React & Next.js Mastery", instructor: "Sarah Chen", students: "8.2k", rating: 4.9, price: "₹2999", color: "from-blue-500 to-cyan-500" },
-                    { title: "Python for Data Science & ML", instructor: "Dr. Raj Mehta", students: "12.5k", rating: 4.8, price: "₹3499", color: "from-green-500 to-emerald-600" },
-                    { title: "Full-Stack MERN Bootcamp 2025", instructor: "Alex Kumar", students: "15.8k", rating: 5.0, price: "₹4499", color: "from-purple-600 to-pink-600" },
-                    { title: "Advanced React & Next.js Mastery", instructor: "Sarah Chen", students: "8.2k", rating: 4.9, price: "₹2999", color: "from-blue-500 to-cyan-500" },
-                    { title: "Python for Data Science & ML", instructor: "Dr. Raj Mehta", students: "12.5k", rating: 4.8, price: "₹3499", color: "from-green-500 to-emerald-600" },
-                    { title: "Full-Stack MERN Bootcamp 2025", instructor: "Alex Kumar", students: "15.8k", rating: 5.0, price: "₹4499", color: "from-purple-600 to-pink-600" },
-
-                  ].map((c, i) => (
-                    <Card key={i} className="overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer border-0 shadow-lg">
-                      <div className={`h-32 bg-gradient-to-r ${c.color} relative overflow-hidden`}>
-                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors" />
-                        <div className="absolute bottom-3 left-4 text-white">
-                          <p className="text-sm font-light opacity-90">{c.students} students</p>
-                          <p className="text-2xl font-bold">{c.price}</p>
-                        </div>
-                      </div>
-                      <CardContent className="pt-4">
-                        <h4 className="font-bold text-lg line-clamp-2 group-hover:text-primary transition-colors">{c.title}</h4>
-                        <p className="text-sm text-muted-foreground mt-1">by {c.instructor}</p>
-                        <div className="flex items-center justify-between mt-3">
-                          <div className="flex items-center gap-1">
-                            <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
-                            <span className="font-medium">{c.rating}</span>
-                          </div>
-                          <Button size="sm" className="rounded-full">View Course</Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
+              <RecommendedCourses courses={recommended}/>
             </TabsContent>
 
 

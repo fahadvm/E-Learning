@@ -126,4 +126,23 @@ export class CourseRepository implements ICourseRepository {
       { new: true }
     );
   }
+
+  async findRecommendedCourses(
+    courseId: string,
+    category: string,
+    level: string,
+    limit: number
+  ): Promise<ICourse[]> {
+    return Course.find({
+      _id: { $ne: courseId }, 
+      $or: [
+        { category },
+        { level }
+      ]
+    })
+      .sort({ totalStudents: -1 })   
+      .limit(limit)
+      .lean();
+  }
+
 }
