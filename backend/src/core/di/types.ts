@@ -13,6 +13,7 @@ export const TYPES = {
     TeacherRepository: Symbol.for('TeacherRepository'),
     OtpRepository: Symbol.for('OtpRepository'),
     CourseRepository: Symbol.for('CourseRepository'),
+    StudentCourseReviewController: Symbol.for('StudentCourseReviewController'),
     PublicApiRepository: Symbol.for('PublicApiRepository'),
     CourseResourceRepository: Symbol.for('CourseResourceRepository'),
     SubscriptionPlanRepository: Symbol.for('SubscriptionPlanRepository'),
@@ -24,6 +25,7 @@ export const TYPES = {
     StudentBookingRepository: Symbol.for('StudentBookingRepository'),
     ChatRepository: Symbol.for('ChatRepository'),
     NotificationRepository: Symbol.for('NotificationRepository'),
+    CourseReviewRepository: Symbol.for('CourseReviewRepository'),
     CommentRepository: Symbol.for('CommentRepository'),
     StudentCommentController: Symbol.for('StudentCommentController'),
     
@@ -82,6 +84,7 @@ export const TYPES = {
 
     // Controllers
     StudentAuthController: Symbol.for('StudentAuthController'),
+    StudentCourseReviewService: Symbol.for('StudentCourseReviewService'),
     StudentCourseController: Symbol.for('StudentCourseController'),
     StudentProfileController: Symbol.for('StudentProfileController'),
     StudentWishlistController: Symbol.for('StudentWishlistController'),

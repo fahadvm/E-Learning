@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 import { ObjectId } from 'mongodb';
 
 export interface ILesson {
-  _id? : ObjectId
+  _id?: ObjectId
   title: string;
   description?: string;
   videoFile?: string;
@@ -11,21 +11,21 @@ export interface ILesson {
 }
 
 export interface IModule {
-   _id? : ObjectId
+  _id?: ObjectId
   title: string;
   description?: string;
   lessons: ILesson[];
 }
 
 export interface ICourse extends Document {
-  _id: Types.ObjectId;          
+  _id: Types.ObjectId;
   title: string;
   subtitle: string;
   description: string;
   level: string;
   category: string;
   language: string;
-  isTechnicalCourse : boolean;
+  isTechnicalCourse: boolean;
   price?: number;
   coverImage?: string;
   isBlocked: boolean;
@@ -37,6 +37,8 @@ export interface ICourse extends Document {
   teacherName?: string;
   totalDuration?: number; // total duration in minutes
   reviews?: mongoose.Types.ObjectId[];
+  averageRating: number,
+  reviewCount: number,
   requirements?: string[];
   learningOutcomes?: string[];
   totalStudents?: number;
@@ -47,7 +49,7 @@ export interface ICourse extends Document {
 
 const LessonSchema = new Schema<ILesson>(
   {
-    
+
     title: { type: String, required: true },
     description: { type: String },
     videoFile: { type: String },
@@ -76,7 +78,7 @@ const CourseSchema = new Schema<ICourse>(
     language: { type: String, required: true },
     coverImage: { type: String },
     price: { type: Number, required: true },
-    
+
     isBlocked: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: false },
     isTechnicalCourse: { type: Boolean, default: false },
@@ -84,6 +86,8 @@ const CourseSchema = new Schema<ICourse>(
     status: { type: String, default: 'published' },
     rejectionReason: { type: String },
     teacherName: { type: String },
+    averageRating: { type: Number },
+    reviewCount: { type: Number },
 
     teacherId: {
       type: Schema.Types.ObjectId,

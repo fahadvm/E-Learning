@@ -197,6 +197,11 @@ import { IWalletRepository } from '../interfaces/repositories/IwalletRepository'
 import { WalletRepository } from '../../repositories/WalletRepository';
 import { TransactionRepository } from '../../repositories/TransactionRepository';
 import { ITransactionRepository } from '../interfaces/repositories/ITransactionRepository';
+import { ICourseReviewRepository } from '../interfaces/repositories/ICourseReviewRepository';
+import { IStudentCourseReviewService } from '../interfaces/services/student/IStudentCourseReviewService';
+import { StudentCourseReviewService } from '../../services/student/student.courseReview.service';
+import { CourseReviewRepository } from '../../repositories/CourseReview';
+import { StudentCourseReviewController } from '../../controllers/student/student.courseReview.controller';
 
 
 
@@ -212,6 +217,12 @@ import { ITransactionRepository } from '../interfaces/repositories/ITransactionR
 const container = new Container();
 
 // ===== Bind Repositories =====
+container.bind<ICourseReviewRepository>(TYPES.CourseReviewRepository).to(CourseReviewRepository);
+container.bind<IStudentCourseReviewService>(TYPES.StudentCourseReviewService).to(StudentCourseReviewService);
+container.bind<StudentCourseReviewController>(TYPES.StudentCourseReviewController).to(StudentCourseReviewController);
+
+
+
 container.bind<IStudentRepository>(TYPES.StudentRepository).to(StudentRepository);
 container.bind<ICompanyRepository>(TYPES.CompanyRepository).to(CompanyRepository);
 container.bind<IAdminRepository>(TYPES.AdminRepository).to(AdminRepository);
