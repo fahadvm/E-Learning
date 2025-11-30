@@ -5,6 +5,7 @@ import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useStudent } from "@/context/studentContext";
 import { initSocket, sendMessage, sendTyping, sendReadMessage, sendMessageReaction, sendDeleteMessage, sendEditMessage, disconnectSocket } from "@/lib/socket";
 import { studentChatApi } from "@/services/APIservices/studentApiservice";
+import Link from "next/link";
 
 const ConfirmationDialog = ({
   isOpen,
@@ -49,6 +50,23 @@ const ChatHeader = ({ teacherName, teacherAvatar, isOnline }: { teacherName: str
   return (
     <div className="bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-6 py-4 flex items-center justify-between shadow-sm">
       <div className="flex items-center gap-4">
+          <Link
+            href="/student/chat"
+            className="p-2 rounded-md hover:bg-muted transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-5 h-5 text-foreground"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </Link>
         <div className="relative group">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full blur-md opacity-20 group-hover:opacity-30 transition-opacity"></div>
           <img
@@ -173,11 +191,10 @@ const ChatMessages = ({
               ) : (
                 <>
                   <div
-                    className={`px-5 py-3 rounded-2xl shadow-md transition-all duration-200 hover:shadow-lg ${
-                      msg.senderId === studentId
-                        ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-tr-md"
-                        : "bg-white text-slate-800 rounded-tl-md border border-slate-200"
-                    }`}
+                    className={`px-5 py-3 rounded-2xl shadow-md transition-all duration-200 hover:shadow-lg ${msg.senderId === studentId
+                      ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-tr-md"
+                      : "bg-white text-slate-800 rounded-tl-md border border-slate-200"
+                      }`}
                   >
                     <p className="text-[15px] leading-relaxed break-words">{msg.message}</p>
                     {msg.edited && (
@@ -312,7 +329,7 @@ const ChatMessages = ({
         title="Edit Message"
         message="Are you sure you want to save changes to this message?"
         onConfirm={() => {
-          console.log("confirmEditMessageId",confirmEditMessageId)
+          console.log("confirmEditMessageId", confirmEditMessageId)
           if (confirmEditMessageId) handleEditSubmit(confirmEditMessageId);
           setShowEditDialog(false);
           // setConfirmEditMessageId(null);

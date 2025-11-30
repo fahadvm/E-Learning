@@ -13,6 +13,7 @@ import {
   X,
   MessageCircle,
   Crown,
+  ChevronDown,
 } from "lucide-react";
 import { studentAuthApi } from "@/services/APIservices/studentApiservice";
 import { useStudent } from "@/context/studentContext";
@@ -28,298 +29,344 @@ interface Notification {
   isRead: boolean;
 }
 
-export default function Header() {
+export default function ModernHeader() {
+  const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
 
   const notificationRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-
   const { student, socket } = useStudent();
   const isPremium = student?.isPremium;
 
-  /* ------------------------------------------------------------------
-      Fetch Notifications from Backend
-  ------------------------------------------------------------------ */
+  // Scroll effect: transparent → solid + blur
+
+
+  // Fetch notifications (same logic)
   const fetchNotifications = useCallback(async () => {
     if (!student?._id) return;
-
     try {
       setLoading(true);
-
       const response = await teacherCallRequestApi.tester(student._id);
-
       if (response.ok && Array.isArray(response.data)) {
         const formatted = response.data.map((n: any) => ({
           id: n._id,
           message: n.message,
           createdAt: n.createdAt,
-          time: new Date(n.createdAt).toLocaleTimeString(),
+          time: new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           type: n.type || "info",
           isRead: n.isRead ?? false,
         }));
-
         setNotifications(formatted);
         setUnreadCount(formatted.filter((n: any) => !n.isRead).length);
       }
-    } catch (err) {
+    } catch {
       showErrorToast("Failed to load notifications");
     } finally {
       setLoading(false);
     }
   }, [student?._id]);
 
-  /* ------------------------------------------------------------------
-      WebSocket Listener (Real-time Notifications)
-  ------------------------------------------------------------------ */
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.on("receive_notification", (data: any) => {
-      const newOne: Notification = {
-        id: Date.now().toString(),
-        message: data.message,
-        createdAt: new Date().toISOString(),
-        time: new Date().toLocaleTimeString(),
-        type: data.type || "info",
-        isRead: false,
-      };
-
-      setNotifications((prev) => [newOne, ...prev]);
-      setUnreadCount((prev) => prev + 1);
-
-    });
-
-    return () => {
-      socket.off("receive_notification");
-    };
-  }, [socket]);
-
-  /* ------------------------------------------------------------------
-      Load notifications on mount
-  ------------------------------------------------------------------ */
   useEffect(() => {
     if (student?._id) fetchNotifications();
   }, [student?._id, fetchNotifications]);
 
-  /* ------------------------------------------------------------------
-      Click Outside Handler for Notification Box
-  ------------------------------------------------------------------ */
+  // WebSocket real-time notifications
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (notificationRef.current &&
-          !notificationRef.current.contains(e.target as Node)) {
+    if (!socket) return;
+    socket.on("receive_notification", (data: any) => {
+      const newNotif: Notification = {
+        id: Date.now().toString(),
+        message: data.message,
+        createdAt: new Date().toISOString(),
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        type: data.type || "info",
+        isRead: false,
+      };
+      setNotifications(prev => [newNotif, ...prev]);
+      setUnreadCount(prev => prev + 1);
+    });
+    return () => socket.off("receive_notification");
+  }, [socket]);
+
+  // Click outside to close dropdowns
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (notificationRef.current && !notificationRef.current.contains(e.target as Node)) {
         setIsNotificationOpen(false);
       }
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  /* ------------------------------------------------------------------
-      Mark Notification As Read
-  ------------------------------------------------------------------ */
   const markAsRead = async (id: string) => {
     try {
-      const res = await teacherCallRequestApi.testerMark({ notificationId: id });
-
-      if (res.ok) {
-        setNotifications((prev) =>
-          prev.map((n) =>
-            n.id === id ? { ...n, isRead: true } : n
-          )
-        );
-
-        setUnreadCount((prev) => Math.max(0, prev - 1));
-      }
-    } catch (err) {
+      await teacherCallRequestApi.testerMark({ notificationId: id });
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch {
       showErrorToast("Failed to mark as read");
     }
   };
 
-  /* ------------------------------------------------------------------
-      Logout
-  ------------------------------------------------------------------ */
   const handleLogout = async () => {
     try {
       await studentAuthApi.logout();
       localStorage.clear();
       router.push("/student/login");
-    } catch (err) {
+    } catch {
       showErrorToast("Logout failed");
     }
   };
 
-  /* ==================================================================
-      RENDER
-  ================================================================== */
   return (
-    <header className="bg-primary text-white px-6 py-4 shadow-md sticky top-0 z-50">
-      <div className="flex justify-between items-center">
+    <>
+      {/* Modern Header */}
+      <header
+        className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${"bg-primary  backdrop-blur-xl shadow-lg"
+          }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 lg:h-20">
 
-        {/* ------------------------------------------------------------------
-            LOGO
-        ------------------------------------------------------------------ */}
-        <div
-          className="flex items-center gap-2 cursor-pointer group"
-          onClick={() => router.push("/student/home")}
-        >
-          <h1 className="text-2xl font-extrabold tracking-tight relative">
-            <span className="relative inline-block">
-              D
-              {isPremium && (
-                <Crown
-                  size={16}
-                  className="text-yellow-400 absolute -top-3 left-2 rotate-12"
-                />
-              )}
-            </span>
-            <span>evNext</span>
-          </h1>
-
-          {isPremium && (
-            <span className="bg-yellow-300 text-black text-xs font-bold px-2 py-0.5 rounded-full">
-              PRO
-            </span>
-          )}
-        </div>
-
-        {/* ------------------------------------------------------------------
-            Desktop Navigation
-        ------------------------------------------------------------------ */}
-        <nav className="hidden md:flex items-center space-x-6">
-          <Link href="/student/home" className="text-gray-300 hover:text-white">
-            Dashboard
-          </Link>
-          <Link href="/student/subscription" className="text-gray-300 hover:text-white">
-            Subscription
-          </Link>
-          <Link href="/student/courses" className="text-gray-300 hover:text-white">
-            Courses
-          </Link>
-          <Link href="/student/mycourses" className="text-gray-300 hover:text-white">
-            My Courses
-          </Link>
-          <Link href="/student/call-schedule" className="text-gray-300 hover:text-white">
-            Call Schedule
-          </Link>
-        </nav>
-
-        {/* ------------------------------------------------------------------
-            ICONS RIGHT SIDE
-        ------------------------------------------------------------------ */}
-        <div className="flex items-center space-x-4 relative">
-
-          <Link href="/student/wishlist"><Heart size={20} /></Link>
-          <Link href="/student/cart"><ShoppingCart size={20} /></Link>
-          <Link href="/student/chat"><MessageCircle size={20} /></Link>
-
-          {/* ------------------------------------------------------------------
-              NOTIFICATION BELL
-          ------------------------------------------------------------------ */}
-          <div ref={notificationRef} className="relative">
+            {/* Mobile Menu Button */}
             <button
-              className="relative hover:text-blue-400"
-              onClick={() => setIsNotificationOpen((p) => !p)}
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden p-2 rounded-lg hover:bg-white/10 transition"
             >
-              <Bell size={20} />
-
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 
-                    bg-red-500 text-white rounded-full flex items-center 
-                    justify-center text-xs">
-                  {unreadCount}
-                </span>
-              )}
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
 
-            {/* Notification Dropdown */}
-            {isNotificationOpen && (
-              <div className="absolute right-0 mt-3 w-80 bg-white text-gray-900 rounded-lg shadow-lg z-50">
-                <div className="px-4 py-3 border-b flex justify-between items-center">
-                  <h3 className="font-semibold text-sm">Notifications</h3>
-                  {notifications.length > 0 && (
-                    <button
-                      className="text-xs text-blue-600 hover:underline"
-                      onClick={() => {
-                        setNotifications([]);
-                        setUnreadCount(0);
-                      }}
-                    >
-                      Clear All
-                    </button>
-                  )}
-                </div>
-
-                {/* LOADING */}
-                {loading ? (
-                  <div className="p-4 text-center text-gray-500 text-sm">
-                    Loading...
-                  </div>
-                ) : notifications.length === 0 ? (
-                  <div className="p-4 text-center text-gray-500 text-sm">
-                    No notifications
-                  </div>
-                ) : (
-                  <ul className="max-h-60 overflow-y-auto">
-                    {notifications.map((n) => (
-                      <li
-                        key={n.id}
-                        className={`px-4 py-2 border-b text-sm cursor-pointer
-                          ${n.isRead ? "opacity-60" : "font-semibold"}`}
-                      >
-                        <p>{n.message}</p>
-                        <span className="text-xs text-gray-500">{n.time}</span>
-
-                        {!n.isRead && (
-                          <button
-                            className="text-indigo-600 text-xs hover:underline block mt-1"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              markAsRead(n.id);
-                            }}
-                          >
-                            Mark as read
-                          </button>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
+            {/* Logo - Left on mobile, Center on desktop */}
+            <div className="absolute left-1/2 -translate-x-1/2 lg:translate-x-0 lg:left-auto lg:relative">
+              <div
+                onClick={() => router.push("/student/home")}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                <h1 className={`text-2xl lg:text-3xl font-black tracking-tighter ${isScrolled ? "text-gray-900 dark:text-white" : "text-white"}`}>
+                  DevNext
+                </h1>
+                {isPremium && (
+                  <span className="bg-gradient-to-r from-yellow-400 to-amber-500 text-black text-xs font-bold px-3 py-1 rounded-full">
+                    PRO
+                  </span>
                 )}
               </div>
-            )}
+            </div>
+
+            {/* Desktop Navigation - Centered */}
+            <nav className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+              {["Home", "Subscription", "Courses", "My Courses", "Call Schedule"].map((item) => (
+                <Link
+                  key={item}
+                  href={`/student/${item.toLowerCase().replace(" ", "") || "home"}`}
+                  className={`font-medium transition ${isScrolled
+                    ? "text-gray-700 hover:text-indigo-600 dark:text-gray-200"
+                    : "text-white/90 hover:text-white"
+                    }`}
+                >
+                  {item || "Home"}
+                </Link>
+              ))}
+            </nav>
+
+            {/* Right Icons */}
+            <div className="flex items-center gap-3">
+              <Link href="/student/wishlist" className={iconClass(isScrolled)}>
+                <Heart size={20} />
+              </Link>
+              <Link href="/student/cart" className={iconClass(isScrolled)}>
+                <ShoppingCart size={20} />
+              </Link>
+              <Link href="/student/chat" className={iconClass(isScrolled)}>
+                <MessageCircle size={20} />
+              </Link>
+
+              {/* Notifications */}
+              <div ref={notificationRef} className="relative">
+                <button
+                  onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                  className={`${iconClass(isScrolled)} relative`}
+                >
+                  <Bell size={20} />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Notification Dropdown */}
+                {isNotificationOpen && (
+                  <div className="absolute right-0 mt-4 w-80 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-800 overflow-hidden">
+                    <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+                      <div className="flex justify-between items-center">
+                        <h3 className="font-semibold text-gray-900 dark:text-white">Notifications</h3>
+                        {notifications.length > 0 && (
+                          <button
+                            onClick={() => {
+                              setNotifications([]);
+                              setUnreadCount(0);
+                            }}
+                            className="text-xs text-indigo-600 hover:underline"
+                          >
+                            Clear all
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <div className="max-h-96 overflow-y-auto">
+                      {loading ? (
+                        <p className="p-8 text-center text-gray-500">Loading...</p>
+                      ) : notifications.length === 0 ? (
+                        <p className="p-8 text-center text-gray-500">No notifications yet</p>
+                      ) : (
+                        notifications.map((n) => (
+                          <div
+                            key={n.id}
+                            className={`p-4 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition ${!n.isRead ? "bg-indigo-50 dark:bg-indigo-900/20" : ""
+                              }`}
+                          >
+                            <p className={`text-sm ${!n.isRead ? "font-medium" : ""}`}>
+                              {n.message}
+                            </p>
+                            <div className="flex justify-between items-center mt-2">
+                              <span className="text-xs text-gray-500">{n.time}</span>
+                              {!n.isRead && (
+                                <button
+                                  onClick={() => markAsRead(n.id)}
+                                  className="text-xs text-indigo-600 hover:underline"
+                                >
+                                  Mark as read
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* User Menu */}
+              <div ref={userMenuRef} className="relative">
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className={`flex items-center gap-2 p-2 rounded-xl transition ${isScrolled
+                    ? "hover:bg-gray-100 dark:hover:bg-gray-800"
+                    : "hover:bg-white/10"
+                    }`}
+                >
+                  <div className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-semibold">
+                    {student?.profilePicture ? (
+                      <img
+                        src={student.profilePicture}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : student?.name ? (
+                      student.name[0].toUpperCase()
+                    ) : (
+                      <User size={18} />
+                    )}
+                  </div>
+                  <ChevronDown size={16} className={isScrolled ? "text-gray-700 dark:text-gray-300" : "text-white"} />
+                </button>
+
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-3 w-64 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700 py-2">
+                    <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800">
+                      <p className="font-semibold text-gray-900 dark:text-white">{student?.name}</p>
+                      <p className="text-sm text-gray-500">{student?.email}</p>
+                    </div>
+                    <div className="py-2">
+                      {[
+                        ["Profile", "/student/profile"],
+                        ["Purchase History", "/student/purchases"],
+                        ["Certificates", "/student/certificates"],
+                        ["Achievements", "/student/achievements"],
+                      ].map(([label, href]) => (
+                        <Link
+                          key={href}
+                          href={href}
+                          className="block px-4 py-2.5 text-sm hover:bg-indigo-50 dark:hover:bg-gray-800 transition"
+                        >
+                          {label}
+                        </Link>
+                      ))}
+                      <hr className="my-2 border-gray-200 dark:border-gray-700" />
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition flex items-center gap-2"
+                      >
+                        <LogOut size={16} />
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-
-          <Link href="/student/profile"><User size={20} /></Link>
-
-          <button onClick={handleLogout}><LogOut size={20} /></button>
-
-          {/* Mobile menu button */}
-          <button
-            className="md:hidden"
-            onClick={() => setIsMobileMenuOpen((p) => !p)}
-          >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
         </div>
-      </div>
 
-      {/* ------------------------------------------------------------------
-          Mobile Menu
-      ------------------------------------------------------------------ */}
-      {isMobileMenuOpen && (
-        <nav className="md:hidden mt-4 bg-indigo-800 p-4 rounded-lg space-y-3">
-          <Link href="/student/home" className="text-white">Dashboard</Link>
-          <Link href="/student/subscription" className="text-white">Subscription</Link>
-          <Link href="/student/courses" className="text-white">Courses</Link>
-          <Link href="/student/mycourses" className="text-white">My Courses</Link>
-          <Link href="/student/call-schedule" className="text-white">Call Schedule</Link>
-        </nav>
-      )}
-    </header>
+        {/* Mobile Slide-In Menu */}
+        <div
+          className={`fixed inset-y-0 left-0 w-80 bg-white dark:bg-gray-950 shadow-2xl transform transition-transform duration-300 z-50 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+            } lg:hidden`}
+        >
+          <div className="p-6 border-b">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold">Menu</h2>
+              <button onClick={() => setIsMobileMenuOpen(false)}>
+                <X size={28} />
+              </button>
+            </div>
+          </div>
+          <nav className="p-6 space-y-4">
+            {["Home", "Subscription", "Courses", "My Courses", "Call Schedule"].map((item) => (
+              <Link
+                key={item}
+                href={`/student/${item.toLowerCase().replace(" ", "") || "home"}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block text-lg font-medium text-gray-800 dark:text-gray-200 hover:text-indigo-600"
+              >
+                {item}
+              </Link>
+            ))}
+          </nav>
+        </div>
+
+        {/* Overlay */}
+        {isMobileMenuOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
+      </header>
+
+      {/* Spacer for fixed header */}
+      <div className="h-16 lg:h-20" />
+    </>
   );
+}
+
+// Helper for dynamic icon color
+function iconClass(isScrolled: boolean) {
+  return `p-2 rounded-lg transition ${isScrolled
+    ? "text-gray-700 hover:text-indigo-600 dark:text-gray-300"
+    : "text-white/90 hover:text-white"
+    }`;
 }
