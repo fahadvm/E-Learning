@@ -106,6 +106,7 @@ export const studentSubscriptionApi = {
 export const studentChatApi = {
   getmessages: (chatId: string) => get(STUDENT_ROUTES.chat.messages(chatId)),
   getChatInfo: (chatId: string) => get(STUDENT_ROUTES.chat.getChatInfo(chatId)),
+  getTeachersForChat: () => get(STUDENT_ROUTES.chat.newChatList),
   getuserchat: () => get(STUDENT_ROUTES.chat.base),
   createOrGetChat: (data: { studentId: string; teacherId: string }) => post(STUDENT_ROUTES.chat.start, data),
 };

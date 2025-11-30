@@ -101,6 +101,7 @@ export const STUDENT_ROUTES = {
     messages: (chatId: string) => `${STUDENT_CHAT}/messages/${chatId}`,
     getChatInfo: (chatId: string) => `${STUDENT_CHAT}/${chatId}`,
     start: `${STUDENT_CHAT}/start`,
+    newChatList: `${STUDENT_CHAT}/new/chat`,
   },
 
   ai: {

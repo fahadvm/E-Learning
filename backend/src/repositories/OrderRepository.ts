@@ -27,14 +27,24 @@ export class OrderRepository implements IOrderRepository {
     );
   }
 
-  async getOrdersByStudentId(studentId: string): Promise<(IOrder & { courses: ICourse[] })[]> {
+  async getOrdersByStudentId(
+    studentId: string
+  ): Promise<(IOrder & { courses: ICourse[] })[]> {
     return OrderModel.find({
       studentId,
-      status: 'paid',
+      status: "paid",
     })
-      .populate<{ courses: ICourse[] }>('courses')
+      .populate({
+        path: "courses",
+        model: "Course",
+        populate: {
+          path: "teacherId",
+          model: "Teacher",
+        },
+      })
       .exec();
   }
+
   async getOrderedCourseIds(studentId: string): Promise<string[]> {
     const orders = await OrderModel.find({
       studentId,

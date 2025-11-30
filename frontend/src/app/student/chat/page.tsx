@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react";
 import { ChatLists } from "@/components/student/chat/chat-lists";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { MessageCirclePlus, Search } from "lucide-react";
 import Header from "@/components/student/header";
-import { studentChatApi } from "@/services/APIservices/studentApiservice"; // your API service
+import { studentChatApi } from "@/services/APIservices/studentApiservice";
+import Link from "next/link";
 
 export default function MessagesPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,8 +17,8 @@ export default function MessagesPage() {
     const fetchConversations = async () => {
       try {
         setLoading(true);
-        const response = await studentChatApi.getuserchat(); 
-        
+        const response = await studentChatApi.getuserchat();
+
         console.log("chat page listing", response.data)
         setConversations(response.data);
       } catch (error) {
@@ -42,6 +43,13 @@ export default function MessagesPage() {
       <div className="border-b border-border bg-card p-4">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold text-foreground">Messages</h1>
+          <Link
+            href="/student/chat/new"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-sm"
+          >
+            <MessageCirclePlus className="w-5 h-5" />
+            <span className="hidden sm:inline">New Chat</span>
+          </Link>
         </div>
 
         {/* Search */}

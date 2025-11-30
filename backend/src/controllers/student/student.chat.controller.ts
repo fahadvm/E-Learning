@@ -15,10 +15,10 @@ export class ChatController {
     getMessages = async (req: Request, res: Response) => {
         const { chatId } = req.params;
         const limit = parseInt(req.query.limit as string) || 20;
-        const before = req.query.before as string ;
+        const before = req.query.before as string;
 
 
-        const messages = await this._chatService.getMessages(chatId ,limit, before);
+        const messages = await this._chatService.getMessages(chatId, limit, before);
         sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, messages);
     };
     getChatDetails = async (req: Request, res: Response) => {
@@ -57,6 +57,14 @@ export class ChatController {
 
         sendResponse(res, STATUS_CODES.OK, MESSAGES.CHAT_LIST_FETCHED, true, chat);
 
+    };
+
+    getTeachers = async (req: AuthRequest, res: Response) => {
+        const studentId = req.user?.id;
+        if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+
+        const result = await this._chatService.getTeachersFromPurchases(studentId);
+        return sendResponse(res, STATUS_CODES.OK, MESSAGES.TEACHERS_FETCHED, true, result);
     };
 
 
