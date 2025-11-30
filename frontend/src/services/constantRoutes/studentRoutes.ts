@@ -37,6 +37,8 @@ export const STUDENT_ROUTES = {
     notes: `${STUDENT_COURSES}/notes`,
     resources: (courseId: string) => `${STUDENT_COURSES}/resources/${courseId}`,
     comments: (courseId: string) => `${STUDENT_COURSES}/comment/${courseId}`,
+    getCourseReviews: (courseId: string) => `${STUDENT_COURSES}/course-reviews/${courseId}`,
+    addCourseReview: `${STUDENT_COURSES}/course-review`,
   },
 
   profile: {

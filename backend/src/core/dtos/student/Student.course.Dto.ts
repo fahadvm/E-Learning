@@ -43,6 +43,8 @@ export interface IStudentCourseDTO {
   modules: IStudentModuleDTO[];
   language: string;
   totalDuration:number|undefined;
+  reviewCount :number;
+  averageRating :number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -80,6 +82,8 @@ export const StudentCourseDTO = (course: ICourse): IStudentCourseDTO => ({
   teacherId: course.teacherId?.toString(),
   modules: course.modules?.map(StudentModuleDTO) || [],
   totalDuration: course.totalDuration??undefined,
+    reviewCount :course.reviewCount,
+  averageRating :course.averageRating,
   language : course.language,
   createdAt: course.createdAt!,
   updatedAt: course.updatedAt!,

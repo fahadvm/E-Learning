@@ -14,7 +14,8 @@ export interface ICourse {
   totalDuration: number;
   totalStudents: number;
   modules: Module[];
-  reviews: Review[];
+  reviewCount:number;
+  averageRating :number;
   teacherName:string;
   status: "published" | "draft" | "archived" | string;
   isPublished: boolean;

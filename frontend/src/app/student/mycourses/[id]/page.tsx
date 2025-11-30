@@ -36,6 +36,9 @@ import React from "react";
 import AiTutorChat from "@/components/student/aiBot/AiTutorChat";
 import RecommendedCourses from "@/components/student/course/RecommendedCourses";
 import { ICourse } from "@/types/student/studentTypes";
+import CourseReviewModal from "@/components/student/course/CourseReviewModal";
+import ReviewList from "@/components/student/course/ReviewList";
+import ReviewListModal from "@/components/student/course/ReviewList";
 
 interface Lesson {
   _id: string;
@@ -87,7 +90,8 @@ interface Course {
     profilePicture: string;
   };
   totalStudents?: number;
-  reviews?: { rating: number }[];
+  reviewCount:number;
+  averageRating:number;
   description?: string;
   modules?: Module[];
 }
@@ -95,7 +99,7 @@ interface Course {
 interface StudentCourseResponse {
   course: Course;
   progress: CourseProgress;
-  recommended:ICourse[]
+  recommended: ICourse[]
 }
 
 interface Resource {
@@ -120,6 +124,9 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
   const [output, setOutput] = useState("");
   const [resources, setResources] = useState<Resource[]>([]);
   const [recommended, setRecommended] = useState<ICourse[]>([])
+  const [openReviewModal, setOpenReviewModal] = useState(false);
+  const [openReviewListModal, setOpenReviewListModal] = useState(false);
+  const [reviews, setReviews] = useState([]);
 
 
 
@@ -151,6 +158,28 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     };
     fetchComments();
   }, [courseId]);
+
+
+
+  useEffect(() => {
+    if (!courseId) return;
+    const fetchReviews = async () => {
+      try {
+        const res = await studentCourseApi.getCourseReviews(courseId);
+        console.log("res in Reviews", res.data)
+        if (res.ok) setReviews(res.data);
+        else showErrorToast(res.message);
+      } catch {
+        showErrorToast("Failed to load Reviews");
+      }
+    };
+    fetchReviews();
+  }, [courseId]);
+
+  const handleSubmitReview = async (rating: number, comment: string) => {
+    await await studentCourseApi.addCourseReview({ courseId, rating, comment });
+  };
+
 
 
   const handleCopyOutput = () => {
@@ -207,7 +236,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
       setLoading(true);
       const res = await studentCourseApi.getMyCourseDetails(courseId);
       if (res.ok) {
-        const { course: courseData, progress: progressData ,recommended: recommendedCourses }: StudentCourseResponse = res.data;
+        const { course: courseData, progress: progressData, recommended: recommendedCourses }: StudentCourseResponse = res.data;
 
         // Map module and lesson IDs and completion status
         const updatedModules = courseData.modules?.map((module, moduleIndex) => ({
@@ -418,7 +447,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
   if (!course)
     return (
       <div className="flex justify-center items-center h-screen text-lg">
-        Course not found
+        Loading course...
       </div>
     );
 
@@ -531,7 +560,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                             <Link href={`/student/chat/${course.teacherId._id}`}>
                               <Button
                                 size="sm"
-                                className="flex items-center gap-1 bg-gray-100 hover:bg-blue-700 hover:text-white text-black rounded-full px-3"
+                                className="flex items-center gap-1 bg-gray-100 hover:bg-purple-700 hover:text-white text-black rounded-full px-3"
                               >
                                 <MessageSquare className="w-4 h-4" />
                                 Chat
@@ -616,7 +645,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                         </div>
                         <div className="flex gap-2">
                           <Link href={`/student/chat/${course.teacherId?._id}`}>
-                            <Button size="sm" className="rounded-full bg-blue-600 hover:bg-blue-700">
+                            <Button size="sm" className="rounded-full bg-primary hover:bg-purple-700">
                               <MessageCircle className="w-4 h-4 mr-1" /> Chat
                             </Button>
                           </Link>
@@ -638,13 +667,20 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
               {/* Course Description */}
               <Card className="bg-white">
                 <CardHeader>
-                  <CardTitle className="flex items-center text-purple-700 dark:text-purple-300">
+                  <CardTitle className="flex items-center text-primary-700 dark:text-purple-300">
                     <BookOpen className="w-5 h-5 mr-2" />
                     Course Description
                   </CardTitle>
+
                 </CardHeader>
                 <CardContent>
                   <p className="text-foreground leading-relaxed">{course.description}</p>
+                                    <button
+                    onClick={() => setOpenReviewModal(true)}
+                    className="mt-10 bg-primary hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium"
+                  >
+                    Write a Review
+                  </button>
                   <Separator className="my-6" />
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                     <div className="flex items-center gap-3 p-3 bg-white/70 dark:bg-gray-800/50 rounded-lg">
@@ -656,13 +692,18 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                     </div>
                     <div className="flex items-center gap-3 p-3 bg-white/70 dark:bg-gray-800/50 rounded-lg">
                       <Star className="w-6 h-6 text-yellow-500" />
-                      <div>
-                        <p className="font-medium">Rating</p>
-                        <p className="text-muted-foreground">4.8 (1.2k reviews)</p>
-                      </div>
+                     <div
+        className="cursor-pointer select-none"
+        onClick={() => setOpenReviewListModal(true)}
+      >
+        <p className="font-medium">Rating</p>
+        <p className="text-muted-foreground">
+          {course.averageRating ?? 0} ({course.reviewCount ?? 0} reviews)
+        </p>
+      </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 bg-white/70 dark:bg-gray-800/50 rounded-lg">
-                      <Code2 className="w-6 h-6 text-blue-600" />
+                      <Code2 className="w-6 h-6 text-primary" />
                       <div>
                         <p className="font-medium">Type</p>
                         <p className="text-muted-foreground">{course.isTechnicalCourse ? "Technical" : "Conceptual"}</p>
@@ -672,8 +713,10 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                 </CardContent>
               </Card>
 
+
+
               {/* Related Courses Section - MOCK DATA */}
-              <RecommendedCourses courses={recommended}/>
+              <RecommendedCourses courses={recommended} />
             </TabsContent>
 
 
@@ -727,7 +770,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                         onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleAddComment()}
                         className="flex-1"
                       />
-                      <Button onClick={handleAddComment} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                      <Button onClick={handleAddComment} className="bg-gradient-to-r from-primary to-purple-600 hover:from-purple-700 hover:to-purple-700">
                         <Send className="w-4 h-4" />
                       </Button>
                     </div>
@@ -1007,6 +1050,19 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
           </Card>
         </div>
       </div>
+      <ReviewListModal
+        open={openReviewListModal}
+        onClose={() => setOpenReviewListModal(false)}
+        reviews={reviews}
+      />
+    
+
+
+      <CourseReviewModal
+        open={openReviewModal}
+        onClose={() => setOpenReviewModal(false)}
+        onSubmit={handleSubmitReview}
+      />
 
       <div className="fixed bottom-6 right-6">
         <div className="fixed bottom-6 right-6">

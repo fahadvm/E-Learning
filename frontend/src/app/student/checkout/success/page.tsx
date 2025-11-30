@@ -120,7 +120,7 @@ export default function PurchaseSuccess() {
                       </div>
                     </div>
 
-                    <Link href={`/student/course/${course.id}`}>
+                    <Link href={`/student/mycourses/${course._id}`}>
                       <Button className="mt-3 bg-blue-600 hover:bg-blue-700 text-white">
                         Start Learning
                         <ArrowRight className="ml-2 w-4 h-4" />

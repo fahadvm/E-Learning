@@ -34,7 +34,10 @@ export const studentCourseApi = {
   getCourseComments: (courseId: string) => get(STUDENT_ROUTES.courses.comments(courseId)),
   getPurchasedCourseIds: () => get(STUDENT_ROUTES.purchase.getPurchasedIds),
   addCourseComment: (courseId: string, data: { content: string }) => post(STUDENT_ROUTES.courses.comments(courseId), data),
-  deleteCourseComment: (commentId: string) => del(`${STUDENT_ROUTES.courses.comments('')}${commentId}`), // dynamic delete
+  deleteCourseComment: (commentId: string) => del(STUDENT_ROUTES.courses.comments(commentId)), 
+
+  addCourseReview : (data:{courseId: string, rating: number, comment: string}) => post(STUDENT_ROUTES.courses.addCourseReview,data),
+  getCourseReviews : (courseId: string) => get(STUDENT_ROUTES.courses.getCourseReviews(courseId)),
 };
 
 export const studentProfileApi = {

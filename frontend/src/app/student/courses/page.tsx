@@ -28,6 +28,8 @@ interface ICourse {
   price?: string
   coverImage?: string
   language?: string
+  reviewCount: number
+  averageRating:number
   modules: IModule[]
   createdAt?: string
 }
@@ -204,7 +206,10 @@ export default function CoursesPage() {
         ) : (
           <section className="grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {courses.map(course => (
-              <div key={course._id} className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition duration-300 overflow-hidden group">
+              <div
+                key={course._id}
+                className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition duration-300 overflow-hidden group"
+              >
                 <Link href={`/student/courses/${course._id}`}>
                   {course.coverImage ? (
                     <img
@@ -218,19 +223,66 @@ export default function CoursesPage() {
                     </div>
                   )}
                 </Link>
-                <div className="p-5 flex flex-col">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-2 line-clamp-2">{course.title}</h2>
-                  <p className="text-gray-600 text-sm line-clamp-3">{course.description}</p>
 
+                <div className="p-5 flex flex-col">
+                  {/* Title */}
+                  <h2 className="text-xl font-semibold text-gray-800 mb-2 line-clamp-2">
+                    {course.title}
+                  </h2>
+
+                  {/* Description */}
+                  <p className="text-gray-600 text-sm line-clamp-3">
+                    {course.description}
+                  </p>
+
+
+                  {/* Tags */}
                   <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
-                    <span className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full">{course.level}</span>
-                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full">{course.category}</span>
-                    {course.language && <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">{course.language}</span>}
-                    {course.price && <span className="ml-auto font-semibold text-indigo-600">₹{course.price}</span>}
+                    <span className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full">
+                      {course.level}
+                    </span>
+
+                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                      {course.category}
+                    </span>
+
+                    {course.language && (
+                      <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
+                        {course.language}
+                      </span>
+                    )}
+                  {/* ⭐ Rating Section */}
+                  <div className="mt-3 flex items-center gap-1 text-sm">
+                    <span className="font-medium flex items-center gap-1 text-yellow-500">
+                      {/* Rating number */}
+                      {course.averageRating?.toFixed(1) ?? "0.0"}
+
+                      {/* Star icon */}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-4 h-4 fill-yellow-500"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.287 3.967c.3.921-.755 1.688-1.54 1.118l-3.385-2.46a1 1 0 00-1.175 0l-3.385 2.46c-.784.57-1.838-.197-1.539-1.118l1.287-3.967a1 1 0 00-.364-1.118L2.045 9.394c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.286-3.967z" />
+                      </svg>
+                    </span>
+
+                    {/* Review count */}
+                    <span className="text-gray-500">
+                      ({course.reviewCount ?? 0} reviews)
+                    </span>
+                  </div>
+
+                    {course.price && (
+                      <span className="ml-auto font-semibold text-indigo-600">
+                        ₹{course.price}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
             ))}
+
           </section>
         )}
 

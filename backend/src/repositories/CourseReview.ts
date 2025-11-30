@@ -1,6 +1,7 @@
 import { injectable } from "inversify";
 import { ICourseReviewRepository } from "../core/interfaces/repositories/ICourseReviewRepository";
 import { CourseReview, ICourseReview } from "../models/CourseReview";
+import mongoose from "mongoose";
 
 @injectable()
 export class CourseReviewRepository implements ICourseReviewRepository {
@@ -45,7 +46,7 @@ export class CourseReviewRepository implements ICourseReviewRepository {
     courseId: string
   ): Promise<{ _id: string; avgRating: number; total: number }[]> {
     return await CourseReview.aggregate([
-      { $match: { courseId } },
+      { $match: { courseId: new mongoose.Types.ObjectId(courseId) } },
       {
         $group: {
           _id: "$courseId",

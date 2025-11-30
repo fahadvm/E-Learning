@@ -72,7 +72,7 @@ export default function AiTutorChat({ courseId }: AiTutorChatProps) {
         <Button
           onClick={() => setOpen(true)}
           aria-label="Open AI Study Assistant"
-          className="fixed bottom-5 right-5 rounded-full h-14 w-14 shadow-lg flex items-center justify-center bg-gradient-to-r from-blue-600 to-indigo-600 hover:scale-105 transition-transform"
+          className="fixed bottom-5 right-5 rounded-full h-14 w-14 shadow-lg flex items-center justify-center bg-gradient-to-r from-purple-600 to-purple-600 hover:scale-105 transition-transform"
         >
           <Bot className="h-6 w-6 text-white" />
         </Button>
@@ -80,7 +80,7 @@ export default function AiTutorChat({ courseId }: AiTutorChatProps) {
 
       {open && (
         <Card className="fixed bottom-5 right-5 w-80 sm:w-96 max-w-[90vw] shadow-2xl rounded-2xl overflow-hidden flex flex-col border border-gray-200">
-          <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-3 flex items-center justify-between">
+          <CardHeader className="bg-gradient-to-r from-purple-600 to-purple-600 text-white p-3 flex items-center justify-between">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
               <Bot className="h-5 w-5" />
               AI Study Assistant
@@ -115,7 +115,7 @@ export default function AiTutorChat({ courseId }: AiTutorChatProps) {
                 <div
                   key={index}
                   className={`p-2 rounded-lg max-w-[85%] sm:max-w-[70%] whitespace-pre-wrap break-words leading-relaxed text-sm ${msg.role === "user"
-                      ? "bg-blue-600 text-white self-end ml-auto"
+                      ? "bg-purple-600 text-white self-end ml-auto"
                       : "bg-white border text-gray-800"
                     }`}
                 >
@@ -162,14 +162,14 @@ export default function AiTutorChat({ courseId }: AiTutorChatProps) {
                 onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                 disabled={loading}
                 maxLength={500}
-                className="flex-1 border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                className="flex-1 border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50"
                 aria-label="Type your question"
               />
               <Button
                 onClick={sendMessage}
                 disabled={loading}
                 aria-label="Send message"
-                className="h-9 w-9 flex items-center justify-center bg-blue-600 hover:bg-blue-700"
+                className="h-9 w-9 flex items-center justify-center bg-purple-600 hover:bg-purple-700"
               >
                 {loading ? (
                   <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />

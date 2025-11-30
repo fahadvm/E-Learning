@@ -59,6 +59,7 @@ export class StudentCourseReviewService implements IStudentCourseReviewService {
 
     private async updateCourseStats(courseId: string): Promise<void> {
         const stats = await this._reviewRepo.getCourseReviewStats(courseId);
+        console.log("stats updatd :",stats)
 
         const avgRating = stats[0]?.avgRating || 0;
         const reviewCount = stats[0]?.total || 0;

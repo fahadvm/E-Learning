@@ -17,6 +17,7 @@ export class StudentCourseReviewController {
   addReview = async (req: AuthRequest, res: Response) => {
     const studentId = req.user?.id;
     const { courseId, rating, comment } = req.body;
+    console.log("posting review is working 1",req.body)
 
     if (!rating || !courseId) throwError("Rating and Course ID required");
 
@@ -31,6 +32,7 @@ export class StudentCourseReviewController {
   };
 
   getReviews = async (req: AuthRequest, res: Response) => {
+    console.log("trying to geting reviews")
     const { courseId } = req.params;
 
     const reviews = await this._reviewService.getCourseReviews(courseId);

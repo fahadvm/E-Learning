@@ -33,7 +33,8 @@ interface Course {
   totalDuration: number
   teacherId?: string
   totalStudents?: number
-  reviews?: Review[]
+  averageRating: number,
+  reviewCount: number,
   createdAt?: string
   progress?: number
 }
@@ -58,11 +59,11 @@ interface CourseProgress {
 }
 
 interface StudentProfile {
-    name: string
-    email: string
-    coursesProgress: CourseProgress[]
+  name: string
+  email: string
+  coursesProgress: CourseProgress[]
 
-  
+
 }
 
 export default function MyCourses() {
@@ -78,22 +79,22 @@ export default function MyCourses() {
     try {
       setLoading(true)
       const res: ApiResponse = await studentCourseApi.getMyCourses()
-      const studentRes =  await studentProfileApi.getProfile()
+      const studentRes = await studentProfileApi.getProfile()
       const studentData: StudentProfile = studentRes.data
       setStudent(studentRes)
 
       const allCourses = res.data.flatMap((order) => order.courses)
-      console.log("alll courses response",res)
-      console.log("alll courses are",allCourses)
+      console.log("alll courses response", res)
+      console.log("alll courses are", allCourses)
       const mergedCourses = allCourses.map((course) => {
         const progressData = studentData.coursesProgress?.find(
           (p) => p.courseId === course._id
         )
-      return {
-        ...course,
-        progress: progressData ? progressData.percentage : 0
-      }
-    })
+        return {
+          ...course,
+          progress: progressData ? progressData.percentage : 0
+        }
+      })
       setCourses(mergedCourses)
     } catch (error) {
       console.error("Failed to fetch courses:", error)
@@ -125,7 +126,7 @@ export default function MyCourses() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header Section */}
-      <Header/>
+      <Header />
       <div className="bg-card border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
@@ -288,12 +289,19 @@ export default function MyCourses() {
                         {course.totalStudents?.toLocaleString() || 0}
                       </div>
                     </div>
-                    <div className="flex items-center">
-                      <Star className="w-4 h-4 mr-1 fill-yellow-400 text-yellow-400" />
-                      <span className="font-medium">
-                        {calculateAverageRating(course.reviews)}
+                    <div
+                      className="flex items-center gap-1 cursor-pointer"
+                    >
+                      <span className="font-medium flex items-center gap-1">
+                        {course.averageRating ?? 0}
+                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      </span>
+
+                      <span className="text-muted-foreground">
+                        ({course.reviewCount ?? 0} ratings)
                       </span>
                     </div>
+
                   </div>
 
                   <div className="flex items-center justify-between">

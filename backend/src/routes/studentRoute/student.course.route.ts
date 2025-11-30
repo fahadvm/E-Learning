@@ -28,7 +28,7 @@ router.delete('/comment/:commentId', authMiddleware('student'), asyncHandler(stu
 
 
 router.post('/course-review', authMiddleware('student'), asyncHandler(studentCourseReviewCtrl.addReview.bind(studentCourseReviewCtrl)));
-router.get('/:courseId/course-reviews', authMiddleware('student'), asyncHandler(studentCourseReviewCtrl.getReviews.bind(studentCourseReviewCtrl)));
+router.get('/course-reviews/:courseId', authMiddleware('student'), asyncHandler(studentCourseReviewCtrl.getReviews.bind(studentCourseReviewCtrl)));
 router.delete('/course-review/:reviewId', authMiddleware('student'), asyncHandler(studentCourseReviewCtrl.deleteReview.bind(studentCourseReviewCtrl)));
 
 export default router;

@@ -158,7 +158,7 @@ export default function Header() {
       RENDER
   ================================================================== */
   return (
-    <header className="bg-indigo-900 text-white px-6 py-4 shadow-md sticky top-0 z-50">
+    <header className="bg-primary text-white px-6 py-4 shadow-md sticky top-0 z-50">
       <div className="flex justify-between items-center">
 
         {/* ------------------------------------------------------------------

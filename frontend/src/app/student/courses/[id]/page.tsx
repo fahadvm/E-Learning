@@ -7,7 +7,9 @@ import Link from "next/link"
 import {
   Clock, Globe, Award, Download, Smartphone,
   Shield, ChevronDown, ChevronUp, Play, Lock, Heart,
-  ShoppingCart, Share2, MessageCircle
+  ShoppingCart, Share2, MessageCircle,
+  Star,
+  Users
 } from "lucide-react"
 import Header from "@/components/student/header"
 import { studentCartApi, studentCourseApi } from "@/services/APIservices/studentApiservice"
@@ -17,17 +19,19 @@ import { showSuccessToast } from "@/utils/Toast"
 import { formatMinutesToHours } from "@/utils/timeConverter"
 import { ICourse, Module, Review } from "@/types/student/studentTypes"
 import RecommendedCourses from "@/components/student/course/RecommendedCourses"
+import ReviewListModal from "@/components/student/course/ReviewList"
 
 export default function CourseDetailPage() {
   const params = useParams();
   const id = params?.id as string;
   const [expandedModules, setExpandedModules] = useState<number[]>([])
   const [courseData, setCourseData] = useState<ICourse | null>(null)
-  const [recommended, setRecommended] = useState<ICourse[] >([])
+  const [recommended, setRecommended] = useState<ICourse[]>([])
   const [modules, setModules] = useState<Module[]>([])
-  const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(false);
   const [alreadyPurchased, setAlreadyPurchased] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviews, setReviews] = useState([]);
 
 
   const handleAddToWishlist = async () => {
@@ -43,6 +47,19 @@ export default function CourseDetailPage() {
       setLoading(false);
     }
   };
+
+
+
+
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      const res = await studentCourseApi.getCourseReviews(id);
+      console.log("response of reviews:",res)
+      setReviews(res.data);
+    };
+    fetchReviews();
+  }, []);
 
   const handleAddToCart = async () => {
     try {
@@ -62,10 +79,9 @@ export default function CourseDetailPage() {
   useEffect(() => {
     async function fetchCourseData() {
       const res = await studentCourseApi.getCourseDetailById(id)
-      console.log("res.data is", res.data)  
+      console.log("res.data is", res.data)
       setCourseData(res.data.course)
       setModules(res.data.course.modules)
-      setReviews(res.data.course.reviews)
       setRecommended(res.data.recommendedCourses)
       const purchased = await studentCourseApi.getPurchasedCourseIds();
       console.log("purchased:", purchased)
@@ -126,23 +142,35 @@ export default function CourseDetailPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1">
-                  {/* <div className="flex">
+                <div
+                  className="flex items-center gap-1 cursor-pointer"
+                  onClick={() => setShowReviewModal(true)}
+                >
+                  <div className="flex">
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`w-5 h-5 ${i < Math.floor(courseData.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
+                        className={`w-5 h-5 ${i < Math.floor(courseData.averageRating)
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-gray-300"
+                          }`}
                       />
                     ))}
-                  </div> */}
-                  {/* <span className="font-semibold text-foreground">{courseData.rating}</span> */}
-                  {/* <span className="text-muted-foreground">({courseData.reviewCount.toLocaleString()} reviews)</span> */}
+                  </div>
+
+                  <span className="font-semibold text-foreground">
+                    {courseData.averageRating}
+                  </span>
+
+                  <span className="text-muted-foreground">
+                    ({courseData.reviewCount?.toLocaleString()} reviews)
+                  </span>
                 </div>
 
-                {/* <div className="flex items-center gap-1 text-muted-foreground">
+                <div className="flex items-center gap-1 text-muted-foreground">
                   <Users className="w-4 h-4" />
-                  <span>{courseData.enrolledStudents ? courseData.enrolledStudents.toLocaleString() : 0} students</span>
-                </div> */}
+                  <span>{courseData.totalStudents ? courseData.totalStudents.toLocaleString() : 0} students</span>
+                </div>
               </div>
 
 
@@ -427,7 +455,11 @@ export default function CourseDetailPage() {
         </div>
       </div>
 
-
+      <ReviewListModal
+        open={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        reviews={reviews}
+      />
     </div>
   )
 }

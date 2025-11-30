@@ -86,8 +86,8 @@ const CourseSchema = new Schema<ICourse>(
     status: { type: String, default: 'published' },
     rejectionReason: { type: String },
     teacherName: { type: String },
-    averageRating: { type: Number },
-    reviewCount: { type: Number },
+    averageRating: { type: Number ,default: 0},
+    reviewCount: { type: Number ,default: 0},
 
     teacherId: {
       type: Schema.Types.ObjectId,
