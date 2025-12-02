@@ -63,6 +63,15 @@ export enum MESSAGES {
 
 
 
+  REVIEW_ADDED= "Review added successfully",
+  REVIEW_UPDATED= "Review updated successfully",
+  REVIEW_DELETED= "Review deleted successfully",
+  REVIEW_LIST_FETCHED= "Teacher reviews fetched successfully",
+  RATING_STATS_FETCHED= "Teacher rating statistics fetched successfully",
+
+  ALREADY_REVIEWED= "You have already reviewed this teacher",
+  REVIEW_NOT_FOUND= "Review not found",
+
 
 
 

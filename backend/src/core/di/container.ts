@@ -207,6 +207,11 @@ import { StudentCourseCertificateService } from '../../services/student/student.
 import { IStudentCourseCertificateService } from '../interfaces/services/student/IStudentCourseCertificateService';
 import { ICourseCertificateRepository } from '../interfaces/repositories/ICourseCertificateRepository';
 import { CourseCertificateRepository } from '../../repositories/CourseCertificateRepository';
+import { StudentTeacherReviewController } from '../../controllers/student/student.teacherReview.controller';
+import { IStudentTeacherReviewService } from '../interfaces/services/student/IStudentTeacherReviewService';
+import { StudentTeacherReviewService } from '../../services/student/student.teacherReview.service';
+import { ITeacherReviewRepository } from '../interfaces/repositories/ITeacherReviewRepository';
+import { TeacherReviewRepository } from '../../repositories/TeacherReviewRepository';
 
 
 
@@ -375,6 +380,10 @@ container.bind<ICompanyLeaderboardService>(TYPES.CompanyLeaderboardService).to(C
 container.bind<CompanyLeaderboardController>(TYPES.CompanyLeaderboardController).to(CompanyLeaderboardController);
 container.bind<IAdminProfileService>(TYPES.AdminProfileService).to(AdminProfileService);
 container.bind<AdminProfileController>(TYPES.AdminProfileController).to(AdminProfileController);
+
+container.bind<StudentTeacherReviewController>(TYPES.StudentTeacherReviewController).to(StudentTeacherReviewController);
+container.bind<IStudentTeacherReviewService>(TYPES.StudentTeacherReviewService).to(StudentTeacherReviewService);
+container.bind<ITeacherReviewRepository>(TYPES.TeacherReviewRepository).to(TeacherReviewRepository);
 
 
 export default container;

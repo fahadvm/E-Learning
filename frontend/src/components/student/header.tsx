@@ -34,6 +34,8 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -119,11 +121,12 @@ export default function Header() {
     }
   };
 
-  const handleLogout = async () => {
+  const handleLogoutConfirm = async () => {
     try {
       await studentAuthApi.logout();
       localStorage.clear();
       router.push("/student/login");
+      showSuccessToast("Logged out successfully");
     } catch {
       showErrorToast("Logout failed");
     }
@@ -307,7 +310,7 @@ export default function Header() {
                       ))}
                       <hr className="my-2 border-gray-200 dark:border-gray-700" />
                       <button
-                        onClick={handleLogout}
+                        onClick={() => setShowLogoutModal(true)}
                         className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition flex items-center gap-2"
                       >
                         <LogOut size={16} />
@@ -359,6 +362,39 @@ export default function Header() {
 
       {/* Spacer for fixed header */}
       <div className="h-16 lg:h-20" />
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-6 w-80 animate-scaleIn border border-gray-200 dark:border-gray-700">
+
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+              Logout Confirmation
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
+              Are you sure you want to logout?
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="px-4 py-2 rounded-lg text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleLogoutConfirm}
+                className="px-4 py-2 rounded-lg text-sm bg-red-600 text-white hover:bg-red-700"
+              >
+                Yes, Logout
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </>
   );
 }

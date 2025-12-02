@@ -148,17 +148,37 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
+@keyframes scaleIn {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.2s ease-out;
+}
+
+
 /* Added keyframe animations for stars and nebula effects */
 @keyframes twinkle {
+
   0%,
   100% {
     opacity: 0.4;
   }
+
   50% {
     opacity: 1;
   }
@@ -168,6 +188,7 @@
   0% {
     transform: translateX(-100%) translateY(0);
   }
+
   100% {
     transform: translateX(100vw) translateY(100px);
   }
@@ -177,6 +198,7 @@
   0% {
     transform: translateX(-100%) translateY(0);
   }
+
   100% {
     transform: translateX(100vw) translateY(-50px);
   }
@@ -186,6 +208,7 @@
   0% {
     transform: translateX(-100%) translateY(0);
   }
+
   100% {
     transform: translateX(100vw) translateY(50px);
   }
@@ -269,9 +292,11 @@
 .star-1 {
   animation: float 20s linear infinite, twinkle 2s ease-in-out infinite;
 }
+
 .star-2 {
   animation: floatSlow 25s linear infinite, twinkle 3s ease-in-out infinite;
 }
+
 .star-3 {
   animation: floatMedium 22s linear infinite, twinkle 2.5s ease-in-out infinite;
 }

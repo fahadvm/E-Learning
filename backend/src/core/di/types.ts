@@ -5,6 +5,9 @@ import { WalletRepository } from "../../repositories/WalletRepository";
 export const TYPES = {
     // Repositories
     StudentRepository: Symbol.for('StudentRepository'),
+    TeacherReviewRepository: Symbol.for('TeacherReviewRepository'),
+    StudentTeacherReviewService: Symbol.for('StudentTeacherReviewService'),
+    StudentTeacherReviewController: Symbol.for('StudentTeacherReviewController'),
     StudentCourseCertificateService: Symbol.for('StudentCourseCertificateService'),
     CourseCertificateRepository: Symbol.for('CourseCertificateRepository'),
     StudentCourseCertificateController: Symbol.for('StudentCourseCertificateController'),

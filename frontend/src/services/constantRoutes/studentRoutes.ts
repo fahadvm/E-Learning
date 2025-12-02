@@ -55,6 +55,8 @@ export const STUDENT_ROUTES = {
     base: STUDENT_TEACHER,
     getById: (id: string) => `${STUDENT_TEACHER}/${id}`,
     availability: (id: string) => `${STUDENT_TEACHER}/availability/${id}`,
+    getReviews:(id:string) => `${STUDENT_TEACHER}/reviews/${id}`,
+    addReview: `${STUDENT_TEACHER}/review/add`,
   },
 
   bookings: {
