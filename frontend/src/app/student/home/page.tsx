@@ -120,7 +120,7 @@ export default function HeroSection() {
                             placeholder="Search course, event or author"
                             className="flex-1 p-3 rounded-l-md bg-white text-gray-900 outline-none"
                         />
-                        <button className="p-3 bg-primary rounded-r-md hover:bg-indigo-600 transition">
+                        <button className="p-3 bg-indigo-500 rounded-r-md hover:bg-indigo-600 transition">
                             Search
                         </button>
                     </div>

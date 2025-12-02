@@ -6,12 +6,14 @@ import { asyncHandler } from '../../middleware/asyncHandler';
 import { TYPES } from '../../core/di/types';
 import { StudentCommentController } from '../../controllers/student/student.comment.controller';
 import { StudentCourseReviewController } from '../../controllers/student/student.courseReview.controller';
+import { StudentCourseCertificateController } from '../../controllers/student/student.courseCertificate.controller';
 
 
 const router = Router();
 const studentCourseCtrl = container.get<StudentCourseController>(TYPES.StudentCourseController);
 const studentCommentCtrl = container.get<StudentCommentController>(TYPES.StudentCommentController);
 const studentCourseReviewCtrl = container.get<StudentCourseReviewController>(TYPES.StudentCourseReviewController);
+const studentCourseCertCtrl = container.get<StudentCourseCertificateController>(TYPES.StudentCourseCertificateController);
 
 router.get('/', authMiddleware('student'), asyncHandler(studentCourseCtrl.getAllCourses.bind(studentCourseCtrl)));
 router.get('/:courseId', authMiddleware('student'), asyncHandler(studentCourseCtrl.getCourseDetailById.bind(studentCourseCtrl)));
@@ -30,5 +32,10 @@ router.delete('/comment/:commentId', authMiddleware('student'), asyncHandler(stu
 router.post('/course-review', authMiddleware('student'), asyncHandler(studentCourseReviewCtrl.addReview.bind(studentCourseReviewCtrl)));
 router.get('/course-reviews/:courseId', authMiddleware('student'), asyncHandler(studentCourseReviewCtrl.getReviews.bind(studentCourseReviewCtrl)));
 router.delete('/course-review/:reviewId', authMiddleware('student'), asyncHandler(studentCourseReviewCtrl.deleteReview.bind(studentCourseReviewCtrl)));
+
+
+router.get( "/my/certificates", authMiddleware('student'), asyncHandler(studentCourseCertCtrl.getMyCourseCertificates.bind(studentCourseCertCtrl)));
+router.post( "/generate", authMiddleware('student'), asyncHandler(studentCourseCertCtrl.generateCourseCertificate.bind(studentCourseCertCtrl)));
+
 
 export default router;

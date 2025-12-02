@@ -14,13 +14,16 @@ import { ICourseResourceRepository } from '../../core/interfaces/repositories/IC
 import { CourseQuery } from '../../types/filter/fiterTypes';
 import { SortOrder } from 'mongoose';
 import { ICourse } from '../../models/Course';
+import { IStudentCourseCertificateService } from '../../core/interfaces/services/student/IStudentCourseCertificateService';
 
 @injectable()
 export class StudentCourseService implements IStudentCourseService {
   constructor(
     @inject(TYPES.CourseRepository) private readonly _courseRepo: ICourseRepository,
     @inject(TYPES.CourseResourceRepository) private readonly _resourceRepository: ICourseResourceRepository,
-    @inject(TYPES.StudentRepository) private readonly _studentRepo: IStudentRepository) { }
+    @inject(TYPES.StudentRepository) private readonly _studentRepo: IStudentRepository,
+    @inject(TYPES.StudentCourseCertificateService) private readonly _courseCertificateService: IStudentCourseCertificateService
+  ) { }
 
   async getAllCourses(filters: GetStudentCoursesRequestDTO): Promise<PaginatedCourseDTO> {
     const { search, category, level, language, sort, order, page, limit } = filters;
@@ -51,7 +54,7 @@ export class StudentCourseService implements IStudentCourseService {
   };
 
 
-  async getCourseDetail(courseId: string): Promise<{course:ICourse ,recommendedCourses:ICourse[]}> {
+  async getCourseDetail(courseId: string): Promise<{ course: ICourse, recommendedCourses: ICourse[] }> {
     if (!courseId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
     const course = await this._courseRepo.findById(courseId);
 
@@ -61,10 +64,10 @@ export class StudentCourseService implements IStudentCourseService {
       courseId,
       course.category,
       course.level,
-      6 
+      6
     );
 
-    return {course, recommendedCourses: recommended};
+    return { course, recommendedCourses: recommended };
   }
 
   async markLessonComplete(
@@ -76,6 +79,9 @@ export class StudentCourseService implements IStudentCourseService {
     const course = await this._courseRepo.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     const progress = await this._studentRepo.updateStudentProgress(studentId, courseId, lessonId);
+    if (progress.percentage === 100) {
+      await this._courseCertificateService.generateCourseCertificate(studentId, courseId);
+    }
     return progress;
   }
 

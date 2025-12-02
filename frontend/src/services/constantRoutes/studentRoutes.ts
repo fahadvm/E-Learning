@@ -39,6 +39,7 @@ export const STUDENT_ROUTES = {
     comments: (courseId: string) => `${STUDENT_COURSES}/comment/${courseId}`,
     getCourseReviews: (courseId: string) => `${STUDENT_COURSES}/course-reviews/${courseId}`,
     addCourseReview: `${STUDENT_COURSES}/course-review`,
+    getCertificates: `${STUDENT_COURSES}/my/certificates`,
   },
 
   profile: {
@@ -107,4 +108,6 @@ export const STUDENT_ROUTES = {
   ai: {
     assistant: (courseId: string) => `${SHARED_AI}/message/${courseId}`,
   },
+
+
 };

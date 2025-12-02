@@ -8,6 +8,8 @@ export enum MESSAGES {
   REQUEST_CANCELLED = 'Request cancelled',
   LEFT_COMPANY = 'Left company',
   REQUESTED_EMPLOYEES_FETCHED = 'Requested employees fetched successfully',
+  COURSE_CERTIFICATE_LIST_FETCHED = 'COURSE CERTIFICATE LIST FETCHED successfully',
+  COURSE_CERTIFICATE_GENERATED = 'COURSE CERTIFICATE GENERATED successfully',
   EMPLOYEE_REQUEST_APPROVED = 'Employee request approved successfully',
   EMPLOYEE_REQUEST_REJECTED = 'Employee request rejected',
   GOOGLE_TOKEN_INVALID = 'Invalid Google token',

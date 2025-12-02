@@ -202,6 +202,11 @@ import { IStudentCourseReviewService } from '../interfaces/services/student/IStu
 import { StudentCourseReviewService } from '../../services/student/student.courseReview.service';
 import { CourseReviewRepository } from '../../repositories/CourseReview';
 import { StudentCourseReviewController } from '../../controllers/student/student.courseReview.controller';
+import { StudentCourseCertificateController } from '../../controllers/student/student.courseCertificate.controller';
+import { StudentCourseCertificateService } from '../../services/student/student.courseCertificate.service';
+import { IStudentCourseCertificateService } from '../interfaces/services/student/IStudentCourseCertificateService';
+import { ICourseCertificateRepository } from '../interfaces/repositories/ICourseCertificateRepository';
+import { CourseCertificateRepository } from '../../repositories/CourseCertificateRepository';
 
 
 
@@ -305,6 +310,10 @@ container.bind<StudentCartController>(TYPES.StudentCartController).to(StudentCar
 container.bind<StudentPurchaseController>(TYPES.StudentPurchaseController).to(StudentPurchaseController);
 container.bind<StudentBookingController>(TYPES.StudentBookingController).to(StudentBookingController);
 container.bind<StudentTeacherController>(TYPES.StudentTeacherController).to(StudentTeacherController);
+
+container.bind<StudentCourseCertificateController>(TYPES.StudentCourseCertificateController).to(StudentCourseCertificateController);
+container.bind<IStudentCourseCertificateService>(TYPES.StudentCourseCertificateService).to(StudentCourseCertificateService);
+container.bind<ICourseCertificateRepository>(TYPES.CourseCertificateRepository).to(CourseCertificateRepository);
 
 container.bind<CompanyAuthController>(TYPES.CompanyAuthController).to(CompanyAuthController);
 container.bind<CompanyProfileController>(TYPES.CompanyProfileController).to(CompanyProfileController);

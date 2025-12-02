@@ -114,3 +114,8 @@ export const studentChatApi = {
 export const studentAiApi = {
   aiAssistant: (courseId: string, data: { prompt: string }) => post(STUDENT_ROUTES.ai.assistant(courseId), data),
 };
+
+
+export const studentCertificateApi ={
+  getMyCertificates: () => get(STUDENT_ROUTES.courses.getCertificates),
+}
