@@ -18,8 +18,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { studentCourseApi, studentProfileApi } from "@/services/APIservices/studentApiservice"
+import { studentCertificateApi, studentCourseApi, studentProfileApi } from "@/services/APIservices/studentApiservice"
 import Header from "@/components/student/header"
+import { showSuccessToast } from "@/utils/Toast"
 
 interface Review {
   rating: number
@@ -70,6 +71,9 @@ export default function MyCourses() {
   const [courses, setCourses] = useState<Course[]>([])
   const [student, setStudent] = useState<StudentProfile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+
 
   useEffect(() => {
     fetchCourses()
@@ -102,6 +106,28 @@ export default function MyCourses() {
       setLoading(false)
     }
   }
+
+
+
+
+  const handleViewCertificate = async (courseId: string) => {
+    const cert = await studentCertificateApi.getCourseCertificate(courseId)
+    window.open(cert.data.certificateUrl, "_blank")
+
+  }
+  const handleDownloadCertificate = async (courseId: string) => {
+    const cert = await studentCertificateApi.getCourseCertificate(courseId)
+    console.log("cert is ",cert)
+    const res = await fetch(cert.data.certificateUrl);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = cert.data.courseId.title + ".pdf";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const calculateAverageRating = (reviews?: Review[]) => {
     if (!reviews || reviews.length === 0) return "No rating"
@@ -315,14 +341,21 @@ export default function MyCourses() {
                       </span>
                     </div>
                     <div className="flex space-x-2">
-                      <Button variant="outline" size="sm" className="hover:bg-muted bg-transparent">
-                        <Download className="w-4 h-4 mr-1" />
-                        Resources
-                      </Button>
-                      <Button variant="outline" size="sm" className="hover:bg-muted bg-transparent">
-                        <Award className="w-4 h-4 mr-1" />
-                        Certificate
-                      </Button>
+
+                      {course.progress === 100 && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="hover:bg-muted bg-transparent"
+                          onClick={() => {
+                            setSelectedCourse(course);
+                            setIsModalOpen(true);
+                          }}
+                        >
+                          <Award className="w-4 h-4 mr-1 text-green-600" />
+                          Certificate
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -331,6 +364,55 @@ export default function MyCourses() {
           </div>
         )}
       </div>
+      {isModalOpen && selectedCourse && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-neutral-900 rounded-xl p-6 w-full max-w-sm shadow-xl border border-neutral-800">
+
+            <h2 className="text-xl font-semibold mb-3">Certificate Options</h2>
+            <p className="text-muted-foreground mb-6">
+              What do you want to do with your certificate for
+              <br />
+              <span className="font-medium text-foreground">{selectedCourse.title}</span>?
+            </p>
+
+            <div className="space-y-3">
+
+              {/* View Certificate */}
+              <Button
+                className="w-full bg-primary hover:bg-primary/90"
+                onClick={async () => {
+                  await handleViewCertificate(selectedCourse._id)
+                  setIsModalOpen(false)
+                }}
+              >
+                View Certificate
+              </Button>
+
+              {/* Download Certificate */}
+              <Button
+                className="w-full"
+                variant="outline"
+                onClick={async () => {
+                  await handleDownloadCertificate(selectedCourse._id)
+                  setIsModalOpen(false)
+                }}
+              >
+                Download Certificate
+              </Button>
+
+            </div>
+
+            <button
+              className="w-full mt-4 text-sm text-muted-foreground hover:text-foreground"
+              onClick={() => setIsModalOpen(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
+
+

@@ -35,7 +35,8 @@ router.delete('/course-review/:reviewId', authMiddleware('student'), asyncHandle
 
 
 router.get( "/my/certificates", authMiddleware('student'), asyncHandler(studentCourseCertCtrl.getMyCourseCertificates.bind(studentCourseCertCtrl)));
-router.post( "/generate", authMiddleware('student'), asyncHandler(studentCourseCertCtrl.generateCourseCertificate.bind(studentCourseCertCtrl)));
+router.get( "/certificates/:courseId", authMiddleware('student'), asyncHandler(studentCourseCertCtrl.getCourseCertificate.bind(studentCourseCertCtrl)));
+router.post( "/generate/certificate", authMiddleware('student'), asyncHandler(studentCourseCertCtrl.generateCourseCertificate.bind(studentCourseCertCtrl)));
 
 
 export default router;

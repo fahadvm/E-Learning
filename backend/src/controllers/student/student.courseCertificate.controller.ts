@@ -12,7 +12,7 @@ export class StudentCourseCertificateController {
   constructor(
     @inject(TYPES.StudentCourseCertificateService)
     private readonly _certService: IStudentCourseCertificateService
-  ) {}
+  ) { }
 
   generateCourseCertificate = async (req: AuthRequest, res: Response) => {
     const studentId = req.user?.id;
@@ -36,14 +36,55 @@ export class StudentCourseCertificateController {
     const studentId = req.user?.id;
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
-    const certificates = await this._certService.getMyCourseCertificates(studentId);
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 6;
+    const search = (req.query.search as string) || "";
+
+    const result = await this._certService.getMyCourseCertificates(
+      studentId,
+      page,
+      limit,
+      search
+    );
 
     return sendResponse(
       res,
       STATUS_CODES.OK,
       MESSAGES.COURSE_CERTIFICATE_LIST_FETCHED,
       true,
-      certificates
+      {
+        certificates: result.certificates,
+        total: result.total,
+        page,
+        limit,
+        totalPages: Math.ceil(result.total / limit),
+      }
     );
   };
+
+
+  
+
+  getCourseCertificate = async (req: AuthRequest, res: Response) => {
+    const studentId = req.user?.id;
+    if (!studentId) throwError(MESSAGES.UNAUTHORIZED, 401);
+
+    const courseId = req.params.courseId;
+    if (!courseId) throwError(MESSAGES.INVALID_ID, 400);
+
+    const cert = await this._certService.getCourseCertificate(
+      studentId,
+      courseId
+    );
+
+    return sendResponse(
+      res,
+      200,
+      "Certificate fetched successfully",
+      true,
+      cert
+    );
+  };
+
+
 }

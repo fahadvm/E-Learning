@@ -40,6 +40,8 @@ export const STUDENT_ROUTES = {
     getCourseReviews: (courseId: string) => `${STUDENT_COURSES}/course-reviews/${courseId}`,
     addCourseReview: `${STUDENT_COURSES}/course-review`,
     getCertificates: `${STUDENT_COURSES}/my/certificates`,
+    getCourseCertificate:(courseId:string)=> `${STUDENT_COURSES}/certificates/${courseId}`,
+    generateCertificate: `${STUDENT_COURSES}/generate/certificate`,
   },
 
   profile: {

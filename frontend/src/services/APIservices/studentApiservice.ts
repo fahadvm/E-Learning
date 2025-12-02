@@ -117,5 +117,7 @@ export const studentAiApi = {
 
 
 export const studentCertificateApi ={
-  getMyCertificates: () => get(STUDENT_ROUTES.courses.getCertificates),
+  getMyCertificates: (params:{page :number, limit : number, search : string}) => get(STUDENT_ROUTES.courses.getCertificates,params),
+  generateCertificate: (data:{courseId:string}) => post(STUDENT_ROUTES.courses.generateCertificate,data),
+  getCourseCertificate:(courseId:string)=> get(STUDENT_ROUTES.courses.getCourseCertificate(courseId)),
 }

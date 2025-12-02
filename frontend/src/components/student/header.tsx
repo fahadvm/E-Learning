@@ -29,7 +29,7 @@ interface Notification {
   isRead: boolean;
 }
 
-export default function ModernHeader() {
+export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
