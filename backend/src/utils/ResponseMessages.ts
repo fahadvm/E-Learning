@@ -26,6 +26,7 @@ export enum MESSAGES {
   STUDENT_ORDERS_FETCHED = 'Student orders fetched successfully',
   VERIFICATION_REQUESTS_FETCHED= 'Verification requests fetched.',
   AVAILABILITY_FETCHED = 'Teacher availability fetched successfully.',
+  PURCHASE_HISTORY_FETCHED = 'Purchase history fetched successfully.',
   BOOKING_CREATED = 'Booking created successfully.',
   BOOKING_CANCELLED = 'Booking cancelled successfully.',
   BOOKING_RESCHEDULLED = 'Booking cancelled Reschedulled.',

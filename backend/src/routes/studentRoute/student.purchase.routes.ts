@@ -15,5 +15,6 @@ router.get('/enrolled',  authMiddleware('student'), asyncHandler(StudentPurchase
 router.get('/enrolled/:courseId',  authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.getMyCourseDetails.bind(StudentPurchaseCtrl)));
 router.get( '/entrolled-ids', authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.getPurchasedCourseIds.bind(StudentPurchaseCtrl)));
 router.get( '/orderDetails/:razorpayOrderId', authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.getOrderDetails.bind(StudentPurchaseCtrl)));
+router.get( '/history', authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.getPurchaseHistory.bind(StudentPurchaseCtrl)));
 
 export default router;

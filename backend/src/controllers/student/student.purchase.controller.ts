@@ -74,4 +74,24 @@ export class StudentPurchaseController implements IStudentPurchaseController {
     const order = await this._PurchaseService.getOrderDetails(studentId, razorpayOrderId);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.ORDER_FETCHED_SUCCESSFULLY, true, order);
   };
+
+  getPurchaseHistory = async (req: AuthRequest, res: Response) => {
+    const studentId = req.user?.id;
+    console.log("getting history")
+    if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+    
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    
+    const result = await this._PurchaseService.getPurchaseHistory(studentId, page, limit);
+    console.log("getting history result",result)
+
+    return sendResponse(
+      res,
+      STATUS_CODES.OK,
+      MESSAGES.PURCHASE_HISTORY_FETCHED,
+      true,
+      result
+    );
+  };
 }

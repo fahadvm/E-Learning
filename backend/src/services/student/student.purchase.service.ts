@@ -228,15 +228,15 @@ export class StudentPurchaseService implements IStudentPurchaseService {
     return courseIds;
   }
 
-  async getPurchasedCourseDetails(courseId: string, studentId: string): Promise<{ course: ICourse; progress: ICourseProgress , recommended: ICourse[] }> {
+  async getPurchasedCourseDetails(courseId: string, studentId: string): Promise<{ course: ICourse; progress: ICourseProgress, recommended: ICourse[] }> {
     if (!courseId || !studentId) throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
     const course = await this._courseRepo.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     const student = await this._studentRepo.findById(studentId);
     if (!student) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     const progress = await this._studentRepo.getOrCreateCourseProgress(studentId, courseId);
-    const recommended = await  this._courseRepo.findRecommendedCourses(courseId,course.category,course.level,6)
-    return { course, progress ,recommended};
+    const recommended = await this._courseRepo.findRecommendedCourses(courseId, course.category, course.level, 6)
+    return { course, progress, recommended };
   }
 
   async getOrderDetails(studentId: string, orderId: string): Promise<IOrder> {
@@ -245,5 +245,25 @@ export class StudentPurchaseService implements IStudentPurchaseService {
 
     if (!order) throwError(MESSAGES.ORDER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     return order;
+  }
+
+
+  async getPurchaseHistory(studentId: string, page: number, limit: number) {
+    if (page < 1) page = 1;
+    if (limit < 1) limit = 10;
+
+    const { orders, total } = await this._orderRepo.findOrdersByStudent(
+      studentId,
+      page,
+      limit
+    );
+
+    return {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      orders,
+    };
   }
 }

@@ -93,7 +93,8 @@ export const paymentApi = {
   bookingPayment: (data: { amount: number; bookingId: string }) => post(STUDENT_ROUTES.bookings.payments(''), data),
   verifyBookingPayment: (data: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) =>
     post(STUDENT_ROUTES.bookings.verify, data),
-  getOrderDetails: (razorpayOrderId : string ) => get(STUDENT_ROUTES.purchase.getOrderDetails(razorpayOrderId))
+  getOrderDetails: (razorpayOrderId : string ) => get(STUDENT_ROUTES.purchase.getOrderDetails(razorpayOrderId)),
+  getPurchaseHistory: (params:{page:number, limit:number} ) => get(STUDENT_ROUTES.purchase.getMyhistory,params)
 };
 
 export const studentSubscriptionApi = {

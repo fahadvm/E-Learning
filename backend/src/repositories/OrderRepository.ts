@@ -2,7 +2,7 @@ import { IOrderRepository } from '../core/interfaces/repositories/IOrderReposito
 import { IOrder, OrderModel } from '../models/Order';
 import { injectable } from 'inversify';
 import { ICourse } from '../models/Course';
-import { Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
 @injectable()
 export class OrderRepository implements IOrderRepository {
@@ -29,7 +29,7 @@ export class OrderRepository implements IOrderRepository {
 
   async getOrdersByStudentId(
     studentId: string
-  ): Promise<(IOrder & { courses: ICourse[] })[]> {
+  ): Promise<any> {
     return OrderModel.find({
       studentId,
       status: "paid",
@@ -82,6 +82,35 @@ export class OrderRepository implements IOrderRepository {
         },
       })
       .lean();
+  }
+
+    async findOrdersByStudent(
+    studentId: string,
+    page: number,
+    limit: number
+  ): Promise<{ orders: IOrder[]; total: number }> {
+    const skip = (page - 1) * limit;
+
+    // ensure valid ObjectId filter
+    const filter: any = {};
+    if (mongoose.Types.ObjectId.isValid(studentId)) {
+      filter.studentId = studentId;
+    } else {
+      // no orders if invalid id (caller should validate; defensive)
+      return { orders: [], total: 0 };
+    }
+
+    const [total, orders] = await Promise.all([
+      OrderModel.countDocuments(filter),
+      OrderModel.find(filter)
+        .populate('courses') // will populate course docs
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean()
+    ]);
+
+    return { orders: orders as IOrder[], total };
   }
 
 

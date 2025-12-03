@@ -87,6 +87,7 @@ export const STUDENT_ROUTES = {
     createOrder: `${STUDENT_PURCHASE}/create-order`,
     verifyPayment: `${STUDENT_PURCHASE}/verify-payment`,
     myCourses: `${STUDENT_PURCHASE}/enrolled`,
+    getMyhistory: `${STUDENT_PURCHASE}/history`,
     myCourseDetails: (courseId: string) => `${STUDENT_PURCHASE}/enrolled/${courseId}`,
     getPurchasedIds: `${STUDENT_PURCHASE}/entrolled-ids`,
     getOrderDetails: (razorpayOrderId: string)=> `${STUDENT_PURCHASE}/orderDetails/${razorpayOrderId}`

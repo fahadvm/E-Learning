@@ -12,5 +12,10 @@ export interface IOrderRepository {
   getStudentOrders(): Promise<IOrder[]>;
   getOrderedCourseIds(studentId: string): Promise<string[]>
   getOrderDetailsByrazorpayOrderId(studentId: string, orderId: string): Promise<IOrder | null>
+  findOrdersByStudent(
+    studentId: string,
+    page: number,
+    limit: number
+  ): Promise<{ orders: IOrder[]; total: number }>;
 
 }

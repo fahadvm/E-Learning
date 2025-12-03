@@ -1,112 +1,150 @@
-'use client';
+"use client";
 
-import dynamic from 'next/dynamic';
-import { useEffect, useState, ChangeEvent, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
-import {
-  Mail,
-  Phone,
-  Linkedin,
-  Upload,
-  Save,
-  ArrowLeft,
-  Camera
-} from 'lucide-react';
-import { motion } from 'framer-motion';
-import { useStudent } from '@/context/studentContext';
-import { studentProfileApi } from '@/services/APIservices/studentApiservice';
-import { showSuccessToast, showErrorToast } from '@/utils/Toast';
+import { useEffect, useState, ChangeEvent, FormEvent } from "react";
+import { ArrowLeft, Camera, Save, Eye, EyeOff, RefreshCw } from "lucide-react";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import Header from "@/components/student/header";
+import { useStudent } from "@/context/studentContext";
+import { studentProfileApi } from "@/services/APIservices/studentApiservice";
+import { showSuccessToast, showErrorToast } from "@/utils/Toast";
+import { motion } from "framer-motion";
 
-const CropperModal = dynamic(() => import('@/components/common/ImageCropper'), { ssr: false });
-
-// -------------------- TYPES --------------------
-interface SocialLinks {
-  linkedin: string;
-  gitHub: string;
-  leetCode: string;
-}
-
-interface FormErrors {
-  name?: string;
-  phone?: string;
-  social_links?: Partial<SocialLinks>;
-}
+const CropperModal = dynamic(() => import("@/components/common/ImageCropper"), {
+  ssr: false,
+});
 
 const fadeIn = {
-  initial: { opacity: 0, y: 20 },
+  initial: { opacity: 0, y: 18 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.45, ease: 'easeOut' }
+  transition: { duration: 0.36, ease: "easeOut" },
+};
+
+// Reusable Password Input with Eye Toggle
+const PasswordInput = ({
+  placeholder,
+  value,
+  onChange,
+  error,
+}: {
+  placeholder: string;
+  value: string;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  error?: string;
+}) => {
+  const [show, setShow] = useState(false);
+
+  return (
+    <div className="relative">
+      <Input
+        type={show ? "text" : "password"}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        className={error ? "border-red-500 pr-10" : "pr-10"}
+      />
+      <button
+        type="button"
+        onClick={() => setShow(!show)}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+      >
+        {show ? <EyeOff size={18} /> : <Eye size={18} />}
+      </button>
+      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+    </div>
+  );
 };
 
 export default function EditProfilePage() {
-  const { student, setStudent } = useStudent();
   const router = useRouter();
+  const { student, setStudent } = useStudent();
 
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    profilePicture: '',
-    about: '',
-    social_links: {
-      linkedin: '',
-      gitHub: '',
-      leetCode: '',
-    },
-
-    // NEW
-    currentPassword: '',
-    newPassword: '',
-    confirmNewPassword: '',
-    newEmail: '',
-    emailOtp: '',
-    emailOtpSent: false
+    name: "",
+    phone: "",
+    about: "",
+    profilePicture: "",
+    social_links: { linkedin: "", gitHub: "", leetCode: "" },
   });
 
-  const [imagePreview, setImagePreview] = useState<string>('');
-  const [showCropper, setShowCropper] = useState(false);
-  const [rawImage, setRawImage] = useState<string>('');
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [isSaving, setIsSaving] = useState(false);
+  // Security
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
 
-  // -------------------- LOAD FROM CONTEXT --------------------
+  const [newEmail, setNewEmail] = useState("");
+  const [emailOtp, setEmailOtp] = useState("");
+  const [emailOtpSent, setEmailOtpSent] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(0);
+
+  // Image
+  const [imagePreview, setImagePreview] = useState("");
+  const [rawImage, setRawImage] = useState("");
+  const [showCropper, setShowCropper] = useState(false);
+
+  // Errors & Loading
+  const [errors, setErrors] = useState<any>({});
+  const [pwErrors, setPwErrors] = useState<any>({});
+  const [emailErrors, setEmailErrors] = useState<any>({});
+  const [saving, setSaving] = useState(false);
+  const [pwSaving, setPwSaving] = useState(false);
+  const [emailSaving, setEmailSaving] = useState(false);
+
   useEffect(() => {
     if (student) {
-      setFormData(prev => ({
-        ...prev,
-        name: student.name || '',
-        email: student.email || '',
-        phone: student.phone || '',
-        profilePicture: student.profilePicture || '',
-        about: student.about || '',
+      setFormData({
+        name: student.name || "",
+        phone: student.phone || "",
+        about: student.about || "",
+        profilePicture: student.profilePicture || "",
         social_links: {
-          linkedin: student.social_links?.linkedin || '',
-          gitHub: student.social_links?.gitHub || '',
-          leetCode: student.social_links?.leetCode || ''
-        }
-      }));
-      setImagePreview(student.profilePicture || '');
+          linkedin: student.social_links?.linkedin || "",
+          gitHub: student.social_links?.gitHub || "",
+          leetCode: student.social_links?.leetCode || "",
+        },
+      });
+      setImagePreview(student.profilePicture || "");
     }
   }, [student]);
 
-  // -------------------- HANDLERS --------------------
+  // Resend OTP Countdown
+  useEffect(() => {
+    if (resendCountdown > 0) {
+      const timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCountdown]);
+
+  /* ---------------------- Handlers ---------------------- */
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-
-    if (name.startsWith('social_')) {
-      const key = name.replace('social_', '') as keyof SocialLinks;
-      setFormData(prev => ({
-        ...prev,
-        social_links: { ...prev.social_links, [key]: value }
+    if (name.startsWith("social_")) {
+      const key = name.replace("social_", "") as "linkedin" | "gitHub" | "leetCode";
+      setFormData((p) => ({
+        ...p,
+        social_links: { ...p.social_links, [key]: value },
       }));
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      setFormData((p) => ({ ...p, [name]: value }));
     }
+    // Clear error on change
+    setErrors((prev: any) => ({ ...prev, [name]: "" }));
   };
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      showErrorToast("Please upload a valid image");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      showErrorToast("Image must be under 5MB");
+      return;
+    }
 
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -117,418 +155,393 @@ export default function EditProfilePage() {
   };
 
   const handleCroppedImage = (img: string) => {
-    setFormData(prev => ({ ...prev, profilePicture: img }));
     setImagePreview(img);
+    setFormData((p) => ({ ...p, profilePicture: img }));
     setShowCropper(false);
   };
 
-  // -------------------- VALIDATION --------------------
-  const validateForm = () => {
-    const newErrors: FormErrors = {};
+  /* ---------------------- Validation Functions ---------------------- */
+  const validateProfile = () => {
+    const newErrors: any = {};
 
-    if (!formData.name.trim()) newErrors.name = 'Name is required';
+    if (!formData.name.trim()) newErrors.name = "Name is required";
+    else if (formData.name.trim().length < 2) newErrors.name = "Name must be at least 2 characters";
 
-    if (!/^\d{10}$/.test(formData.phone)) {
-      newErrors.phone = 'Enter a valid 10-digit phone number';
+    const cleanPhone = formData.phone.replace(/\D/g, "");
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (cleanPhone.length !== 10) {
+      newErrors.phone = "Phone number must be exactly 10 digits";
+    } else if (/^0/.test(cleanPhone)) {
+      newErrors.phone = "Phone number cannot start with 0";
+    } else if (/^0+$/.test(cleanPhone)) {
+      newErrors.phone = "Invalid phone number (all zeros not allowed)";
+    } else if (!/^\d{10}$/.test(cleanPhone)) {
+      newErrors.phone = "Only digits allowed";
     }
+    if (formData.about && formData.about.length > 500)
+      newErrors.about = "About section must be under 500 characters";
 
-    const validateUrl = (value: string, key: keyof SocialLinks, regex: RegExp) => {
-      if (value && !regex.test(value)) {
-        if (!newErrors.social_links) newErrors.social_links = {};
-        newErrors.social_links[key] = `Enter a valid ${key} URL`;
-      }
-    };
+    // Social links - optional but validate format if provided
+    if (formData.social_links.linkedin && !/^https?:\/\/(www\.)?linkedin\.com\/in\/.+/i.test(formData.social_links.linkedin))
+      newErrors.linkedin = "Invalid LinkedIn URL";
 
-    validateUrl(formData.social_links.linkedin, 'linkedin', /^https?:\/\/(www\.)?linkedin\.com\/.+$/);
-    validateUrl(formData.social_links.gitHub, 'gitHub', /^https?:\/\/(www\.)?github\.com\/.+$/);
-    validateUrl(formData.social_links.leetCode, 'leetCode', /^https?:\/\/(www\.)?leetcode\.com\/.+$/);
+    if (formData.social_links.gitHub && !/^https?:\/\/(www\.)?github\.com\/.+/i.test(formData.social_links.gitHub))
+      newErrors.gitHub = "Invalid GitHub URL";
+
+    if (formData.social_links.leetCode && !/^https?:\/\/(www\.)?leetcode\.com\/.+/i.test(formData.social_links.leetCode))
+      newErrors.leetCode = "Invalid LeetCode URL";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // -------------------- SUBMIT --------------------
-  const handleSubmit = async (e?: FormEvent) => {
-    if (e) e.preventDefault();
+  const validatePassword = () => {
+    const err: any = {};
+    if (!currentPassword) err.current = "Current password is required";
+    if (!newPassword) err.new = "New password is required";
+    else if (newPassword.length < 8) err.new = "Password must be at least 8 characters";
+    else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newPassword))
+      err.new = "Password must contain uppercase, lowercase, and number";
 
-    if (!validateForm()) return;
-    setIsSaving(true);
+    if (newPassword !== confirmNewPassword) err.confirm = "Passwords do not match";
 
+    setPwErrors(err);
+    return Object.keys(err).length === 0;
+  };
+
+  const validateEmail = () => {
+    const err: any = {};
+    if (!newEmail) err.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) err.email = "Invalid email address";
+    setEmailErrors(err);
+    return Object.keys(err).length === 0;
+  };
+
+  const validateOtp = () => {
+    if (!emailOtp || emailOtp.length !== 6 || !/^\d+$/.test(emailOtp)) {
+      setEmailErrors({ otp: "Enter a valid 6-digit OTP" });
+      return false;
+    }
+    setEmailErrors({});
+    return true;
+  };
+
+  /* ---------------------- Submit Handlers ---------------------- */
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!validateProfile()) return;
+
+    setSaving(true);
     try {
       const payload = {
-        name: formData.name,
-        phone: formData.phone,
-        about: formData.about,
+        name: formData.name.trim(),
+        phone: formData.phone.replace(/\D/g, ""),
+        about: formData.about.trim(),
         profilePicture: formData.profilePicture,
-        social_links: formData.social_links
+        social_links: {
+          linkedin: formData.social_links.linkedin.trim(),
+          gitHub: formData.social_links.gitHub.trim(),
+          leetCode: formData.social_links.leetCode.trim(),
+        },
       };
 
       const res = await studentProfileApi.editProfile(payload);
-
       if (res?.ok && res.data) {
-        showSuccessToast(res.message || 'Profile updated');
+        showSuccessToast(res.message || "Profile updated successfully");
         setStudent(res.data);
-        router.push('/student/profile');
+        router.push("/student/profile");
+      } else {
+        showErrorToast(res?.message || "Failed to update profile");
       }
+    } catch (err) {
+      showErrorToast("Something went wrong");
     } finally {
-      setIsSaving(false);
+      setSaving(false);
     }
   };
 
-  const handleCancel = () => router.back();
+  const handleChangePassword = async () => {
+    if (!validatePassword()) return;
+    setPwSaving(true);
+    try {
+      const res = await studentProfileApi.changePassword({
+        currentPassword,
+        newPassword,
+      });
+      if (res?.ok) {
+        showSuccessToast("Password changed successfully");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmNewPassword("");
+        setPwErrors({});
+      } else {
+        showErrorToast(res?.message || "Failed to change password");
+      }
+    } catch (err) {
+      showErrorToast("Something went wrong");
+    } finally {
+      setPwSaving(false);
+    }
+  };
 
-  // -------------------- UI --------------------
+  const handleSendEmailOtp = async () => {
+    if (!validateEmail()) return;
+    setEmailSaving(true);
+    try {
+      const res = await studentProfileApi.sendEmailOtp({ newEmail });
+      if (res?.ok) {
+        showSuccessToast("OTP sent successfully!");
+        setEmailOtpSent(true);
+        setResendCountdown(30);
+        setEmailErrors({});
+      } else {
+        showErrorToast(res?.message || "Failed to send OTP");
+      }
+    } catch (err) {
+      showErrorToast("Failed to send OTP");
+    } finally {
+      setEmailSaving(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (resendCountdown > 0) return;
+    await handleSendEmailOtp();
+  };
+
+  const handleVerifyEmailOtp = async () => {
+    if (!validateOtp()) return;
+    setEmailSaving(true);
+    try {
+      const res = await studentProfileApi.verifyEmailOtp({
+        newEmail,
+        otp: emailOtp,
+      });
+      if (res?.ok && res.data) {
+        showSuccessToast("Email updated successfully!");
+        setStudent(res.data);
+        setNewEmail("");
+        setEmailOtp("");
+        setEmailOtpSent(false);
+        setEmailErrors({});
+      } else {
+        showErrorToast(res?.message || "Invalid or expired OTP");
+      }
+    } catch (err) {
+      showErrorToast("Verification failed");
+    } finally {
+      setEmailSaving(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50">
+    <div className="min-h-screen bg-background flex flex-col">
+      <Header />
 
-      {/* Header */}
-      <div className="bg-white border-b">
-        <div className="max-w-5xl mx-auto px-6 py-6 flex items-center gap-4">
-          <button onClick={handleCancel} className="p-2 hover:bg-gray-100 rounded-lg">
-            <ArrowLeft className="w-5 h-5 text-gray-600" />
+      <div className="border-b bg-card p-4">
+        <div className="max-w-5xl mx-auto flex items-center gap-3">
+          <button onClick={() => router.back()} className="p-2 rounded-md hover:bg-muted transition">
+            <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
             <h1 className="text-2xl font-bold">Edit Profile</h1>
-            <p className="text-gray-600 text-sm">Update your personal information</p>
+            <p className="text-sm text-muted-foreground">Update your personal details</p>
           </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="max-w-5xl mx-auto px-6 py-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
-
-          {/* Profile Image */}
-          <motion.div {...fadeIn} className="bg-white rounded-2xl shadow-sm border p-8">
-            <h2 className="text-lg font-semibold mb-6">Profile Picture</h2>
-
-            <div className="flex items-center gap-6 flex-col sm:flex-row">
-              <div className="relative">
-                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-1">
-                  <img src={imagePreview || '/default-avatar.png'} className="w-full h-full rounded-full object-cover" />
-                </div>
-
-                <label htmlFor="profile-upload" className="absolute bottom-0 right-0 bg-blue-600 text-white p-3 rounded-full cursor-pointer">
-                  <Camera className="w-4 h-4" />
-                </label>
-
-                <input id="profile-upload" type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-              </div>
-
-              <div className="text-center sm:text-left">
-                <h3 className="font-semibold text-sm mb-1">Upload new picture</h3>
-                <p className="text-gray-600 text-sm mb-4">JPG, PNG or GIF. Max size 5MB</p>
-
-                <label htmlFor="profile-upload" className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg cursor-pointer inline-flex items-center gap-2">
-                  <Upload className="w-4 h-4" /> Choose File
-                </label>
-              </div>
+      <form onSubmit={handleSubmit} className="max-w-5xl mx-auto w-full px-4 py-8 space-y-8">
+        {/* Profile Picture */}
+        <motion.div {...fadeIn} className="bg-card border rounded-xl p-6">
+          <h2 className="text-lg font-semibold mb-4">Profile Picture</h2>
+          <div className="flex items-center gap-6 flex-wrap">
+            <div className="relative">
+              <Avatar className="w-28 h-28 border-2">
+                <AvatarImage src={imagePreview} />
+                <AvatarFallback>{formData.name.charAt(0) || "U"}</AvatarFallback>
+              </Avatar>
+              <label htmlFor="upload" className="absolute bottom-0 right-0 bg-primary text-primary-foreground p-2 rounded-full cursor-pointer shadow-lg hover:scale-110 transition">
+                <Camera size={18} />
+              </label>
+              <input id="upload" type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
             </div>
-          </motion.div>
-
-          {/* Basic Information */}
-          <motion.div {...fadeIn} transition={{ delay: 0.1 }} className="bg-white rounded-2xl shadow-sm border p-8">
-            <h2 className="text-lg font-semibold mb-6">Basic Information</h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-              {/* Name */}
-              <div>
-                <label className="block mb-2 text-sm font-medium">Name *</label>
-                <input
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-3 border rounded-lg ${errors.name ? 'border-red-400' : 'border-gray-300'}`}
-                />
-                {errors.name && <p className="text-red-500 text-xs">{errors.name}</p>}
-              </div>
-
-              {/* Email */}
-              <div>
-                <label className="block mb-2 text-sm font-medium">Email</label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    name="email"
-                    value={formData.email}
-                    readOnly
-                    className="w-full px-11 py-3 border bg-gray-100 rounded-lg cursor-not-allowed"
-                  />
-                </div>
-              </div>
-
-              {/* Phone */}
-              <div>
-                <label className="block mb-2 text-sm font-medium">Phone *</label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className={`w-full px-11 py-3 border rounded-lg ${errors.phone ? 'border-red-400' : 'border-gray-300'}`}
-                  />
-                </div>
-                {errors.phone && <p className="text-red-500 text-xs">{errors.phone}</p>}
-              </div>
-
-              {/* About */}
-              <div className="md:col-span-2">
-                <label className="block mb-2 text-sm font-medium">About</label>
-                <textarea
-                  name="about"
-                  rows={4}
-                  value={formData.about}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border rounded-lg border-gray-300 resize-none"
-                />
-              </div>
+            <div className="text-sm text-muted-foreground">
+              <p>Upload a professional photo</p>
+              <p className="text-xs mt-1">PNG, JPG • Max 5MB</p>
             </div>
-          </motion.div>
+          </div>
+        </motion.div>
 
-          {/* Social Links */}
-          <motion.div {...fadeIn} transition={{ delay: 0.2 }} className="bg-white rounded-2xl shadow-sm border p-8">
-            <h2 className="text-lg font-semibold mb-6">Social Links</h2>
-
-            <div className="space-y-5">
-              <SocialInput
-                label="LinkedIn"
-                icon={<Linkedin className="w-5 h-5 text-gray-400" />}
-                name="linkedin"
-                value={formData.social_links.linkedin}
-                error={errors.social_links?.linkedin}
-                onChange={handleChange}
-                placeholder="https://linkedin.com/in/username"
-              />
-
-              <SocialInput
-                label="GitHub"
-                icon={
-                  <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.85 10.95..." />
-                  </svg>
-                }
-                name="gitHub"
-                value={formData.social_links.gitHub}
-                error={errors.social_links?.gitHub}
-                onChange={handleChange}
-                placeholder="https://github.com/username"
-              />
-
-              <SocialInput
-                label="LeetCode"
-                icon={
-                  <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M13.37 2.01a1 1 0 0 0-1.74 0L3.13 17.7..." />
-                  </svg>
-                }
-                name="leetCode"
-                value={formData.social_links.leetCode}
-                error={errors.social_links?.leetCode}
-                onChange={handleChange}
-                placeholder="https://leetcode.com/username"
-              />
-            </div>
-          </motion.div>
-
-          {/* SECURITY SETTINGS */}
-          <motion.div {...fadeIn} transition={{ delay: 0.25 }} className="bg-white rounded-2xl shadow-sm border p-8">
-            <h2 className="text-lg font-semibold mb-6">Security Settings</h2>
-
-            {/* CHANGE PASSWORD */}
-            <div className="mb-10">
-              <h3 className="font-semibold text-md mb-3">Change Password</h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block mb-2 text-sm font-medium">Current Password</label>
-                  <input
-                    type="password"
-                    className="w-full px-4 py-3 border rounded-lg border-gray-300"
-                    onChange={(e) => setFormData(prev => ({ ...prev, currentPassword: e.target.value }))}
-                  />
-                </div>
-
-                <div>
-                  <label className="block mb-2 text-sm font-medium">New Password</label>
-                  <input
-                    type="password"
-                    className="w-full px-4 py-3 border rounded-lg border-gray-300"
-                    onChange={(e) => setFormData(prev => ({ ...prev, newPassword: e.target.value }))}
-                  />
-                </div>
-
-                <div>
-                  <label className="block mb-2 text-sm font-medium">Confirm New Password</label>
-                  <input
-                    type="password"
-                    className="w-full px-4 py-3 border rounded-lg border-gray-300"
-                    onChange={(e) => setFormData(prev => ({ ...prev, confirmNewPassword: e.target.value }))}
-                  />
-                </div>
-              </div>
-
-              <button
-                type="button"
-                className="mt-4 px-5 py-2 bg-blue-600 text-white rounded-lg"
-                onClick={async () => {
-                  if (formData.newPassword !== formData.confirmNewPassword) {
-                    showErrorToast("Passwords do not match");
-                    return;
-                  }
-
-                  const res = await studentProfileApi.changePassword({
-                    currentPassword: formData.currentPassword,
-                    newPassword: formData.newPassword
-                  });
-
-                  if (res.ok) {
-                    showSuccessToast("Password updated successfully");
-                    setFormData(prev => ({
-                      ...prev,
-                      currentPassword: '',
-                      newPassword: '',
-                      confirmNewPassword: ''
-                    }));
-                  }
-                }}
-              >
-                Update Password
-              </button>
-            </div>
-
-            {/* CHANGE EMAIL */}
+        {/* Basic Info */}
+        <motion.div {...fadeIn} transition={{ delay: 0.06 }} className="bg-card border rounded-xl p-6 space-y-6">
+          <h2 className="text-lg font-semibold">Basic Information</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="font-semibold text-md mb-3">Change Email</h3>
-
-              <label className="block mb-2 text-sm font-medium">New Email</label>
-              <input
-                type="email"
-                className="w-full px-4 py-3 border rounded-lg border-gray-300"
-                onChange={(e) => setFormData(prev => ({ ...prev, newEmail: e.target.value }))}
-              />
-
-              <button
-                type="button"
-                className="mt-4 px-5 py-2 bg-purple-600 text-white rounded-lg"
-                onClick={async () => {
-                  const res = await studentProfileApi.sendEmailOtp({ newEmail: formData.newEmail });
-
-                  if (res.ok) {
-                    showSuccessToast("OTP sent to new email");
-                    setFormData(prev => ({ ...prev, emailOtpSent: true }));
-                  }
-                }}
-              >
-                Send OTP
-              </button>
-
-              {/* OTP Section */}
-              {formData.emailOtpSent && (
-                <div className="mt-6">
-                  <label className="block mb-2 text-sm font-medium">Enter OTP</label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-3 border rounded-lg border-gray-300"
-                    onChange={(e) => setFormData(prev => ({ ...prev, emailOtp: e.target.value }))}
-                  />
-
-                  <button
-                    type="button"
-                    className="mt-4 px-5 py-2 bg-green-600 text-white rounded-lg"
-                    onClick={async () => {
-                      const res = await studentProfileApi.verifyEmailOtp({
-                        newEmail: formData.newEmail,
-                        otp: formData.emailOtp
-                      });
-
-                      if (res.ok && res.data) {
-                        showSuccessToast("Email updated successfully");
-                        setStudent(res.data);
-                        setFormData(prev => ({
-                          ...prev,
-                          emailOtpSent: false,
-                          emailOtp: ''
-                        }));
-                      }
-                    }}
-                  >
-                    Verify & Update Email
-                  </button>
-                </div>
-              )}
+              <label className="text-sm font-medium mb-1 block">Full Name *</label>
+              <Input name="name" value={formData.name} onChange={handleChange} className={errors.name ? "border-red-500" : ""} />
+              {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
             </div>
-          </motion.div>
 
-          {/* Buttons */}
-          <motion.div {...fadeIn} transition={{ delay: 0.3 }} className="flex justify-end gap-4">
+            <div>
+              <label className="text-sm font-medium mb-1 block">Phone Number *</label>
+              <Input
+                name="phone"
+                value={formData.phone}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, "").slice(0, 10); // Only digits, max 10
+                  setFormData((p) => ({ ...p, phone: value }));
+                  setErrors((prev: any) => ({ ...prev, phone: "" })); // Clear error on typing
+                }}
+                placeholder="e.g. 9876543210"
+                maxLength={10}
+                className={errors.phone ? "border-red-500" : ""}
+              />
+              {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
+              <p className="text-xs text-muted-foreground mt-1">
+                {formData.phone.length}/10 digits
+              </p>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="text-sm font-medium mb-1 block">About (Optional)</label>
+              <Textarea name="about" rows={4} value={formData.about} onChange={handleChange} placeholder="Tell us about yourself..." />
+              {errors.about && <p className="text-xs text-red-500 mt-1">{errors.about}</p>}
+              <p className="text-xs text-muted-foreground text-right">{formData.about.length}/500</p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Social Links */}
+        <motion.div {...fadeIn} transition={{ delay: 0.12 }} className="bg-card border rounded-xl p-6 space-y-6">
+          <h2 className="text-lg font-semibold">Social Links (Optional)</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="text-sm font-medium mb-1 block">LinkedIn</label>
+              <Input name="social_linkedin" value={formData.social_links.linkedin} onChange={handleChange} placeholder="https://linkedin.com/in/username" />
+              {errors.linkedin && <p className="text-xs text-red-500 mt-1">{errors.linkedin}</p>}
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">GitHub</label>
+              <Input name="social_gitHub" value={formData.social_links.gitHub} onChange={handleChange} placeholder="https://github.com/username" />
+              {errors.gitHub && <p className="text-xs text-red-500 mt-1">{errors.gitHub}</p>}
+            </div>
+            <div className="md:col-span-2">
+              <label className="text-sm font-medium mb-1 block">LeetCode</label>
+              <Input name="social_leetCode" value={formData.social_links.leetCode} onChange={handleChange} placeholder="https://leetcode.com/username" />
+              {errors.leetCode && <p className="text-xs text-red-500 mt-1">{errors.leetCode}</p>}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Security Settings */}
+        <motion.div {...fadeIn} transition={{ delay: 0.18 }} className="bg-card border rounded-xl p-6 space-y-8">
+          <h2 className="text-lg font-semibold">Security Settings</h2>
+
+          {/* Change Password */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium">Change Password</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <PasswordInput placeholder="Current password" value={currentPassword} onChange={(e) => { setCurrentPassword(e.target.value); setPwErrors({ ...pwErrors, current: "" }); }} error={pwErrors.current} />
+              <PasswordInput placeholder="New password" value={newPassword} onChange={(e) => { setNewPassword(e.target.value); setPwErrors({ ...pwErrors, new: "" }); }} error={pwErrors.new} />
+              <PasswordInput placeholder="Confirm new password" value={confirmNewPassword} onChange={(e) => { setConfirmNewPassword(e.target.value); setPwErrors({ ...pwErrors, confirm: "" }); }} error={pwErrors.confirm} />
+            </div>
             <button
               type="button"
-              onClick={handleCancel}
-              className="px-6 py-3 border border-gray-300 rounded-lg"
+              onClick={handleChangePassword}
+              disabled={pwSaving || !currentPassword || !newPassword || !confirmNewPassword}
+              className="px-5 py-2 bg-primary text-primary-foreground rounded-md disabled:opacity-50 flex items-center gap-2"
             >
-              Cancel
+              {pwSaving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : "Update Password"}
             </button>
-            <button
-              type="submit"
-              disabled={isSaving}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg flex items-center gap-2 disabled:opacity-50"
-            >
-              {isSaving ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <Save className="w-5 h-5" />
-              )}
-              Save Changes
-            </button>
-          </motion.div>
+          </div>
 
-        </form>
-      </div>
+          <hr className="border-border" />
 
-      {/* Cropper Modal */}
+          {/* Change Email */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium">Change Email Address</h3>
+
+            {!emailOtpSent ? (
+              <div className="flex gap-3 items-start">
+                <div className="flex-1">
+                  <Input
+                    type="email"
+                    placeholder="Enter new email"
+                    value={newEmail}
+                    onChange={(e) => { setNewEmail(e.target.value); setEmailErrors({}); }}
+                    className={emailErrors.email ? "border-red-500" : ""}
+                  />
+                  {emailErrors.email && <p className="text-xs text-red-500 mt-1">{emailErrors.email}</p>}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSendEmailOtp}
+                  disabled={emailSaving || !newEmail}
+                  className="px-5 py-2 bg-primary text-primary-foreground rounded-md disabled:opacity-50"
+                >
+                  {emailSaving ? "Sending..." : "Send OTP"}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="text"
+                    maxLength={6}
+                    placeholder="Enter 6-digit OTP"
+                    value={emailOtp}
+                    onChange={(e) => setEmailOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    className={emailErrors.otp ? "border-red-500" : ""}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleVerifyEmailOtp}
+                    disabled={emailSaving || emailOtp.length !== 6}
+                    className="px-5 py-2 bg-green-600 text-white rounded-md disabled:opacity-50"
+                  >
+                    Verify
+                  </button>
+                </div>
+                {emailErrors.otp && <p className="text-xs text-red-500">{emailErrors.otp}</p>}
+
+                <div className="text-sm text-muted-foreground">
+                  Didn't receive OTP?{" "}
+                  <button
+                    type="button"
+                    onClick={handleResendOtp}
+                    disabled={resendCountdown > 0}
+                    className="text-primary hover:underline font-medium inline-flex items-center gap-1 disabled:opacity-50"
+                  >
+                    <RefreshCw size={14} className={resendCountdown > 0 ? "animate-spin" : ""} />
+                    Resend {resendCountdown > 0 && `(${resendCountdown}s)`}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Save/Cancel Buttons */}
+        <motion.div {...fadeIn} transition={{ delay: 0.24 }} className="flex justify-end gap-3 pb-10">
+          <button type="button" onClick={() => router.back()} className="px-6 py-2 border rounded-md hover:bg-muted transition">
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={saving}
+            className="px-6 py-2 bg-primary text-primary-foreground rounded-md flex items-center gap-2 disabled:opacity-50"
+          >
+            {saving ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Save size={16} />}
+            Save Changes
+          </button>
+        </motion.div>
+      </form>
+
       {showCropper && (
-        <CropperModal
-          image={rawImage}
-          onCropComplete={handleCroppedImage}
-          onClose={() => setShowCropper(false)}
-        />
+        <CropperModal image={rawImage} onCropComplete={handleCroppedImage} onClose={() => setShowCropper(false)} />
       )}
-    </div>
-  );
-}
-
-/* Reusable Social Input */
-function SocialInput({
-  label,
-  icon,
-  name,
-  value,
-  onChange,
-  error,
-  placeholder
-}: any) {
-  return (
-    <div>
-      <label className="block text-sm font-medium mb-2">{label}</label>
-
-      <div className="relative">
-        <div className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</div>
-
-        <input
-          type="url"
-          name={`social_${name}`}
-          value={value}
-          onChange={onChange}
-          className={`w-full pl-11 pr-4 py-3 border rounded-lg 
-            ${error ? 'border-red-400' : 'border-gray-300'}
-            focus:ring-2 focus:ring-blue-500`}
-          placeholder={placeholder}
-        />
-      </div>
-
-      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
   );
 }
