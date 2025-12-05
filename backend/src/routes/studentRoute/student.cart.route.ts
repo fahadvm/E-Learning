@@ -14,4 +14,5 @@ router.post('/', authMiddleware('student'), asyncHandler(StudentCartCtrl.addToCa
 router.delete('/:courseId', authMiddleware('student'), asyncHandler(StudentCartCtrl.removeFromCart.bind(StudentCartCtrl)));
 router.delete('/', authMiddleware('student'), asyncHandler(StudentCartCtrl.clearCart.bind(StudentCartCtrl)));
 
+
 export default router;

@@ -13,5 +13,9 @@ router.get('/', authMiddleware('company'), asyncHandler(CompanyCartCtrl.getCart.
 router.post('/', authMiddleware('company'), asyncHandler(CompanyCartCtrl.addToCart.bind(CompanyCartCtrl)));
 router.delete('/:courseId', authMiddleware('company'), asyncHandler(CompanyCartCtrl.removeFromCart.bind(CompanyCartCtrl)));
 router.delete('/', authMiddleware('company'), asyncHandler(CompanyCartCtrl.clearCart.bind(CompanyCartCtrl)));
-
+router.patch(
+    '/seat/:itemId',
+    authMiddleware('company'),
+    asyncHandler(CompanyCartCtrl.updateSeat.bind(CompanyCartCtrl))
+);
 export default router;

@@ -212,6 +212,8 @@ import { IStudentTeacherReviewService } from '../interfaces/services/student/ISt
 import { StudentTeacherReviewService } from '../../services/student/student.teacherReview.service';
 import { ITeacherReviewRepository } from '../interfaces/repositories/ITeacherReviewRepository';
 import { TeacherReviewRepository } from '../../repositories/TeacherReviewRepository';
+import { CompanyCartRepository } from '../../repositories/CompanyCartRepository';
+import { ICompanyCartRepository } from '../interfaces/repositories/ICompanyCartRepository';
 
 
 
@@ -379,6 +381,7 @@ container.bind<IEmployeeLeaderboardService>(TYPES.EmployeeLeaderboardService).to
 container.bind<ICompanyLeaderboardService>(TYPES.CompanyLeaderboardService).to(CompanyLeaderboardService);
 container.bind<CompanyLeaderboardController>(TYPES.CompanyLeaderboardController).to(CompanyLeaderboardController);
 container.bind<IAdminProfileService>(TYPES.AdminProfileService).to(AdminProfileService);
+container.bind<ICompanyCartRepository>(TYPES.CompanyCartRepository).to(CompanyCartRepository);
 container.bind<AdminProfileController>(TYPES.AdminProfileController).to(AdminProfileController);
 
 container.bind<StudentTeacherReviewController>(TYPES.StudentTeacherReviewController).to(StudentTeacherReviewController);

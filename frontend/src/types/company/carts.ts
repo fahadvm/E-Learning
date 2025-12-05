@@ -4,8 +4,8 @@ export interface CartCourse {
     teacherId: TeacherDetails | string
     coverImage: string
     price: number
-    originalPrice?: number
-    quantity: number
+    seats: number
+    
 }
 
 export interface TeacherDetails {

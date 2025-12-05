@@ -12,7 +12,7 @@ import {
 import { useParams } from "next/navigation"
 import { showSuccessToast } from "@/utils/Toast"
 import { formatMinutesToHours } from "@/utils/timeConverter"
-import { Course, Module, Review } from "@/types/student/studentTypes"
+import { ICourse, Module, Review } from "@/types/student/studentTypes"
 import { companyApiMethods } from "@/services/APIservices/companyApiService"
 import Header from "@/components/company/Header"
 
@@ -20,7 +20,7 @@ export default function CourseDetailPage() {
   const params = useParams();
   const id = params?.id as string;
   const [expandedModules, setExpandedModules] = useState<number[]>([])
-  const [courseData, setCourseData] = useState<Course | null>(null)
+  const [courseData, setCourseData] = useState<ICourse | null>(null)
   const [modules, setModules] = useState<Module[]>([])
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(false);
@@ -44,7 +44,7 @@ export default function CourseDetailPage() {
 
   const handleAddToCart = async () => {
     try {
-      const res = await companyApiMethods.addToCart({ courseId: id })
+      const res = await companyApiMethods.addToCart({ courseId: id  })
       if (res.ok) {
         showSuccessToast(res.message)
       }
@@ -151,7 +151,7 @@ export default function CourseDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid md:grid-cols-2 gap-4">
-                    {courseData.learningOutcomes.map((outcome, index) => (
+                    {courseData.learningOutcomes.map((outcome:any, index:any) => (
                       <div key={index} className="flex items-start gap-2">
                         <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                         <span className="text-foreground">{outcome}</span>
@@ -229,7 +229,7 @@ export default function CourseDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid md:grid-cols-2 gap-4">
-                    {courseData.requirements.map((outcome, index) => (
+                    {courseData.requirements.map((outcome:any, index:any) => (
                       <div key={index} className="flex items-start gap-2">
                         <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                         <span className="text-foreground">{outcome}</span>

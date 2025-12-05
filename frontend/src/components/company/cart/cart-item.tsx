@@ -5,22 +5,22 @@ import Image from "next/image"
 import { Trash2, Minus, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import type { CartCourse } from "@/types/student/carts"
+import type { CartCourse } from "@/types/company/carts"
 import { cn } from "@/lib/utils"
 
 interface CartItemProps {
     course: CartCourse
     onRemove: (courseId: string) => void
-    onQuantityChange?: (courseId: string, quantity: number) => void
+    onSeatChange?: (courseId: string, seat: number) => void
 }
 
-export function CartItem({ course, onRemove, onQuantityChange }: CartItemProps) {
+export function CartItem({ course, onRemove, onSeatChange }: CartItemProps) {
     const [isRemoving, setIsRemoving] = useState(false)
 
     const handleRemove = async () => {
         setIsRemoving(true)
         try {
-            await onRemove(course.id)
+            await onRemove(course._id)
         } catch (error) {
             console.error("Failed to remove item:", error)
             setIsRemoving(false)
@@ -56,9 +56,9 @@ export function CartItem({ course, onRemove, onQuantityChange }: CartItemProps) 
                             {/* Price */}
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="text-xl font-bold text-primary">₹{course.price}</span>
-                                {course.originalPrice && course.originalPrice > course.price && (
-                                    <span className="text-sm text-muted-foreground line-through">${course.originalPrice}</span>
-                                )}
+                                {/* { course.price && (
+                                    <span className="text-sm text-muted-foreground line-through">${course.price}</span>
+                                )} */}
                             </div>
                         </div>
 

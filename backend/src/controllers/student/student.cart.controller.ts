@@ -52,4 +52,6 @@ export class StudentCartController implements IStudentCartController {
     const cart = await this._cartService.clearCart(studentId);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.CART_CLEARED, true, cart);
   };
+
+  
 }

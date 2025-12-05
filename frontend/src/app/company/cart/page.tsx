@@ -1,189 +1,159 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { ArrowLeft } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { CartItem } from "@/components/company/cart/cart-item"
-import { CartSummary } from "@/components/company/cart/cart-summary"
-import { EmptyCart } from "@/components/company/cart/empty-cart"
-import { CartItemSkeleton, CartSummarySkeleton } from "@/components/company/cart/cart-skeleton"
-import { companyApiMethods } from "@/services/APIservices/companyApiService"
-import type { CartData, CartSummary as CartSummaryType } from "@/types/company/carts"
-import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { companyApiMethods } from "@/services/APIservices/companyApiService";
 
+interface ICartCourse {
+  _id: string;
+  courseId: {
+    _id: string;
+    title: string;
+    thumbnail: string;
+  };
+  accessType: "seats" | "unlimited";
+  seats: number;
+  price: number;
+}
 
-export default function CartPage() {
-    const [cartData, setCartData] = useState<CartData | null>(null)
-    const [isLoading, setIsLoading] = useState(true)
-    const [isUpdating, setIsUpdating] = useState(false)
-    const router = useRouter()
+export default function CompanyCart() {
+  const [cartCourses, setCartCourses] = useState<ICartCourse[]>([]);
+  const [loading, setLoading] = useState(true);
 
-
-    // Load cart data
-    useEffect(() => {
-        loadCart()
-    }, [])
-
-    const loadCart = async () => {
-
-
-        try {
-            setIsLoading(true)
-            const data = await companyApiMethods.getCart()
-            console.log("data", data.data.courses)
-
-            setCartData(data.data)
-        } catch (error) {
-            console.error("Failed to load cart:", error)
-        } finally {
-            setIsLoading(false)
-        }
+  const fetchCart = async () => {
+    try {
+      const { data } = await companyApiMethods.getCart();
+      setCartCourses(data.courses);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
     }
+  };
 
-    const handleRemoveItem = async (courseId: string) => {
-        try {
-            setIsUpdating(true)
-            await companyApiMethods.removeFromCart(courseId)
+  useEffect(() => {
+    fetchCart();
+  }, []);
 
+  const handleSeatUpdate = async (id: string, seats: number) => {
+    if (!seats) return;
 
+    if (seats < 1) seats = 1;
+    if (seats > 100) seats = 100;
 
-            if (cartData) {
-                setCartData({
-                    ...cartData,
-                    courses: cartData.courses.filter((course) => course.id !== courseId),
-                })
-            }
-            const data = await companyApiMethods.getCart()
-            setCartData(data.data)
-        } catch (error) {
-            console.error("Failed to remove item:", error)
-        } finally {
-            setIsUpdating(false)
-        }
-    }
+    await companyApiMethods.updateSeat(id, seats);
+    fetchCart();
+  };
 
-    const handleClearCart = async () => {
-        try {
-            setIsUpdating(true)
-            await companyApiMethods.clearCart()
-            setCartData({ courses: [], total: 0 })
-        } catch (error) {
-            console.error("Failed to clear cart:", error)
-        } finally {
-            setIsUpdating(false)
-        }
-    }
+  const removeCourse = async (id: string) => {
+    await companyApiMethods.removeFromCart(id);
+    fetchCart();
+  };
 
-    const handleCheckout = () => {
-        // navigate to checkout page
-        router.push("/company/checkout")
-    }
+  const calculateTotal = () => {
+    return cartCourses.reduce((sum, item) => sum + item.price, 0);
+  };
 
-    const handleGoToCourses = () => {
-         router.push("/company/courses")
-    }
+  if (loading) return <p className="text-center p-10">Loading...</p>;
 
-    const handleGoBack = () => {
-        router.back()
-    }
+  return (
+    <div className="p-10">
+      <h1 className="text-3xl font-bold mb-6">Your Cart</h1>
 
-    const calculateSummary = (): CartSummaryType => {
-        if (!cartData || cartData.courses.length === 0) {
-            return { subtotal: 0, discount: 0, total: 0, courseCount: 0 }
-        }
-
-        const subtotal = cartData.courses.reduce((sum, course) => sum + course.price * course.quantity, 0)
-        const discount = cartData.courses.reduce((sum, course) => {
-            if (course.originalPrice && course.originalPrice > course.price) {
-                return sum + (course.originalPrice - course.price) * course.quantity
-            }
-            return sum
-        }, 0)
-
-        return {
-            subtotal,
-            discount,
-            total: subtotal,
-            courseCount: cartData.courses.length,
-        }
-    }
-
-    const summary = calculateSummary()
-
-    if (isLoading) {
-        return (
-            <div className="min-h-screen bg-background">
-                <div className="container mx-auto px-4 py-8 max-w-7xl">
-                    {/* Header Skeleton */}
-                    <div className="mb-8">
-                        <div className="flex items-center gap-4 mb-4">
-                            <div className="w-8 h-8 bg-muted rounded" />
-                            <div className="w-32 h-8 bg-muted rounded" />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* Cart Items Skeleton */}
-                        <div className="lg:col-span-2 space-y-4">
-                            <CartItemSkeleton />
-                            <CartItemSkeleton />
-                            <CartItemSkeleton />
-                        </div>
-
-                        {/* Summary Skeleton */}
-                        <div>
-                            <CartSummarySkeleton />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        )
-    }
-
-    return (
-        <div className="min-h-screen bg-background">
-            <div className="container mx-auto px-4 py-8 max-w-7xl">
-                {/* Header */}
-                <div className="mb-8">
-                    <div className="flex items-center gap-4 mb-4">
-                        <Button variant="ghost" size="sm" onClick={handleGoBack}>
-                            <ArrowLeft className="h-4 w-4 mr-2" />
-                            Back
-                        </Button>
-                    </div>
-                    <h1 className="text-3xl font-bold text-balance">Shopping Cart</h1>
-                    {summary.courseCount > 0 && (
-                        <p className="text-muted-foreground mt-2">
-                            {summary.courseCount} {summary.courseCount === 1 ? "course" : "courses"} in your cart
-                        </p>
-                    )}
-                </div>
-
-                {/* Cart Content */}
-                {!cartData || cartData.courses.length === 0 ? (
-                    <EmptyCart onGoToCourses={handleGoToCourses} />
-                ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* Cart Items */}
-                        <div className="lg:col-span-2 space-y-4">
-                            {cartData.courses.map((course) => (
-                                <CartItem key={course.id} course={course} onRemove={handleRemoveItem} />
-                            ))}
-                        </div>
-
-                        {/* Cart Summary */}
-                        <div>
-                            <CartSummary
-                                summary={summary}
-                                onClearCart={handleClearCart}
-                                onCheckout={handleCheckout}
-                                isLoading={isUpdating}
-                                total={cartData.total}
-                            />
-                        </div>
-                    </div>
-                )}
-            </div>
+      {cartCourses.length === 0 ? (
+        <div className="text-center p-16 bg-gray-100 rounded-lg">
+          <h2 className="text-xl font-semibold mb-4">No courses in cart</h2>
+          <Link href="/company/courses">
+            <Button>Browse Courses</Button>
+          </Link>
         </div>
-    )
+      ) : (
+        <div className="space-y-6">
+          {cartCourses.map((item) => (
+            <div
+              key={item._id}
+              className="border p-4 rounded-lg flex justify-between items-center"
+            >
+              <div className="flex items-center gap-4">
+                <Image
+                  src={item.courseId.thumbnail}
+                  alt="thumbnail"
+                  width={80}
+                  height={60}
+                  className="rounded"
+                />
+                <div>
+                  <h2 className="text-xl font-semibold">
+                    {item.courseId.title}
+                  </h2>
+                  <p className="text-gray-600 capitalize">
+                    Access Type: {item.accessType}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                {item.accessType === "seats" && (
+                  <div className="flex items-center gap-2">
+                    <select
+                      className="border rounded p-1"
+                      value={
+                        [1, 10, 50, 100].includes(item.seats)
+                          ? item.seats
+                          : "custom"
+                      }
+                      onChange={(e) => {
+                        if (e.target.value === "custom") return;
+                        handleSeatUpdate(item._id, Number(e.target.value));
+                      }}
+                    >
+                      <option value={1}>1 Seat</option>
+                      <option value={10}>10 Seats</option>
+                      <option value={50}>50 Seats</option>
+                      <option value={100}>100 Seats</option>
+                      <option value="custom">Custom</option>
+                    </select>
+
+                    {/* Custom Seat Input */}
+                    {![1, 10, 50, 100].includes(item.seats) && (
+                      <input
+                        type="number"
+                        min={1}
+                        max={100}
+                        value={item.seats}
+                        onChange={(e) =>
+                          handleSeatUpdate(item._id, Number(e.target.value))
+                        }
+                        className="border p-1 w-20 rounded"
+                      />
+                    )}
+                  </div>
+                )}
+
+                <span className="text-xl font-bold">₹{item.price}</span>
+
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => removeCourse(item._id)}
+                >
+                  <Trash2 size={16} />
+                </Button>
+              </div>
+            </div>
+          ))}
+
+          <div className="flex justify-between mt-6">
+            <span className="text-2xl font-bold">Total: ₹{calculateTotal()}</span>
+            <Link href="/company/checkout">
+              <Button className="text-lg px-6 py-2">Checkout</Button>
+            </Link>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

@@ -1,10 +1,14 @@
 // interfaces/services/ICartService.ts
-import { ICart } from '../../../../models/Cart';
-import { ICourse } from '../../../../models/Course';
+import { ICompanyCart, ICompanyCartCourse } from '../../../../models/CompanyCart';
 
 export interface ICompanyCartService {
-  getCart(userId: string): Promise<{courses :ICourse[], total:number}>;
-  addToCart(userId: string, courseId: string): Promise<ICart>;
-  removeFromCart(userId: string, courseId: string): Promise<ICart | null>;
-  clearCart(userId: string): Promise<ICart | null>;
+  getCart(userId: string): Promise<{ courses: ICompanyCartCourse[], total: number }>;
+  addToCart(userId: string, courseId: string, accessType: "seats" | "unlimited", seats: number): Promise<ICompanyCart>;
+  removeFromCart(userId: string, courseId: string): Promise<ICompanyCart | null>;
+  clearCart(userId: string): Promise<ICompanyCart | null>;
+  updateSeat(
+      companyId: string,
+      itemId: string,
+      seats: string,
+    ): Promise<ICompanyCart | null>;
 }

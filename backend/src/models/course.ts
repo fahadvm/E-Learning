@@ -77,7 +77,7 @@ const CourseSchema = new Schema<ICourse>(
     category: { type: String, required: true },
     language: { type: String, required: true },
     coverImage: { type: String },
-    price: { type: Number, required: true },
+    price: { type: Number, required: true ,default:0},
 
     isBlocked: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: false },
