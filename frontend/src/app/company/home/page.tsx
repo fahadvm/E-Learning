@@ -15,9 +15,9 @@ export default function Home() {
   ]
 
   const leaderboard = [
-    { rank: 1, name: "Alex Johnson", role: "Senior Director, Engineering", score: 98, avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80" },
-    { rank: 2, name: "Maria Garcia", role: "VP of Product", score: 96, avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80" },
-    { rank: 3, name: "Liam Chen", role: "Head of Data Science", score: 94, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80" },
+    { rank: 1, name: "Fahad vm", role: "Senior Director, Engineering", score: 98, avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80" },
+    { rank: 2, name: "Risvana", role: "VP of Product", score: 96, avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80" },
+    { rank: 3, name: "Ajmal", role: "Head of Data Science", score: 94, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80" },
   ]
 
   return (
