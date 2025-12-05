@@ -64,13 +64,14 @@ export const COMPANY_ROUTES = {
   leaderboard: {
     base: COMPANY_LEADER_BOARD,
     search: `${COMPANY_LEADER_BOARD}/search`,
-   
+
   },
 
   cart: {
     base: COMPANY_CART,
     get: (id: string) => `${COMPANY_CART}/${id}`,
     clear: COMPANY_CART,
+    updateSeat: (courseId: string) => `${COMPANY_CART}/seat/${courseId}`,
   },
 
   purchase: {
@@ -79,7 +80,7 @@ export const COMPANY_ROUTES = {
     myCourses: `${COMPANY_PURCHASE}/entrollments`,
     courseDetails: (id: string) => `${COMPANY_PURCHASE}/entrollments/`,
     courseIds: `${COMPANY_PURCHASE}/entrollments-course/ids`,
-    Reciept:(orderId:string)=> `${COMPANY_PURCHASE}/receipt/${orderId}`
+    Reciept: (orderId: string) => `${COMPANY_PURCHASE}/receipt/${orderId}`
   },
 
   learningPath: {

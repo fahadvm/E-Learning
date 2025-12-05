@@ -94,25 +94,33 @@ export class CompanyCartRepository implements ICompanyCartRepository {
   }
 
   async updateSeats(
-    companyId: string,
-    cartItemId: string,
+    userId: string,
+    courseId: string,
     seats: number
   ): Promise<ICompanyCart | null> {
-    const cart = await CompanyCart.findOne({ companyId });
+    const cart = await CompanyCart.findOne({ userId });
 
     if (!cart) return null;
 
-    const item: any = cart.courses.courseId(cartItemId); // subdocument by _id
-    if (!item) return null;
+    // Find the course in the cart
+    const courseItem = cart.courses.find(
+      (c) => c.courseId.toString() === courseId
+    );
+
+    if (!courseItem) return null;
 
     // Calculate per-seat price from current values
-    const currentSeats = item.seats || 1;
-    const perSeatPrice = currentSeats > 0 ? item.price / currentSeats : item.price;
+    const currentSeats = courseItem.seats || 1;
+    const perSeatPrice = currentSeats > 0 ? courseItem.price / currentSeats : courseItem.price;
 
-    item.seats = seats;
-    item.price = perSeatPrice * seats;
+    courseItem.seats = seats;
+    courseItem.price = perSeatPrice * seats;
 
     await cart.save();
-    return cart;
+
+    return cart.populate({
+      path: 'courses.courseId',
+      populate: { path: 'teacherId', select: 'name email' }
+    });
   }
 }

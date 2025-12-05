@@ -5,7 +5,11 @@ export interface CartCourse {
     coverImage: string
     price: number
     seats: number
-    
+    courseId: {
+        title: string
+        coverImage: string
+    }
+
 }
 
 export interface TeacherDetails {
@@ -16,7 +20,7 @@ export interface TeacherDetails {
 
 export interface CartData {
     courses: CartCourse[]
-    total:number;
+    total: number;
 }
 
 export interface CartSummary {

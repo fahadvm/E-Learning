@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Check } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
@@ -12,7 +12,8 @@ interface ICartCourse {
   courseId: {
     _id: string;
     title: string;
-    thumbnail: string;
+    coverImage: string;
+    price: number;
   };
   accessType: "seats" | "unlimited";
   seats: number;
@@ -22,6 +23,8 @@ interface ICartCourse {
 export default function CompanyCart() {
   const [cartCourses, setCartCourses] = useState<ICartCourse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [customSeats, setCustomSeats] = useState<{ [key: string]: number }>({});
+  const [showCustomInput, setShowCustomInput] = useState<{ [key: string]: boolean }>({});
 
   const fetchCart = async () => {
     try {
@@ -38,14 +41,31 @@ export default function CompanyCart() {
     fetchCart();
   }, []);
 
-  const handleSeatUpdate = async (id: string, seats: number) => {
+  const handleSeatUpdate = async (courseId: string, seats: number) => {
     if (!seats) return;
 
     if (seats < 1) seats = 1;
     if (seats > 100) seats = 100;
 
-    await companyApiMethods.updateSeat(id, seats);
+    await companyApiMethods.updateSeat(courseId, seats);
+    setShowCustomInput({ ...showCustomInput, [courseId]: false });
+    setCustomSeats({ ...customSeats, [courseId]: 0 });
     fetchCart();
+  };
+
+  const handleSelectChange = (courseId: string, value: string) => {
+    if (value === "custom") {
+      setShowCustomInput({ ...showCustomInput, [courseId]: true });
+      setCustomSeats({ ...customSeats, [courseId]: 1 });
+    } else {
+      setShowCustomInput({ ...showCustomInput, [courseId]: false });
+      handleSeatUpdate(courseId, Number(value));
+    }
+  };
+
+  const applyCustomSeats = (courseId: string) => {
+    const seats = customSeats[courseId] || 1;
+    handleSeatUpdate(courseId, seats);
   };
 
   const removeCourse = async (id: string) => {
@@ -79,7 +99,7 @@ export default function CompanyCart() {
             >
               <div className="flex items-center gap-4">
                 <Image
-                  src={item.courseId.thumbnail}
+                  src={item.courseId.coverImage}
                   alt="thumbnail"
                   width={80}
                   height={60}
@@ -89,8 +109,14 @@ export default function CompanyCart() {
                   <h2 className="text-xl font-semibold">
                     {item.courseId.title}
                   </h2>
+                  <h2 className="text-xl font-semibold">
+                    ₹{item.courseId.price}
+                  </h2>
                   <p className="text-gray-600 capitalize">
                     Access Type: {item.accessType}
+                  </p>
+                  <p className="text-gray-600 capitalize">
+                    Seats: {item.seats}
                   </p>
                 </div>
               </div>
@@ -99,16 +125,17 @@ export default function CompanyCart() {
                 {item.accessType === "seats" && (
                   <div className="flex items-center gap-2">
                     <select
-                      className="border rounded p-1"
+                      className="border rounded p-2 min-w-[120px]"
                       value={
-                        [1, 10, 50, 100].includes(item.seats)
-                          ? item.seats
-                          : "custom"
+                        showCustomInput[item.courseId._id]
+                          ? "custom"
+                          : [1, 10, 50, 100].includes(item.seats)
+                            ? item.seats
+                            : "custom"
                       }
-                      onChange={(e) => {
-                        if (e.target.value === "custom") return;
-                        handleSeatUpdate(item._id, Number(e.target.value));
-                      }}
+                      onChange={(e) =>
+                        handleSelectChange(item.courseId._id, e.target.value)
+                      }
                     >
                       <option value={1}>1 Seat</option>
                       <option value={10}>10 Seats</option>
@@ -117,18 +144,37 @@ export default function CompanyCart() {
                       <option value="custom">Custom</option>
                     </select>
 
-                    {/* Custom Seat Input */}
-                    {![1, 10, 50, 100].includes(item.seats) && (
-                      <input
-                        type="number"
-                        min={1}
-                        max={100}
-                        value={item.seats}
-                        onChange={(e) =>
-                          handleSeatUpdate(item._id, Number(e.target.value))
-                        }
-                        className="border p-1 w-20 rounded"
-                      />
+                    {/* Custom Seat Input with Apply Button */}
+                    {showCustomInput[item.courseId._id] && (
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          min={1}
+                          max={100}
+                          value={customSeats[item.courseId._id] || 1}
+                          onChange={(e) =>
+                            setCustomSeats({
+                              ...customSeats,
+                              [item.courseId._id]: Number(e.target.value),
+                            })
+                          }
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              applyCustomSeats(item.courseId._id);
+                            }
+                          }}
+                          className="border p-2 w-20 rounded"
+                          placeholder="1-100"
+                        />
+                        <Button
+                          size="sm"
+                          onClick={() => applyCustomSeats(item.courseId._id)}
+                          className="flex items-center gap-1"
+                        >
+                          <Check size={16} />
+                          Apply
+                        </Button>
+                      </div>
                     )}
                   </div>
                 )}
@@ -138,7 +184,7 @@ export default function CompanyCart() {
                 <Button
                   variant="destructive"
                   size="sm"
-                  onClick={() => removeCourse(item._id)}
+                  onClick={() => removeCourse(item.courseId._id)}
                 >
                   <Trash2 size={16} />
                 </Button>

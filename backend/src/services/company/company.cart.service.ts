@@ -31,13 +31,11 @@ export class CompanyCartService implements ICompanyCartService {
     return { courses, total };
   }
 
-
-
   async addToCart(userId: string, courseId: string, accessType: "seats" | "unlimited", seats: number): Promise<ICompanyCart> {
     this._wishlistRepo.removeFromWishlist(userId, courseId);
     const course = await this._courseRepo.findById(courseId)
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND)
-    const price = course.price ?? 0 * seats;
+    const price = (course.price ?? 0) * seats;
     return this._cartRepo.addToCart(userId, courseId, accessType, seats, price);
   }
 
@@ -51,7 +49,7 @@ export class CompanyCartService implements ICompanyCartService {
 
   async updateSeat(
     companyId: string,
-    cartItemId: string,
+    courseId: string,
     seats: number
   ): Promise<ICompanyCart> {
     // Extra safety validation (frontend also checks)
@@ -65,7 +63,7 @@ export class CompanyCartService implements ICompanyCartService {
 
     const updatedCart = await this._cartRepo.updateSeats(
       companyId,
-      cartItemId,
+      courseId,
       seats
     );
 

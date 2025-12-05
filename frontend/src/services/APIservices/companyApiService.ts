@@ -69,9 +69,10 @@ export const companyApiMethods = {
 
   // Cart
   getCart: () => get(COMPANY_ROUTES.cart.base),
-  addToCart: (data: { courseId: string }) => post(COMPANY_ROUTES.cart.base, data),
+  addToCart: (data: { courseId: string; seats?: number }) => post(COMPANY_ROUTES.cart.base, data),
   removeFromCart: (courseId: string) => del(COMPANY_ROUTES.cart.get(courseId)),
   clearCart: () => del(COMPANY_ROUTES.cart.clear),
+  updateSeat: (courseId: string, seats: number) => patch(COMPANY_ROUTES.cart.updateSeat(courseId), { seats }),
 
   // Purchase / Checkout
   createCheckoutSession: (data: { courses: string[]; amount: number }) =>
@@ -79,7 +80,7 @@ export const companyApiMethods = {
 
   verifyPayment: (data: { sessionId: string }) =>
     post(COMPANY_ROUTES.purchase.verifyPayment, data),
-  downloadReciept: (orderId:string) =>
+  downloadReciept: (orderId: string) =>
     get(COMPANY_ROUTES.purchase.Reciept(orderId)),
 
   getmycourses: () => get(COMPANY_ROUTES.purchase.myCourses),
@@ -98,7 +99,7 @@ export const companyApiMethods = {
   getAssignedLearningPaths: (employeeId: string) => get(COMPANY_ROUTES.learningPath.assigned(employeeId)),
   assignLearningPath: (data: { employeeId: string; learningPathId: string }) => post(COMPANY_ROUTES.learningPath.assign, data),
   unassignLearningPath: (params?: { employeeId: string; learningPathId: string }) => del(COMPANY_ROUTES.learningPath.unassign, params),
-  getCompanyLeaderboard: () => get(COMPANY_ROUTES.leaderboard.base ),
-  searchLeaderboard: (params:{name:string}) => get(COMPANY_ROUTES.leaderboard.search,params ),
+  getCompanyLeaderboard: () => get(COMPANY_ROUTES.leaderboard.base),
+  searchLeaderboard: (params: { name: string }) => get(COMPANY_ROUTES.leaderboard.search, params),
 
 };

@@ -7,8 +7,8 @@ export interface ICompanyCartService {
   removeFromCart(userId: string, courseId: string): Promise<ICompanyCart | null>;
   clearCart(userId: string): Promise<ICompanyCart | null>;
   updateSeat(
-      companyId: string,
-      itemId: string,
-      seats: string,
-    ): Promise<ICompanyCart | null>;
+    companyId: string,
+    courseId: string,
+    seats: number,
+  ): Promise<ICompanyCart>;
 }

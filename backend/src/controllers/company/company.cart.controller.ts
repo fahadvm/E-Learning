@@ -8,6 +8,7 @@ import { sendResponse, throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { AuthRequest } from '../../types/AuthenticatedRequest';
+
 @injectable()
 export class CompanyCartController implements ICompanyCartController {
   constructor(
@@ -58,23 +59,23 @@ export class CompanyCartController implements ICompanyCartController {
     const companyId = req.user?.id;
     if (!companyId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
-    const { itemId } = req.params;
+    const { courseId } = req.params;
     const { seats } = req.body;
 
-    if (!itemId || seats === undefined || seats === null) {
+    if (!courseId || seats === undefined || seats === null) {
       throwError(MESSAGES.INVALID_DATA, STATUS_CODES.BAD_REQUEST);
     }
 
     const updatedCart = await this._cartService.updateSeat(
       companyId,
-      itemId,
+      courseId,
       Number(seats)
     );
 
     return sendResponse(
       res,
       STATUS_CODES.OK,
-      MESSAGES.CART_UPDATED, // add this key in ResponseMessages
+      MESSAGES.CART_UPDATED,
       true,
       updatedCart
     );

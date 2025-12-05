@@ -5,7 +5,7 @@ import { asyncHandler } from '../../middleware/asyncHandler';
 import { CompanyCartController } from '../../controllers/company/company.cart.controller';
 import container from '../../core/di/container';
 import { TYPES } from '../../core/di/types';
-TYPES;
+
 const router = Router();
 const CompanyCartCtrl = container.get<CompanyCartController>(TYPES.CompanyCartController);
 
@@ -14,8 +14,9 @@ router.post('/', authMiddleware('company'), asyncHandler(CompanyCartCtrl.addToCa
 router.delete('/:courseId', authMiddleware('company'), asyncHandler(CompanyCartCtrl.removeFromCart.bind(CompanyCartCtrl)));
 router.delete('/', authMiddleware('company'), asyncHandler(CompanyCartCtrl.clearCart.bind(CompanyCartCtrl)));
 router.patch(
-    '/seat/:itemId',
+    '/seat/:courseId',
     authMiddleware('company'),
     asyncHandler(CompanyCartCtrl.updateSeat.bind(CompanyCartCtrl))
 );
+
 export default router;

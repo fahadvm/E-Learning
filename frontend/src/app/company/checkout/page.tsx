@@ -34,6 +34,7 @@ export default function CheckoutPage() {
     try {
       setIsLoading(true)
       const data = await companyApiMethods.getCart()
+      console.log("data:", data)
       setCartData(data.data)
     } catch (error) {
       console.error("Failed to load cart:", error)
@@ -69,18 +70,18 @@ export default function CheckoutPage() {
 
     try {
       startPayment();
-      console.log("courses are",cartData.courses)
+      console.log("courses are", cartData.courses)
       const response = await companyApiMethods.createCheckoutSession({
-        courses: cartData.courses.map((c) => c._id) , amount:total
+        courses: cartData.courses.map((c) => c._id), amount: total
       });
 
-      
+
 
       const { url } = response.data;
-      console.log(" in url is ",url)
+      console.log(" in url is ", url)
       if (url) {
         console.log("going to paying 8", url)
-        window.location.href = url; 
+        window.location.href = url;
       } else {
         showErrorToast("Failed to start payment.");
       }
@@ -189,8 +190,8 @@ export default function CheckoutPage() {
                     <div key={course._id} className="flex items-center gap-4">
                       <div className="relative">
                         <img
-                          src={course.coverImage || "/placeholder.svg"}
-                          alt={course.title}
+                          src={course.courseId.coverImage || "/placeholder.svg"}
+                          alt={course.courseId.title}
                           className="w-16 h-16 object-cover rounded-lg"
                         />
                         {/* <Badge
@@ -201,8 +202,10 @@ export default function CheckoutPage() {
                         </Badge> */}
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-medium text-sm">{course.title}</h4>
-                        {/* <p className="text-xs text-muted">By {course.teacherId? course.teacherId: "Unknown"}</p> */}
+                        <h4 className="font-medium text-sm">{course.courseId.title}</h4>
+                        {course.seats && (
+                          <p className="text-xs text-black">{course.seats} seat{course.seats > 1 ? 's' : ''}</p>
+                        )}
                       </div>
                       <div className="text-right">
                         <p className="font-medium">₹{(course.price).toFixed(2)}</p>
