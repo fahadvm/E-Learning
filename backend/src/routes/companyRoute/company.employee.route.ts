@@ -15,6 +15,9 @@ router.put('/:employeeId', authMiddleware('company'), asyncHandler(employeeContr
 router.get('/requests/pending', authMiddleware('company'), asyncHandler(employeeController.getRequestedEmployees.bind(employeeController)));
 router.patch('/approve/:employeeId', authMiddleware('company'), asyncHandler(employeeController.approveEmployee.bind(employeeController)));
 router.patch('/reject/:employeeId', authMiddleware('company'), asyncHandler(employeeController.rejectEmployee.bind(employeeController)));
+router.post('/invite', authMiddleware('company'), asyncHandler(employeeController.inviteEmployee.bind(employeeController)));
+router.get('/search', authMiddleware('company'), asyncHandler(employeeController.searchEmployees.bind(employeeController)));
+router.delete('/:employeeId', authMiddleware('company'), asyncHandler(employeeController.removeEmployee.bind(employeeController)));
 
 
 export default router;

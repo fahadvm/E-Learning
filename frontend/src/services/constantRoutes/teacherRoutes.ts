@@ -29,6 +29,9 @@ export const TEACHER_ROUTES = {
 
   courses: {
     base: TEACHER_COURSES,
+    create: TEACHER_COURSES, // POST /teacher/courses
+    myCourses: TEACHER_COURSES, // GET /teacher/courses
+    details: (id: string) => `${TEACHER_COURSES}/${id}`, // GET /teacher/courses/:id
     getById: (id: string) => `${TEACHER_COURSES}/${id}`,
     update: (id: string) => `${TEACHER_COURSES}/${id}`,
     uploadResource: (courseId: string) => `${TEACHER_COURSES}/${courseId}/resources`,

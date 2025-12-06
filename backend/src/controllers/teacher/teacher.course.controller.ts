@@ -50,7 +50,7 @@ export class TeacherCourseController implements ITeacherCourseController {
 
   async uploadResource(req: AuthRequest, res: Response): Promise<void> {
     const { courseId } = req.params;
-    const { title  } = req.body;
+    const { title } = req.body;
     const file = req.file;
     if (!file) return throwError(MESSAGES.FILE_REQUIRED, STATUS_CODES.BAD_REQUEST);
     const resource = await this._courseService.uploadResource(courseId, title, file);
@@ -62,21 +62,23 @@ export class TeacherCourseController implements ITeacherCourseController {
     const deleted = await this._courseService.deleteResource(resourceId);
     sendResponse(res, STATUS_CODES.OK, MESSAGES.RESOURCE_DELETED, true, deleted);
   }
+
+
+
+
   async getResources(req: AuthRequest, res: Response): Promise<void> {
     const { courseId } = req.params;
+    if (!courseId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
     const resources = await this._courseService.getResources(courseId);
     sendResponse(res, STATUS_CODES.OK, MESSAGES.RESOURCES_FETCHED, true, resources);
   }
 
+  async editCourse(req: AuthRequest, res: Response): Promise<void> {
+    const { courseId } = req.params;
+    const teacherId = req.user?.id;
+    if (!teacherId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
-
-
-
-
-
-
-
-
-
-
+    const updated = await this._courseService.editCourse(courseId, teacherId, req as any);
+    sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_UPDATED, true, updated);
+  }
 }

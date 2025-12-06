@@ -24,20 +24,6 @@ export const teacherProfileApi = {
   getProfile: () => get(TEACHER_ROUTES.profile.base),
   createProfile: (data: any) => post(TEACHER_ROUTES.profile.base, data),
   editProfile: (data: any) => patch(TEACHER_ROUTES.profile.base, data),
-  sendVerificationRequest: (data: any) => post(TEACHER_ROUTES.profile.verify, data),
-};
-
-export const teacherCourseApi = {
-  getMyCourses: (params?: Record<string, any>) => get(TEACHER_ROUTES.courses.base, params),
-  getCourseDetailById: (courseId: string) => get(TEACHER_ROUTES.courses.getById(courseId)),
-  addCourse: (data: FormData) => post(TEACHER_ROUTES.courses.base, data),
-  updateCourse: (courseId: string, data: any) => patch(TEACHER_ROUTES.courses.update(courseId), data),
-  uploadCourseResource: (courseId: string, data: any) => post(TEACHER_ROUTES.courses.uploadResource(courseId), data),
-  fetchCourseResources: (courseId: string) => get(TEACHER_ROUTES.courses.fetchResources(courseId)),
-  deleteCourseResource: (resourceId: string) => del(TEACHER_ROUTES.courses.deleteResource(resourceId)),
-};
-
-export const teacherAvailabilityApi = {
   getAvailability: () => get(TEACHER_ROUTES.availability.base),
   saveAvailability: (data: any) => post(TEACHER_ROUTES.availability.base, data),
 };
@@ -50,7 +36,7 @@ export const teacherCallRequestApi = {
   getRequestDetails: (bookingId: string) => get(TEACHER_ROUTES.callRequest.details(bookingId)),
   approveRequests: (bookingId: string) => patch(TEACHER_ROUTES.callRequest.approve(bookingId), { status: "approved" }),
   rejectRequests: (bookingId: string, data: { status: string; reason: string }) => patch(TEACHER_ROUTES.callRequest.reject(bookingId), data),
-  rescheduleRequests: (bookingId: string, data: { reason: string , nextSlot: { start: string; end: string ,date :string ,day :string } }) => patch(TEACHER_ROUTES.callRequest.reschedule(bookingId), data),
+  rescheduleRequests: (bookingId: string, data: { reason: string, nextSlot: { start: string; end: string, date: string, day: string } }) => patch(TEACHER_ROUTES.callRequest.reschedule(bookingId), data),
   tester: (userId: string) => get(TEACHER_ROUTES.callRequest.notificationsTest(userId)),
   testerMark: (data: { notificationId: string }) => post(TEACHER_ROUTES.callRequest.notificationsMarkRead, data),
 };
@@ -65,4 +51,25 @@ export const teacherChatApi = {
 export const teacherNotificationApi = {
   getNotifications: (userId: string) => get(TEACHER_ROUTES.notification.base(userId)),
   markAsRead: (userId: string) => get(TEACHER_ROUTES.notification.markAsRead(userId)),
+};
+
+export const teacherCourseApi = {
+  addCourse: (data: FormData) => post(TEACHER_ROUTES.courses.create, data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  }),
+  getMyCourses: () => get(TEACHER_ROUTES.courses.myCourses),
+  getCourseById: (courseId: string) => get(TEACHER_ROUTES.courses.details(courseId)),
+
+  // Note: If you have a separate endpoint for detailed fetching versus basic fetching, use it.
+  // Assuming getCourseById or similar is used for editing as well.
+  getCourseDetailById: (courseId: string) => get(TEACHER_ROUTES.courses.details(courseId)),
+
+  editCourse: (courseId: string, data: FormData) =>
+    put(`${TEACHER_ROUTES.courses.update(courseId)}`, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }),
 };

@@ -316,7 +316,7 @@ export default function BasicInformation({ courseData, setCourseData }: BasicInf
                 <div className="mt-4">
                   <p className="text-sm text-muted-foreground">Selected: {courseData.coverImage.name}</p>
                   <img
-                    src={URL.createObjectURL(courseData.coverImage)}
+                    src={courseData.coverImage}
                     alt="Cropped coverImage preview"
                     className="mt-2 max-w-xs mx-auto rounded-md object-cover"
                     style={{ aspectRatio: '16/9' }}

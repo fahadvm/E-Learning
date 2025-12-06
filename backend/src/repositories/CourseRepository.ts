@@ -3,7 +3,6 @@ import { ICourseRepository } from '../core/interfaces/repositories/ICourseReposi
 import { ICourse, Course } from '../models/Course';
 import { FilterQuery, SortOrder } from 'mongoose';
 
-
 @injectable()
 export class CourseRepository implements ICourseRepository {
   async create(courseData: Partial<ICourse>): Promise<ICourse> {
@@ -56,7 +55,6 @@ export class CourseRepository implements ICourseRepository {
     return { data, totalPages, totalCount };
   }
 
-
   async findByTeacherId(teacherId: string): Promise<ICourse[]> {
     return await Course.find({ teacherId });
   }
@@ -68,9 +66,6 @@ export class CourseRepository implements ICourseRepository {
   async getPremiumCourses(): Promise<ICourse[]> {
     return await Course.find({});
   }
-
-
-
 
   async findAllCourses(
     query: FilterQuery<ICourse>,
@@ -118,7 +113,6 @@ export class CourseRepository implements ICourseRepository {
     return Course.findByIdAndUpdate(courseId, updates, { new: true }).lean();
   }
 
-
   async incrementStudentCount(courseId: string): Promise<void> {
     await Course.findByIdAndUpdate(
       courseId,
@@ -134,15 +128,19 @@ export class CourseRepository implements ICourseRepository {
     limit: number
   ): Promise<ICourse[]> {
     return Course.find({
-      _id: { $ne: courseId }, 
+      _id: { $ne: courseId },
       $or: [
         { category },
         { level }
-      ]
+      ],
+      isPublished: true
     })
-      .sort({ totalStudents: -1 })   
+      .sort({ totalStudents: -1 })
       .limit(limit)
       .lean();
   }
 
+  async editCourse(courseId: string, updates: Partial<ICourse>): Promise<ICourse | null> {
+    return await Course.findByIdAndUpdate(courseId, { $set: updates }, { new: true });
+  }
 }

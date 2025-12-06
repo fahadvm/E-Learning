@@ -32,11 +32,6 @@ export interface ICourseRepository {
   findById(courseId: string): Promise<ICourse | null>;
   updateStatus(courseId: string, updates: Partial<ICourse>): Promise<ICourse | null>;
   getPremiumCourses(): Promise<ICourse[]>;
-  incrementStudentCount(courseId: string): Promise<void>
-  findRecommendedCourses(
-    courseId: string,
-    category: string,
-    level: string,
-    limit: number
-  ): Promise<ICourse[]>;
+  incrementStudentCount(courseId: string): Promise<void>;
+  editCourse(courseId: string, updates: Partial<ICourse>): Promise<ICourse | null>;
 }

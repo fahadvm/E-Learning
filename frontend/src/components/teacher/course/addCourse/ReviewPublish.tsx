@@ -62,7 +62,7 @@ export default function ReviewPublish({ courseData, modules, totalDuration, tota
               <div className="w-32 h-20 bg-secondary rounded-lg flex items-center justify-center flex-shrink-0">
                 {courseData.coverImage ? (
                   <img
-                    src={URL.createObjectURL(courseData.coverImage)}
+                    src={courseData.coverImage}
                     alt="Course cover image"
                     className="w-full h-full object-cover rounded-lg"
                   />

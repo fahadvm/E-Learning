@@ -39,9 +39,17 @@ export interface IEmployee extends Document {
     portfolio?: string;
   };
   coursesProgress: ICourseProgress[];
-  streakCount:  number
-  lastLoginDate: Date 
+  streakCount: number
+  lastLoginDate: Date
   longestStreak: number
+
+  // Rejection tracking
+  rejectionReason?: string;
+  rejectedAt?: Date;
+
+  // Invitation tracking
+  invitedBy?: mongoose.Types.ObjectId;
+  invitedAt?: Date;
 
 }
 
@@ -84,6 +92,14 @@ const EmployeeSchema: Schema = new Schema({
   streakCount: { type: Number, default: 0 },
   lastLoginDate: { type: Date },
   longestStreak: { type: Number, default: 0 },
+
+  // Rejection tracking
+  rejectionReason: { type: String },
+  rejectedAt: { type: Date },
+
+  // Invitation tracking
+  invitedBy: { type: Schema.Types.ObjectId, ref: 'Company' },
+  invitedAt: { type: Date },
 
 }, { timestamps: true, });
 

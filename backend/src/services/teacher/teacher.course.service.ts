@@ -20,10 +20,10 @@ export class TeacherCourseService implements ITeacherCourseService {
   constructor(
     @inject(TYPES.CourseRepository) private readonly _courseRepository: ICourseRepository,
     @inject(TYPES.CourseResourceRepository) private readonly _resourceRepository: ICourseResourceRepository,
-  ) {}
+  ) { }
 
   // Helper for Cloudinary upload
-  private async uploadToCloudinary(file: Express.Multer.File, folder: string, resourceType: 'video' | 'image' | 'raw'| 'auto' = 'auto'): Promise<string> {
+  private async uploadToCloudinary(file: Express.Multer.File, folder: string, resourceType: 'video' | 'image' | 'raw' | 'auto' = 'auto'): Promise<string> {
     return new Promise((resolve, reject) => {
       cloudinary.uploader.upload_stream({ resource_type: resourceType, folder }, (error, result) => {
         if (error || !result) reject(error || new Error('Upload failed'));
@@ -42,8 +42,8 @@ export class TeacherCourseService implements ITeacherCourseService {
 
     // Parse modules
     let modulesBody: ModuleDTO[] = [];
-      modulesBody = JSON.parse(req.body.modules || '[]') as ModuleDTO[];
-   
+    modulesBody = JSON.parse(req.body.modules || '[]') as ModuleDTO[];
+
 
     const modules: ModuleDTO[] = [];
 
@@ -100,7 +100,7 @@ export class TeacherCourseService implements ITeacherCourseService {
       isPublished: req.body.isPublished === 'true',
       totalDuration: req.body.totalDuration ? Number(req.body.totalDuration) : undefined,
       modules,
-      teacherId :new Types.ObjectId(teacherId),
+      teacherId: new Types.ObjectId(teacherId),
     };
 
     // Validation
@@ -145,5 +145,95 @@ export class TeacherCourseService implements ITeacherCourseService {
 
   async deleteResource(resourceId: string): Promise<void> {
     await this._resourceRepository.deleteResource(resourceId);
+  }
+
+  async editCourse(courseId: string, teacherId: string, req: CreateCourseRequest): Promise<ICourse | null> {
+    // 1. Verify ownership
+    const existingCourse = await this._courseRepository.findByIdAndTeacherId(courseId, teacherId);
+    if (!existingCourse) {
+      throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    }
+
+    // 2. Handle files similar to create
+    const filesMap: { [key: string]: Express.Multer.File } = {};
+    (req.files || []).forEach(file => filesMap[file.fieldname] = file);
+
+    // 3. Parse modules
+    let modulesBody: ModuleDTO[] = [];
+    try {
+      modulesBody = JSON.parse(req.body.modules || '[]');
+    } catch (e) {
+      modulesBody = [];
+    }
+
+    const modules: ModuleDTO[] = [];
+
+    // Reconstruct modules with potential new files or existing urls
+    for (const [moduleIndex, module] of modulesBody.entries()) {
+      const newModule: ModuleDTO = {
+        title: module.title,
+        description: module.description,
+        lessons: [],
+      };
+
+      if (Array.isArray(module.lessons)) {
+        for (const [lessonIndex, lesson] of module.lessons.entries()) {
+          let videoFileUrl = lesson.videoFile || ''; // retain existing if string
+          let thumbnailUrl = lesson.thumbnail || ''; // retain existing if string
+
+          // Check for new uploads
+          const videoFile = filesMap[`modules[${moduleIndex}][lessons][${lessonIndex}][videoFile]`];
+          if (videoFile) videoFileUrl = await this.uploadToCloudinary(videoFile, 'course_videos', 'video');
+
+          const thumbnail = filesMap[`modules[${moduleIndex}][lessons][${lessonIndex}][thumbnail]`];
+          if (thumbnail) thumbnailUrl = await this.uploadToCloudinary(thumbnail, 'course_thumbnails', 'image');
+
+          newModule.lessons.push({
+            title: lesson.title,
+            description: lesson.description || '',
+            duration: parseInt(lesson.duration?.toString() || '0', 10),
+            videoFile: videoFileUrl,
+            thumbnail: thumbnailUrl,
+          } as LessonDTO);
+        }
+      }
+      modules.push(newModule);
+    }
+
+    // 4. Handle cover image
+    let coverImageUrl = existingCourse?.coverImage || '';
+    const coverImage = filesMap['coverImage'];
+    if (coverImage) coverImageUrl = await this.uploadToCloudinary(coverImage, 'course_covers', 'image');
+
+    // 5. Construct update object
+    const price = typeof req.body.price === 'string' ? parseFloat(req.body.price) : req.body.price ?? 0;
+
+    // Parse arrays if they are strings
+    const learningOutcomes = typeof req.body.learningOutcomes === 'string'
+      ? JSON.parse(req.body.learningOutcomes)
+      : req.body.learningOutcomes;
+
+    const requirements = typeof req.body.requirements === 'string'
+      ? JSON.parse(req.body.requirements)
+      : req.body.requirements;
+
+    const updates: Partial<ICourse> = {
+      title: req.body.title,
+      subtitle: req.body.subtitle || '',
+      description: req.body.description,
+      category: req.body.category,
+      level: req.body.level,
+      language: req.body.language,
+      isTechnicalCourse: req.body.isTechnicalCourse === 'true' || req.body.isTechnicalCourse === true,
+      price,
+      coverImage: coverImageUrl,
+      learningOutcomes: learningOutcomes || [],
+      requirements: requirements || [],
+      isPublished: req.body.isPublished === 'true' || req.body.isPublished === true,
+      totalDuration: req.body.totalDuration ? Number(req.body.totalDuration) : undefined,
+      modules: modules as any, // casting to any to match ICourse module structure if strict typing complains
+    };
+
+    return this._courseRepository.editCourse(courseId, updates);
   }
 }

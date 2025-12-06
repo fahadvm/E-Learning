@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/company/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -12,98 +12,61 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from "recharts";
-
-const mockData = {
-    week: {
-        totalEmployees: 245,
-        totalLearningHours: 385,
-        avgCompletionRate: 71.2,
-        totalCourses: 120,
-        graph: [
-            { label: "Mon", hours: 32 },
-            { label: "Tue", hours: 48 },
-            { label: "Wed", hours: 60 },
-            { label: "Thu", hours: 75 },
-            { label: "Fri", hours: 90 },
-            { label: "Sat", hours: 50 },
-            { label: "Sun", hours: 30 },
-        ],
-        mostActive: [
-            { id: 1, name: "Alex Johnson", hours: 22, progress: 92 },
-            { id: 2, name: "Lisa Chen", hours: 18, progress: 88 },
-            { id: 3, name: "Robert Martinez", hours: 16, progress: 85 },
-        ],
-        leastActive: [
-            { id: 6, name: "Tom Walker", hours: 1, progress: 12 },
-            { id: 7, name: "Kevin Hart", hours: 1, progress: 10 },
-            { id: 8, name: "Sanjay Kumar", hours: 0.5, progress: 5 },
-        ],
-    },
-
-    month: {
-        totalEmployees: 245,
-        totalLearningHours: 2485,
-        avgCompletionRate: 78.5,
-        totalCourses: 120,
-
-        graph: [
-            { label: "Week 1", hours: 520 },
-            { label: "Week 2", hours: 600 },
-            { label: "Week 3", hours: 640 },
-            { label: "Week 4", hours: 725 },
-        ],
-        mostActive: [
-            { id: 1, name: "Alex Johnson", hours: 145, progress: 91 },
-            { id: 2, name: "Lisa Chen", hours: 204, progress: 95 },
-            { id: 3, name: "Robert Martinez", hours: 178, progress: 93 },
-        ],
-        leastActive: [
-            { id: 6, name: "Tom Walker", hours: 5, progress: 20 },
-            { id: 7, name: "Kevin Hart", hours: 4, progress: 18 },
-            { id: 8, name: "Sanjay Kumar", hours: 3, progress: 15 },
-        ],
-    },
-
-    year: {
-        totalEmployees: 245,
-        totalLearningHours: 17890,
-        avgCompletionRate: 84.3,
-        totalCourses: 120,
-
-        graph: [
-            { label: "Jan", hours: 1200 },
-            { label: "Feb", hours: 1400 },
-            { label: "Mar", hours: 1600 },
-            { label: "Apr", hours: 1550 },
-            { label: "May", hours: 1700 },
-            { label: "Jun", hours: 1500 },
-            { label: "Jul", hours: 1650 },
-            { label: "Aug", hours: 1720 },
-            { label: "Sep", hours: 1480 },
-            { label: "Oct", hours: 1800 },
-            { label: "Nov", hours: 1750 },
-            { label: "Dec", hours: 1890 },
-        ],
-        mostActive: [
-            { id: 1, name: "Alex Johnson", hours: 985, progress: 96 },
-            { id: 2, name: "Lisa Chen", hours: 912, progress: 94 },
-            { id: 3, name: "Robert Martinez", hours: 878, progress: 92 },
-        ],
-        leastActive: [
-            { id: 6, name: "Tom Walker", hours: 12, progress: 14 },
-            { id: 7, name: "Kevin Hart", hours: 10, progress: 13 },
-            { id: 8, name: "Sanjay Kumar", hours: 9, progress: 10 },
-        ],
-    },
-};
+import { companyApiMethods } from "@/services/APIservices/companyApiService";
+import { showErrorToast } from "@/utils/Toast";
 
 export default function TrackerPage() {
-    const [range, setRange] = useState("month");
-    const [stats, setStats] = useState(mockData[range]);
+    const [range, setRange] = useState<"week" | "month" | "year">("month");
+    const [stats, setStats] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        setStats(mockData[range]);
+        fetchTrackerData();
     }, [range]);
+
+    const fetchTrackerData = async () => {
+        try {
+            setLoading(true);
+            const res = await companyApiMethods.getTrackerStats(range);
+            setStats(res.data);
+        } catch (error: any) {
+            console.error("Failed to fetch tracker stats:", error);
+            showErrorToast(error?.response?.data?.message || "Failed to load tracker data");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="flex h-screen bg-background">
+                <div className="flex-1 flex flex-col overflow-hidden">
+                    <Header />
+                    <main className="flex-1 mt-10 overflow-y-auto flex items-center justify-center">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                            <p className="text-muted-foreground">Loading tracker data...</p>
+                        </div>
+                    </main>
+                </div>
+            </div>
+        );
+    }
+
+    if (!stats) {
+        return (
+            <div className="flex h-screen bg-background">
+                <div className="flex-1 flex flex-col overflow-hidden">
+                    <Header />
+                    <main className="flex-1 mt-10 overflow-y-auto flex items-center justify-center">
+                        <div className="text-center">
+                            <p className="text-muted-foreground">No data available</p>
+                        </div>
+                    </main>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex h-screen bg-background">
@@ -121,7 +84,7 @@ export default function TrackerPage() {
                             </div>
 
                             <div className="flex gap-3">
-                                {["week", "month", "year"].map(r => (
+                                {(["week", "month", "year"] as const).map(r => (
                                     <button
                                         key={r}
                                         onClick={() => setRange(r)}
@@ -150,7 +113,7 @@ export default function TrackerPage() {
                                 <p className="text-3xl font-bold">{stats.avgCompletionRate}%</p>
                             </CardContent></Card>
                             <Card><CardContent className="pt-6">
-                                <p className="text-sm text-muted-foreground">Acitve courses</p>
+                                <p className="text-sm text-muted-foreground">Active courses</p>
                                 <p className="text-3xl font-bold">{stats.totalCourses}</p>
                             </CardContent></Card>
                         </div>
@@ -162,15 +125,21 @@ export default function TrackerPage() {
                                 <CardDescription>Based on selected time range</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <ResponsiveContainer width="100%" height={300}>
-                                    <BarChart data={stats.graph}>
-                                        <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis dataKey="label" />
-                                        <YAxis />
-                                        <Tooltip />
-                                        <Bar dataKey="hours" fill="var(--color-chart-1)" />
-                                    </BarChart>
-                                </ResponsiveContainer>
+                                {stats.graph && stats.graph.length > 0 ? (
+                                    <ResponsiveContainer width="100%" height={300}>
+                                        <BarChart data={stats.graph}>
+                                            <CartesianGrid strokeDasharray="3 3" />
+                                            <XAxis dataKey="label" />
+                                            <YAxis />
+                                            <Tooltip />
+                                            <Bar dataKey="hours" fill="var(--color-chart-1)" />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                ) : (
+                                    <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                                        No learning activity data available
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
 
@@ -178,12 +147,16 @@ export default function TrackerPage() {
                         <Card>
                             <CardHeader><CardTitle>Top 10 Most Active Learners</CardTitle></CardHeader>
                             <CardContent className="space-y-3">
-                                {stats.mostActive.map((u) => (
-                                    <div key={u.id} className="flex justify-between p-3 border rounded-lg">
-                                        <p>{u.name}</p>
-                                        <p className="text-sm text-muted-foreground">{u.hours}h • {u.progress}%</p>
-                                    </div>
-                                ))}
+                                {stats.mostActive && stats.mostActive.length > 0 ? (
+                                    stats.mostActive.map((u: any) => (
+                                        <div key={u.id} className="flex justify-between p-3 border rounded-lg">
+                                            <p>{u.name}</p>
+                                            <p className="text-sm text-muted-foreground">{u.hours}h • {u.progress}%</p>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="text-center text-muted-foreground py-4">No active learners yet</p>
+                                )}
                             </CardContent>
                         </Card>
 
@@ -191,12 +164,16 @@ export default function TrackerPage() {
                         <Card>
                             <CardHeader><CardTitle>10 Least Active Learners</CardTitle></CardHeader>
                             <CardContent className="space-y-3">
-                                {stats.leastActive.map((u) => (
-                                    <div key={u.id} className="flex justify-between p-3 border rounded-lg">
-                                        <p>{u.name}</p>
-                                        <p className="text-sm text-muted-foreground">{u.hours}h • {u.progress}%</p>
-                                    </div>
-                                ))}
+                                {stats.leastActive && stats.leastActive.length > 0 ? (
+                                    stats.leastActive.map((u: any) => (
+                                        <div key={u.id} className="flex justify-between p-3 border rounded-lg">
+                                            <p>{u.name}</p>
+                                            <p className="text-sm text-muted-foreground">{u.hours}h • {u.progress}%</p>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="text-center text-muted-foreground py-4">No data available</p>
+                                )}
                             </CardContent>
                         </Card>
 

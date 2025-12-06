@@ -353,13 +353,17 @@ export default function MyCoursesPage() {
                       <BarChart3 className="h-4 w-4 mr-1" />
                       Analytics
                     </Button>
-                    {course.status === 'published' && (
-                      <Button asChild variant="outline" size="sm">
-                        <Link href={`/teacher/courses/${course._id}`}>
-                          <Eye className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                    )}
+                    <Button asChild variant="outline" size="sm">
+                      <Link href={`/teacher/courses/${course._id}`}>
+                        <Eye className="h-4 w-4" />
+                      </Link>
+                    </Button>
+
+                    <Button asChild variant="outline" size="sm">
+                      <Link href={`/teacher/courses/${course._id}/edit`}>
+                        <Edit className="h-4 w-4" />
+                      </Link>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

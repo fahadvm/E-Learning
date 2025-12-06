@@ -43,6 +43,9 @@ export const COMPANY_ROUTES = {
     update: (id: string) => `${COMPANY_EMPLOYEES}/${id}`,
     approve: (id: string) => `${COMPANY_EMPLOYEES}/approve/${id}`,
     reject: (id: string) => `${COMPANY_EMPLOYEES}/reject/${id}`,
+    invite: `${COMPANY_EMPLOYEES}/invite`,
+    search: `${COMPANY_EMPLOYEES}/search`,
+    remove: (id: string) => `${COMPANY_EMPLOYEES}/${id}`,
   },
 
   profile: {
@@ -93,5 +96,13 @@ export const COMPANY_ROUTES = {
     edit: (id: string) => `${COMPANY_LEARNING_PATH}/${id}`,
     details: (id: string) => `${COMPANY_LEARNING_PATH}/${id}`,
     assigned: (id: string) => `${COMPANY_LEARNING_PATH}/assigned/${id}`,
+  },
+
+  leaderboard: {
+    base: `${COMPANY_BASE}/leaderboard`,
+  },
+
+  analytics: {
+    tracker: `${COMPANY_BASE}/analytics/tracker`,
   },
 };

@@ -49,10 +49,13 @@ export const companyApiMethods = {
     patch(COMPANY_ROUTES.employees.block(employeeId), data),
   updateEmployee: (employeeId: string, data: any) =>
     put(COMPANY_ROUTES.employees.update(employeeId), data),
-  approveEmployeeRequest: (employeeId: string, data: { status: "approve" }) =>
-    patch(COMPANY_ROUTES.employees.approve(employeeId), data),
-  rejectEmployeeRequest: (employeeId: string, data: { status: "reject" }) =>
-    patch(COMPANY_ROUTES.employees.reject(employeeId), data),
+  approveEmployeeRequest: (employeeId: string) =>
+    patch(COMPANY_ROUTES.employees.approve(employeeId), {}),
+  rejectEmployeeRequest: (employeeId: string, reason: string) =>
+    patch(COMPANY_ROUTES.employees.reject(employeeId), { reason }),
+  inviteEmployee: (email: string) => post(COMPANY_ROUTES.employees.invite, { email }),
+  searchEmployees: (query: string) => get(COMPANY_ROUTES.employees.search, { query }),
+  removeEmployee: (employeeId: string) => del(COMPANY_ROUTES.employees.remove(employeeId)),
 
   // Profile
   getCompanyProfile: () => get(COMPANY_ROUTES.profile.base),
@@ -105,5 +108,8 @@ export const companyApiMethods = {
   unassignLearningPath: (params?: { employeeId: string; learningPathId: string }) => del(COMPANY_ROUTES.learningPath.unassign, params),
   getCompanyLeaderboard: () => get(COMPANY_ROUTES.leaderboard.base),
   searchLeaderboard: (params: { name: string }) => get(COMPANY_ROUTES.leaderboard.search, params),
+
+  // Analytics
+  getTrackerStats: (range: 'week' | 'month' | 'year') => get(COMPANY_ROUTES.analytics.tracker, { range }),
 
 };

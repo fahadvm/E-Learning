@@ -25,8 +25,16 @@ router.route('/:courseId')
 router.route('/:courseId/resources')
     .get(authMiddleware('teacher'), asyncHandler(teacherCourseController.getResources.bind(teacherCourseController)))
     .post(authMiddleware('teacher'), upload.single('file'), asyncHandler(teacherCourseController.uploadResource.bind(teacherCourseController)));
-    
-    
-    router.delete('/:resourceId/resources',authMiddleware('teacher'), asyncHandler(teacherCourseController.deleteResource.bind(teacherCourseController)));
+
+
+router.delete('/:resourceId/resources', authMiddleware('teacher'), asyncHandler(teacherCourseController.deleteResource.bind(teacherCourseController)));
+
+
+router.put(
+    '/:courseId',
+    authMiddleware('teacher'),
+    upload.any(), // Handle multipart/form-data
+    asyncHandler(teacherCourseController.editCourse.bind(teacherCourseController))
+);
 
 export default router;

@@ -73,12 +73,50 @@ export class CompanyEmployeeController implements ICompanyEmployeeController {
 
   async rejectEmployee(req: AuthRequest, res: Response): Promise<void> {
     const employeeId = req.params.employeeId;
+    const { reason } = req.body;
+
+    if (!employeeId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
+    if (!reason) throwError('Rejection reason is required', STATUS_CODES.BAD_REQUEST);
+
+    const employee = await this._employeeService.rejectingEmployee(employeeId, reason);
+    sendResponse(res, STATUS_CODES.OK, MESSAGES.EMPLOYEE_REQUEST_REJECTED, true, employee);
+  }
+
+  async inviteEmployee(req: AuthRequest, res: Response): Promise<void> {
+    const companyId = req.user?.id;
+    const { email } = req.body;
+
+    if (!companyId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+    if (!email) throwError('Email is required', STATUS_CODES.BAD_REQUEST);
+
+    const employee = await this._employeeService.inviteEmployee(companyId, email);
+
+    if (employee) {
+      sendResponse(res, STATUS_CODES.OK, 'Invitation sent to employee', true, employee);
+    } else {
+      sendResponse(res, STATUS_CODES.OK, 'Employee not found. Invitation link created.', true, { email });
+    }
+  }
+
+  async searchEmployees(req: AuthRequest, res: Response): Promise<void> {
+    const { query } = req.query;
+
+    if (!query) throwError('Search query is required', STATUS_CODES.BAD_REQUEST);
+
+    const employees = await this._employeeService.searchEmployees(String(query));
+    sendResponse(res, STATUS_CODES.OK, 'Employees found', true, employees);
+  }
+
+  async removeEmployee(req: AuthRequest, res: Response): Promise<void> {
+    const companyId = req.user?.id;
+    const { employeeId } = req.params;
+
+    if (!companyId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
     if (!employeeId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
 
-    const employees = await this._employeeService.rejectingEmployee(employeeId);
-    sendResponse(res, STATUS_CODES.OK, MESSAGES.EMPLOYEE_REQUEST_REJECTED, true, employees);
+    await this._employeeService.removeEmployee(companyId, employeeId);
+    sendResponse(res, STATUS_CODES.OK, 'Employee removed from company', true, null);
   }
 
 
-  
 }

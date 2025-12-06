@@ -1,220 +1,241 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, Linkedin, Github, Globe } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { showSuccessToast } from "@/utils/Toast";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
+import { showSuccessToast, showErrorToast } from "@/utils/Toast";
+import { Button } from "@/components/ui/button";
+import { CheckCircle, XCircle, User, Loader2 } from "lucide-react";
+import RejectModal from "./RejectModal";
+import ProfilePreview from "./ProfilePreview";
 
-interface EmployeeRequest {
-  profilePicture: string;
+interface Employee {
   _id: string;
   name: string;
   email: string;
   position?: string;
   department?: string;
   location?: string;
-  social_links?: {
-    linkedin: string;
-    github: string;
-    portfolio: string;
-  };
-  status: "pending" | "approved" | "rejected";
+  profilePicture?: string;
+  status?: string;
+  createdAt?: string;
+  invitedAt?: string;
 }
 
 export default function EmployeeRequestsTab() {
-  const [requests, setRequests] = useState<EmployeeRequest[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedEmployee, setSelectedEmployee] = useState<EmployeeRequest | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const itemsPerPage = 5;
-  const [page, setPage] = useState(1);
-
-  const fetchRequests = async () => {
-    setLoading(true);
-    try {
-      const res = await companyApiMethods.getRequestedEmployees();
-      setRequests(res.data || []);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [requests, setRequests] = useState<Employee[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [showProfilePreview, setShowProfilePreview] = useState(false);
 
   useEffect(() => {
     fetchRequests();
   }, []);
 
-  const filtered = requests.filter((r) =>
-    r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    r.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
-  const paginated = filtered.slice((page - 1) * itemsPerPage, page * itemsPerPage);
-
-  const approve = async (id: string) => {
-    await companyApiMethods.approveEmployeeRequest(id, { status: "approve" });
-    setRequests((prev) => prev.filter((r) => r._id !== id));
-    showSuccessToast("Request Approved");
+  const fetchRequests = async () => {
+    try {
+      setLoading(true);
+      const res = await companyApiMethods.getRequestedEmployees();
+      setRequests(res?.data || []);
+    } catch (error: any) {
+      showErrorToast(error?.response?.data?.message || "Failed to fetch requests");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const reject = async (id: string) => {
-    await companyApiMethods.rejectEmployeeRequest(id, { status: "reject" });
-    setRequests((prev) => prev.filter((r) => r._id !== id));
-    showSuccessToast("Request Rejected");
+  const handleApprove = async (employeeId: string) => {
+    try {
+      setActionLoading(employeeId);
+      const res = await companyApiMethods.approveEmployeeRequest(employeeId);
+      if ((res as any)?.ok) {
+        showSuccessToast((res as any)?.message || "Employee request approved");
+        await fetchRequests();
+      }
+    } catch (error: any) {
+      showErrorToast(error?.response?.data?.message || "Failed to approve request");
+    } finally {
+      setActionLoading(null);
+    }
   };
 
-  const avatar = (name: string) =>
-    name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+  const handleRejectClick = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    setShowRejectModal(true);
+  };
+
+  const handleRejectConfirm = async (reason: string) => {
+    if (!selectedEmployee) return;
+
+    try {
+      setActionLoading(selectedEmployee._id);
+      const res = await companyApiMethods.rejectEmployeeRequest(selectedEmployee._id, reason);
+      if ((res as any)?.ok) {
+        showSuccessToast((res as any)?.message || "Employee request rejected");
+        setShowRejectModal(false);
+        setSelectedEmployee(null);
+        await fetchRequests();
+      }
+    } catch (error: any) {
+      showErrorToast(error?.response?.data?.message || "Failed to reject request");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleViewProfile = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    setShowProfilePreview(true);
+  };
+
+  const getAvatar = (name: string) =>
+    name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "??";
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (requests.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <User className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+        <p className="text-muted-foreground">No pending employee requests</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6 animate-fade-in-up">
-      {/* Search */}
-      <Input
-        placeholder="Search requests..."
-        value={searchTerm}
-        onChange={(e) => {
-          setSearchTerm(e.target.value);
-          setPage(1);
-        }}
-        className="max-w-sm bg-black/40 border-accent/20 text-accent-foreground placeholder:text-white/70"
-      />
-
-      {/* Table */}
-      <div className="glow-border rounded-xl bg-black/40 backdrop-blur-sm p-6 overflow-x-auto">
-        {loading ? (
-          <p className="text-center text-white/70 py-10">Loading...</p>
-        ) : paginated.length === 0 ? (
-          <p className="text-center text-white/70 py-10">No pending requests.</p>
-        ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-black/30">
-              <tr>
-                {["Name", "Position", "Actions"].map((h) => (
-                  <th key={h} className="text-left px-6 py-3 font-semibold text-accent/90">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-
-            <tbody>
-              {paginated.map((emp) => (
-                <tr
-                  key={emp._id}
-                  className="border-b border-accent/10 hover:bg-black/30 transition"
-                >
-                  <td className="px-6 py-3 flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold">
-                      {avatar(emp.name)}
-                    </div>
-                    <div>
-                      <p className="font-medium text-white">{emp.name}</p>
-                      <p className="text-xs text-white/70">{emp.email}</p>
-                    </div>
-                  </td>
-
-                  <td className="px-6 py-3 text-white">
-                    {emp.position || "Not specified"}
-                  </td>
-
-                  <td className="px-6 py-3 flex gap-3 justify-end">
-                    <Button
-                      variant="ghost"
-                      className="text-accent hover:text-accent/80"
-                      onClick={() => setSelectedEmployee(emp)}
-                    >
-                      View
-                    </Button>
-
-                    <Button
-                      className="bg-green-600 hover:bg-green-700 text-white px-3"
-                      onClick={() => approve(emp._id)}
-                    >
-                      Approve
-                    </Button>
-
-                    <Button
-                      className="bg-red-600 hover:bg-red-700 text-white px-3"
-                      onClick={() => reject(emp._id)}
-                    >
-                      Reject
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="pt-6 flex justify-between items-center text-sm text-white/70">
-            <span>Page {page} of {totalPages}</span>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => setPage(page - 1)} disabled={page === 1}>
-                Prev
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => setPage(page + 1)} disabled={page === totalPages}>
-                Next
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* View Modal */}
-      <Dialog open={!!selectedEmployee} onOpenChange={() => setSelectedEmployee(null)}>
-        <DialogContent className="bg-black/60 backdrop-blur-xl border border-accent/30">
-          <DialogHeader>
-            <DialogTitle className="text-accent">Employee Details</DialogTitle>
-          </DialogHeader>
-
-          {selectedEmployee && (
-            <div className="space-y-4 text-white">
-              <div className="flex items-center gap-4">
-                {selectedEmployee.profilePicture ? (
-                  <img
-                    src={selectedEmployee.profilePicture}
-                    className="w-16 h-16 rounded-full object-cover border border-accent/30"
-                  />
-                ) : (
-                  <div className="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center text-accent text-xl font-bold">
-                    {avatar(selectedEmployee.name)}
-                  </div>
-                )}
-                <div>
-                  <h2 className="text-lg font-bold">{selectedEmployee.name}</h2>
-                  <p className="text-sm text-white/70">{selectedEmployee.email}</p>
-                  <p className="text-xs text-white/50">{selectedEmployee.position || "Not specified"}</p>
+    <>
+      <div className="space-y-4">
+        {requests.map((employee) => (
+          <div
+            key={employee._id}
+            className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+          >
+            <div className="flex items-start justify-between gap-4">
+              {/* Employee Info */}
+              <div className="flex items-center gap-4 flex-1">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <span className="text-lg font-bold text-primary">
+                    {getAvatar(employee.name)}
+                  </span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-lg">{employee.name}</h3>
+                  <p className="text-sm text-muted-foreground">{employee.email}</p>
+                  {employee.position && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {employee.position}
+                      {employee.department && ` • ${employee.department}`}
+                    </p>
+                  )}
+                  {employee.invitedAt && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Requested: {new Date(employee.invitedAt).toLocaleDateString()}
+                    </p>
+                  )}
                 </div>
               </div>
 
-              {/* Social Links */}
-              <div className="flex gap-4">
-                {selectedEmployee.social_links?.linkedin && (
-                  <a href={selectedEmployee.social_links.linkedin} target="_blank" className="hover:text-accent">
-                    <Linkedin />
-                  </a>
-                )}
-                {selectedEmployee.social_links?.github && (
-                  <a href={selectedEmployee.social_links.github} target="_blank" className="hover:text-accent">
-                    <Github />
-                  </a>
-                )}
-                {selectedEmployee.social_links?.portfolio && (
-                  <a href={selectedEmployee.social_links.portfolio} target="_blank" className="hover:text-accent">
-                    <Globe />
-                  </a>
-                )}
+              {/* Actions */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleViewProfile(employee)}
+                >
+                  View Profile
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => handleApprove(employee._id)}
+                  disabled={actionLoading === employee._id}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {actionLoading === employee._id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      <CheckCircle className="h-4 w-4 mr-1" />
+                      Approve
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => handleRejectClick(employee)}
+                  disabled={actionLoading === employee._id}
+                >
+                  <XCircle className="h-4 w-4 mr-1" />
+                  Reject
+                </Button>
               </div>
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Reject Modal */}
+      {selectedEmployee && (
+        <RejectModal
+          isOpen={showRejectModal}
+          onClose={() => {
+            setShowRejectModal(false);
+            setSelectedEmployee(null);
+          }}
+          onConfirm={handleRejectConfirm}
+          employeeName={selectedEmployee.name}
+          employeeEmail={selectedEmployee.email}
+          loading={actionLoading === selectedEmployee._id}
+        />
+      )}
+
+      {/* Profile Preview Modal */}
+      {selectedEmployee && showProfilePreview && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="max-w-md w-full">
+            <ProfilePreview employee={selectedEmployee} showActions={true}>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setShowProfilePreview(false)}
+                >
+                  Close
+                </Button>
+                <Button
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  onClick={() => {
+                    setShowProfilePreview(false);
+                    handleApprove(selectedEmployee._id);
+                  }}
+                >
+                  <CheckCircle className="h-4 w-4 mr-1" />
+                  Approve
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="flex-1"
+                  onClick={() => {
+                    setShowProfilePreview(false);
+                    handleRejectClick(selectedEmployee);
+                  }}
+                >
+                  <XCircle className="h-4 w-4 mr-1" />
+                  Reject
+                </Button>
+              </div>
+            </ProfilePreview>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

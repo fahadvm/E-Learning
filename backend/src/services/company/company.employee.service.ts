@@ -17,8 +17,8 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
         @inject(TYPES.EmployeeRepository) private _employeeRepo: IEmployeeRepository
     ) { }
 
-    
-    async getAllEmployees(companyId: string, page: number, limit: number, search: string, sortBy: string, sortOrder: string ): Promise<PaginatedEmployeeDTO> {
+
+    async getAllEmployees(companyId: string, page: number, limit: number, search: string, sortBy: string, sortOrder: string): Promise<PaginatedEmployeeDTO> {
         const total = await this._employeeRepo.countEmployeesByCompany(companyId, search);
         const skip = (page - 1) * limit;
         const employees = await this._employeeRepo.findByCompanyId(companyId, skip, limit, search, sortBy, sortOrder);
@@ -50,14 +50,64 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
         return courses;
     }
 
-    async approvingEmployee(companyId: string , employeeId :string ): Promise<IEmployee | null> {
-        const courses = await this._employeeRepo.findEmployeeAndApprove(companyId , employeeId);
+    async approvingEmployee(companyId: string, employeeId: string): Promise<IEmployee | null> {
+        const courses = await this._employeeRepo.findEmployeeAndApprove(companyId, employeeId);
         return courses;
     }
 
-    async rejectingEmployee(companyId: string): Promise<IEmployee | null> {
-        const courses = await this._employeeRepo.findEmployeeAndReject(companyId);
-        return courses;
+    async rejectingEmployee(employeeId: string, reason: string): Promise<IEmployee | null> {
+        const employee = await this._employeeRepo.findById(employeeId);
+        if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
+        const updated = await this._employeeRepo.updateById(employeeId, {
+            status: 'rejected',
+            rejectionReason: reason,
+            rejectedAt: new Date(),
+            requestedCompanyId: undefined
+        });
+        return updated;
+    }
+
+    async inviteEmployee(companyId: string, email: string): Promise<IEmployee | null> {
+        // Check if employee exists
+        const employee = await this._employeeRepo.findByEmail(email);
+
+        if (employee) {
+            // Employee exists, send invitation
+            if (employee.companyId) {
+                throwError('Employee already belongs to a company', STATUS_CODES.BAD_REQUEST);
+            }
+
+            const updated = await this._employeeRepo.updateById(employee._id.toString(), {
+                requestedCompanyId: companyId,
+                status: 'pending',
+                invitedBy: companyId,
+                invitedAt: new Date()
+            });
+            return updated;
+        }
+
+        // Employee doesn't exist - return null to indicate invitation link should be sent
+        return null;
+    }
+
+    async searchEmployees(query: string): Promise<IEmployee[]> {
+        return await this._employeeRepo.searchByEmailOrName(query);
+    }
+
+    async removeEmployee(companyId: string, employeeId: string): Promise<void> {
+        const employee = await this._employeeRepo.findById(employeeId);
+        if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
+        if (employee.companyId?.toString() !== companyId) {
+            throwError('Employee does not belong to this company', STATUS_CODES.FORBIDDEN);
+        }
+
+        // Remove employee from company
+        await this._employeeRepo.updateById(employeeId, {
+            companyId: undefined,
+            status: 'notRequsted'
+        });
     }
 
 
