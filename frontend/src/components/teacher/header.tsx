@@ -119,26 +119,10 @@ export default function Header() {
         <Link href="/teacher/home" className="text-gray-300 hover:text-white font-medium transition">
           Dashboard
         </Link>
-        <div
-          className="relative"
-          onMouseEnter={() => setIsBrowseOpen(true)}
-          onMouseLeave={() => setIsBrowseOpen(false)}
-        >
-          <button className="flex items-center text-gray-300 hover:text-white font-medium transition">
-            Entrolled
-            <ChevronDown className="ml-1 w-4 h-4" />
-          </button>
-          {isBrowseOpen && (
-            <div className="absolute top-full left-0 bg-gray-800 mt-2 rounded shadow-lg z-50 w-40 py-2 animate-fadeIn">
-              <Link href="/course" className="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 transition">
-                Students
-              </Link>
-              <Link href="/learning-paths" className="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 transition">
-                Companies
-              </Link>
-            </div>
-          )}
-        </div>
+        <Link href="/teacher/enrollments" className="text-gray-300 hover:text-white font-medium transition">
+          Enrollments
+        </Link>
+     
         <Link href="/teacher/slots" className="text-gray-300 hover:text-white font-medium transition">
           Slots
         </Link>
@@ -148,7 +132,7 @@ export default function Header() {
         <Link href="/teacher/callSchedule" className="text-gray-300 hover:text-white font-medium transition">
           Availability
         </Link>
-        <Link href="/teacher/callSchedule" className="text-gray-300 hover:text-white font-medium transition">
+        <Link href="/teacher/earnings" className="text-gray-300 hover:text-white font-medium transition">
           Earnings
         </Link>
       </nav>

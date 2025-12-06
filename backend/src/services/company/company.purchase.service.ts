@@ -49,9 +49,9 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
     const purchasedCourseIds = await this._companyOrderRepo.getPurchasedCourseIds(companyId);
     const duplicates = courseIds.filter(id => purchasedCourseIds.includes(id));
 
-    if (duplicates.length > 0) {
-      throwError(MESSAGES.COURSES_ALREADY_PURCHASED, STATUS_CODES.CONFLICT);
-    }
+    // if (duplicates.length > 0) {
+    //   throwError(MESSAGES.COURSES_ALREADY_PURCHASED, STATUS_CODES.CONFLICT);
+    // }
 
     // Calculate total amount from cart
     const amount = cart.courses.reduce((sum, item) => sum + item.price, 0);

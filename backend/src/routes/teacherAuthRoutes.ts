@@ -8,6 +8,7 @@ import callRequestRoutes from './teacherRoute/teacher.call.request.route';
 import chatRoutes from './teacherRoute//teacher.chat.route';
 
 import earningsRoutes from './teacherRoute/teacher.earnings.route';
+import enrollmentRoutes from './teacherRoute/teacher.enrollment.route';
 
 const teacherRouter = Router();
 
@@ -18,5 +19,6 @@ teacherRouter.use('/availability', availabilityRoutes);
 teacherRouter.use('/call-request', callRequestRoutes);
 teacherRouter.use('/chat', chatRoutes);
 teacherRouter.use('/earnings', earningsRoutes);
+teacherRouter.use('/enrollments', enrollmentRoutes);
 
 export default teacherRouter;

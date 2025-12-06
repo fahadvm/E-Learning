@@ -158,4 +158,7 @@ export const TYPES = {
 
 
 
+    TeacherEnrollmentService: Symbol.for('TeacherEnrollmentService'),
+    TeacherEnrollmentController: Symbol.for('TeacherEnrollmentController'),
+
 };

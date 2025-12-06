@@ -81,3 +81,7 @@ export const teacherEarningsApi = {
   getEarningsHistory: (params: { page: number; limit: number; type?: string; startDate?: string; endDate?: string }) => get(TEACHER_ROUTES.earnings.history, params),
   getEarningsStats: () => get(TEACHER_ROUTES.earnings.stats),
 };
+
+export const teacherEnrollmentApi = {
+  getEnrollments: () => get(TEACHER_ROUTES.enrollments.base),
+};

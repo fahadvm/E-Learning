@@ -8,6 +8,7 @@ const TEACHER_COURSES = `${TEACHER_BASE}/courses`;
 const TEACHER_AVAILABILITY = `${TEACHER_BASE}/availability`;
 const TEACHER_CALL_REQUEST = `${TEACHER_BASE}/call-request`;
 const TEACHER_CHAT = `${TEACHER_BASE}/chat`;
+const TEACHER_ENROLLMENTS = `${TEACHER_BASE}/enrollments`;
 const TEACHER_NOTIFICATION = `/shared/notification`;
 
 export const TEACHER_ROUTES = {
@@ -71,5 +72,9 @@ export const TEACHER_ROUTES = {
   earnings: {
     history: `${TEACHER_BASE}/earnings`,
     stats: `${TEACHER_BASE}/earnings/stats`,
+  },
+
+  enrollments: {
+    base: TEACHER_ENROLLMENTS,
   },
 };
