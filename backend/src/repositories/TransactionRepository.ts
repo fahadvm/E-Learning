@@ -4,7 +4,7 @@ import mongoose, { Types } from "mongoose";
 
 
 
-export class TransactionRepository implements ITransactionRepository{
+export class TransactionRepository implements ITransactionRepository {
   async create(data: Partial<ITransaction>): Promise<ITransaction> {
     const doc = new Transaction(data);
     return await doc.save();
@@ -28,23 +28,27 @@ export class TransactionRepository implements ITransactionRepository{
   }
 
   async teacherEarnings(teacherId: string): Promise<number> {
-  const result = await Transaction.aggregate([
-    {
-      $match: {
-        teacherId: new mongoose.Types.ObjectId(teacherId),
-        type: "TEACHER_EARNING",
-        txnNature: "CREDIT",
-        paymentStatus: "SUCCESS"
+    const result = await Transaction.aggregate([
+      {
+        $match: {
+          teacherId: new mongoose.Types.ObjectId(teacherId),
+          type: "TEACHER_EARNING",
+          txnNature: "CREDIT",
+          paymentStatus: "SUCCESS"
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalEarnings: { $sum: "$amount" }
+        }
       }
-    },
-    {
-      $group: {
-        _id: null,
-        totalEarnings: { $sum: "$amount" }
-      }
-    }
-  ]);
+    ]);
 
-  return result.length > 0 ? result[0].totalEarnings : 0;
-}
+    return result.length > 0 ? result[0].totalEarnings : 0;
+  }
+
+  async count(filter: any): Promise<number> {
+    return await Transaction.countDocuments(filter).exec();
+  }
 }

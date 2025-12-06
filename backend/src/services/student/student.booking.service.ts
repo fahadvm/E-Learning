@@ -16,13 +16,20 @@ import { INotificationRepository } from '../../core/interfaces/repositories/INot
 import { IAvailableSlot } from '../../types/filter/fiterTypes';
 
 
+import { ITransactionRepository } from '../../core/interfaces/repositories/ITransactionRepository';
+import { IWalletRepository } from '../../core/interfaces/repositories/IwalletRepository';
+import { Transaction } from '../../models/Transaction';
+
+
 @injectable()
 export class StudentBookingService implements IStudentBookingService {
   private _razorpay: Razorpay;
   constructor(
     @inject(TYPES.StudentBookingRepository) private readonly _bookingRepo: IStudentBookingRepository,
     @inject(TYPES.TeacherAvailabilityRepository) private readonly _availibilityRepo: ITeacherAvailabilityRepository,
-    @inject(TYPES.NotificationRepository) private readonly _notificationRepo: INotificationRepository
+    @inject(TYPES.NotificationRepository) private readonly _notificationRepo: INotificationRepository,
+    @inject(TYPES.TransactionRepository) private readonly _transactionRepo: ITransactionRepository,
+    @inject(TYPES.WalletRepository) private readonly _walletRepo: IWalletRepository
   ) {
     this._razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID!,
@@ -116,7 +123,8 @@ export class StudentBookingService implements IStudentBookingService {
       throwError('Payment verification failed', STATUS_CODES.BAD_REQUEST);
     const callId = crypto.randomBytes(4).toString("hex");
     const updated = await this._bookingRepo.verifyAndMarkPaid(razorpay_order_id, callId);
-    if (!!updated) {
+
+    if (updated) {
       await this._notificationRepo.createNotification(
         updated.teacherId.toString(),
         'New Booking Confirmed!',
@@ -124,6 +132,59 @@ export class StudentBookingService implements IStudentBookingService {
         'booking',
         'teacher'
       );
+
+      // --- Transaction Logic ---
+      // Hardcoding default booking price/commission for now if not in Booking model
+      // Usually booking amount is determined at initiatePayment. 
+      // Assuming a standard fee or we should have stored amount in Booking.
+      // Booking model DOES NOT have amount. 
+      // `initiatePayment` took `amount`.
+      // We rely on external tracking or assumption here.
+      // Requirement says "₹100 per booking" (assumed from user prompt or logic).
+      // Prompt said: "Video Call Bookings (₹100 per booking)".
+
+      const BOOKING_AMOUNT = 100; // Fixed for now based on prompt
+      const COMMISSION_RATE = 0.2; // 20%
+      const platformFee = BOOKING_AMOUNT * COMMISSION_RATE;
+      const teacherShare = BOOKING_AMOUNT - platformFee;
+
+      // 1. Transaction: Student Paid (MEETING_BOOKING)
+      // Transaction model has `meetingId`. Using that for bookingId.
+      await this._transactionRepo.create({
+        userId: updated.studentId,
+        meetingId: updated._id,
+        type: "MEETING_BOOKING",
+        txnNature: "CREDIT", // Money credited TO SYSTEM (from student)
+        amount: BOOKING_AMOUNT,
+        grossAmount: BOOKING_AMOUNT,
+        teacherShare,
+        platformFee,
+        paymentMethod: "RAZORPAY",
+        paymentStatus: "SUCCESS",
+        notes: `Booking Payment: ${updated._id}`
+      });
+
+      // 2. Transaction: Teacher Earning (TEACHER_EARNING)
+      const earningTx = await this._transactionRepo.create({
+        teacherId: updated.teacherId,
+        meetingId: updated._id,
+        type: "TEACHER_EARNING",
+        txnNature: "CREDIT",
+        amount: teacherShare,
+        grossAmount: BOOKING_AMOUNT,
+        teacherShare,
+        platformFee,
+        paymentMethod: "WALLET",
+        paymentStatus: "SUCCESS",
+        notes: `Earning from Booking: ${updated._id}`
+      });
+
+      // Credit Wallet
+      await this._walletRepo.creditTeacherWallet({
+        teacherId: updated.teacherId,
+        amount: teacherShare,
+        transactionId: earningTx._id
+      });
     }
 
 
@@ -190,7 +251,7 @@ export class StudentBookingService implements IStudentBookingService {
       nextWeek.format('YYYY-MM-DD')
     );
 
-        console.log("findBookedSlots slots ",bookings)
+    console.log("findBookedSlots slots ", bookings)
 
 
 
@@ -210,7 +271,7 @@ export class StudentBookingService implements IStudentBookingService {
       new Map(availableSlots.map(s => [`${s.date}-${s.start}-${s.end}`, s])).values()
     );
 
-    console.log("available slots ",uniqueSlots)
+    console.log("available slots ", uniqueSlots)
 
 
     return uniqueSlots;

@@ -298,7 +298,6 @@ export default function Header() {
                         ["Profile", "/student/profile"],
                         ["Purchase History", "/student/purchases"],
                         ["Certificates", "/student/certificates"],
-                        ["Achievements", "/student/achievements"],
                       ].map(([label, href]) => (
                         <Link
                           key={href}

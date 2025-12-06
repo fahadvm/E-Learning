@@ -140,6 +140,9 @@ import { StudentTeacherController } from '../../controllers/student/student.teac
 import { TeacherCallRequestController } from '../../controllers/teacher/teacher.call.request.controller';
 import { ITeacherCallRequestService } from '../interfaces/services/teacher/ITeacherCallRequestService';
 import { TeacherCallRequestService } from '../../services/teacher/teacher.call.request.service';
+import { ITeacherEarningsService } from '../interfaces/services/teacher/ITeacherEarningsService';
+import { TeacherEarningsService } from '../../services/teacher/teacher.earnings.service';
+import { TeacherEarningsController } from '../../controllers/teacher/teacher.earnings.controller';
 import { IChatRepository } from '../interfaces/repositories/IChatRepository';
 import { ChatRepository } from '../../repositories/ChatRepository';
 import { IChatService } from '../interfaces/services/student/IStudentChatService';
@@ -347,6 +350,8 @@ container.bind<TeacherCourseController>(TYPES.TeacherCourseController).to(Teache
 container.bind<TeacherProfileController>(TYPES.TeacherProfileController).to(TeacherProfileController);
 container.bind<TeacherAvailabilityController>(TYPES.TeacherAvailabilityController).to(TeacherAvailabilityController);
 container.bind<TeacherCallRequestController>(TYPES.TeacherCallRequestController).to(TeacherCallRequestController);
+container.bind<ITeacherEarningsService>(TYPES.TeacherEarningsService).to(TeacherEarningsService);
+container.bind<TeacherEarningsController>(TYPES.TeacherEarningsController).to(TeacherEarningsController);
 
 container.bind<EmployeeProfileController>(TYPES.EmployeeProfileController).to(EmployeeProfileController);
 container.bind<EmployeeAuthController>(TYPES.EmployeeAuthController).to(EmployeeAuthController);

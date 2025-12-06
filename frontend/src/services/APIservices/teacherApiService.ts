@@ -24,6 +24,9 @@ export const teacherProfileApi = {
   getProfile: () => get(TEACHER_ROUTES.profile.base),
   createProfile: (data: any) => post(TEACHER_ROUTES.profile.base, data),
   editProfile: (data: any) => patch(TEACHER_ROUTES.profile.base, data),
+};
+
+export const teacherAvailabilityApi = {
   getAvailability: () => get(TEACHER_ROUTES.availability.base),
   saveAvailability: (data: any) => post(TEACHER_ROUTES.availability.base, data),
 };
@@ -72,4 +75,9 @@ export const teacherCourseApi = {
         'Content-Type': 'multipart/form-data',
       },
     }),
+};
+
+export const teacherEarningsApi = {
+  getEarningsHistory: (params: { page: number; limit: number; type?: string; startDate?: string; endDate?: string }) => get(TEACHER_ROUTES.earnings.history, params),
+  getEarningsStats: () => get(TEACHER_ROUTES.earnings.stats),
 };

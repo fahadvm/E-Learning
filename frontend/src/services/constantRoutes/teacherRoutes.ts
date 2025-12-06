@@ -67,4 +67,9 @@ export const TEACHER_ROUTES = {
     base: (userId: string) => `${TEACHER_NOTIFICATION}/${userId}`,
     markAsRead: (userId: string) => `${TEACHER_NOTIFICATION}/${userId}/mark-as-read`,
   },
+
+  earnings: {
+    history: `${TEACHER_BASE}/earnings`,
+    stats: `${TEACHER_BASE}/earnings/stats`,
+  },
 };
