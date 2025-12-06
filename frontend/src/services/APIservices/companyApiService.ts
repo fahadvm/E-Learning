@@ -58,6 +58,9 @@ export const companyApiMethods = {
   getCompanyProfile: () => get(COMPANY_ROUTES.profile.base),
   updateCompanyProfile: (data: any) => put(COMPANY_ROUTES.profile.base, data),
   verifyCompanyProfile: (data: any) => post(COMPANY_ROUTES.profile.verify, data),
+  sendEmailChangeOTP: (newEmail: string) => post(COMPANY_ROUTES.profile.changeEmailSendOTP, { newEmail }),
+  verifyEmailChangeOTP: (newEmail: string, otp: string) => post(COMPANY_ROUTES.profile.changeEmailVerifyOTP, { newEmail, otp }),
+  changePassword: (currentPassword: string, newPassword: string) => post(COMPANY_ROUTES.profile.changePassword, { currentPassword, newPassword }),
 
   // Subscriptions
   getAllCompanyPlans: () => get(COMPANY_ROUTES.subscriptions.base),
@@ -75,8 +78,8 @@ export const companyApiMethods = {
   updateSeat: (courseId: string, seats: number) => patch(COMPANY_ROUTES.cart.updateSeat(courseId), { seats }),
 
   // Purchase / Checkout
-  createCheckoutSession: (data: { courses: string[]; amount: number }) =>
-    post(COMPANY_ROUTES.purchase.checkoutSession, data),
+  createCheckoutSession: () =>
+    post(COMPANY_ROUTES.purchase.checkoutSession, {}),
 
   verifyPayment: (data: { sessionId: string }) =>
     post(COMPANY_ROUTES.purchase.verifyPayment, data),
@@ -87,12 +90,13 @@ export const companyApiMethods = {
   getmycourseDetails: (courseId: string) =>
     get(COMPANY_ROUTES.purchase.courseDetails(courseId)),
   assignCourseToEmployee: (data: { courseId: string, employeeId: string }) => post(COMPANY_ROUTES.courses.assign, data),
+  getOrderHistory: () => get(COMPANY_ROUTES.purchase.orders),
 
 
   //learning path
   getLearningPath: () => get(COMPANY_ROUTES.learningPath.list),
   addLearningPaths: (data: any) => post(COMPANY_ROUTES.learningPath.add, data),
-  updateLearningPath: (LearningPathId: string, payload: any) => get(COMPANY_ROUTES.learningPath.edit(LearningPathId), payload),
+  updateLearningPath: (LearningPathId: string, payload: any) => put(COMPANY_ROUTES.learningPath.edit(LearningPathId), payload),
   deleteLearningPath: (LearningPathId: string) => del(COMPANY_ROUTES.learningPath.delete(LearningPathId)),
   detailsLearingPaths: (LearningPathId: string) => get(COMPANY_ROUTES.learningPath.details(LearningPathId)),
   getLearningPaths: (params?: { page?: number; limit?: number; search?: string }) => get(COMPANY_ROUTES.learningPath.list, params),

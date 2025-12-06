@@ -14,8 +14,8 @@ import { IEmployeeLearningPathProgress } from '../../models/EmployeeLearningPath
 @injectable()
 export class CompanyLearningPathService implements ICompanyLearningPathService {
     constructor(
-        @inject(TYPES.EmployeeLearningPathRepository)private readonly _repo: IEmployeeLearningPathRepository,
-        @inject(TYPES.EmployeeLearningPathProgressRepository)private readonly _assignRepo: IEmployeeLearningPathProgressRepository
+        @inject(TYPES.EmployeeLearningPathRepository) private readonly _repo: IEmployeeLearningPathRepository,
+        @inject(TYPES.EmployeeLearningPathProgressRepository) private readonly _assignRepo: IEmployeeLearningPathProgressRepository
     ) { }
 
     async create(companyId: string, data: Partial<IEmployeeLearningPath>) {
@@ -41,7 +41,7 @@ export class CompanyLearningPathService implements ICompanyLearningPathService {
     }
 
     async getOne(id: string, companyId: string) {
-        const lp = await this._repo.findOneForCompany( companyId,id);
+        const lp = await this._repo.findOneForCompany(companyId, id);
         if (!lp) throwError(MESSAGES.NOT_FOUND, STATUS_CODES.NOT_FOUND);
         return lp;
     }
@@ -89,21 +89,68 @@ export class CompanyLearningPathService implements ICompanyLearningPathService {
 
     async assignLearningPath(companyId: string, employeeId: string, learningPathId: string): Promise<IEmployeeLearningPathProgress> {
         const lp = await this._repo.findOneForCompany(companyId, learningPathId);
-        if (!lp) throwError(MESSAGES.LEARNING_PATH_NOT_FOUND , STATUS_CODES.NOT_FOUND);
+        if (!lp) throwError(MESSAGES.LEARNING_PATH_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
         // prevent duplicates
         const exists = await this._assignRepo.findOne(companyId, employeeId, learningPathId);
-        if (exists) throwError(MESSAGES.LEARNING_PATH_ALREADY_ASSIGNED , STATUS_CODES.BAD_REQUEST);
+        if (exists) throwError(MESSAGES.LEARNING_PATH_ALREADY_ASSIGNED, STATUS_CODES.BAD_REQUEST);
+
+        // Check seat availability for all courses in the learning path
+        const seatCheckResults = await this.checkLearningPathSeats(companyId, lp);
+
+        // If any course has insufficient seats, throw error with details
+        const insufficientSeats = seatCheckResults.filter(result => result.remaining <= 0);
+        if (insufficientSeats.length > 0) {
+            const courseNames = insufficientSeats.map(r => r.courseName).join(', ');
+            throwError(
+                `Cannot assign learning path. The following courses have no available seats: ${courseNames}. Please purchase more seats.`,
+                STATUS_CODES.BAD_REQUEST
+            );
+        }
 
         // Create progress with sequential rule (Option B): first course index = 0; UI locks others based on index
         const progress = await this._assignRepo.create(companyId, employeeId, learningPathId);
         return progress;
     }
 
+    private async checkLearningPathSeats(companyId: string, learningPath: IEmployeeLearningPath) {
+        const { CompanyOrderModel } = await import('../../models/CompanyOrder');
+        const results = [];
+
+        for (const course of learningPath.courses) {
+            // Get total purchased seats for this course
+            const orders = await CompanyOrderModel.find({
+                companyId: new mongoose.Types.ObjectId(companyId),
+                status: 'paid',
+                'purchasedCourses.courseId': course.courseId
+            });
+
+            const totalSeats = orders.reduce((sum, order) => {
+                const purchasedCourse = order.purchasedCourses.find(
+                    pc => pc.courseId.toString() === course.courseId.toString()
+                );
+                return sum + (purchasedCourse?.seats || 0);
+            }, 0);
+
+            // Get assigned seats - count unique employees who have this course in any learning path
+            const assignedSeats = await this._assignRepo.countAssignedSeats(companyId, course.courseId.toString());
+
+            results.push({
+                courseId: course.courseId,
+                courseName: course.title,
+                totalSeats,
+                assignedSeats,
+                remaining: totalSeats - assignedSeats
+            });
+        }
+
+        return results;
+    }
+
     async unassignLearningPath(companyId: string, employeeId: string, learningPathId: string): Promise<void> {
-        console.log(companyId , employeeId, learningPathId)
+        console.log(companyId, employeeId, learningPathId)
         const exists = await this._assignRepo.findOne(companyId, employeeId, learningPathId);
-        if (!exists) throwError(MESSAGES.LEARNING_PATH_ASSIGNMENT_NOT_FOUND , STATUS_CODES.NOT_FOUND);
+        if (!exists) throwError(MESSAGES.LEARNING_PATH_ASSIGNMENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
         await this._assignRepo.delete(companyId, employeeId, learningPathId);
     }

@@ -33,9 +33,6 @@ export const COMPANY_ROUTES = {
     get: (id: string) => `${COMPANY_COURSES}/${id}`,
     assign: `${COMPANY_COURSES}/assign-course`,
     resources: (courseId: string) => `${COMPANY_COURSES}/resources/${courseId}`,
-
-
-
   },
 
   employees: {
@@ -51,6 +48,9 @@ export const COMPANY_ROUTES = {
   profile: {
     base: COMPANY_PROFILE,
     verify: `${COMPANY_PROFILE}/verify`,
+    changeEmailSendOTP: `${COMPANY_PROFILE}/change-email/send-otp`,
+    changeEmailVerifyOTP: `${COMPANY_PROFILE}/change-email/verify-otp`,
+    changePassword: `${COMPANY_PROFILE}/change-password`,
   },
 
   subscriptions: {
@@ -61,10 +61,10 @@ export const COMPANY_ROUTES = {
     base: COMPANY_WISHLIST,
     get: (id: string) => `${COMPANY_WISHLIST}/${id}`,
   },
+
   leaderboard: {
     base: COMPANY_LEADER_BOARD,
     search: `${COMPANY_LEADER_BOARD}/search`,
-
   },
 
   cart: {
@@ -80,7 +80,8 @@ export const COMPANY_ROUTES = {
     myCourses: `${COMPANY_PURCHASE}/entrollments`,
     courseDetails: (id: string) => `${COMPANY_PURCHASE}/entrollments/`,
     courseIds: `${COMPANY_PURCHASE}/entrollments-course/ids`,
-    Reciept: (orderId: string) => `${COMPANY_PURCHASE}/receipt/${orderId}`
+    Reciept: (orderId: string) => `${COMPANY_PURCHASE}/receipt/${orderId}`,
+    orders: `${COMPANY_PURCHASE}/orders`,
   },
 
   learningPath: {

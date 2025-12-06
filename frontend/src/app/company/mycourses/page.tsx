@@ -2,96 +2,120 @@
 
 import { useState, useEffect } from "react";
 import { CourseCard } from "@/components/company/mycourses/CourseCard";
-import CourseStats from "@/components/company/mycourses/CourseStats";
+import { Search, BookOpen, TrendingUp, ShoppingCart, AlertCircle } from "lucide-react";
+import { companyApiMethods } from "@/services/APIservices/companyApiService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Search, Filter, BookOpen, TrendingUp } from "lucide-react";
-import axios from "axios";
-import { companyApiMethods } from "@/services/APIservices/companyApiService";
+import { showSuccessToast, showErrorToast } from "@/utils/Toast";
+import { useRouter } from "next/navigation";
 
-interface Review {
-  rating: number
+interface PurchasedCourse {
+  courseId: Course;
+  seats: number;
+  price: number;
+  accessType: string;
 }
+
+interface OrderResponse {
+  _id: string;
+  purchasedCourses: PurchasedCourse[];
+}
+
 interface Course {
-  _id: string
-  title: string
-  category: string
-  coverImage?: string
-  totalDuration: number
-  teacherId?: string
-  totalStudents?: number
-  reviews?: Review[]
-  createdAt?: string
-  progress?: number 
+  _id: string;
+  title: string;
+  subtitle?: string;
+  category: string;
+  coverImage?: string;
+  totalDuration?: number;
+  teacherId?: string;
+  totalStudents?: number;
+  createdAt?: string;
+  price?: number;
+  // Custom fields for frontend usage
+  seats?: number;
+  accessType?: string;
+  assignedSeats?: number; // Will be fetched separately
 }
-interface Order {
-  _id: string
-  studentId: string
-  courses: Course[]
-  razorpayOrderId: string
-  amount: number
-}
-
-interface ApiResponse {
-  ok: boolean
-  message: string
-  data: Order[]
-}
-
 
 const MyCoursesPage = () => {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
-  const [courses, setCourses] = useState<any[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+  const [buyingSeats, setBuyingSeats] = useState<string | null>(null);
+  const [additionalSeats, setAdditionalSeats] = useState<{ [key: string]: number }>({});
 
-  // 🔹 Fetch courses dynamically
+  // Fetch courses dynamically
   useEffect(() => {
-    const fetchCourses  = async () => {
-      try {
-        const res : ApiResponse = await companyApiMethods.getmycourses()
-        console.log("the responce getmycourses is", res)
-        const allCourses = res.data.flatMap(order => order.courses);
-        console.log("consoling of all courses",allCourses)
-        setCourses(allCourses)
-      } catch (error) {
-        console.error("Failed to fetch courses:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchCourses();
   }, []);
 
-  // 🔹 Compute stats dynamically
-  const stats = {
-    totalCourses: courses.length,
-    completedCourses: courses.filter((c) => c.status === "completed").length,
-    inProgressCourses: courses.filter((c) => c.status === "in-progress").length,
-    totalHoursLearned: courses.reduce(
-      (acc, c) => acc + (c.completedLessons || 0) * 0.5, // example: 0.5h/lesson
-      0
-    ),
-    certificatesEarned: courses.filter((c) => c.certificate).length,
+  const fetchCourses = async () => {
+    try {
+      setLoading(true);
+      const res: any = await companyApiMethods.getmycourses();
+      console.log("API Response My Courses:", res.data);
+
+      // Flatten purchased courses from each order and aggregate seats
+      const courseMap = new Map<string, Course>();
+
+      res?.data?.forEach((order: OrderResponse) => {
+        order?.purchasedCourses?.forEach((pc) => {
+          const courseId = pc.courseId._id;
+          if (courseMap.has(courseId)) {
+            // Aggregate seats if course appears in multiple orders
+            const existing = courseMap.get(courseId)!;
+            existing.seats = (existing.seats || 0) + (pc?.seats || 0);
+          } else {
+            courseMap.set(courseId, {
+              ...pc.courseId,
+              seats: pc?.seats || 0,
+              accessType: pc?.accessType,
+              price: pc?.price,
+              assignedSeats: 0, // Will be updated if we fetch this data
+            });
+          }
+        });
+      });
+
+      setCourses(Array.from(courseMap.values()));
+    } catch (error) {
+      console.error("Failed to fetch courses:", error);
+      showErrorToast("Failed to load courses");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // 🔹 Apply search + filter
+  const handleBuyMoreSeats = async (courseId: string) => {
+    const seats = additionalSeats[courseId] || 1;
+
+    if (seats < 1) {
+      showErrorToast("Please enter a valid number of seats");
+      return;
+    }
+
+    try {
+      // Add to cart with additional seats
+      await companyApiMethods.addToCart({ courseId, seats });
+      showSuccessToast(`Added ${seats} seats to cart`);
+
+      // Redirect to cart
+      router.push("/company/cart");
+    } catch (error: any) {
+      showErrorToast(error?.response?.data?.message || "Failed to add to cart");
+    }
+  };
+
+  // Filter logic
   const filteredCourses = courses.filter((course) => {
-    const matchesSearch =
-      course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.instructor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.category.toLowerCase().includes(searchTerm.toLowerCase());
-
-    
-
-    return matchesSearch;
+    const search = searchTerm.toLowerCase();
+    return (
+      course?.title?.toLowerCase().includes(search) ||
+      course?.category?.toLowerCase().includes(search) ||
+      course?.subtitle?.toLowerCase().includes(search)
+    );
   });
 
   return (
@@ -103,37 +127,22 @@ const MyCoursesPage = () => {
             My Courses
           </h1>
           <p className="text-xl text-muted-foreground">
-            Continue your learning journey and track your progress
+            Manage your purchased courses and seat allocations
           </p>
         </div>
 
-        {/* Stats Section */}
-        {/* <CourseStats stats={stats} /> */}
-
-        {/* Search + Filter */}
+        {/* Search + Actions */}
         <div className="mb-8 flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
-              placeholder="Search courses, instructors, or categories..."
+              placeholder="Search courses by title or category..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 bg-background/50 backdrop-blur-sm border-primary/20"
             />
           </div>
           <div className="flex gap-2">
-            {/* <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-[180px] bg-background/50 backdrop-blur-sm border-primary/20">
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Courses</SelectItem>
-                <SelectItem value="in-progress">In Progress</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="not-started">Not Started</SelectItem>
-              </SelectContent>
-            </Select> */}
             <Button variant="outline" size="default">
               <TrendingUp className="h-4 w-4 mr-2" />
               View Analytics
@@ -141,14 +150,128 @@ const MyCoursesPage = () => {
           </div>
         </div>
 
-        {/* Courses Grid */}
+        {/* Course List */}
         {loading ? (
           <div className="text-center py-16">Loading courses...</div>
         ) : filteredCourses.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCourses.map((course) => (
-              <CourseCard key={course._id} course={course} />
-            ))}
+            {filteredCourses.map((course) => {
+              const totalSeats = course.seats || 0;
+              const assignedSeats = course.assignedSeats || 0;
+              const remainingSeats = totalSeats - assignedSeats;
+              const seatUsagePercent = totalSeats > 0 ? (assignedSeats / totalSeats) * 100 : 0;
+
+              return (
+                <div
+                  key={course._id}
+                  className="bg-card rounded-lg shadow-md overflow-hidden border border-border hover:shadow-lg transition"
+                >
+                  {/* Course Image */}
+                  <div className="relative h-48">
+                    <img
+                      src={course.coverImage || "/placeholder-course.jpg"}
+                      alt={course.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  {/* Course Info */}
+                  <div className="p-4">
+                    <h3 className="font-semibold text-lg mb-2 line-clamp-2">{course.title}</h3>
+                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                      {course.subtitle || course.category}
+                    </p>
+
+                    {/* Seat Information */}
+                    <div className="mb-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium">Seat Usage</span>
+                        <span className="text-sm">
+                          {assignedSeats} / {totalSeats} used
+                        </span>
+                      </div>
+
+                      {/* Progress Bar */}
+                      <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                        <div
+                          className={`h-2 rounded-full transition-all ${seatUsagePercent >= 90
+                              ? "bg-red-500"
+                              : seatUsagePercent >= 70
+                                ? "bg-yellow-500"
+                                : "bg-green-500"
+                            }`}
+                          style={{ width: `${Math.min(seatUsagePercent, 100)}%` }}
+                        />
+                      </div>
+
+                      {/* Warning if seats running low */}
+                      {remainingSeats <= 2 && remainingSeats > 0 && (
+                        <div className="flex items-center gap-1 text-yellow-600 text-xs">
+                          <AlertCircle size={12} />
+                          <span>Only {remainingSeats} seat{remainingSeats > 1 ? 's' : ''} remaining!</span>
+                        </div>
+                      )}
+
+                      {remainingSeats <= 0 && (
+                        <div className="flex items-center gap-1 text-red-600 text-xs font-medium">
+                          <AlertCircle size={12} />
+                          <span>All seats allocated</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Buy More Seats Section */}
+                    {buyingSeats === course._id ? (
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Additional Seats</label>
+                        <div className="flex gap-2">
+                          <Input
+                            type="number"
+                            min="1"
+                            value={additionalSeats[course._id] || 1}
+                            onChange={(e) =>
+                              setAdditionalSeats({
+                                ...additionalSeats,
+                                [course._id]: parseInt(e.target.value) || 1,
+                              })
+                            }
+                            className="flex-1"
+                          />
+                          <Button
+                            size="sm"
+                            onClick={() => handleBuyMoreSeats(course._id)}
+                          >
+                            <ShoppingCart size={16} className="mr-1" />
+                            Add to Cart
+                          </Button>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setBuyingSeats(null)}
+                          className="w-full"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setBuyingSeats(course._id);
+                          setAdditionalSeats({ ...additionalSeats, [course._id]: 1 });
+                        }}
+                        className="w-full"
+                      >
+                        <ShoppingCart size={16} className="mr-2" />
+                        Buy More Seats
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-16">
@@ -157,7 +280,7 @@ const MyCoursesPage = () => {
               No courses found
             </h3>
             <p className="text-muted-foreground">
-              Try adjusting your search or filter criteria
+              Try adjusting your search or explore more courses
             </p>
           </div>
         )}

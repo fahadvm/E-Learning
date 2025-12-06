@@ -70,17 +70,11 @@ export default function CheckoutPage() {
 
     try {
       startPayment();
-      console.log("courses are", cartData.courses)
-      const response = await companyApiMethods.createCheckoutSession({
-        courses: cartData.courses.map((c) => c._id), amount: total
-      });
-
-
+      const response = await companyApiMethods.createCheckoutSession();
 
       const { url } = response.data;
-      console.log(" in url is ", url)
+      console.log("Checkout URL:", url)
       if (url) {
-        console.log("going to paying 8", url)
         window.location.href = url;
       } else {
         showErrorToast("Failed to start payment.");

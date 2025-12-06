@@ -123,4 +123,22 @@ export class EmployeeLearningPathProgressRepository implements IEmployeeLearning
         return saved.toObject();
     }
 
+    async countAssignedSeats(companyId: string, courseId: string): Promise<number> {
+        // Get all learning paths that contain this course
+        const learningPaths = await EmployeeLearningPath.find({
+            companyId: new Types.ObjectId(companyId),
+            'courses.courseId': new Types.ObjectId(courseId)
+        }).select('_id');
+
+        const learningPathIds = learningPaths.map(lp => lp._id);
+
+        // Count unique employees who have been assigned any learning path containing this course
+        const uniqueEmployees = await EmployeeLearningPathProgress.distinct('employeeId', {
+            companyId: new Types.ObjectId(companyId),
+            learningPathId: { $in: learningPathIds }
+        });
+
+        return uniqueEmployees.length;
+    }
+
 }

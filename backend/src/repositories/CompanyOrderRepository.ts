@@ -12,7 +12,8 @@ export class CompanyOrderRepository implements ICompanyOrderRepository {
   }
 
   async findByStripeSessionId(orderId: string): Promise<ICompanyOrder | null> {
-    return await CompanyOrderModel.findOne({ stripeSessionId: orderId }).populate("courses", "title price")
+    return await CompanyOrderModel.findOne({ stripeSessionId: orderId })
+      .populate("purchasedCourses.courseId", "title price");
   }
 
   async updateStatus(orderId: string, status: string): Promise<ICompanyOrder | null> {
@@ -28,39 +29,35 @@ export class CompanyOrderRepository implements ICompanyOrderRepository {
       companyId,
       status: 'paid',
     })
-      .populate<{ courses: ICourse[] }>('courses')
-      .exec();
+      .populate<{ purchasedCourses: { courseId: ICourse }[] }>('purchasedCourses.courseId')
+      .exec() as any;
   }
-
 
   async getOrdersById(companyId: string): Promise<(ICompanyOrder & { courses: ICourse[] })[]> {
     return CompanyOrderModel.find({
       companyId,
       status: 'paid',
-    });
-
+    })
+      .populate('purchasedCourses.courseId');
   }
 
   async getCompanyOrders(): Promise<ICompanyOrder[]> {
     return CompanyOrderModel.find()
       .populate('companyId', 'name email')
-      .populate('courses', 'title')
+      .populate('purchasedCourses.courseId', 'title')
       .sort({ createdAt: -1 });
   }
 
   async getPurchasedCourseIds(companyId: string): Promise<string[]> {
     const orders = await CompanyOrderModel.find({
       companyId,
-      status: "paid" 
-    }).select("courses");
+      status: "paid"
+    }).select("purchasedCourses");
 
     const purchasedCourseIds = orders.flatMap(order =>
-      order.courses.map(c => c.toString())
+      order.purchasedCourses.map(pc => pc.courseId.toString())
     );
 
     return purchasedCourseIds;
   }
-
-
-
 }

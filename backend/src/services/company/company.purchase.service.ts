@@ -3,7 +3,7 @@ import { ICompanyPurchaseService } from '../../core/interfaces/services/company/
 import { stripe } from '../../config/stripe';
 import dotenv from 'dotenv';
 import { TYPES } from '../../core/di/types';
-import { ICartRepository } from '../../core/interfaces/repositories/ICartRepository';
+import { ICompanyCartRepository } from '../../core/interfaces/repositories/ICompanyCartRepository';
 import { ICourseRepository } from '../../core/interfaces/repositories/ICourseRepository';
 import mongoose from 'mongoose';
 import { ICompanyRepository } from '../../core/interfaces/repositories/ICompanyRepository';
@@ -21,21 +21,36 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
   constructor(
     @inject(TYPES.CompanyOrderRepository) private readonly _companyOrderRepo: ICompanyOrderRepository,
     @inject(TYPES.CourseRepository) private readonly _courseRepo: ICourseRepository,
-    @inject(TYPES.CartRepository) private readonly _cartRepo: ICartRepository,
+    @inject(TYPES.CompanyCartRepository) private readonly _cartRepo: ICompanyCartRepository,
     @inject(TYPES.CompanyRepository) private readonly _companyRepo: ICompanyRepository
   ) { }
 
   /**
    * Create a Stripe Checkout session for a company
    */
-  async createCheckoutSession(courseIds: string[], companyId: string, amount: number) {
-    const Company = await this._companyRepo.findById(companyId);
+  async createCheckoutSession(companyId: string) {
+    const company = await this._companyRepo.findById(companyId);
+
+    // Get cart with seat information
+    const cart = await this._cartRepo.getCart(companyId);
+
+    if (!cart || cart.courses.length === 0) {
+      throwError(MESSAGES.CART_IS_EMPTY, STATUS_CODES.BAD_REQUEST);
+    }
+
+    // Extract course IDs for duplicate check
+    const courseIds = cart.courses.map(item => item.courseId._id?.toString() || item.courseId.toString());
 
     const purchasedCourseIds = await this._companyOrderRepo.getPurchasedCourseIds(companyId);
     const duplicates = courseIds.filter(id => purchasedCourseIds.includes(id));
+
     if (duplicates.length > 0) {
-      throwError(MESSAGES.COURSES_ALREADY_PURCHASED,STATUS_CODES.CONFLICT);
+      throwError(MESSAGES.COURSES_ALREADY_PURCHASED, STATUS_CODES.CONFLICT);
     }
+
+    // Calculate total amount from cart
+    const amount = cart.courses.reduce((sum, item) => sum + item.price, 0);
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -43,10 +58,10 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
           price_data: {
             currency: 'inr',
             product_data: {
-              name: Company?.name || 'unknown',
+              name: company?.name || 'unknown',
               description: 'Purchase courses from devnext!',
             },
-            unit_amount: amount * 100,
+            unit_amount: Math.round(amount * 100),
           },
           quantity: 1,
         },
@@ -57,12 +72,18 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
     });
 
     const companyIdObj = new mongoose.Types.ObjectId(companyId);
-    const courseObjIds = courseIds.map(id => new mongoose.Types.ObjectId(id));
 
+    // Build purchasedCourses array with seat information
+    const purchasedCourses = cart.courses.map(item => ({
+      courseId: new mongoose.Types.ObjectId(item.courseId._id?.toString() || item.courseId.toString()),
+      accessType: item.accessType,
+      seats: item.seats,
+      price: item.price
+    }));
 
     await this._companyOrderRepo.create({
       companyId: companyIdObj,
-      courses: courseObjIds,
+      purchasedCourses,
       stripeSessionId: session.id,
       amount,
       currency: 'inr',
@@ -72,18 +93,16 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
     return { url: session.url };
   }
 
-
   async verifyPayment(sessionId: string, companyId: string) {
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
       expand: ['payment_intent'],
     });
 
-
     if (session.payment_status === 'paid') {
       await this._companyOrderRepo.updateStatus(sessionId, 'paid');
       await this._cartRepo.clearCart(companyId);
       const order = await this._companyOrderRepo.findByStripeSessionId(sessionId);
-      return { success: true, amount: order?.amount ,order:order};
+      return { success: true, amount: order?.amount, order: order };
     }
 
     await this._companyOrderRepo.updateStatus(sessionId, 'failed');
@@ -98,6 +117,7 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
     console.log("course fetched more", courses)
     return courses
   }
+
   async getMycoursesIdsById(companyId: string): Promise<string[] | null> {
     const courseIds = await this._companyOrderRepo.getPurchasedCourseIds(companyId);
     console.log("course fetched more", courseIds)

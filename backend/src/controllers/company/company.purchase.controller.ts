@@ -9,6 +9,7 @@ import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { CompanyOrderModel } from '../../models/CompanyOrder';
 import PDFDocument from "pdfkit";
+
 @injectable()
 export class CompanyPurchaseController implements ICompanyPurchaseController {
     constructor(
@@ -17,39 +18,41 @@ export class CompanyPurchaseController implements ICompanyPurchaseController {
     ) { }
 
     async createCheckoutSession(req: AuthRequest, res: Response) {
-        const { courses, amount } = req.body;
-        console.log("courses ids in controller,", courses)
         const companyId = req.user?.id;
 
-        const session = await this._purchaseService.createCheckoutSession(courses, companyId as string, amount);
+        if (!companyId) {
+            throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+        }
+
+        const session = await this._purchaseService.createCheckoutSession(companyId);
         const data = { url: session.url };
         sendResponse(res, STATUS_CODES.OK, MESSAGES.PAYMENT_PAID_SUCCESSFULLY, true, data);
-
     }
 
     async verifyPayment(req: AuthRequest, res: Response) {
         const { sessionId } = req.body;
         const companyId = req.user?.id;
+
         if (!sessionId || !companyId) {
             throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
         }
+
         const result = await this._purchaseService.verifyPayment(sessionId, companyId);
+
         if (result.success) {
             sendResponse(res, STATUS_CODES.OK, MESSAGES.PAYMENT_VERIFIED_SUCCESSFULLY, true, result);
         } else {
             sendResponse(res, STATUS_CODES.OK, MESSAGES.PAYMENT_VERIFICATION_FAILED, true, result);
         }
-
     }
-
 
     // GET /api/company/orders/:orderId/receipt
     async downloadReceipt(req: AuthRequest, res: Response) {
         const { orderId } = req.params;
-        console.log("downloading reciept is working successfully")
+        console.log("downloading receipt is working successfully")
 
         const order = await CompanyOrderModel.findById(orderId).populate(
-            "courses",
+            "purchasedCourses.courseId",
             "title price"
         );
 
@@ -57,7 +60,7 @@ export class CompanyPurchaseController implements ICompanyPurchaseController {
             return res.status(404).json({ message: "Order not found" });
         }
 
-        //  Create PDF
+        // Create PDF
         const doc = new PDFDocument();
 
         res.setHeader("Content-Type", "application/pdf");
@@ -66,10 +69,10 @@ export class CompanyPurchaseController implements ICompanyPurchaseController {
             `attachment; filename=receipt_${orderId}.pdf`
         );
 
-        //  Pipe BEFORE writing
+        // Pipe BEFORE writing
         doc.pipe(res);
 
-        //  Content
+        // Content
         doc.fontSize(20).text("Payment Receipt", { align: "center" });
         doc.moveDown();
 
@@ -78,11 +81,33 @@ export class CompanyPurchaseController implements ICompanyPurchaseController {
         doc.moveDown();
 
         doc.text("Purchased Courses:");
-        order.courses.forEach((course: any) => {
-            doc.text(`• ${course.title} — ₹${course.price}`);
+        order.purchasedCourses.forEach((item: any) => {
+            const course = item.courseId;
+            doc.text(`• ${course.title} — ₹${item.price} (${item.seats} seat${item.seats > 1 ? 's' : ''})`);
         });
 
         doc.end();
     }
 
+    async getPurchasedCourses(req: AuthRequest, res: Response) {
+        const companyId = req.user?.id;
+
+        if (!companyId) {
+            throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+        }
+
+        const courses = await this._purchaseService.getPurchasedCourses(companyId);
+        sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED_SUCCESSFULLY, true, courses);
+    }
+
+    async getPurchasedCourseIds(req: AuthRequest, res: Response) {
+        const companyId = req.user?.id;
+
+        if (!companyId) {
+            throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+        }
+
+        const courseIds = await this._purchaseService.getMycoursesIdsById(companyId);
+        sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED_SUCCESSFULLY, true, courseIds);
+    }
 }

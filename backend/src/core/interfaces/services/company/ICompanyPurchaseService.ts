@@ -4,16 +4,12 @@ import { ICourse } from '../../../../models/Course';
 
 export interface ICompanyPurchaseService {
 
-  createCheckoutSession(
-    courses: string [],
-    companyId: string,
-    amount: number
-  ): Promise<{ url: string | null }>;
+  createCheckoutSession(companyId: string): Promise<{ url: string | null }>;
 
 
-  verifyPayment(sessionId: string, companyId: string): Promise<{ success: boolean }>;
+  verifyPayment(sessionId: string, companyId: string): Promise<{ success: boolean; amount?: number; order?: ICompanyOrder | null }>;
 
 
-  getPurchasedCourses(companyId: string): Promise<(ICompanyOrder & { courses: ICourse[] })[]>; 
+  getPurchasedCourses(companyId: string): Promise<(ICompanyOrder & { courses: ICourse[] })[]>;
   getMycoursesIdsById(companyId: string): Promise<string[] | null>;
 }

@@ -34,4 +34,6 @@ export interface IEmployeeLearningPathProgressRepository {
   ): Promise<IEmployeeLearningPathProgress | null>;
 
   updateLearningPathProgress(employeeId: string, courseId: string, percentage: number): Promise<IEmployeeLearningPathProgress>
+
+  countAssignedSeats(companyId: string, courseId: string): Promise<number>;
 }

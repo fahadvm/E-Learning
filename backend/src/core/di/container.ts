@@ -1,5 +1,5 @@
 import { Container } from 'inversify';
-import { TYPES } from './types'; 
+import { TYPES } from './types';
 
 // ===== Repositories =====
 import { IStudentRepository } from '../interfaces/repositories/IStudentRepository';
@@ -101,7 +101,7 @@ import { EmployeeCourseService } from '../../services/employee/employee.course.s
 
 // ===== Controllers =====
 import { StudentAuthController } from '../../controllers/student/student.auth.controller';
-import {StudentProfileController} from '../../controllers/student/student.profile.controller';
+import { StudentProfileController } from '../../controllers/student/student.profile.controller';
 import { StudentCourseController } from '../../controllers/student/student.course.controller';
 import { StudentSubscriptionController } from '../../controllers/student/student.subscription.controller';
 import { StudentWishlistController } from '../../controllers/student/student.wishlist.controller';
@@ -116,7 +116,7 @@ import { CompanyProfileController } from '../../controllers/company/company.prof
 import { CompanySubscriptionController } from '../../controllers/company/company.subscription.controller';
 import { CompanyWishlistController } from '../../controllers/company/company.wishlist.controller';
 import { CompanyCartController } from '../../controllers/company/company.cart.controller';
-import { CompanyPurchaseController} from '../../controllers/company/company.purchase.controller';
+import { CompanyPurchaseController } from '../../controllers/company/company.purchase.controller';
 
 
 import { AdminAuthController } from '../../controllers/admin/admin.auth.controller';
@@ -188,6 +188,8 @@ import { IEmployeeLeaderboardService } from '../interfaces/services/employee/IEm
 import { ICompanyLeaderboardService } from '../interfaces/services/company/ICompanyLeaderboardService';
 import { CompanyLeaderboardService } from '../../services/company/company.leaderboard.service';
 import { CompanyLeaderboardController } from '../../controllers/company/company.leaderboard.controller';
+import { CompanyAnalyticsService } from '../../services/company/company.analytics.service';
+import { CompanyAnalyticsController } from '../../controllers/company/company.analytics.controller';
 import { IAdminProfileService } from '../interfaces/services/admin/IAdminProfileService';
 import { AdminProfileService } from '../../services/admin/Admin.Profile.Service';
 import { AdminProfileController } from '../../controllers/admin/admin.profile.controller';
@@ -380,6 +382,8 @@ container.bind<EmployeeLeaderboardController>(TYPES.EmployeeLeaderboardControlle
 container.bind<IEmployeeLeaderboardService>(TYPES.EmployeeLeaderboardService).to(EmployeeLeaderboardService);
 container.bind<ICompanyLeaderboardService>(TYPES.CompanyLeaderboardService).to(CompanyLeaderboardService);
 container.bind<CompanyLeaderboardController>(TYPES.CompanyLeaderboardController).to(CompanyLeaderboardController);
+container.bind<CompanyAnalyticsService>(TYPES.CompanyAnalyticsService).to(CompanyAnalyticsService);
+container.bind<CompanyAnalyticsController>(TYPES.CompanyAnalyticsController).to(CompanyAnalyticsController);
 container.bind<IAdminProfileService>(TYPES.AdminProfileService).to(AdminProfileService);
 container.bind<ICompanyCartRepository>(TYPES.CompanyCartRepository).to(CompanyCartRepository);
 container.bind<AdminProfileController>(TYPES.AdminProfileController).to(AdminProfileController);

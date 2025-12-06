@@ -35,7 +35,7 @@ export const TYPES = {
     CourseReviewRepository: Symbol.for('CourseReviewRepository'),
     CommentRepository: Symbol.for('CommentRepository'),
     StudentCommentController: Symbol.for('StudentCommentController'),
-    
+
     StudentCommentService: Symbol.for('StudentCommentService'),
     EmployeeCommentService: Symbol.for('EmployeeCommentService'),
     StudentAiTutorService: Symbol.for('StudentAiTutorService'),
@@ -61,6 +61,7 @@ export const TYPES = {
     CompanyCartService: Symbol.for('CompanyCartService'),
     CompanyPurchaseService: Symbol.for('CompanyPurchaseService'),
     CompanyLeaderboardService: Symbol.for('CompanyLeaderboardService'),
+    CompanyAnalyticsService: Symbol.for('CompanyAnalyticsService'),
     AdminProfileService: Symbol.for('AdminProfileService'),
 
 
@@ -86,7 +87,7 @@ export const TYPES = {
     EmployeeCourseService: Symbol.for('EmployeeCourseService'),
     WalletRepository: Symbol.for('WalletRepository'),
     TransactionRepository: Symbol.for('TransactionRepository'),
-    
+
     ChatService: Symbol.for('ChatService'),
 
     // Controllers
@@ -110,6 +111,7 @@ export const TYPES = {
     CompanyPurchaseController: Symbol.for('CompanyPurchaseController'),
     CompanyLearningPathController: Symbol.for('CompanyLearningPathController'),
     CompanyLeaderboardController: Symbol.for('CompanyLeaderboardController'),
+    CompanyAnalyticsController: Symbol.for('CompanyAnalyticsController'),
     AdminProfileController: Symbol.for('AdminProfileController'),
 
 
@@ -130,7 +132,7 @@ export const TYPES = {
     EmployeeProfileController: Symbol.for('EmployeeProfileController'),
     EmployeeCompanyController: Symbol.for('EmployeeCompanyController'),
     EmployeeCommentController: Symbol.for('EmployeeCommentController'),
-    
+
     EmployeeCourseController: Symbol.for('EmployeeCourseController'),
     ChatController: Symbol.for('ChatController'),
     StudentNotificationController: Symbol.for('StudentNotificationController'),
@@ -151,7 +153,7 @@ export const TYPES = {
     EmployeeLearningPathService: Symbol.for('EmployeeLearningPathService'),
     EmployeeLeaderboardController: Symbol.for('EmployeeLeaderboardController'),
     EmployeeLeaderboardService: Symbol.for('EmployeeLeaderboardService'),
-        
-        
-    
+
+
+
 };
