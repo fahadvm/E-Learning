@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { IEmployeeLearningPathProgress } from "../../../models/EmployeeLearningPathProgress";
 
 export interface IEmployeeLearningPathProgressRepository {
@@ -36,4 +37,6 @@ export interface IEmployeeLearningPathProgressRepository {
   updateLearningPathProgress(employeeId: string, courseId: string, percentage: number): Promise<IEmployeeLearningPathProgress>
 
   countAssignedSeats(companyId: string, courseId: string): Promise<number>;
+  findAllAssignedEmployees(companyId: string, learningPathId: string): Promise<{ employeeId: mongoose.Types.ObjectId }[]>;
+
 }

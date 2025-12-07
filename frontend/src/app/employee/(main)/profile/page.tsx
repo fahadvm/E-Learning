@@ -99,6 +99,16 @@ export default function ProfilePage() {
       console.error("Logout failed:", error);
     }
   };
+  const handleLeaveCompany = async () => {
+    try {
+      await employeeApiMethods.leaveCompany();
+      alert("You have left the company successfully");
+      window.location.reload(); // or redirect to dashboard
+    } catch (error: any) {
+      console.error("Failed to leave company:", error);
+      alert(error?.response?.data?.message || "Error leaving company");
+    }
+  };
 
   const handleSave = async () => {
     if (!validate()) return;
@@ -358,9 +368,25 @@ export default function ProfilePage() {
                   </div>
 
                   <div className="pt-4 border-t">
-                    <Button variant="destructive" className="gap-2">
-                      <LogOut className="w-4 h-4" /> Leave Company
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" className="gap-2">
+                          <LogOut className="w-4 h-4" /> Leave Company
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Leave Company?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will remove you from the company and revoke access to its learning paths.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleLeaveCompany}>Yes, Leave</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               ) : (

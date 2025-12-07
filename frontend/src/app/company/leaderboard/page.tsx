@@ -20,6 +20,7 @@ export default function CompanyLeaderboardPage() {
 
   const fetchTop50 = async () => {
     const res = await companyApiMethods.getCompanyLeaderboard();
+    console.log("leader board",res)
     setTopList(res.data.leaderboard);
   };
 

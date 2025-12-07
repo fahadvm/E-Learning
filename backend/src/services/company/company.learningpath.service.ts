@@ -10,12 +10,15 @@ import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { throwError } from '../../utils/ResANDError';
 import { IEmployeeLearningPathProgressRepository } from '../../core/interfaces/repositories/IEmployeeLearningPathProgressRepository';
 import { IEmployeeLearningPathProgress } from '../../models/EmployeeLearningPathProgress';
+import { ICompanyCoursePurchaseRepository } from '../../core/interfaces/repositories/ICompanyCoursePurchaseRepository';
 
 @injectable()
 export class CompanyLearningPathService implements ICompanyLearningPathService {
     constructor(
         @inject(TYPES.EmployeeLearningPathRepository) private readonly _repo: IEmployeeLearningPathRepository,
-        @inject(TYPES.EmployeeLearningPathProgressRepository) private readonly _assignRepo: IEmployeeLearningPathProgressRepository
+        @inject(TYPES.EmployeeLearningPathProgressRepository) private readonly _assignRepo: IEmployeeLearningPathProgressRepository,
+        @inject(TYPES.CompanyCoursePurchaseRepository) private readonly _purchaseRepo: ICompanyCoursePurchaseRepository
+
     ) { }
 
     async create(companyId: string, data: Partial<IEmployeeLearningPath>) {
@@ -62,6 +65,24 @@ export class CompanyLearningPathService implements ICompanyLearningPathService {
     }
 
     async delete(id: string, companyId: string) {
+        const lp = await this._repo.findOneForCompany(companyId, id);
+        if (!lp) throwError(MESSAGES.NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
+        // 1️⃣ Find all employees assigned to this learning path
+        const assignments = await this._assignRepo.findAllAssignedEmployees(companyId, id);
+
+        // 2️⃣ Decrease seat usage for each employee
+        for (const a of assignments) {
+            for (const course of lp.courses) {
+                await this._purchaseRepo.decreaseSeatUsage(
+                    new mongoose.Types.ObjectId(companyId),
+                    new mongoose.Types.ObjectId(course.courseId.toString())
+                );
+            }
+
+            await this._assignRepo.delete(companyId, a.employeeId.toString(), id);
+        }
+
         const deleted = await this._repo.deleteById(id, companyId);
         if (!deleted) throwError(MESSAGES.NOT_FOUND, STATUS_CODES.NOT_FOUND);
     }
@@ -110,6 +131,14 @@ export class CompanyLearningPathService implements ICompanyLearningPathService {
 
         // Create progress with sequential rule (Option B): first course index = 0; UI locks others based on index
         const progress = await this._assignRepo.create(companyId, employeeId, learningPathId);
+
+        for (const course of lp.courses) {
+            await this._purchaseRepo.increaseSeatUsage(
+                new mongoose.Types.ObjectId(companyId),
+                new mongoose.Types.ObjectId(course.courseId.toString())
+            );
+        }
+
         return progress;
     }
 
@@ -153,6 +182,15 @@ export class CompanyLearningPathService implements ICompanyLearningPathService {
         if (!exists) throwError(MESSAGES.LEARNING_PATH_ASSIGNMENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
         await this._assignRepo.delete(companyId, employeeId, learningPathId);
+        const lp = await this._repo.findOneForCompany(companyId, learningPathId);
+        if (!lp) throwError(MESSAGES.LEARNING_PATH_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
+        for (const course of lp.courses) {
+            await this._purchaseRepo.decreaseSeatUsage(
+                new mongoose.Types.ObjectId(companyId),
+                new mongoose.Types.ObjectId(course.courseId.toString())
+            );
+        }
     }
 
 

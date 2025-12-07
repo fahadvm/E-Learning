@@ -18,6 +18,7 @@ dotenv.config();
 
 import { ITransactionRepository } from '../../core/interfaces/repositories/ITransactionRepository';
 import { IWalletRepository } from '../../core/interfaces/repositories/IwalletRepository';
+import { ICompanyCoursePurchaseRepository } from '../../core/interfaces/repositories/ICompanyCoursePurchaseRepository';
 
 @injectable()
 export class CompanyPurchaseService implements ICompanyPurchaseService {
@@ -27,7 +28,8 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
     @inject(TYPES.CompanyCartRepository) private readonly _cartRepo: ICompanyCartRepository,
     @inject(TYPES.CompanyRepository) private readonly _companyRepo: ICompanyRepository,
     @inject(TYPES.TransactionRepository) private readonly _transactionRepo: ITransactionRepository,
-    @inject(TYPES.WalletRepository) private readonly _walletRepo: IWalletRepository
+    @inject(TYPES.WalletRepository) private readonly _walletRepo: IWalletRepository,
+    @inject(TYPES.CompanyCoursePurchaseRepository) private readonly _PurchaseRepo: ICompanyCoursePurchaseRepository
   ) { }
 
   /**
@@ -109,6 +111,17 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
 
       await this._companyOrderRepo.updateStatus(sessionId, 'paid');
       await this._cartRepo.clearCart(companyId);
+      for (const item of order.purchasedCourses) {
+        const courseId = (item.courseId as any)?._id
+          ? new mongoose.Types.ObjectId((item.courseId as any)._id)
+          : new mongoose.Types.ObjectId(item.courseId as any);
+        await this._PurchaseRepo.purchaseCourse(
+          new mongoose.Types.ObjectId(order.companyId),
+          courseId,
+          item.seats
+        );
+      }
+
 
       // --- Transaction Logic ---
 

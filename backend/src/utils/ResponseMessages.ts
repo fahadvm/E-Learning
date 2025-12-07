@@ -280,6 +280,7 @@ export enum MESSAGES {
   CART_UPDATED = 'Cart updated successfully',
   CART_ITEM_NOT_FOUND = 'Cart item not found successfully',
   INVALID_SEAT_COUNT = 'Cart item count is inValid',
+  CART_IS_EMPTY = 'Cart is empty',
 
 
   // -------------------- RELATIONSHIP ACTIONS --------------------

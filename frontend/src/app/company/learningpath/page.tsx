@@ -276,6 +276,13 @@ function CreateOrEditView({ isEdit, existing, onBack, onSaved }: any) {
     existing?.courses || []
   );
 
+  const uniqueByCourseId = (courses: CourseOption[]) => {
+    return courses.filter(
+      (c, index, self) =>
+        index === self.findIndex(x => x.courseId === c.courseId)
+    );
+  };
+
   const loadCourses = async () => {
     try {
       const res = await companyApiMethods.getmycourses();
@@ -305,9 +312,13 @@ function CreateOrEditView({ isEdit, existing, onBack, onSaved }: any) {
       }
 
       // Filter out already selected courses
-      const filtered = allCourses.filter(
+      const uniqueCourses = uniqueByCourseId(allCourses);
+
+      // Filter out already selected courses
+      const filtered = uniqueCourses.filter(
         (course) => !selectedCourses.some((c) => c.courseId === course._id)
       );
+
 
       setCompanyCourses(filtered);
     } catch (error) {
@@ -430,8 +441,8 @@ function CreateOrEditView({ isEdit, existing, onBack, onSaved }: any) {
               key={ico}
               onClick={() => setForm({ ...form, icon: ico })}
               className={`text-2xl p-2 rounded-lg border ${form.icon === ico
-                  ? "bg-primary/30 border-primary/80"
-                  : "bg-white/10 border-white/20"
+                ? "bg-primary/30 border-primary/80"
+                : "bg-white/10 border-white/20"
                 }`}
             >
               {ico}

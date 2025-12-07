@@ -2,6 +2,7 @@ import { ICourse } from '../../../../models/Course';
 import { ICompanyOrder } from '../../../../models/CompanyOrder';
 import { IEmployee } from '../../../../models/Employee';
 import { ICourseResource } from '../../../../models/CourseResource';
+import { ICompanyCoursePurchase } from '../../../../models/CompanyCoursePurchase';
 
 export interface ICompanyCourseService {
   getAllCourses(filters: {
@@ -15,7 +16,7 @@ export interface ICompanyCourseService {
     limit?: number;
   }): Promise<{ data: ICourse[]; totalPages: number; totalCount: number }>;
   getCourseDetail(courseId: string): Promise<ICourse | null>;
-  getMycoursesById(companyId: string): Promise<ICompanyOrder[] | null>;
+  getMycoursesById(companyId: string): Promise<ICompanyCoursePurchase[] | null>;
   getMycourseDetailsById(companyId: string, courseId: string): Promise<ICourse | null>
   assignCourseToEmployee(courseId: string, employeeId: string):Promise<void>
    getResources(courseId: string): Promise<ICourseResource[]> 

@@ -12,12 +12,16 @@ import { IEmployeeRepository } from '../../core/interfaces/repositories/IEmploye
 import { IEmployee } from '../../models/Employee';
 import { ICourseResource } from '../../models/CourseResource';
 import { ICourseResourceRepository } from '../../core/interfaces/repositories/ICourseResourceRepository';
+import { ICompanyCoursePurchaseRepository } from '../../core/interfaces/repositories/ICompanyCoursePurchaseRepository';
+import mongoose from 'mongoose';
+import { ICompanyCoursePurchase } from '../../models/CompanyCoursePurchase';
 
 @injectable()
 export class CompanyCourseService implements ICompanyCourseService {
   constructor(
     @inject(TYPES.CourseRepository) private readonly _courseRepository: ICourseRepository,
     @inject(TYPES.CompanyOrderRepository) private readonly _companyOrderRepository: ICompanyOrderRepository,
+    @inject(TYPES.CompanyCoursePurchaseRepository) private readonly _purchasedRepository: ICompanyCoursePurchaseRepository,
     @inject(TYPES.EmployeeRepository) private readonly _employeeRepo: IEmployeeRepository,
     @inject(TYPES.CourseResourceRepository) private readonly _resourceRepository: ICourseResourceRepository
   ) { }
@@ -56,8 +60,9 @@ export class CompanyCourseService implements ICompanyCourseService {
 
   }
 
-  async getMycoursesById(companyId: string): Promise<ICompanyOrder[] | null> {
-    const orders = await this._companyOrderRepository.getOrdersByCompanyId(companyId);
+  async getMycoursesById(companyId: string): Promise<ICompanyCoursePurchase[] | null> {
+    const companyIdObj = new mongoose.Types.ObjectId(companyId)
+    const orders = await this._purchasedRepository.getAllPurchasesByCompany(companyIdObj);
     console.log("orders in service", orders)
     return orders;
   }

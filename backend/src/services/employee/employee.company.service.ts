@@ -8,6 +8,9 @@ import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { IEmployee } from '../../models/Employee';
 import mongoose from 'mongoose';
+import { IEmployeeLearningPathProgressRepository } from '../../core/interfaces/repositories/IEmployeeLearningPathProgressRepository';
+import { IEmployeeLearningPathRepository } from '../../core/interfaces/repositories/IEmployeeLearningPathRepository';
+import { ICompanyCoursePurchaseRepository } from '../../core/interfaces/repositories/ICompanyCoursePurchaseRepository';
 
 export enum EmployeeStatus {
   REQUESTED = 'requested',
@@ -21,10 +24,11 @@ export enum EmployeeStatus {
 @injectable()
 export class EmployeeCompanyService implements IEmployeeCompanyService {
   constructor(
-    @inject(TYPES.CompanyRepository)
-    private readonly companyRepo: ICompanyRepository,
-    @inject(TYPES.EmployeeRepository)
-    private readonly employeeRepo: IEmployeeRepository
+    @inject(TYPES.CompanyRepository) private readonly companyRepo: ICompanyRepository,
+    @inject(TYPES.EmployeeRepository) private readonly employeeRepo: IEmployeeRepository,
+    @inject(TYPES.EmployeeLearningPathProgressRepository) private readonly _assignRepo: IEmployeeLearningPathProgressRepository,
+    @inject(TYPES.EmployeeLearningPathRepository) private readonly _learningPathRepo: IEmployeeLearningPathRepository,
+    @inject(TYPES.CompanyCoursePurchaseRepository) private readonly _purchaseRepo: ICompanyCoursePurchaseRepository
   ) { }
 
   async getMyCompany(employeeId: string): Promise<IEmployee | null> {
@@ -110,16 +114,34 @@ export class EmployeeCompanyService implements IEmployeeCompanyService {
     if (!employee || employee.status !== EmployeeStatus.APPROVED)
       throwError(MESSAGES.NOT_PART_OF_COMPANY, STATUS_CODES.BAD_REQUEST);
 
+    const companyId = employee.companyId?.toString();
+    if (!companyId) throwError(MESSAGES.NOT_PART_OF_COMPANY, STATUS_CODES.BAD_REQUEST);
+
+    // 🔎 Find all assigned learning paths for this employee
+    const assignedPaths = await this._assignRepo.findAssigned(companyId, employeeId);
+
+    for (const path of assignedPaths) {
+      const lp = await this._learningPathRepo.findOneForCompany(companyId, path.learningPathId._id.toString());
+      if (!lp) continue;
+
+      // 🔻 Decrease seat usage for each course in the learning path
+      for (const course of lp.courses) {
+        await this._purchaseRepo.decreaseSeatUsage(
+          new mongoose.Types.ObjectId(companyId),
+          new mongoose.Types.ObjectId(course.courseId.toString())
+        );
+      }
+
+      // 🗑 Remove progress assignment
+      await this._assignRepo.delete(companyId, employeeId, path.learningPathId._id.toString());
+    }
+
+    // 🧹 Remove employee from the company
     await this.employeeRepo.updateById(employeeId, {
       status: EmployeeStatus.NONE,
       companyId: null,
     });
 
-    console.log("company leaved")
-
-    // Also remove from company list
-    if (employee.companyId) {
-      await this.companyRepo.removeEmployee(employee.companyId.toString(), employeeId);
-    }
+    await this.companyRepo.removeEmployee(companyId, employeeId);
   }
 }

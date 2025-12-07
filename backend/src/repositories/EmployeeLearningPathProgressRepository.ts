@@ -15,6 +15,14 @@ export class EmployeeLearningPathProgressRepository implements IEmployeeLearning
             .lean()
             .exec();
     }
+
+    async findAllAssignedEmployees(companyId: string, learningPathId: string) {
+        return EmployeeLearningPathProgress.find(
+            { companyId, learningPathId },
+            { employeeId: 1, _id: 0 }
+        );
+    }
+
     async getAssigned(employeeId: string): Promise<IEmployeeLearningPathProgress[]> {
         return EmployeeLearningPathProgress.find({
             employeeId: new Types.ObjectId(employeeId),

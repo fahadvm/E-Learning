@@ -1,3 +1,4 @@
+import { CompanyCoursePurchaseRepository } from "../../repositories/CompanyCoursePurchaseRepository";
 import { PublicApiRepository } from "../../repositories/PublicApiRepository";
 import { TransactionRepository } from "../../repositories/TransactionRepository";
 import { WalletRepository } from "../../repositories/WalletRepository";
@@ -87,6 +88,7 @@ export const TYPES = {
     EmployeeCourseService: Symbol.for('EmployeeCourseService'),
     WalletRepository: Symbol.for('WalletRepository'),
     TransactionRepository: Symbol.for('TransactionRepository'),
+    CompanyCoursePurchaseRepository: Symbol.for('CompanyCoursePurchaseRepository'),
 
     ChatService: Symbol.for('ChatService'),
 

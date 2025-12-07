@@ -74,12 +74,14 @@ export default function EmployeeDetailsPage() {
   const assignLearningPath = async () => {
     if (!selectedLearningPathId) return;
 
-    await companyApiMethods.assignLearningPath({
+    const res = await companyApiMethods.assignLearningPath({
       employeeId,
       learningPathId: selectedLearningPathId,
     });
+    if(res.ok){
 
-    showSuccessToast("Learning Path Assigned Successfully!");
+      showSuccessToast("Learning Path Assigned Successfully!");
+    }
 
     setSelectedLearningPathId("");
     fetchLearningPaths();

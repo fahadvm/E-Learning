@@ -222,6 +222,8 @@ import { ITeacherReviewRepository } from '../interfaces/repositories/ITeacherRev
 import { TeacherReviewRepository } from '../../repositories/TeacherReviewRepository';
 import { CompanyCartRepository } from '../../repositories/CompanyCartRepository';
 import { ICompanyCartRepository } from '../interfaces/repositories/ICompanyCartRepository';
+import { ICompanyCoursePurchaseRepository } from '../interfaces/repositories/ICompanyCoursePurchaseRepository';
+import { CompanyCoursePurchaseRepository } from '../../repositories/CompanyCoursePurchaseRepository';
 
 
 
@@ -380,8 +382,9 @@ container.bind<IWalletRepository>(TYPES.WalletRepository).to(WalletRepository);
 container.bind<ITransactionRepository>(TYPES.TransactionRepository).to(TransactionRepository);
 container.bind<INotificationRepository>(TYPES.NotificationRepository).to(NotificationRepository);
 container.bind<NotificationController>(TYPES.NotificationController).to(NotificationController);
-container.bind<INotificationService>(TYPES.NotificationService).to(NotificationService);
 
+container.bind<ICompanyCoursePurchaseRepository>(TYPES.CompanyCoursePurchaseRepository).to(CompanyCoursePurchaseRepository);
+container.bind<INotificationService>(TYPES.NotificationService).to(NotificationService);
 container.bind<IEmployeeLearningPathRepository>(TYPES.EmployeeLearningPathRepository).to(EmployeeLearningPathRepository);
 container.bind<IEmployeeLearningPathProgressRepository>(TYPES.EmployeeLearningPathProgressRepository).to(EmployeeLearningPathProgressRepository);
 container.bind<ICompanyLearningPathService>(TYPES.CompanyLearningPathService).to(CompanyLearningPathService);
