@@ -27,6 +27,6 @@ export interface IEmployeeRepository {
   saveNotes(employeeId: string, courseId: string, notes: string): Promise<ICourseProgress>
   getProgress(employeeId: string): Promise<ICourseProgress[] | null>
   getLearningRecords(employeeId: string): Promise<IEmployeeLearningRecord[]>
-  updateLoginStreak(employeeId: string):Promise<any>
-
+  updateLoginStreak(employeeId: string): Promise<any>
+  searchByEmailOrName(query: string): Promise<IEmployee[]>
 }

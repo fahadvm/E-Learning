@@ -15,10 +15,10 @@ export class EmployeeProfileService implements IEmployeeProfileService {
     private readonly _employeeRepo: IEmployeeRepository
   ) { }
 
-  async getProfile(employeeId: string): Promise<IEmployeeProfileDTO> {
+  async getProfile(employeeId: string): Promise<IEmployee> {
     const employee = await this._employeeRepo.findById(employeeId);
     if (!employee) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    return employeeProfileDto(employee);
+    return employee
 
   }
 

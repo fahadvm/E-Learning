@@ -39,6 +39,7 @@ export default function TeacherEnrollmentsPage() {
     const fetchEnrollments = async () => {
         setLoading(true);
         const response = await teacherEnrollmentApi.getEnrollments();
+        console.log("response",response)
         if (response && response.data) {
             setEnrollments(response.data);
         }
@@ -68,7 +69,7 @@ export default function TeacherEnrollmentsPage() {
     const paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     // Seat Progress Bar for Companies
-    const SeatUsageBar = ({ purchased, assigned }: { purchased: number; assigned: number }) => {
+    const SeatUsageBar = ({ purchased, assigned =  0}: { purchased: number; assigned: number }) => {
         const percentage = (assigned / purchased) * 100;
         const isFull = assigned >= purchased;
 
@@ -212,7 +213,7 @@ export default function TeacherEnrollmentsPage() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 {enrollment.source === 'company' ? (
-                                                    enrollment.purchasedSeats && enrollment.assignedSeats ? (
+                                                    enrollment.purchasedSeats  ? (
                                                         <SeatUsageBar purchased={enrollment.purchasedSeats} assigned={enrollment.assignedSeats} />
                                                     ) : null
                                                 ) : (

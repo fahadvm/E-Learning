@@ -1,369 +1,472 @@
-"use client"
+"use client";
 
-import { motion, AnimatePresence } from "framer-motion"
-import { useEffect, useState } from "react"
-import { employeeApiMethods } from "@/services/APIservices/employeeApiService"
-import { IEmployee, useEmployee } from "@/context/employeeContext"
-import { EmployeeCard } from "@/components/employee/employee-card"
-import { CompanySearch } from "@/components/employee/company-search"
-import { CompanyCard } from "@/components/employee/company-card"
-import { CompanyHero } from "@/components/employee/company-hero"
-import { TeamGrid } from "@/components/employee/team-grid"
-import { CompanyProfileModal } from "@/components/employee/company-profile-modal"
-import { ConfirmationDialog } from "@/components/employee/confirmation-dialog"
-import { LoadingState } from "@/components/employee/loading-state"
-import { NotificationAlert } from "@/components/employee/notification-alert"
+import React, { useState, useEffect } from "react";
+import {
+  User,
+  Building2,
+  Search,
+  Check,
+  X,
+  Mail,
+  Code,
+  Briefcase,
+  Loader2,
+  ArrowRight,
+  LogOut,
+  AlertTriangle,
+} from "lucide-react";
+import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
+import { showSuccessToast, showErrorToast } from "@/utils/Toast";
 
-type UserCompanyState = "no-company" | "has-company" | "loading"
-type JoinRequestStatus = "none" | "requested" | "approved"
+// ---------------- Shared UI Components ----------------
 
-interface SocialLinks {
-  linkedin?: string
-  twitter?: string
-  instagram?: string
-}
+const Card = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
+  <div
+    className={`bg-white/60 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-200/50 transition duration-300 hover:shadow-xl ${className}`}
+  >
+    {children}
+  </div>
+);
 
-interface ICompany {
-  _id?: string
-  isVerified: boolean
-  isBlocked: boolean
-  role: string
-  about: string
-  profilePicture: string
-  location: string
-  companyCode: string
-  phone: string
-  website: string
-  social_links: SocialLinks
-  name: string
-  email: string
-  password: string
-  courses: string
-  employees: any[]
-  employeesCount?: number
-  isPremium: boolean
-  createdAt: Date
-  updatedAt: Date
-}
+const Button = ({
+  children,
+  onClick,
+  variant = "primary",
+  className = "",
+  disabled = false,
+  loading = false,
+}: any) => {
+  const base =
+    "px-4 py-2 rounded-lg font-semibold transition duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg disabled:opacity-50";
 
-interface Notification {
-  id: string
-  title: string
-  message: string
-  type: "success" | "error" | "info"
-}
-
-export default function CompanyPage() {
-
-  const [userState, setUserState] = useState<UserCompanyState>("loading")
-  const [joinRequestStatus, setJoinRequestStatus] = useState<JoinRequestStatus>("none")
-  const [companyData, setCompanyData] = useState<ICompany | null>(null)
-  const [companyFullData, setCompanyFullData] = useState<ICompany | null>(null)
-  const [employee, setEmployee] = useState<IEmployee | null>(null)
-  const [employees, setEmployees] = useState<any[]>([])
-
-  const [companyCode, setCompanyCode] = useState("")
-  const [searchError, setSearchError] = useState<string | null>(null)
-
-  const [companyProfileOpen, setCompanyProfileOpen] = useState(false)
-  const [confirmCancelOpen, setConfirmCancelOpen] = useState(false)
-  const [confirmLeaveOpen, setConfirmLeaveOpen] = useState(false)
-
-  const [isSearching, setIsSearching] = useState(false)
-  const [isActionLoading, setIsActionLoading] = useState(false)
-  const [isCompanyLoading, setIsCompanyLoading] = useState(false)
-
-  const [notification, setNotification] = useState<Notification | null>(null)
-  const requiredFields = ["name", "phone", "location", "department", "position"]
-
-
-  const showNotification = (title: string, message: string, type: "success" | "error" | "info" = "info") => {
-    const id = Date.now().toString()
-    setNotification({ id, title, message, type })
-  }
-
-  useEffect(() => {
-    const fetchCompanyData = async () => {
-      try {
-        setUserState("loading")
-        const res = await employeeApiMethods.getMyCompany()
-
-        if (res?.data?.status === "approved") {
-          const company = res.data.companyId
-          setCompanyData(company)
-          setEmployees(company.employees || [])
-          setUserState("has-company")
-          setJoinRequestStatus("approved")
-        } else if (res?.data?.status === "requested") {
-          const company = res.data.requestedCompanyId
-          setCompanyData(company)
-          setEmployees(company.employees || [])
-          setJoinRequestStatus("requested")
-          setUserState("no-company")
-        } else {
-          setUserState("no-company")
-          setJoinRequestStatus("none")
-        }
-      } catch {
-        setUserState("no-company")
-      }
-    }
-
-    const fetchEmployee = async () => {
-      try {
-        const res = await employeeApiMethods.getProfile();
-        setEmployee(res.data);
-      } catch (err) {
-        console.log("Profile fetch error:", err);
-      };
-    }
-    fetchEmployee()
-    fetchCompanyData()
-  }, [])
-
-  const handleSearch = async (code: string) => {
-    if (joinRequestStatus === "requested" && companyData?.name) {
-      showNotification(
-        "Request Already Sent",
-        `You've already requested ${companyData.name}. Cancel your request to connect with another company.`,
-        "info",
-      )
-      return
-    }
-
-    setIsSearching(true)
-    setSearchError(null)
-
-    try {
-      const res = await employeeApiMethods.findCompany({ companycode: code })
-      if (res?.data) {
-        setCompanyData(res.data)
-        setEmployees(res.data.employees || [])
-      } else {
-        setSearchError("Company not found.")
-      }
-    } catch {
-      setSearchError("Error searching company.")
-    } finally {
-      setIsSearching(false)
-    }
-  }
-
-  const handleJoinRequest = async () => {
-    if (!companyData?._id) return
-
-    const missingFields = []
-    if (!employee?.name) missingFields.push("Name")
-    if (!employee?.phone) missingFields.push("Phone")
-    if (!employee?.location) missingFields.push("Location")
-    if (!employee?.department) missingFields.push("Department")
-    if (!employee?.position) missingFields.push("Position")
-
-    if (missingFields.length > 0) {
-      showNotification(
-        "Complete Your Profile",
-        `Please fill the following fields before joining a company: ${missingFields.join(", ")}`,
-        "error"
-      )
-      return
-    }
-
-    setIsActionLoading(true)
-    try {
-      await employeeApiMethods.sendCompanyRequest({ companyId: companyData?._id })
-      setJoinRequestStatus("requested")
-      showNotification("Request Sent", "Your join request is pending approval.", "success")
-    } catch {
-      showNotification("Error", "Failed to send join request.", "error")
-    } finally {
-      setIsActionLoading(false)
-    }
-  }
-
-
-  const handleCancelRequest = async () => {
-    setIsActionLoading(true)
-    try {
-      await employeeApiMethods.cancelCompanyRequest()
-      setJoinRequestStatus("none")
-      setCompanyData(null)
-      showNotification("Cancelled", "Your join request has been cancelled.", "success")
-    } finally {
-      setIsActionLoading(false)
-      setConfirmCancelOpen(false)
-    }
-  }
-
-  const handleEmployeeUpdate = (updatedData: Partial<IEmployee>) => {
-    setEmployee((prev) => ({
-      ...prev!,
-      ...updatedData,
-    }));
+  const variants: any = {
+    primary:
+      "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2",
+    secondary: "bg-gray-100 text-gray-700 hover:bg-gray-200",
+    success: "bg-green-500 text-white hover:bg-green-600",
+    danger: "bg-red-500 text-white hover:bg-red-600",
+    outline: "border border-gray-300 text-gray-700 hover:bg-gray-50",
   };
 
-  const handleLeaveCompany = async () => {
-    setIsActionLoading(true)
-    try {
-      await employeeApiMethods.leaveCompany()
-      setUserState("no-company")
-      setJoinRequestStatus("none")
-      setCompanyData(null)
-      showNotification("Left Company", "You have successfully left the company.", "success")
-    } catch {
-      showNotification("Error", "Failed to leave company.", "error")
-    } finally {
-      setIsActionLoading(false)
-      setConfirmLeaveOpen(false)
-    }
-  }
+  return (
+    <button
+      onClick={onClick}
+      className={`${base} ${variants[variant]} ${className}`}
+      disabled={disabled || loading}
+    >
+      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : children}
+    </button>
+  );
+};
 
-  const openCompanyProfile = async () => {
-    setCompanyProfileOpen(true)
-    setIsCompanyLoading(true)
+const Input = ({ icon: Icon, ...props }: any) => (
+  <div className="relative w-full">
+    {Icon && (
+      <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+    )}
+    <input
+      {...props}
+      className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${Icon ? "pl-10" : "pl-3"
+        }`}
+    />
+  </div>
+);
+
+const Badge = ({ children, variant = "default" }: any) => {
+  const styles: any = {
+    success: "bg-green-100 text-green-800",
+    warning: "bg-yellow-100 text-yellow-800",
+    danger: "bg-red-100 text-red-800",
+    default: "bg-indigo-100 text-indigo-800",
+  };
+  return (
+    <span className={`px-3 py-1 text-xs font-semibold rounded-full ${styles[variant]}`}>
+      {children}
+    </span>
+  );
+};
+
+// ---------------- Components ----------------
+
+const EmployeeProfileCard = ({ profile, company, status }: any) => (
+  <Card>
+    <div className="flex items-center space-x-4 mb-4">
+      <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 overflow-hidden">
+        {profile?.profilePicture ? <img src={profile.profilePicture} alt="Avatar" className="w-full h-full object-cover" /> : <User className="w-8 h-8" />}
+      </div>
+      <div>
+        <h2 className="text-xl font-bold text-gray-800">{profile?.name || "Employee"}</h2>
+        <p className="text-sm text-gray-500">{profile?.position || "No Position"}</p>
+      </div>
+    </div>
+
+    <div className="space-y-3 mb-4">
+      <div className="flex items-center text-sm text-gray-600">
+        <Mail className="w-4 h-4 mr-2 text-indigo-500" /> {profile?.email}
+      </div>
+      <div className="flex items-center text-sm text-gray-600">
+        <Building2 className="w-4 h-4 mr-2 text-indigo-500" />{" "}
+        {company ? company.name : (status === 'requested' ? "Request Pending" : "Unassigned")}
+      </div>
+    </div>
+
+    <div className="flex items-center justify-between mt-auto pt-4">
+      <Badge variant={status === "active" ? "success" : status === "requested" ? "warning" : "default"}>
+        {status === 'active' ? "Employed" : status === 'requested' ? "Request Sent" : "Free Agent"}
+      </Badge>
+    </div>
+    {profile?.rejectionReason && (
+      <div className="mt-3 p-2 bg-red-50 text-red-600 text-xs rounded-md flex items-start">
+        <AlertTriangle className="w-4 h-4 mr-2 mt-0.5" />
+        <span>Recent Rejection: {profile.rejectionReason}</span>
+      </div>
+    )}
+  </Card>
+);
+
+const CompanyInvitationRequests = ({ invitation, onAccept, onReject, loading }: any) => {
+  if (!invitation) return null;
+
+  return (
+    <Card>
+      <h2 className="text-xl font-semibold mb-5 flex items-center text-gray-800">
+        <Building2 className="w-5 h-5 mr-3 text-indigo-600" />
+        Company Invitation
+      </h2>
+      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg shadow-sm hover:bg-gray-100 transition">
+        <div>
+          <p className="font-semibold text-gray-800">{invitation.name}</p>
+          <p className="text-sm text-gray-500 flex items-center">
+            <Mail className="w-3 h-3 mr-1" /> {invitation.email}
+          </p>
+        </div>
+        <div className="flex items-center space-x-3">
+          <Badge variant="warning">Invited</Badge>
+          <Button variant="success" className="p-2" onClick={onAccept} loading={loading}>
+            <Check className="w-4 h-4" />
+          </Button>
+          <Button variant="danger" className="p-2" onClick={onReject} loading={loading}>
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
+const CompanySearchCard = ({ onSearch, searching, searchResult, onSendRequest, requestLoading }: any) => {
+  const [code, setCode] = useState("");
+
+  return (
+    <Card>
+      <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-800">
+        <Search className="w-5 h-5 mr-3 text-indigo-600" /> Join Company via Code
+      </h2>
+      <p className="text-gray-600 mb-4">
+        Enter a valid company code to search and request to join their organization.
+      </p>
+      <div className="flex gap-3 mb-4">
+        <Input
+          placeholder="e.g., DEVNEXT102"
+          icon={Code}
+          value={code}
+          onChange={(e: any) => setCode(e.target.value)}
+          onKeyPress={(e: any) => e.key === 'Enter' && onSearch(code)}
+        />
+        <Button onClick={() => onSearch(code)} loading={searching}>
+          <Search className="w-4 h-4" />
+        </Button>
+      </div>
+
+      {searchResult && (
+        <div className="p-4 border rounded-lg bg-gray-50 flex justify-between items-center animate-in fade-in slide-in-from-top-2">
+          <div>
+            <h3 className="font-bold">{searchResult.name}</h3>
+            <p className="text-sm text-gray-500">{searchResult.email}</p>
+            <p className="text-xs text-gray-400">{searchResult.industry}</p>
+          </div>
+          <Button onClick={() => onSendRequest(searchResult._id)} loading={requestLoading}>
+            Request to Join
+          </Button>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+const CurrentCompanyDetails = ({ company, onLeave }: any) => (
+  <Card>
+    <div className="flex justify-between items-start mb-6">
+      <div>
+        <h2 className="text-2xl font-bold flex items-center gap-2">
+          <Building2 className="w-6 h-6 text-indigo-600" />
+          {company.name}
+        </h2>
+        <p className="text-gray-500">{company.industry}</p>
+      </div>
+      {company.profilePicture && (
+        <img src={company.profilePicture} alt={company.name} className="w-16 h-16 rounded-lg object-cover" />
+      )}
+    </div>
+
+    <div className="space-y-4 mb-6">
+      <div className="flex gap-2">
+        <Badge>{company.activePlan || "Standard Plan"}</Badge>
+        {company.isVerified && <Badge variant="success">Verified</Badge>}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div>
+          <p className="font-semibold text-gray-700">Contact</p>
+          <p className="text-gray-600">{company.email}</p>
+          <p className="text-gray-600">{company.phone || "N/A"}</p>
+        </div>
+        <div>
+          <p className="font-semibold text-gray-700">Location</p>
+          <p className="text-gray-600">{company.address || "N/A"}</p>
+        </div>
+      </div>
+    </div>
+
+    <div className="pt-4 border-t">
+      <Button variant="danger" className="w-full sm:w-auto" onClick={onLeave}>
+        <LogOut className="w-4 h-4 mr-2" />
+        Leave Company
+      </Button>
+    </div>
+  </Card>
+)
+
+const RequestStatusCard = ({ requestedCompany, onCancel }: any) => (
+  <Card>
+    <h2 className="text-xl font-semibold mb-4 text-gray-800">Pending Request</h2>
+    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg mb-4">
+      <p className="text-yellow-800">
+        You have requested to join <strong>{requestedCompany.name}</strong>.
+        Waiting for approval.
+      </p>
+    </div>
+    <Button variant="danger" onClick={onCancel}>
+      Cancel Request
+    </Button>
+  </Card>
+)
+
+// ---------------- Main Page ----------------
+
+export default function EmployeeCompanyPage() {
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<any>(null);
+
+  // States: 'active', 'requested', 'invited', 'none'
+  const [status, setStatus] = useState<string>("none");
+
+  const [company, setCompany] = useState<any>(null);
+  const [requestedCompany, setRequestedCompany] = useState<any>(null);
+  const [invitation, setInvitation] = useState<any>(null);
+
+  // Search State
+  const [searching, setSearching] = useState(false);
+  const [searchResult, setSearchResult] = useState<any>(null);
+  const [actionLoading, setActionLoading] = useState(false);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
     try {
-      const res = await employeeApiMethods.getMyCompany()
-      if (res.data.status === "requested") {
-        setCompanyFullData(res?.data.requestedCompanyId)
-      } else if (res.data.status === "approved") {
-        setCompanyFullData(res?.data.companyId)
+      const profileRes = await employeeApiMethods.getProfile();
+      // @ts-ignore
+      const p = profileRes.data;
+      console.log("profile:", p)
+      console.log("profileof invitedBy:", p.invitedBy)
+      setProfile(p);
+
+      // Check for Company
+      if (p.companyId) {
+        const companyRes = await employeeApiMethods.getMyCompany();
+        // @ts-ignore
+        if (companyRes.data) {
+          // @ts-ignore
+          setCompany(companyRes.data.companyId); // Populate puts it in companyId field usually, or assumes structure
+          setStatus("active");
+          setLoading(false);
+          return;
+        }
       }
+
+      // Check for Request
+      if (p.requestedCompanyId) {
+        const reqRes = await employeeApiMethods.getRequestedCompany();
+        // @ts-ignore
+        if (reqRes.data && reqRes.data.requestedCompanyId) {
+          // @ts-ignore
+          setRequestedCompany(reqRes.data.requestedCompanyId);
+          setStatus("requested");
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Check for Invitation
+      if (p.invitedBy) {
+
+        const inviteRes = await employeeApiMethods.getInvitation();
+        // @ts-ignore
+        if (inviteRes.data) {
+          // @ts-ignore
+          setInvitation(inviteRes.data);
+          setStatus("invited");
+          setLoading(false);
+          return;
+        }
+      }
+
+      setStatus("none");
+
+    } catch (error) {
+      console.error("Error fetching data", error);
+      showErrorToast("Failed to load company data");
     } finally {
-      setIsCompanyLoading(false)
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = async (code: string) => {
+    if (!code) return;
+    setSearching(true);
+    setSearchResult(null);
+    try {
+      const res = await employeeApiMethods.findCompany({ companycode: code });
+      // @ts-ignore
+      if (res.data) {
+        // @ts-ignore
+        setSearchResult(res.data);
+      }
+    } catch (error: any) {
+      showErrorToast(error?.response?.data?.message || "Company not found");
+    } finally {
+      setSearching(false);
     }
   }
 
-  if (userState === "loading") {
-    return <LoadingState message="Loading company data..." />
+  const handleSendRequest = async (companyId: string) => {
+    setActionLoading(true);
+    try {
+      await employeeApiMethods.sendCompanyRequest({ companyId });
+      showSuccessToast("Request sent successfully");
+      fetchData(); // Refresh state
+    } catch (error: any) {
+      showErrorToast(error?.response?.data?.message || "Failed to send request");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  const handleAcceptInvite = async () => {
+    setActionLoading(true);
+    try {
+      await employeeApiMethods.acceptInvite();
+      showSuccessToast("Invitation accepted!");
+      fetchData();
+    } catch (error: any) {
+      showErrorToast(error?.response?.data?.message || "Failed to accept");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  const handleRejectInvite = async () => {
+    setActionLoading(true);
+    try {
+      await employeeApiMethods.rejectInvite();
+      showSuccessToast("Invitation rejected");
+      fetchData();
+    } catch (error: any) {
+      showErrorToast(error?.response?.data?.message || "Failed to reject");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  const handleCancelRequest = async () => {
+    if (!confirm("Are you sure you want to cancel the request?")) return;
+    try {
+      await employeeApiMethods.cancelCompanyRequest();
+      showSuccessToast("Request cancelled");
+      fetchData();
+    } catch (error: any) {
+      showErrorToast(error?.response?.data?.message || "Failed to cancel");
+    }
+  }
+
+  const handleLeaveCompany = async () => {
+    if (!confirm("Are you sure you want to leave this company?")) return;
+    try {
+      await employeeApiMethods.leaveCompany();
+      showSuccessToast("You have left the company");
+      fetchData();
+    } catch (error: any) {
+      showErrorToast(error?.response?.data?.message || "Failed to leave");
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+      </div>
+    )
   }
 
   return (
-    <main className="min-h-screen bg-background">
-      {/* Background Grid Pattern */}
-      <div className="fixed inset-0 pointer-events-none opacity-5">
-        <div className="absolute inset-0 bg-grid-pattern" />
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8 relative">
+      <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-r from-indigo-100 via-blue-100 to-white opacity-50"></div>
+
+      <div className="relative max-w-7xl mx-auto">
+        <main className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+          {/* Left Column: Profile */}
+          <div className="lg:col-span-1">
+            <EmployeeProfileCard profile={profile} company={company} status={status} />
+          </div>
+
+          {/* Right Column: Actions */}
+          <div className="lg:col-span-2 space-y-8">
+
+            {status === 'active' && company && (
+              <CurrentCompanyDetails company={company} onLeave={handleLeaveCompany} />
+            )}
+
+            {status === 'requested' && requestedCompany && (
+              <RequestStatusCard requestedCompany={requestedCompany} onCancel={handleCancelRequest} />
+            )}
+
+            {status === 'invited' && invitation && (
+              <CompanyInvitationRequests
+                invitation={invitation}
+                onAccept={handleAcceptInvite}
+                onReject={handleRejectInvite}
+                loading={actionLoading}
+              />
+            )}
+
+            {status === 'none' && (
+              <CompanySearchCard
+                onSearch={handleSearch}
+                searching={searching}
+                searchResult={searchResult}
+                onSendRequest={handleSendRequest}
+                requestLoading={actionLoading}
+              />
+            )}
+
+          </div>
+        </main>
       </div>
 
-      <div className="relative">
-        <div className="mx-auto max-w-6xl px-4 md:px-6 lg:px-8 py-8 md:py-12">
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="grid grid-cols-1 md:grid-cols-[30%_70%] gap-8 md:gap-12"
-          >
-            {/* Employee Card */}
-            <EmployeeCard
-              name={employee?.name || "Unknown"}
-              email={employee?.email || "-"}
-              phone={employee?.phone || "-"}
-              location={employee?.location || "-"}
-              employeeId={employee?.employeeID || "N/A"}
-              department={employee?.department || "-"}
-              position={employee?.position || "-"}
-              profilePicture={employee?.profilePicture || "/images/profile.jpg"}
-              linkedin={employee?.social_links?.linkedin}
-              github={employee?.social_links?.github}
-              portfolio={employee?.social_links?.portfolio}
-              onProfileUpdate={handleEmployeeUpdate}
-            />
-
-            <AnimatePresence mode="wait">
-              {/* No Company State */}
-              {userState === "no-company" && (
-                <motion.div
-                  key="no-company"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4 }}
-                  className="space-y-8"
-                >
-                  <CompanySearch onSearch={handleSearch} isSearching={isSearching} error={searchError} />
-
-                  {companyData && (
-                    <CompanyCard
-                      name={companyData.name}
-                      code={companyData.companyCode}
-                      employeeCount={employees.length}
-                      onViewProfile={openCompanyProfile}
-                      onJoinRequest={handleJoinRequest}
-                      onCancelRequest={() => setConfirmCancelOpen(true)}
-                      status={joinRequestStatus}
-                      isLoading={isActionLoading}
-                    />
-                  )}
-                </motion.div>
-              )}
-
-              {/* Has Company State */}
-              {userState === "has-company" && companyData && (
-                <motion.div
-                  key="has-company"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4 }}
-                  className="space-y-12"
-                >
-                  <CompanyHero
-                    name={companyData.name}
-                    memberCount={companyData.employeesCount || employees.length}
-                    onViewProfile={openCompanyProfile}
-                    onLeave={() => setConfirmLeaveOpen(true)}
-                    isLoading={isActionLoading}
-                  />
-
-                  {employees.length > 0 && <TeamGrid members={employees} />}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Modals & Dialogs */}
-      <CompanyProfileModal
-        open={companyProfileOpen}
-        onOpenChange={setCompanyProfileOpen}
-        company={companyFullData}
-        isLoading={isCompanyLoading}
-      />
-
-      <ConfirmationDialog
-        open={confirmCancelOpen}
-        onOpenChange={setConfirmCancelOpen}
-        title="Cancel Join Request?"
-        description={`Are you sure you want to cancel your request to join ${companyData?.name}? You can search for them again later.`}
-        onConfirm={handleCancelRequest}
-        confirmText="Cancel Request"
-        cancelText="Keep Request"
-        isDangerous={true}
-        isLoading={isActionLoading}
-      />
-
-      <ConfirmationDialog
-        open={confirmLeaveOpen}
-        onOpenChange={setConfirmLeaveOpen}
-        title="Leave Company?"
-        description={`Are you sure you want to leave ${companyData?.name}? You'll lose access to team collaboration features.`}
-        onConfirm={handleLeaveCompany}
-        confirmText="Leave Company"
-        cancelText="Stay"
-        isDangerous={true}
-        isLoading={isActionLoading}
-      />
-
-      {/* Notification */}
-      {notification && (
-        <NotificationAlert
-          title={notification.title}
-          message={notification.message}
-          type={notification.type}
-          autoClose={true}
-          duration={4000}
-          onClose={() => setNotification(null)}
-        />
-      )}
-    </main>
-  )
+    </div>
+  );
 }

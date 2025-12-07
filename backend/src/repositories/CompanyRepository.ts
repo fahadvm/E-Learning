@@ -9,7 +9,7 @@ export class CompanyRepository implements ICompanyRepository {
     return Company.findOne({ email }).exec();
   }
 
-  async create(data: { name: string; email: string; password: string ,companyCode: string }): Promise<ICompany> {
+  async create(data: { name: string; email: string; password: string, companyCode: string }): Promise<ICompany> {
     const company = new Company(data);
     return company.save();
   }
@@ -135,5 +135,17 @@ export class CompanyRepository implements ICompanyRepository {
 
   async findByCompanyCode(code: string): Promise<ICompany | null> {
     return Company.findOne({ companyCode: code }).exec();
+  }
+
+  async addEmployee(companyId: string, employeeId: string): Promise<void> {
+    await Company.findByIdAndUpdate(companyId, {
+      $addToSet: { employees: employeeId }
+    }).exec();
+  }
+
+  async removeEmployee(companyId: string, employeeId: string): Promise<void> {
+    await Company.findByIdAndUpdate(companyId, {
+      $pull: { employees: employeeId }
+    }).exec();
   }
 }

@@ -91,7 +91,7 @@ export class EmployeeRepository implements IEmployeeRepository {
     }
 
     async updateById(employeeId: string, data: Partial<IEmployee>): Promise<IEmployee | null> {
-                console.log("update data from service ", data)
+        console.log("update data from service ", data)
 
         return await Employee.findByIdAndUpdate(employeeId, data, { new: true }).lean().exec();
     }
@@ -329,4 +329,12 @@ export class EmployeeRepository implements IEmployeeRepository {
         };
     }
 
+    async searchByEmailOrName(query: string): Promise<IEmployee[]> {
+        return await Employee.find({
+            $or: [
+                { name: { $regex: query, $options: 'i' } },
+                { email: { $regex: query, $options: 'i' } }
+            ]
+        }).lean().exec();
+    }
 }

@@ -16,8 +16,8 @@ export interface IEmployee extends Document {
   _id: ObjectId;
   name: string;
   email: string;
-  companyId?: mongoose.Types.ObjectId;
-  requestedCompanyId?: mongoose.Types.ObjectId;
+  companyId?: mongoose.Types.ObjectId | null ;
+  requestedCompanyId?: mongoose.Types.ObjectId| null;
   password?: string;
   profilePicture?: string;
   coursesAssigned: mongoose.Types.ObjectId[];
@@ -48,8 +48,8 @@ export interface IEmployee extends Document {
   rejectedAt?: Date;
 
   // Invitation tracking
-  invitedBy?: mongoose.Types.ObjectId;
-  invitedAt?: Date;
+  invitedBy?: mongoose.Types.ObjectId | null;
+  invitedAt?: Date| null;
 
 }
 

@@ -25,7 +25,7 @@ export interface ICompanyEmployeeService {
   blockEmployee(id: string, status: boolean): Promise<void>;
   updateEmployee(employeeId: string, data: Partial<IEmployee>): Promise<IEmployee | null>;
   requestedEmployees(companyId: string): Promise<IEmployee[] | null>;
-  approvingEmployee(companyId: string , employeeId :string ): Promise<IEmployee | null>
-  rejectingEmployee(companyId: string): Promise<IEmployee | null>
+  approvingEmployee(companyId: string, employeeId: string): Promise<IEmployee | null>
+  rejectingEmployee(employeeId: string, reason: string): Promise<IEmployee | null>
 
 }

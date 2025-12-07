@@ -5,6 +5,6 @@ import {  IEmployeeProfileDTO } from '../../../dtos/employee/employee.profile.dt
 
 
 export interface IEmployeeProfileService {
-  getProfile(employeeId: string): Promise<IEmployeeProfileDTO>;
+  getProfile(employeeId: string): Promise<IEmployee>;
   updateEmployeeProfile(employeeId: string, data: Partial<IEmployee>): Promise<IEmployeeProfileDTO>;
 }

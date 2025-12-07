@@ -32,6 +32,9 @@ export const employeeApiMethods = {
   getRequestedCompany: () => get(EMPLOYEE_ROUTES.company.requestedCompany),
   cancelCompanyRequest: () => get(EMPLOYEE_ROUTES.company.cancelRequest),
   leaveCompany: () => post(EMPLOYEE_ROUTES.company.leaveCompany, {}),
+  getInvitation: () => get(EMPLOYEE_ROUTES.company.invitation),
+  acceptInvite: () => post(EMPLOYEE_ROUTES.company.acceptInvite, {}),
+  rejectInvite: () => post(EMPLOYEE_ROUTES.company.rejectInvite, {}),
 
   // Courses
   getMyCourses: () => get(EMPLOYEE_ROUTES.courses.enrolled),
@@ -49,8 +52,8 @@ export const employeeApiMethods = {
   getAssignedLearningPaths: () => get(EMPLOYEE_ROUTES.LearningPaths.get),
   getLearningPathById: (learningPathId: string) => get(EMPLOYEE_ROUTES.LearningPaths.details(learningPathId)),
 
-  getAllTimeLeaderBoard: (params:{companyId:string}) => get(EMPLOYEE_ROUTES.leaderboard.allTime,params),
-  getWeeklyLeaderBoard: (params:{companyId:string}) => get(EMPLOYEE_ROUTES.leaderboard.weekly,params),
-  getMonthlyLeaderBoard: (params:{companyId:string}) => get(EMPLOYEE_ROUTES.leaderboard.monthly,params),
+  getAllTimeLeaderBoard: (params: { companyId: string }) => get(EMPLOYEE_ROUTES.leaderboard.allTime, params),
+  getWeeklyLeaderBoard: (params: { companyId: string }) => get(EMPLOYEE_ROUTES.leaderboard.weekly, params),
+  getMonthlyLeaderBoard: (params: { companyId: string }) => get(EMPLOYEE_ROUTES.leaderboard.monthly, params),
 
 };

@@ -11,11 +11,11 @@ import { MESSAGES } from '../../utils/ResponseMessages';
 // ✅ Define all messages as constants
 
 @injectable()
-export class EmployeeCompanyController  {
+export class EmployeeCompanyController {
   constructor(
     @inject(TYPES.EmployeeCompanyService)
     private readonly _employeeCompanyService: IEmployeeCompanyService
-  ) {}
+  ) { }
 
   async getCompany(req: AuthRequest, res: Response) {
     const result = await this._employeeCompanyService.getMyCompany(req.user!.id);
@@ -47,5 +47,20 @@ export class EmployeeCompanyController  {
   async leaveCompany(req: AuthRequest, res: Response) {
     await this._employeeCompanyService.leaveCompany(req.user!.id);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.LEFT_COMPANY, true);
+  }
+
+  async getInvitation(req: AuthRequest, res: Response) {
+    const result = await this._employeeCompanyService.getInvitation(req.user!.id);
+    return sendResponse(res, STATUS_CODES.OK, "Invitation fetched", true, result);
+  }
+
+  async acceptInvite(req: AuthRequest, res: Response) {
+    await this._employeeCompanyService.acceptInvite(req.user!.id);
+    return sendResponse(res, STATUS_CODES.OK, "Invitation accepted", true);
+  }
+
+  async rejectInvite(req: AuthRequest, res: Response) {
+    await this._employeeCompanyService.rejectInvite(req.user!.id);
+    return sendResponse(res, STATUS_CODES.OK, "Invitation rejected", true);
   }
 }

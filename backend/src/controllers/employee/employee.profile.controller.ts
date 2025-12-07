@@ -22,6 +22,7 @@ export class EmployeeProfileController implements IEmployeeProfileController{
     if (!decoded?.id) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
     const employee = await this._employeeProfileService.getProfile(decoded.id);
     if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    console.log("employee profile data",employee)
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.EMPLOYEE_DETAILS_FETCHED, true, employee);
   };
 

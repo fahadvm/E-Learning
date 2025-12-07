@@ -1,7 +1,9 @@
 // services/company/CompanyEmployeeService.ts
 
+import mongoose from 'mongoose';
 import { inject, injectable } from 'inversify';
 import { ICompanyEmployeeService } from '../../core/interfaces/services/company/ICompanyEmployeeService';
+import { ICompanyRepository } from '../../core/interfaces/repositories/ICompanyRepository';
 import { IEmployeeRepository } from '../../core/interfaces/repositories/IEmployeeRepository';
 import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
@@ -14,8 +16,9 @@ import { PaginatedEmployeeDTO, companyEmployeeDto } from '../../core/dtos/compan
 @injectable()
 export class CompanyEmployeeService implements ICompanyEmployeeService {
     constructor(
-        @inject(TYPES.EmployeeRepository) private _employeeRepo: IEmployeeRepository
-    ) { }
+        @inject(TYPES.EmployeeRepository) private _employeeRepo: IEmployeeRepository,
+        @inject(TYPES.CompanyRepository) private _companyRepo: ICompanyRepository
+    ) { } // Injected CompanyRepository
 
 
     async getAllEmployees(companyId: string, page: number, limit: number, search: string, sortBy: string, sortOrder: string): Promise<PaginatedEmployeeDTO> {
@@ -51,8 +54,11 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
     }
 
     async approvingEmployee(companyId: string, employeeId: string): Promise<IEmployee | null> {
-        const courses = await this._employeeRepo.findEmployeeAndApprove(companyId, employeeId);
-        return courses;
+        const employee = await this._employeeRepo.findEmployeeAndApprove(companyId, employeeId);
+        if (employee) {
+            await this._companyRepo.addEmployee(companyId, employeeId);
+        }
+        return employee;
     }
 
     async rejectingEmployee(employeeId: string, reason: string): Promise<IEmployee | null> {
@@ -63,7 +69,7 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
             status: 'rejected',
             rejectionReason: reason,
             rejectedAt: new Date(),
-            requestedCompanyId: undefined
+            requestedCompanyId: null
         });
         return updated;
     }
@@ -78,10 +84,14 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
                 throwError('Employee already belongs to a company', STATUS_CODES.BAD_REQUEST);
             }
 
+            if (employee.status === 'requested' || employee.status === 'invited') {
+                throwError('Employee already has a pending request or invitation', STATUS_CODES.CONFLICT);
+            }
+
             const updated = await this._employeeRepo.updateById(employee._id.toString(), {
-                requestedCompanyId: companyId,
-                status: 'pending',
-                invitedBy: companyId,
+                requestedCompanyId: null, // Clear any previous request
+                status: 'invited',
+                invitedBy: new mongoose.Types.ObjectId(companyId),
                 invitedAt: new Date()
             });
             return updated;
@@ -105,9 +115,11 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
 
         // Remove employee from company
         await this._employeeRepo.updateById(employeeId, {
-            companyId: undefined,
+            companyId: null,
             status: 'notRequsted'
         });
+
+        await this._companyRepo.removeEmployee(companyId, employeeId);
     }
 
 

@@ -46,4 +46,22 @@ router.post(
   asyncHandler(employeeCompanyCtrl.leaveCompany.bind(employeeCompanyCtrl))
 );
 
+router.get(
+  '/invitation',
+  authMiddleware('employee'),
+  asyncHandler(employeeCompanyCtrl.getInvitation.bind(employeeCompanyCtrl))
+);
+
+router.post(
+  '/accept-invite',
+  authMiddleware('employee'),
+  asyncHandler(employeeCompanyCtrl.acceptInvite.bind(employeeCompanyCtrl))
+);
+
+router.post(
+  '/reject-invite',
+  authMiddleware('employee'),
+  asyncHandler(employeeCompanyCtrl.rejectInvite.bind(employeeCompanyCtrl))
+);
+
 export default router;

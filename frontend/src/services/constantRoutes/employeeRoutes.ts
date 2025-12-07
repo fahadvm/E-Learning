@@ -36,6 +36,9 @@ export const EMPLOYEE_ROUTES = {
     requestedCompany: `${EMPLOYEE_COMPANY}/requestedCompany`,
     cancelRequest: `${EMPLOYEE_COMPANY}/cancelRequest`,
     leaveCompany: `${EMPLOYEE_COMPANY}/leavecompany`,
+    invitation: `${EMPLOYEE_COMPANY}/invitation`,
+    acceptInvite: `${EMPLOYEE_COMPANY}/accept-invite`,
+    rejectInvite: `${EMPLOYEE_COMPANY}/reject-invite`,
   },
 
   courses: {
