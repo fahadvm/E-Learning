@@ -97,7 +97,7 @@ export class CompanyPurchaseController implements ICompanyPurchaseController {
         }
 
         const courses = await this._purchaseService.getPurchasedCourses(companyId);
-        sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED_SUCCESSFULLY, true, courses);
+        sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, courses);
     }
 
     async getPurchasedCourseIds(req: AuthRequest, res: Response) {
@@ -108,6 +108,6 @@ export class CompanyPurchaseController implements ICompanyPurchaseController {
         }
 
         const courseIds = await this._purchaseService.getMycoursesIdsById(companyId);
-        sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED_SUCCESSFULLY, true, courseIds);
+        sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, courseIds);
     }
 }

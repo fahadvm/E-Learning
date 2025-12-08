@@ -112,6 +112,31 @@ let CourseRepository = class CourseRepository {
             return Course_1.Course.findByIdAndUpdate(courseId, updates, { new: true }).lean();
         });
     }
+    incrementStudentCount(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield Course_1.Course.findByIdAndUpdate(courseId, { $inc: { totalStudents: 1 } }, { new: true });
+        });
+    }
+    findRecommendedCourses(courseId, category, level, limit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return Course_1.Course.find({
+                _id: { $ne: courseId },
+                $or: [
+                    { category },
+                    { level }
+                ],
+                isPublished: true
+            })
+                .sort({ totalStudents: -1 })
+                .limit(limit)
+                .lean();
+        });
+    }
+    editCourse(courseId, updates) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield Course_1.Course.findByIdAndUpdate(courseId, { $set: updates }, { new: true });
+        });
+    }
 };
 exports.CourseRepository = CourseRepository;
 exports.CourseRepository = CourseRepository = __decorate([

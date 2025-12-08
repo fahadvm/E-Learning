@@ -46,7 +46,7 @@ exports.StudentSubscription = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const StudentSubscriptionSchema = new mongoose_1.Schema({
     studentId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Student', required: true },
-    planId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Plan', required: true },
+    planId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'SubscriptionPlan', required: true },
     orderId: { type: String, required: true },
     paymentId: { type: String },
     status: {
@@ -55,7 +55,11 @@ const StudentSubscriptionSchema = new mongoose_1.Schema({
         default: 'pending'
     },
     startDate: { type: Date, default: Date.now },
-    endDate: { type: Date }
+    endDate: { type: Date, default: function () {
+            const now = new Date();
+            return new Date(now.setFullYear(now.getFullYear() + 1));
+        },
+    }
 }, { timestamps: true });
 // Auto-calculate endDate based on plan duration when status becomes "active"
 StudentSubscriptionSchema.pre('save', function (next) {

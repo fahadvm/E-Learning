@@ -116,13 +116,13 @@ let TeacherCallRequestController = class TeacherCallRequestController {
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Booking history fetched suceessfully', true, result);
         });
     }
-    cancelRequest(req, res) {
+    rescheduleRequest(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { bookingId } = req.params;
-            const { reason } = req.body;
+            const { reason, nextSlot } = req.body;
             if (!bookingId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            const result = yield this._callRequestService.cancelBooking(bookingId, reason);
+            const result = yield this._callRequestService.rescheduleBooking(bookingId, reason, nextSlot);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.BOOKING_CANCELLED, true, result);
         });
     }

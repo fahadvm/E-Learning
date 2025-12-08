@@ -47,6 +47,16 @@ let StudentProfileController = class StudentProfileController {
             const updated = yield this._studentProfileService.updateStudentProfile(decoded.id, req.body);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.PROFILE_UPDATED, true, updated);
         });
+        this.getContributions = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const leetcode = req.params.leetcode;
+            const github = req.params.github;
+            if (!leetcode || !github) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_DATA, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            }
+            const contributions = yield this._studentProfileService.getContributions(leetcode, github);
+            console.log('contributions are:', contributions);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "CONTRIBUTIONS_FETCHED", true, contributions);
+        });
     }
 };
 exports.StudentProfileController = StudentProfileController;

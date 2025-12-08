@@ -23,7 +23,8 @@ let CommentRepository = class CommentRepository {
     addComment(comment) {
         return __awaiter(this, void 0, void 0, function* () {
             const newComment = new Comment_1.Comment(comment);
-            return yield newComment.save();
+            const saved = yield newComment.save();
+            return yield saved.populate("userId", "_id name profilePicture");
         });
     }
     getCommentsByCourse(courseId) {

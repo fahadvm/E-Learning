@@ -12,6 +12,7 @@ const admin_teacher_route_1 = __importDefault(require("./adminRoute/admin.teache
 const admin_company_route_1 = __importDefault(require("./adminRoute/admin.company.route"));
 const admin_subscription_route_1 = __importDefault(require("./adminRoute/admin.subscription.route"));
 const admin_order_route_1 = __importDefault(require("./adminRoute/admin.order.route"));
+const admin_profile_route_1 = __importDefault(require("./adminRoute/admin.profile.route"));
 // import employeeRoutes from './adminRoute/admin.employee.route';
 const adminRouter = (0, express_1.Router)();
 adminRouter.use('/auth', admin_auth_route_1.default);
@@ -21,5 +22,6 @@ adminRouter.use('/teachers', admin_teacher_route_1.default);
 adminRouter.use('/companies', admin_company_route_1.default);
 adminRouter.use('/subscriptions', admin_subscription_route_1.default);
 adminRouter.use('/orders', admin_order_route_1.default);
+adminRouter.use('/profile', admin_profile_route_1.default);
 // adminRouter.use('/employees', employeeRoutes);
 exports.default = adminRouter;

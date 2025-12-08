@@ -41,7 +41,7 @@ const sendOtpEmail = (toEmail, otp) => __awaiter(void 0, void 0, void 0, functio
         subject: 'Your DevNext OTP Code',
         html: `<h3>Your OTP code is: <b>${otp}</b></h3><p>It is valid for 1 minutes.</p>`,
     };
-    logger_1.default.info('otp is :', otp);
+    logger_1.default.debug(`otp is : ${otp}`);
     yield transporter.sendMail(mailOptions);
 });
 exports.sendOtpEmail = sendOtpEmail;

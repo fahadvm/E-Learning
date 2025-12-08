@@ -7,6 +7,7 @@ const express_1 = require("express");
 const container_1 = __importDefault(require("../../core/di/container"));
 const asyncHandler_1 = require("../../middleware/asyncHandler");
 const types_1 = require("../../core/di/types");
+const authMiddleware_1 = require("../../middleware/authMiddleware");
 const authRouter = (0, express_1.Router)();
 const employeeAuthCtrl = container_1.default.get(types_1.TYPES.EmployeeAuthController);
 // Authentication
@@ -20,4 +21,7 @@ authRouter.post('/forgot-password', (0, asyncHandler_1.asyncHandler)(employeeAut
 authRouter.post('/verify-forgot-otp', (0, asyncHandler_1.asyncHandler)(employeeAuthCtrl.verifyForgotOtp.bind(employeeAuthCtrl)));
 authRouter.put('/set-new-password', (0, asyncHandler_1.asyncHandler)(employeeAuthCtrl.setNewPassword.bind(employeeAuthCtrl)));
 authRouter.post('/resend-otp', (0, asyncHandler_1.asyncHandler)(employeeAuthCtrl.resendOtp.bind(employeeAuthCtrl)));
+authRouter.post('/change-email/send-otp', (0, authMiddleware_1.authMiddleware)('employee'), (0, asyncHandler_1.asyncHandler)(employeeAuthCtrl.sendChangeEmailOtp.bind(employeeAuthCtrl)));
+authRouter.post('/change-email/verify', (0, authMiddleware_1.authMiddleware)('employee'), (0, asyncHandler_1.asyncHandler)(employeeAuthCtrl.verifyChangeEmail.bind(employeeAuthCtrl)));
+authRouter.put('/change-password', (0, authMiddleware_1.authMiddleware)('employee'), (0, asyncHandler_1.asyncHandler)(employeeAuthCtrl.changePassword.bind(employeeAuthCtrl)));
 exports.default = authRouter;

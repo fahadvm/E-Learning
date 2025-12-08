@@ -7,6 +7,7 @@ const express_1 = require("express");
 const container_1 = __importDefault(require("../../core/di/container"));
 const asyncHandler_1 = require("../../middleware/asyncHandler");
 const types_1 = require("../../core/di/types");
+const authMiddleware_1 = require("../../middleware/authMiddleware");
 const authRouter = (0, express_1.Router)();
 const studentAuthCtrl = container_1.default.get(types_1.TYPES.StudentAuthController);
 // Authentication
@@ -21,4 +22,7 @@ authRouter.post('/forgot-password', (0, asyncHandler_1.asyncHandler)(studentAuth
 authRouter.post('/verify-forgot-otp', (0, asyncHandler_1.asyncHandler)(studentAuthCtrl.verifyForgotOtp.bind(studentAuthCtrl)));
 authRouter.put('/set-new-password', (0, asyncHandler_1.asyncHandler)(studentAuthCtrl.setNewPassword.bind(studentAuthCtrl)));
 authRouter.post('/resend-otp', (0, asyncHandler_1.asyncHandler)(studentAuthCtrl.resendOtp.bind(studentAuthCtrl)));
+authRouter.put('/change-password', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentAuthCtrl.changePassword.bind(studentAuthCtrl)));
+authRouter.post('/change-email/send-otp', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentAuthCtrl.sendEmailChangeOtp.bind(studentAuthCtrl)));
+authRouter.post('/change-email/verify-otp', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentAuthCtrl.verifyAndUpdateEmail.bind(studentAuthCtrl)));
 exports.default = authRouter;

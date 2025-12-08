@@ -12,5 +12,6 @@ const router = express_1.default.Router();
 const companyCourseController = container_1.default.get(types_1.TYPES.CompanyCourseController);
 router.get('/', (0, authMiddleware_1.authMiddleware)('company'), (0, asyncHandler_1.asyncHandler)(companyCourseController.getAllCourses.bind(companyCourseController)));
 router.get('/:courseId', (0, authMiddleware_1.authMiddleware)('company'), (0, asyncHandler_1.asyncHandler)(companyCourseController.getCourseDetailById.bind(companyCourseController)));
+router.get('/resources/:courseId', (0, authMiddleware_1.authMiddleware)('company'), (0, asyncHandler_1.asyncHandler)(companyCourseController.getCourseResources.bind(companyCourseController)));
 router.post('/assign-course', (0, authMiddleware_1.authMiddleware)('company'), (0, asyncHandler_1.asyncHandler)(companyCourseController.assignCourseToEmployee.bind(companyCourseController)));
 exports.default = router;

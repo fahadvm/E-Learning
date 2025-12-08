@@ -23,7 +23,7 @@ export interface EmployeeSummary {
   position: string;
 }
 
-export type OtpPurpose = 'signup' | 'forgot-password';
+export type OtpPurpose = "signup" | "change-email" | "forgot-password";
 
 export interface OtpQuery {
   email: string;

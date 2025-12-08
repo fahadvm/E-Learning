@@ -94,7 +94,6 @@ export class StudentSubscriptionService implements IStudentSubscriptionService {
 
     const plan = await this._planRepo.getById(subscription.planId);
     if (!plan) return false;
-    console.log("checking access now ",plan)
 
     return plan.features.some(feature => feature.name === featureName);
   }

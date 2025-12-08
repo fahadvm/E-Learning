@@ -17,7 +17,7 @@ router.get('/pending', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyn
 router.get('/confirmed', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(callRequestCtrl.getConfirmedRequests.bind(callRequestCtrl)));
 router.get('/:bookingId', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(callRequestCtrl.getRequestDetails.bind(callRequestCtrl)));
 router.patch('/:bookingId/approve', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(callRequestCtrl.approveRequest.bind(callRequestCtrl)));
-router.patch('/:bookingId/cancel', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(callRequestCtrl.cancelRequest.bind(callRequestCtrl)));
+router.patch('/:bookingId/reschedule', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(callRequestCtrl.rescheduleRequest.bind(callRequestCtrl)));
 router.patch('/:bookingId/reject', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(callRequestCtrl.rejectRequest.bind(callRequestCtrl)));
 router.get('/notifications/testing/:userId', (0, asyncHandler_1.asyncHandler)(notificationCtrl.getNotifications.bind(callRequestCtrl)));
 router.post('/notifications/testing/markread', (0, asyncHandler_1.asyncHandler)(notificationCtrl.markNotificationRead.bind(callRequestCtrl)));

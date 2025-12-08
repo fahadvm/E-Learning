@@ -17,4 +17,7 @@ router.post('/findcompany', (0, authMiddleware_1.authMiddleware)('employee'), (0
 router.post('/sendrequest', (0, authMiddleware_1.authMiddleware)('employee'), (0, asyncHandler_1.asyncHandler)(employeeCompanyCtrl.sendRequest.bind(employeeCompanyCtrl)));
 router.get('/cancelRequest', (0, authMiddleware_1.authMiddleware)('employee'), (0, asyncHandler_1.asyncHandler)(employeeCompanyCtrl.cancelRequest.bind(employeeCompanyCtrl)));
 router.post('/leavecompany', (0, authMiddleware_1.authMiddleware)('employee'), (0, asyncHandler_1.asyncHandler)(employeeCompanyCtrl.leaveCompany.bind(employeeCompanyCtrl)));
+router.get('/invitation', (0, authMiddleware_1.authMiddleware)('employee'), (0, asyncHandler_1.asyncHandler)(employeeCompanyCtrl.getInvitation.bind(employeeCompanyCtrl)));
+router.post('/accept-invite', (0, authMiddleware_1.authMiddleware)('employee'), (0, asyncHandler_1.asyncHandler)(employeeCompanyCtrl.acceptInvite.bind(employeeCompanyCtrl)));
+router.post('/reject-invite', (0, authMiddleware_1.authMiddleware)('employee'), (0, asyncHandler_1.asyncHandler)(employeeCompanyCtrl.rejectInvite.bind(employeeCompanyCtrl)));
 exports.default = router;

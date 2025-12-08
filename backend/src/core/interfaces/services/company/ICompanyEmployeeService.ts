@@ -1,16 +1,7 @@
-import { IEmployee } from '../../../../models/Employee';
-import { PaginatedEmployeeDTO } from '../../../../core/dtos/company/company.employee.Dto';
+import { IEmployee } from "../../../../models/Employee";
+import { PaginatedEmployeeDTO } from "../../../dtos/company/company.employee.Dto";
 
 export interface ICompanyEmployeeService {
-  // addEmployee(data: {
-  //   companyId: string;
-  //   name: string;
-  //   email: string;
-  //   password?: string;
-  //   position?: string
-  //   coursesAssigned?: string[];
-  // }): Promise<IEmployee>;
-
   getAllEmployees(
     companyId: string,
     page: number,
@@ -23,9 +14,27 @@ export interface ICompanyEmployeeService {
   getEmployeeById(employeeId: string): Promise<IEmployee | null>;
 
   blockEmployee(id: string, status: boolean): Promise<void>;
-  updateEmployee(employeeId: string, data: Partial<IEmployee>): Promise<IEmployee | null>;
-  requestedEmployees(companyId: string): Promise<IEmployee[] | null>;
-  approvingEmployee(companyId: string, employeeId: string): Promise<IEmployee | null>
-  rejectingEmployee(employeeId: string, reason: string): Promise<IEmployee | null>
 
+  updateEmployee(
+    employeeId: string,
+    data: Partial<IEmployee>
+  ): Promise<IEmployee | null>;
+
+  requestedEmployees(companyId: string): Promise<IEmployee[] | null>;
+
+  approvingEmployee(
+    companyId: string,
+    employeeId: string
+  ): Promise<IEmployee | null>;
+
+  rejectingEmployee(
+    employeeId: string,
+    reason: string
+  ): Promise<IEmployee | null>;
+
+  inviteEmployee(companyId: string, email: string): Promise<IEmployee | null>;
+
+  searchEmployees(query: string): Promise<IEmployee[]>;
+
+  removeEmployee(companyId: string, employeeId: string): Promise<void>;
 }

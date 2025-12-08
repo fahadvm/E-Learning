@@ -8,9 +8,16 @@ const employee_auth_route_1 = __importDefault(require("./employeeRoute/employee.
 const employee_profile_route_1 = __importDefault(require("./employeeRoute/employee.profile.route"));
 const employee_company_route_1 = __importDefault(require("./employeeRoute/employee.company.route"));
 const employee_courses_route_1 = __importDefault(require("./employeeRoute/employee.courses.route"));
+const employee_learningpath_route_1 = __importDefault(require("./employeeRoute/employee.learningpath.route"));
+const employee_leaderboard_route_1 = __importDefault(require("./employeeRoute/employee.leaderboard.route"));
 const employeeRouter = (0, express_1.Router)();
 employeeRouter.use('/auth', employee_auth_route_1.default);
 employeeRouter.use('/profile', employee_profile_route_1.default);
 employeeRouter.use('/company', employee_company_route_1.default);
 employeeRouter.use('/courses', employee_courses_route_1.default);
+employeeRouter.use('/progress', employee_courses_route_1.default);
+employeeRouter.use('/leaderboard', employee_courses_route_1.default);
+employeeRouter.use('/progress', employee_courses_route_1.default);
+employeeRouter.use('/learning-paths', employee_learningpath_route_1.default);
+employeeRouter.use('/leaderboard', employee_leaderboard_route_1.default);
 exports.default = employeeRouter;

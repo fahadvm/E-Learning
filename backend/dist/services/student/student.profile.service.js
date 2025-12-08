@@ -29,8 +29,9 @@ const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const Student_profile_Dto_1 = require("../../core/dtos/student/Student.profile.Dto");
 let StudentProfileService = class StudentProfileService {
-    constructor(_studentRepo) {
+    constructor(_studentRepo, _PublicApiRepo) {
         this._studentRepo = _studentRepo;
+        this._PublicApiRepo = _PublicApiRepo;
     }
     getProfile(studentId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -48,10 +49,21 @@ let StudentProfileService = class StudentProfileService {
             return (0, Student_profile_Dto_1.studentProfileDto)(updated);
         });
     }
+    getContributions(leetcodeUsername, githubUsername) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const [github, leetcode] = yield Promise.all([
+                this._PublicApiRepo.fetchGitHub(githubUsername),
+                this._PublicApiRepo.fetchLeetCodeStats(leetcodeUsername),
+            ]);
+            const contributions = { github, leetcode };
+            return contributions;
+        });
+    }
 };
 exports.StudentProfileService = StudentProfileService;
 exports.StudentProfileService = StudentProfileService = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(types_1.TYPES.StudentRepository)),
-    __metadata("design:paramtypes", [Object])
+    __param(1, (0, inversify_1.inject)(types_1.TYPES.PublicApiRepository)),
+    __metadata("design:paramtypes", [Object, Object])
 ], StudentProfileService);

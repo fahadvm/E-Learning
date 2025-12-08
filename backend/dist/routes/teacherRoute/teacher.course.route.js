@@ -25,4 +25,5 @@ router.route('/:courseId/resources')
     .get((0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(teacherCourseController.getResources.bind(teacherCourseController)))
     .post((0, authMiddleware_1.authMiddleware)('teacher'), upload.single('file'), (0, asyncHandler_1.asyncHandler)(teacherCourseController.uploadResource.bind(teacherCourseController)));
 router.delete('/:resourceId/resources', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(teacherCourseController.deleteResource.bind(teacherCourseController)));
+router.put('/:courseId', (0, authMiddleware_1.authMiddleware)('teacher'), upload.any(), (0, asyncHandler_1.asyncHandler)(teacherCourseController.editCourse.bind(teacherCourseController)));
 exports.default = router;

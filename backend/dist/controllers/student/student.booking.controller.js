@@ -28,8 +28,9 @@ const ResANDError_1 = require("../../utils/ResANDError");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 let StudentBookingController = class StudentBookingController {
-    constructor(_bookingService) {
+    constructor(_bookingService, _subscriptionService) {
         this._bookingService = _bookingService;
+        this._subscriptionService = _subscriptionService;
         this.getAvailability = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const { teacherId } = req.params;
             if (!teacherId)
@@ -37,22 +38,34 @@ let StudentBookingController = class StudentBookingController {
             const availability = yield this._bookingService.getAvailability(teacherId);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.AVAILABILITY_FETCHED, true, availability);
         });
-        this.bookSlot = (req, res) => __awaiter(this, void 0, void 0, function* () {
+        this.lockSlot = (req, res) => __awaiter(this, void 0, void 0, function* () {
             var _a;
             const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!studentId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            const canAccess = yield this._subscriptionService.hasFeature(studentId, "Video Call");
+            if (!canAccess) {
+                return (0, ResANDError_1.throwError)("You don't have access to this feature.", 403);
+            }
             const { teacherId, courseId, date, day, startTime, endTime, note } = req.body;
             if (!teacherId || !courseId || !date || !day || !startTime || !endTime)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.REQUIRED_FIELDS_MISSING, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            const booking = yield this._bookingService.bookSlot(studentId, teacherId, courseId, date, day, startTime, endTime, note);
-            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.CREATED, ResponseMessages_1.MESSAGES.BOOKING_CREATED, true, booking);
+            const locking = yield this._bookingService.lockingSlot(studentId, teacherId, courseId, date, day, startTime, endTime, note);
+            console.log("locking", locking);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.CREATED, ResponseMessages_1.MESSAGES.BOOKING_CREATED, true, locking);
         });
         this.bookingDetails = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const bookingId = req.params.bookingId;
             if (!bookingId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.REQUIRED_FIELDS_MISSING, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const booking = yield this._bookingService.getBookingDetails(bookingId);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.CREATED, ResponseMessages_1.MESSAGES.BOOKING_CREATED, true, booking);
+        });
+        this.bookingDetailsByPaymentId = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const paymentOrderId = req.params.paymentOrderId;
+            if (!paymentOrderId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.REQUIRED_FIELDS_MISSING, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            const booking = yield this._bookingService.getBookingDetailsByPaymentId(paymentOrderId);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.CREATED, ResponseMessages_1.MESSAGES.BOOKING_CREATED, true, booking);
         });
         this.cancelBooking = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -67,7 +80,7 @@ let StudentBookingController = class StudentBookingController {
             const { bookingId } = req.params;
             if (!bookingId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            const result = yield this._bookingService.approveBooking(bookingId);
+            const result = yield this._bookingService.approveReschedule(bookingId);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.BOOKING_APPROVED, true, result);
         });
         this.payBooking = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -125,5 +138,6 @@ exports.StudentBookingController = StudentBookingController;
 exports.StudentBookingController = StudentBookingController = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(types_1.TYPES.StudentBookingService)),
-    __metadata("design:paramtypes", [Object])
+    __param(1, (0, inversify_1.inject)(types_1.TYPES.StudentSubscriptionService)),
+    __metadata("design:paramtypes", [Object, Object])
 ], StudentBookingController);

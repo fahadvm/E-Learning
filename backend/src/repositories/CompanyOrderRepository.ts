@@ -33,7 +33,7 @@ export class CompanyOrderRepository implements ICompanyOrderRepository {
       .exec() as any;
   }
 
-  async getOrdersById(companyId: string): Promise<(ICompanyOrder & { courses: ICourse[] })[]> {
+  async getOrdersById(companyId: string): Promise<ICompanyOrder[]> {
     return CompanyOrderModel.find({
       companyId,
       status: 'paid',

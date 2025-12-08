@@ -36,6 +36,7 @@ let StudentPurchaseController = class StudentPurchaseController {
             if (!studentId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const { courses, amount } = req.body;
+            console.log("creating order new coureses are:", req.body);
             if (!courses || !amount)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.REQUIRED_FIELDS_MISSING, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const order = yield this._PurchaseService.createOrder(studentId, courses, amount);
@@ -68,6 +69,38 @@ let StudentPurchaseController = class StudentPurchaseController {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             const course = yield this._PurchaseService.getPurchasedCourseDetails(courseId, studentId);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSES_FETCHED, true, course);
+        });
+        this.getOrderDetails = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!studentId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED);
+            const { razorpayOrderId } = req.params;
+            const order = yield this._PurchaseService.getOrderDetails(studentId, razorpayOrderId);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.ORDER_FETCHED_SUCCESSFULLY, true, order);
+        });
+        this.getPurchaseHistory = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            console.log("getting history");
+            if (!studentId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            const page = Number(req.query.page) || 1;
+            const limit = Number(req.query.limit) || 10;
+            const result = yield this._PurchaseService.getPurchaseHistory(studentId, page, limit);
+            console.log("getting history result", result);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.PURCHASE_HISTORY_FETCHED, true, result);
+        });
+    }
+    getPurchasedCourseIds(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!studentId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            const courseIds = yield this._PurchaseService.getPurchasedCourseIds(studentId);
+            console.log("entrolled course ids:", courseIds);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_IDS_FETCHED, true, courseIds);
         });
     }
 };

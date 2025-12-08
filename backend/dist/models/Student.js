@@ -58,14 +58,15 @@ const StudentSchema = new mongoose_1.Schema({
     profilePicture: { type: String },
     role: { type: String, default: 'student' },
     isVerified: { type: Boolean, default: false },
+    isPremium: { type: Boolean, default: false },
     isBlocked: { type: Boolean, default: false },
     googleUser: { type: Boolean, default: false },
     otp: { type: String },
     otpExpiry: { type: Date },
     social_links: {
         linkedin: { type: String },
-        twitter: { type: String },
-        instagram: { type: String }
+        gitHub: { type: String },
+        leetCode: { type: String }
     },
     coursesProgress: [CourseProgressSchema]
 }, { timestamps: true, });

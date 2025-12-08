@@ -100,8 +100,10 @@ function initSocket(server) {
         }));
         socket.on("send_notification", (data) => __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log("here the notification event on in ", data);
                 yield notificationService.createNotification(data.receiverId, data.title, data.message, "general");
                 const receiverSocketId = onlineUsers.get(data.receiverId);
+                console.log("now onwanrd student will get the notification");
                 if (receiverSocketId)
                     io.to(receiverSocketId).emit("receive_notification", data);
             }
@@ -111,29 +113,49 @@ function initSocket(server) {
         }));
         /** ------------------- VIDEO CALL ------------------- **/
         socket.on("join-room", (roomId, userType) => {
-            var _a;
-            const clientsInRoom = ((_a = io.sockets.adapter.rooms.get(roomId)) === null || _a === void 0 ? void 0 : _a.size) || 0;
-            if (clientsInRoom >= 2) {
+            const room = io.sockets.adapter.rooms.get(roomId);
+            const clientsInRoom = (room === null || room === void 0 ? void 0 : room.size) || 0;
+            const existingUserTypes = Array.from((room === null || room === void 0 ? void 0 : room.values()) || []).map(id => {
+                var _a;
+                const socket = io.sockets.sockets.get(id);
+                return (_a = socket === null || socket === void 0 ? void 0 : socket.data) === null || _a === void 0 ? void 0 : _a.userType;
+            });
+            // Allow only one teacher and one student per room
+            if (clientsInRoom >= 2 || (clientsInRoom === 1 && existingUserTypes[0] === userType)) {
                 socket.emit("room-full");
                 return;
             }
+            socket.data.userType = userType;
             socket.join(roomId);
             socket.to(roomId).emit("user-connected", { userId: socket.id, userType });
+            console.log(`User ${socket.id} (${userType}) joined room ${roomId}`);
             // WebRTC signaling
-            socket.on("offer", (offer, targetId) => socket.to(targetId).emit("offer", offer, socket.id));
-            socket.on("answer", (answer, targetId) => socket.to(targetId).emit("answer", answer, socket.id));
-            socket.on("ice-candidate", (candidate, targetId) => socket.to(targetId).emit("ice-candidate", candidate, socket.id));
+            socket.on("offer", (offer, targetId) => {
+                console.log(`Relaying offer from ${socket.id} to ${targetId}`);
+                socket.to(targetId).emit("offer", offer, socket.id);
+            });
+            socket.on("answer", (answer, targetId) => {
+                console.log(`Relaying answer from ${socket.id} to ${targetId}`);
+                socket.to(targetId).emit("answer", answer, socket.id);
+            });
+            socket.on("ice-candidate", (candidate, targetId) => {
+                console.log(`Relaying ICE candidate from ${socket.id} to ${targetId}`);
+                socket.to(targetId).emit("ice-candidate", candidate, socket.id);
+            });
         });
         /** ------------------- DISCONNECT ------------------- **/
         socket.on("disconnect", () => {
             console.log(`Socket disconnected: ${socket.id}`);
-            onlineUsers.forEach((value, key) => { if (value === socket.id)
-                onlineUsers.delete(key); });
+            onlineUsers.forEach((value, key) => {
+                if (value === socket.id)
+                    onlineUsers.delete(key);
+            });
             broadcastOnlineUsers();
             // Notify rooms for video call
             socket.rooms.forEach((room) => {
-                if (room !== socket.id)
-                    socket.to(room).emit("user-disconnected", socket.id);
+                if (room !== socket.id) {
+                    socket.to(room).emit("user-disconnected", { userId: socket.id });
+                }
             });
         });
     });

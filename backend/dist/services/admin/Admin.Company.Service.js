@@ -41,20 +41,24 @@ let AdminCompanyService = class AdminCompanyService {
             return { companies: companies.map(Admin_company_Dto_1.adminCompanyDto), total, totalPages };
         });
     }
+    getCompanyById(companyId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const company = yield this._companyRepo.findById(companyId);
+            if (!company)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COMPANY_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            const employees = company.employees || [];
+            return {
+                company: (0, Admin_company_Dto_1.adminCompanyDto)(company),
+                employees
+            };
+        });
+    }
     getUnverifiedCompanies(page, limit, search) {
         return __awaiter(this, void 0, void 0, function* () {
             const companies = yield this._companyRepo.getUnverifiedCompanies(page, limit, search);
             const total = yield this._companyRepo.countUnverifiedCompanies(search);
             const totalPages = Math.ceil(total / limit);
             return { companies: companies.map(Admin_company_Dto_1.adminCompanyDto), total, totalPages };
-        });
-    }
-    getCompanyById(companyId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const company = yield this._companyRepo.findById(companyId);
-            if (!company)
-                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COMPANY_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
-            return (0, Admin_company_Dto_1.adminCompanyDto)(company);
         });
     }
     getEmployeeById(employeeId) {

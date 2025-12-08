@@ -66,6 +66,14 @@ let ChatController = class ChatController {
             }
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.CHAT_LIST_FETCHED, true, chat);
         });
+        this.getTeachers = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!studentId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            const result = yield this._chatService.getTeachersFromPurchases(studentId);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.TEACHERS_FETCHED, true, result);
+        });
     }
 };
 exports.ChatController = ChatController;

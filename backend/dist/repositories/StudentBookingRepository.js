@@ -19,6 +19,9 @@ exports.StudentBookingRepository = void 0;
 const inversify_1 = require("inversify");
 const Booking_1 = require("../models/Booking");
 const mongoose_1 = require("mongoose");
+const ResANDError_1 = require("../utils/ResANDError");
+const ResponseMessages_1 = require("../utils/ResponseMessages");
+const HttpStatuscodes_1 = require("../utils/HttpStatuscodes");
 let StudentBookingRepository = class StudentBookingRepository {
     getAvailability(teacherId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -30,7 +33,7 @@ let StudentBookingRepository = class StudentBookingRepository {
             const today = new Date().toISOString().split('T')[0];
             return Booking_1.Booking.find({
                 studentId,
-                status: 'paid',
+                status: 'booked',
                 date: { $gte: today }
             })
                 .populate('teacherId', 'name email profilePicture')
@@ -51,8 +54,15 @@ let StudentBookingRepository = class StudentBookingRepository {
                 date,
                 'slot.start': slot.start,
                 'slot.end': slot.end,
-                status: { $in: ['paid', 'cancelled'] },
-            }).populate('studentId courseId');
+                status: { $in: ['booked', 'cancelled', 'rescheduled'] },
+            }).populate({
+                path: 'studentId',
+                select: 'name email',
+            })
+                .populate({
+                path: 'courseId',
+                select: 'title',
+            });
         });
     }
     updateBookingStatus(bookingId, status, reason) {
@@ -89,11 +99,12 @@ let StudentBookingRepository = class StudentBookingRepository {
     }
     findBookedSlots(teacherId, today, nextWeek) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("findBookedSlots in repository:", teacherId, today, nextWeek);
             return yield Booking_1.Booking.find({
                 teacherId,
-                slots: { $gte: today, $lte: nextWeek },
-                status: { $in: ['pending', 'approved', 'paid'] },
-            });
+                date: { $gte: today, $lte: nextWeek },
+                status: { $in: ["pending", "booked", "rescheduled"] }
+            }).lean();
         });
     }
     findPending(page, limit) {
@@ -125,6 +136,13 @@ let StudentBookingRepository = class StudentBookingRepository {
             return Booking_1.Booking.findById(bookingId).populate('studentId courseId teacherId');
         });
     }
+    findByPaymentId(paymentOrderId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return Booking_1.Booking.findOne({ paymentOrderId })
+                .populate("courseId")
+                .populate("teacherId").lean().exec();
+        });
+    }
     rejectBooking(bookingId, reason) {
         return __awaiter(this, void 0, void 0, function* () {
             return Booking_1.Booking.findByIdAndUpdate(bookingId, { status: 'rejected', rejectionReason: reason }, { new: true });
@@ -140,13 +158,11 @@ let StudentBookingRepository = class StudentBookingRepository {
             return yield Booking_1.Booking.findOne({ paymentOrderId: orderId });
         });
     }
-    verifyAndMarkPaid(orderId) {
+    verifyAndMarkPaid(orderId, callId) {
         return __awaiter(this, void 0, void 0, function* () {
-            // 1. Mark the successful booking as paid
-            const paidBooking = yield Booking_1.Booking.findOneAndUpdate({ paymentOrderId: orderId }, { status: 'paid' }, { new: true });
+            const paidBooking = yield Booking_1.Booking.findOneAndUpdate({ paymentOrderId: orderId }, { status: 'booked', callId }, { new: true });
             if (!paidBooking)
                 return null;
-            // 2. Cancel all other pending bookings for the same teacher, date, and slot
             yield Booking_1.Booking.updateMany({
                 _id: { $ne: paidBooking._id },
                 teacherId: paidBooking.teacherId,
@@ -176,6 +192,94 @@ let StudentBookingRepository = class StudentBookingRepository {
     countHistory(filter) {
         return __awaiter(this, void 0, void 0, function* () {
             return Booking_1.Booking.countDocuments(filter);
+        });
+    }
+    rescheduleBooking(bookingId, reason, nextSlot) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const oldBooking = yield Booking_1.Booking.findById(bookingId);
+            if (!oldBooking)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.BOOKING_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            const newBooking = yield Booking_1.Booking.create({
+                teacherId: oldBooking.teacherId,
+                studentId: oldBooking.studentId,
+                courseId: oldBooking.courseId,
+                note: oldBooking.note,
+                callId: oldBooking.callId,
+                paymentOrderId: oldBooking.paymentOrderId,
+                day: nextSlot.day,
+                date: nextSlot.date,
+                slot: {
+                    start: nextSlot.start,
+                    end: nextSlot.end,
+                },
+                status: 'booked',
+                rescheduledFrom: oldBooking._id,
+            });
+            yield Booking_1.Booking.findByIdAndUpdate(oldBooking._id, {
+                status: 'rescheduled',
+                rescheduledTo: newBooking._id,
+                rescheduledReason: reason,
+                rescheduledAt: new Date(),
+            });
+            return newBooking;
+        });
+    }
+    findConflictingSlot(teacherId, date, startTime, endTime) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield Booking_1.Booking.findOne({
+                teacherId,
+                date,
+                status: { $in: ["pending", "booked", "rescheduled"] },
+                $or: [
+                    {
+                        "slot.start": { $lt: endTime },
+                        "slot.end": { $gt: startTime }
+                    }
+                ]
+            });
+        });
+    }
+    requestReschedule(bookingId, reason, nextSlot) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return Booking_1.Booking.findByIdAndUpdate(bookingId, {
+                requestedDate: nextSlot.date,
+                requestedSlot: {
+                    start: nextSlot.start,
+                    end: nextSlot.end
+                },
+                rescheduledReason: reason,
+                rescheduleStatus: "requested"
+            }, { new: true });
+        });
+    }
+    approveReschedule(bookingId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const oldBooking = yield Booking_1.Booking.findById(bookingId);
+            if (!oldBooking)
+                (0, ResANDError_1.throwError)("Booking not found.", HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            if (oldBooking.rescheduleStatus !== "requested") {
+                (0, ResANDError_1.throwError)("No pending reschedule request.", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            }
+            const newBooking = yield Booking_1.Booking.create({
+                studentId: oldBooking.studentId,
+                teacherId: oldBooking.teacherId,
+                courseId: oldBooking.courseId,
+                date: oldBooking.requestedDate,
+                day: oldBooking.day,
+                slot: oldBooking.requestedSlot,
+                note: oldBooking.note,
+                callId: oldBooking.callId,
+                status: "booked",
+                rescheduledFrom: oldBooking._id,
+            });
+            oldBooking.status = "rescheduled";
+            oldBooking.rescheduleStatus = "approved";
+            oldBooking.rescheduledTo = newBooking._id;
+            oldBooking.rescheduledAt = new Date();
+            oldBooking.requestedDate = undefined;
+            oldBooking.requestedSlot = undefined;
+            yield oldBooking.save();
+            return newBooking;
         });
     }
 };

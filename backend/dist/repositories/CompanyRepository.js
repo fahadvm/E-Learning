@@ -142,6 +142,20 @@ let CompanyRepository = class CompanyRepository {
             return Company_1.Company.findOne({ companyCode: code }).exec();
         });
     }
+    addEmployee(companyId, employeeId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield Company_1.Company.findByIdAndUpdate(companyId, {
+                $addToSet: { employees: employeeId }
+            }).exec();
+        });
+    }
+    removeEmployee(companyId, employeeId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield Company_1.Company.findByIdAndUpdate(companyId, {
+                $pull: { employees: employeeId }
+            }).exec();
+        });
+    }
 };
 exports.CompanyRepository = CompanyRepository;
 exports.CompanyRepository = CompanyRepository = __decorate([

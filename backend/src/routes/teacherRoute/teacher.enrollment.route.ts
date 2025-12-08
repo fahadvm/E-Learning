@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import container from '../../core/di/container';
-import { TeacherEnrollmentController } from '../../controllers/teacher/TeacherEnrollmentController';
+import { TeacherEnrollmentController } from '../../controllers/teacher/teacher.entrollment.controller';
 import { asyncHandler } from '../../middleware/asyncHandler';
 import { TYPES } from '../../core/di/types';
 

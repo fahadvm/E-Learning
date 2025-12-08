@@ -28,8 +28,9 @@ const ResANDError_1 = require("../../utils/ResANDError");
 const types_1 = require("../../core/di/types");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 let CompanyCourseController = class CompanyCourseController {
-    constructor(_courseService) {
+    constructor(_courseService, _purchaseService) {
         this._courseService = _courseService;
+        this._purchaseService = _purchaseService;
     }
     getAllCourses(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -70,7 +71,6 @@ let CompanyCourseController = class CompanyCourseController {
     getMyCourses(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
-            console.log("controller of get courses");
             const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!companyId) {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ALL_FIELDS_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
@@ -78,8 +78,18 @@ let CompanyCourseController = class CompanyCourseController {
             const courses = yield this._courseService.getMycoursesById(companyId);
             if (!courses)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
-            console.log("controller of get courses completed", courses);
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_DETAILS_FETCHED, true, courses);
+        });
+    }
+    getMyCoursesIds(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!companyId) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ALL_FIELDS_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            }
+            const courseIds = yield this._purchaseService.getMycoursesIdsById(companyId);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_DETAILS_FETCHED, true, courseIds);
         });
     }
     getMyCourseDetails(req, res) {
@@ -96,10 +106,20 @@ let CompanyCourseController = class CompanyCourseController {
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_DETAILS_FETCHED, true, courses);
         });
     }
+    getCourseResources(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { courseId } = req.params;
+            if (!courseId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            const resources = yield this._courseService.getResources(courseId);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.RESOURCES_FETCHED, true, resources);
+        });
+    }
 };
 exports.CompanyCourseController = CompanyCourseController;
 exports.CompanyCourseController = CompanyCourseController = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(types_1.TYPES.CompanyCourseService)),
-    __metadata("design:paramtypes", [Object])
+    __param(1, (0, inversify_1.inject)(types_1.TYPES.CompanyPurchaseService)),
+    __metadata("design:paramtypes", [Object, Object])
 ], CompanyCourseController);

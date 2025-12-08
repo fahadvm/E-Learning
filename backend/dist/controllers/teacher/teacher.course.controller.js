@@ -84,8 +84,21 @@ let TeacherCourseController = class TeacherCourseController {
     getResources(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { courseId } = req.params;
+            if (!courseId)
+                (0, ResANDError_2.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const resources = yield this._courseService.getResources(courseId);
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.RESOURCES_FETCHED, true, resources);
+        });
+    }
+    editCourse(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const { courseId } = req.params;
+            const teacherId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!teacherId)
+                (0, ResANDError_2.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            const updated = yield this._courseService.editCourse(courseId, teacherId, req);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_UPDATED, true, updated);
         });
     }
 };

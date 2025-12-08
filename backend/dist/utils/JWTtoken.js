@@ -42,6 +42,7 @@ exports.verifyRefreshToken = verifyRefreshToken;
 const decodeToken = (token) => {
     try {
         const decoded = jsonwebtoken_1.default.decode(token);
+        console.log("decoding details is ", decoded);
         return decoded;
     }
     catch (_a) {

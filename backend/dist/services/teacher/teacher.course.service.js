@@ -104,6 +104,7 @@ let TeacherCourseService = class TeacherCourseService {
                 category: req.body.category,
                 level: req.body.level,
                 language: req.body.language,
+                isTechnicalCourse: req.body.isTechnicalCourse,
                 price,
                 coverImage: coverImageUrl,
                 learningOutcomes: JSON.parse(req.body.learningOutcomes || '[]'),
@@ -160,6 +161,88 @@ let TeacherCourseService = class TeacherCourseService {
     deleteResource(resourceId) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this._resourceRepository.deleteResource(resourceId);
+        });
+    }
+    editCourse(courseId, teacherId, req) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
+            // 1. Verify ownership
+            const existingCourse = yield this._courseRepository.findByIdAndTeacherId(courseId, teacherId);
+            if (!existingCourse) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            }
+            // 2. Handle files similar to create
+            const filesMap = {};
+            (req.files || []).forEach(file => filesMap[file.fieldname] = file);
+            // 3. Parse modules
+            let modulesBody = [];
+            try {
+                modulesBody = JSON.parse(req.body.modules || '[]');
+            }
+            catch (e) {
+                modulesBody = [];
+            }
+            const modules = [];
+            // Reconstruct modules with potential new files or existing urls
+            for (const [moduleIndex, module] of modulesBody.entries()) {
+                const newModule = {
+                    title: module.title,
+                    description: module.description,
+                    lessons: [],
+                };
+                if (Array.isArray(module.lessons)) {
+                    for (const [lessonIndex, lesson] of module.lessons.entries()) {
+                        let videoFileUrl = lesson.videoFile || ''; // retain existing if string
+                        let thumbnailUrl = lesson.thumbnail || ''; // retain existing if string
+                        // Check for new uploads
+                        const videoFile = filesMap[`modules[${moduleIndex}][lessons][${lessonIndex}][videoFile]`];
+                        if (videoFile)
+                            videoFileUrl = yield this.uploadToCloudinary(videoFile, 'course_videos', 'video');
+                        const thumbnail = filesMap[`modules[${moduleIndex}][lessons][${lessonIndex}][thumbnail]`];
+                        if (thumbnail)
+                            thumbnailUrl = yield this.uploadToCloudinary(thumbnail, 'course_thumbnails', 'image');
+                        newModule.lessons.push({
+                            title: lesson.title,
+                            description: lesson.description || '',
+                            duration: parseInt(((_a = lesson.duration) === null || _a === void 0 ? void 0 : _a.toString()) || '0', 10),
+                            videoFile: videoFileUrl,
+                            thumbnail: thumbnailUrl,
+                        });
+                    }
+                }
+                modules.push(newModule);
+            }
+            // 4. Handle cover image
+            let coverImageUrl = (existingCourse === null || existingCourse === void 0 ? void 0 : existingCourse.coverImage) || '';
+            const coverImage = filesMap['coverImage'];
+            if (coverImage)
+                coverImageUrl = yield this.uploadToCloudinary(coverImage, 'course_covers', 'image');
+            // 5. Construct update object
+            const price = typeof req.body.price === 'string' ? parseFloat(req.body.price) : (_b = req.body.price) !== null && _b !== void 0 ? _b : 0;
+            // Parse arrays if they are strings
+            const learningOutcomes = typeof req.body.learningOutcomes === 'string'
+                ? JSON.parse(req.body.learningOutcomes)
+                : req.body.learningOutcomes;
+            const requirements = typeof req.body.requirements === 'string'
+                ? JSON.parse(req.body.requirements)
+                : req.body.requirements;
+            const updates = {
+                title: req.body.title,
+                subtitle: req.body.subtitle || '',
+                description: req.body.description,
+                category: req.body.category,
+                level: req.body.level,
+                language: req.body.language,
+                isTechnicalCourse: req.body.isTechnicalCourse === true,
+                price,
+                coverImage: coverImageUrl,
+                learningOutcomes: learningOutcomes || [],
+                requirements: requirements || [],
+                isPublished: req.body.isPublished === 'true',
+                totalDuration: req.body.totalDuration ? Number(req.body.totalDuration) : undefined,
+                modules: modules, // casting to any to match ICourse module structure if strict typing complains
+            };
+            return this._courseRepository.editCourse(courseId, updates);
         });
     }
 };

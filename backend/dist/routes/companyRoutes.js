@@ -12,6 +12,9 @@ const company_employee_route_1 = __importDefault(require("./companyRoute/company
 const company_wishlist_route_1 = __importDefault(require("./companyRoute/company.wishlist.route"));
 const company_cart_route_1 = __importDefault(require("./companyRoute/company.cart.route"));
 const company_purchase_route_1 = __importDefault(require("./companyRoute/company.purchase.route"));
+const company_learningpath_route_1 = __importDefault(require("./companyRoute/company.learningpath.route"));
+const company_leaderboard_route_1 = __importDefault(require("./companyRoute/company.leaderboard.route"));
+const company_analytics_route_1 = __importDefault(require("./companyRoute/company.analytics.route"));
 const companyRouter = (0, express_1.Router)();
 companyRouter.use('/auth', company_auth_route_1.default);
 companyRouter.use('/profile', company_profile_route_1.default);
@@ -21,4 +24,7 @@ companyRouter.use('/employees', company_employee_route_1.default);
 companyRouter.use('/wishlist', company_wishlist_route_1.default);
 companyRouter.use('/cart', company_cart_route_1.default);
 companyRouter.use('/purchase', company_purchase_route_1.default);
+companyRouter.use('/learning-paths', company_learningpath_route_1.default);
+companyRouter.use('/leaderboard', company_leaderboard_route_1.default);
+companyRouter.use('/analytics', company_analytics_route_1.default);
 exports.default = companyRouter;

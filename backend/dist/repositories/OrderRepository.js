@@ -14,10 +14,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrderRepository = void 0;
 const Order_1 = require("../models/Order");
 const inversify_1 = require("inversify");
+const mongoose_1 = __importDefault(require("mongoose"));
 let OrderRepository = class OrderRepository {
     create(order) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -30,6 +34,11 @@ let OrderRepository = class OrderRepository {
             return yield Order_1.OrderModel.findOne({ razorpayOrderId: orderId });
         });
     }
+    update(id, update) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield Order_1.OrderModel.findByIdAndUpdate(id, update, { new: true });
+        });
+    }
     updateStatus(orderId, status) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield Order_1.OrderModel.findOneAndUpdate({ razorpayOrderId: orderId }, { status }, { new: true });
@@ -39,10 +48,29 @@ let OrderRepository = class OrderRepository {
         return __awaiter(this, void 0, void 0, function* () {
             return Order_1.OrderModel.find({
                 studentId,
+                status: "paid",
+            })
+                .populate({
+                path: "courses",
+                model: "Course",
+                populate: {
+                    path: "teacherId",
+                    model: "Teacher",
+                },
+            })
+                .exec();
+        });
+    }
+    getOrderedCourseIds(studentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const orders = yield Order_1.OrderModel.find({
+                studentId,
                 status: 'paid',
             })
-                .populate('courses')
+                .select("courses")
                 .exec();
+            const courseIds = orders.flatMap((order) => order.courses.map((id) => id.toString()));
+            return courseIds;
         });
     }
     getStudentOrders() {
@@ -51,6 +79,44 @@ let OrderRepository = class OrderRepository {
                 .populate('studentId', 'name email')
                 .populate('courses', 'title')
                 .sort({ createdAt: -1 });
+        });
+    }
+    getOrderDetailsByrazorpayOrderId(studentId, orderId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return Order_1.OrderModel.findOne({ studentId, razorpayOrderId: orderId, status: 'paid' })
+                .populate({
+                path: "courses",
+                select: "coverImage title totalDuration teacherId",
+                populate: {
+                    path: "teacherId",
+                    select: "name",
+                },
+            })
+                .lean();
+        });
+    }
+    findOrdersByStudent(studentId, page, limit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const skip = (page - 1) * limit;
+            // ensure valid ObjectId filter
+            const filter = {};
+            if (mongoose_1.default.Types.ObjectId.isValid(studentId)) {
+                filter.studentId = studentId;
+            }
+            else {
+                // no orders if invalid id (caller should validate; defensive)
+                return { orders: [], total: 0 };
+            }
+            const [total, orders] = yield Promise.all([
+                Order_1.OrderModel.countDocuments(filter),
+                Order_1.OrderModel.find(filter)
+                    .populate('courses') // will populate course docs
+                    .sort({ createdAt: -1 })
+                    .skip(skip)
+                    .limit(limit)
+                    .lean()
+            ]);
+            return { orders: orders, total };
         });
     }
 };

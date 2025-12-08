@@ -20,6 +20,7 @@ exports.SubscriptionPlanRepository = void 0;
 const inversify_1 = require("inversify");
 const subscriptionPlan_1 = require("../models/subscriptionPlan");
 const StudentSubscription_1 = require("../models/StudentSubscription");
+const Student_1 = require("../models/Student");
 let SubscriptionPlanRepository = class SubscriptionPlanRepository {
     create(plan) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -92,14 +93,15 @@ let SubscriptionPlanRepository = class SubscriptionPlanRepository {
             });
         });
     }
-    updatePaymentStatus(orderId, status, paymentId) {
+    updatePaymentStatus(studentId, orderId, status, paymentId) {
         return __awaiter(this, void 0, void 0, function* () {
+            const student = yield Student_1.Student.findByIdAndUpdate(studentId, { isPremium: true });
             return yield StudentSubscription_1.StudentSubscription.findOneAndUpdate({ orderId }, { status, paymentId }, { new: true });
         });
     }
     findActiveSubscription(studentId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield StudentSubscription_1.StudentSubscription.findOne({ studentId, status: 'active' });
+            return yield StudentSubscription_1.StudentSubscription.findOne({ studentId, status: 'active' }).populate("planId");
         });
     }
 };

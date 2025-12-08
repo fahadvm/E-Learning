@@ -34,34 +34,33 @@ let AdminStudentController = class AdminStudentController {
     }
     getAllStudents(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { page = '1', limit = '5', search = '' } = req.query;
+            const { page = '1', limit = '10', search = '', status = 'all' } = req.query;
             const { pageNum, limitNum, error } = (0, validatePagination_1.validatePagination)(String(page), String(limit));
-            if (error || pageNum === null || limitNum === null) {
+            if (error)
                 return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST, error, false);
-            }
-            const result = yield this._studentService.getAllStudents(pageNum, limitNum, String(search || ''));
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.STUDENTS_FETCHED, true, result);
+            const data = yield this._studentService.getAllStudents(Number(pageNum), Number(limitNum), String(search), String(status));
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.STUDENTS_FETCHED, true, data);
         });
     }
     getStudentById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { studentId } = req.params;
-            const student = yield this._studentService.getStudentById(studentId);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.STUDENT_DETAILS_FETCHED, true, student);
+            const result = yield this._studentService.getStudentById(studentId);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.STUDENT_DETAILS_FETCHED, true, result);
         });
     }
     blockStudent(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { studentId } = req.params;
-            const updatedStudent = yield this._studentService.blockStudent(studentId);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.STUDENT_BLOCKED, true, updatedStudent);
+            const student = yield this._studentService.blockStudent(studentId);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.STUDENT_BLOCKED, true, student);
         });
     }
     unblockStudent(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { studentId } = req.params;
-            const updatedStudent = yield this._studentService.unblockStudent(studentId);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.STUDENT_UNBLOCKED, true, updatedStudent);
+            const student = yield this._studentService.unblockStudent(studentId);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.STUDENT_UNBLOCKED, true, student);
         });
     }
 };

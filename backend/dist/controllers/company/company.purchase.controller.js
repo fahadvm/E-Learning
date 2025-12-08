@@ -20,6 +20,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CompanyPurchaseController = void 0;
 const inversify_1 = require("inversify");
@@ -27,6 +30,8 @@ const types_1 = require("../../core/di/types");
 const ResANDError_1 = require("../../utils/ResANDError");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
+const CompanyOrder_1 = require("../../models/CompanyOrder");
+const pdfkit_1 = __importDefault(require("pdfkit"));
 let CompanyPurchaseController = class CompanyPurchaseController {
     constructor(_purchaseService) {
         this._purchaseService = _purchaseService;
@@ -34,10 +39,11 @@ let CompanyPurchaseController = class CompanyPurchaseController {
     createCheckoutSession(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
-            const { courses, amount } = req.body;
-            console.log("courses ids in controller,", courses);
             const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
-            const session = yield this._purchaseService.createCheckoutSession(courses, companyId, amount);
+            if (!companyId) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            }
+            const session = yield this._purchaseService.createCheckoutSession(companyId);
             const data = { url: session.url };
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.PAYMENT_PAID_SUCCESSFULLY, true, data);
         });
@@ -57,6 +63,57 @@ let CompanyPurchaseController = class CompanyPurchaseController {
             else {
                 (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.PAYMENT_VERIFICATION_FAILED, true, result);
             }
+        });
+    }
+    // GET /api/company/orders/:orderId/receipt
+    downloadReceipt(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { orderId } = req.params;
+            console.log("downloading receipt is working successfully");
+            const order = yield CompanyOrder_1.CompanyOrderModel.findById(orderId).populate("purchasedCourses.courseId", "title price");
+            if (!order) {
+                return res.status(404).json({ message: "Order not found" });
+            }
+            // Create PDF
+            const doc = new pdfkit_1.default();
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader("Content-Disposition", `attachment; filename=receipt_${orderId}.pdf`);
+            // Pipe BEFORE writing
+            doc.pipe(res);
+            // Content
+            doc.fontSize(20).text("Payment Receipt", { align: "center" });
+            doc.moveDown();
+            doc.fontSize(12).text(`Order ID: ${orderId}`);
+            doc.text(`Total Paid: ₹${order.amount}`);
+            doc.moveDown();
+            doc.text("Purchased Courses:");
+            order.purchasedCourses.forEach((item) => {
+                const course = item.courseId;
+                doc.text(`• ${course.title} — ₹${item.price} (${item.seats} seat${item.seats > 1 ? 's' : ''})`);
+            });
+            doc.end();
+        });
+    }
+    getPurchasedCourses(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!companyId) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            }
+            const courses = yield this._purchaseService.getPurchasedCourses(companyId);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSES_FETCHED, true, courses);
+        });
+    }
+    getPurchasedCourseIds(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!companyId) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            }
+            const courseIds = yield this._purchaseService.getMycoursesIdsById(companyId);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSES_FETCHED, true, courseIds);
         });
     }
 };

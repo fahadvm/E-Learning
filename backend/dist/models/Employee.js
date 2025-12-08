@@ -35,6 +35,15 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Employee = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
+const CourseProgressSchema = new mongoose_1.Schema({
+    courseId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Course', required: true },
+    completedLessons: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Lesson' }],
+    completedModules: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Module' }],
+    percentage: { type: Number, default: 0 },
+    lastVisitedLesson: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Lesson' },
+    lastVisitedTime: { type: Date, default: Date.now },
+    notes: { type: String, default: '' }
+});
 const EmployeeSchema = new mongoose_1.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
@@ -44,7 +53,10 @@ const EmployeeSchema = new mongoose_1.Schema({
     coursesAssigned: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Course' }],
     role: { type: String, default: 'employee' },
     position: { type: String },
+    employeeID: { type: String },
+    department: { type: String },
     googleId: { type: String },
+    location: { type: String },
     about: { type: String },
     phone: { type: String },
     status: { type: String, default: 'notRequsted' },
@@ -54,8 +66,18 @@ const EmployeeSchema = new mongoose_1.Schema({
     subscription: { type: Boolean, default: false },
     social_links: {
         linkedin: { type: String },
-        twitter: { type: String },
-        instagram: { type: String }
-    }
+        github: { type: String },
+        portfolio: { type: String }
+    },
+    coursesProgress: [CourseProgressSchema],
+    streakCount: { type: Number, default: 0 },
+    lastLoginDate: { type: Date },
+    longestStreak: { type: Number, default: 0 },
+    // Rejection tracking
+    rejectionReason: { type: String },
+    rejectedAt: { type: Date },
+    // Invitation tracking
+    invitedBy: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Company' },
+    invitedAt: { type: Date },
 }, { timestamps: true, });
 exports.Employee = mongoose_1.default.model('Employee', EmployeeSchema);

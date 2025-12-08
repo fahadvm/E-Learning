@@ -31,13 +31,9 @@ let AiTutorController = class AiTutorController {
     constructor(_aiService) {
         this._aiService = _aiService;
         this.askQuestion = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            var _a;
-            const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             const { courseId } = req.params;
-            if (!studentId)
-                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const { prompt } = req.body;
-            const reply = yield this._aiService.getCourseAnswer(studentId, courseId, prompt);
+            const reply = yield this._aiService.getCourseAnswer(courseId, prompt);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.NOTIFICATIONS_FETCHED, true, reply);
         });
     }

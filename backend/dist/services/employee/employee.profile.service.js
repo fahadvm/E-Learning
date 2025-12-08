@@ -27,7 +27,7 @@ const types_1 = require("../../core/di/types");
 const ResANDError_1 = require("../../utils/ResANDError");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
-const student_profile_dto_1 = require("../../core/dtos/employee/student.profile.dto");
+const employee_profile_dto_1 = require("../../core/dtos/employee/employee.profile.dto");
 let EmployeeProfileService = class EmployeeProfileService {
     constructor(_employeeRepo) {
         this._employeeRepo = _employeeRepo;
@@ -37,7 +37,7 @@ let EmployeeProfileService = class EmployeeProfileService {
             const employee = yield this._employeeRepo.findById(employeeId);
             if (!employee)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STUDENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
-            return (0, student_profile_dto_1.employeeProfileDto)(employee);
+            return employee;
         });
     }
     updateEmployeeProfile(employeeId, data) {
@@ -45,7 +45,7 @@ let EmployeeProfileService = class EmployeeProfileService {
             const updated = yield this._employeeRepo.updateById(employeeId, data);
             if (!updated)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STUDENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
-            return (0, student_profile_dto_1.employeeProfileDto)(updated);
+            return (0, employee_profile_dto_1.employeeProfileDto)(updated);
         });
     }
 };

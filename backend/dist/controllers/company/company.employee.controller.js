@@ -95,10 +95,53 @@ let CompanyEmployeeController = class CompanyEmployeeController {
     rejectEmployee(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const employeeId = req.params.employeeId;
+            const { reason } = req.body;
             if (!employeeId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            const employees = yield this._employeeService.rejectingEmployee(employeeId);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.EMPLOYEE_REQUEST_REJECTED, true, employees);
+            if (!reason)
+                (0, ResANDError_1.throwError)('Rejection reason is required', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            const employee = yield this._employeeService.rejectingEmployee(employeeId, reason);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.EMPLOYEE_REQUEST_REJECTED, true, employee);
+        });
+    }
+    inviteEmployee(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            const { email } = req.body;
+            if (!companyId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            if (!email)
+                (0, ResANDError_1.throwError)('Email is required', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            const employee = yield this._employeeService.inviteEmployee(companyId, email);
+            if (employee) {
+                (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Invitation sent to employee', true, employee);
+            }
+            else {
+                (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Employee not found. Invitation link created.', true, { email });
+            }
+        });
+    }
+    searchEmployees(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { query } = req.query;
+            if (!query)
+                (0, ResANDError_1.throwError)('Search query is required', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            const employees = yield this._employeeService.searchEmployees(String(query));
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Employees found', true, employees);
+        });
+    }
+    removeEmployee(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            const { employeeId } = req.params;
+            if (!companyId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            if (!employeeId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            yield this._employeeService.removeEmployee(companyId, employeeId);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Employee removed from company', true, null);
         });
     }
 };

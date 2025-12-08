@@ -13,6 +13,9 @@ const companyPurchaseCtrl = container_1.default.get(types_1.TYPES.CompanyPurchas
 const companyCourseController = container_1.default.get(types_1.TYPES.CompanyCourseController);
 router.post('/checkout-session', (0, authMiddleware_1.authMiddleware)('company'), (0, asyncHandler_1.asyncHandler)(companyPurchaseCtrl.createCheckoutSession.bind(companyPurchaseCtrl)));
 router.post('/verify-payment', (0, authMiddleware_1.authMiddleware)('company'), (0, asyncHandler_1.asyncHandler)(companyPurchaseCtrl.verifyPayment.bind(companyPurchaseCtrl)));
+router.get('/receipt/:orderId', (0, authMiddleware_1.authMiddleware)('company'), (0, asyncHandler_1.asyncHandler)(companyPurchaseCtrl.downloadReceipt.bind(companyPurchaseCtrl)));
+router.get('/orders', (0, authMiddleware_1.authMiddleware)('company'), (0, asyncHandler_1.asyncHandler)(companyPurchaseCtrl.getPurchasedCourses.bind(companyPurchaseCtrl)));
 router.get('/entrollments', (0, authMiddleware_1.authMiddleware)('company'), (0, asyncHandler_1.asyncHandler)(companyCourseController.getMyCourses.bind(companyCourseController)));
+router.get('/entrollments-course/ids', (0, authMiddleware_1.authMiddleware)('company'), (0, asyncHandler_1.asyncHandler)(companyCourseController.getMyCoursesIds.bind(companyCourseController)));
 router.get('/entrollments/:courseId', (0, authMiddleware_1.authMiddleware)('company'), (0, asyncHandler_1.asyncHandler)(companyCourseController.getMyCourseDetails.bind(companyCourseController)));
 exports.default = router;

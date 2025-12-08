@@ -32,19 +32,22 @@ let EmployeeProfileController = class EmployeeProfileController {
     constructor(_employeeProfileService) {
         this._employeeProfileService = _employeeProfileService;
         this.getProfile = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            console.log("getting profile of employee");
             const decoded = (0, JWTtoken_1.decodeToken)(req.cookies.token);
             if (!(decoded === null || decoded === void 0 ? void 0 : decoded.id))
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const employee = yield this._employeeProfileService.getProfile(decoded.id);
             if (!employee)
-                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STUDENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
-            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.STUDENT_DETAILS_FETCHED, true, employee);
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMPLOYEE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.EMPLOYEE_DETAILS_FETCHED, true, employee);
         });
         this.editProfile = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const decoded = (0, JWTtoken_1.decodeToken)(req.cookies.token);
-            if (!(decoded === null || decoded === void 0 ? void 0 : decoded.id))
+            var _a;
+            const employeeId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!employeeId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
-            const updated = yield this._employeeProfileService.updateEmployeeProfile(decoded.id, req.body);
+            console.log("req body while updating profile ", req.body);
+            const updated = yield this._employeeProfileService.updateEmployeeProfile(employeeId, req.body);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.PROFILE_UPDATED, true, updated);
         });
     }

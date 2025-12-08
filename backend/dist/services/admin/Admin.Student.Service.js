@@ -29,29 +29,25 @@ const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const Admin_student_Dto_1 = require("../../core/dtos/admin/Admin.student.Dto");
 let AdminStudentService = class AdminStudentService {
-    constructor(_studentRepo) {
+    constructor(_studentRepo, _orderRepo, _subscriptionRepo) {
         this._studentRepo = _studentRepo;
+        this._orderRepo = _orderRepo;
+        this._subscriptionRepo = _subscriptionRepo;
     }
-    createStudent(data) {
+    getAllStudents(page, limit, search, status) {
         return __awaiter(this, void 0, void 0, function* () {
-            const student = yield this._studentRepo.create(data);
-            return (0, Admin_student_Dto_1.adminStudentDto)(student);
-        });
-    }
-    getAllStudents(page, limit, search) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (page < 1 || limit < 1) {
-                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.PAGE_OUT_OF_RANGE, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            }
             const skip = (page - 1) * limit;
-            const students = yield this._studentRepo.findAll(skip, limit, search);
-            const total = yield this._studentRepo.count(search);
-            const totalPages = Math.ceil(total / limit);
-            return {
-                students: students.map(Admin_student_Dto_1.adminStudentDto),
-                total,
-                totalPages,
-            };
+            const students = yield this._studentRepo.findAll(skip, limit, search, status);
+            const total = yield this._studentRepo.count(search, status);
+            const formatted = [];
+            for (const student of students) {
+                const orders = yield this._orderRepo.getOrdersByStudentId(student._id.toString());
+                const courseCount = orders.flatMap((o) => o.courses).length;
+                const totalSpent = orders.reduce((sum, o) => sum + o.amount, 0);
+                formatted.push((0, Admin_student_Dto_1.adminStudentListDto)(Object.assign(Object.assign({}, student), { courseCount,
+                    totalSpent })));
+            }
+            return { data: formatted, total };
         });
     }
     getStudentById(studentId) {
@@ -59,25 +55,27 @@ let AdminStudentService = class AdminStudentService {
             const student = yield this._studentRepo.findById(studentId);
             if (!student)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STUDENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
-            return (0, Admin_student_Dto_1.adminStudentDto)(student);
-        });
-    }
-    updateStudent(studentId, data) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const updated = yield this._studentRepo.update(studentId, data);
-            return (0, Admin_student_Dto_1.adminStudentDto)(updated);
+            const orders = yield this._orderRepo.getOrdersByStudentId(studentId);
+            const courses = orders.flatMap((o) => o.courses || []);
+            const purchases = orders;
+            console.log();
+            return (0, Admin_student_Dto_1.adminStudentDetailsDto)({
+                student,
+                courses,
+                purchases
+            });
         });
     }
     blockStudent(studentId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blocked = yield this._studentRepo.update(studentId, { isBlocked: true });
-            return (0, Admin_student_Dto_1.adminStudentDto)(blocked);
+            const updated = yield this._studentRepo.update(studentId, { isBlocked: true });
+            return (0, Admin_student_Dto_1.adminStudentListDto)(updated);
         });
     }
     unblockStudent(studentId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const unblocked = yield this._studentRepo.update(studentId, { isBlocked: false });
-            return (0, Admin_student_Dto_1.adminStudentDto)(unblocked);
+            const updated = yield this._studentRepo.update(studentId, { isBlocked: false });
+            return (0, Admin_student_Dto_1.adminStudentListDto)(updated);
         });
     }
 };
@@ -85,5 +83,7 @@ exports.AdminStudentService = AdminStudentService;
 exports.AdminStudentService = AdminStudentService = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(types_1.TYPES.StudentRepository)),
-    __metadata("design:paramtypes", [Object])
+    __param(1, (0, inversify_1.inject)(types_1.TYPES.OrderRepository)),
+    __param(2, (0, inversify_1.inject)(types_1.TYPES.SubscriptionPlanRepository)),
+    __metadata("design:paramtypes", [Object, Object, Object])
 ], AdminStudentService);

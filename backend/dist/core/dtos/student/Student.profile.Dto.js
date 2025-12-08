@@ -11,6 +11,7 @@ const studentProfileDto = (student) => ({
     profilePicture: student.profilePicture,
     role: student.role,
     isVerified: student.isVerified,
+    isPremium: student.isPremium,
     isBlocked: student.isBlocked,
     googleUser: student.googleUser,
     social_links: student.social_links,

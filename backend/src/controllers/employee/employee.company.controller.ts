@@ -8,7 +8,6 @@ import { sendResponse } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
 
-// ✅ Define all messages as constants
 
 @injectable()
 export class EmployeeCompanyController {

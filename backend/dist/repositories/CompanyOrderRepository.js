@@ -27,7 +27,8 @@ let CompanyOrderRepository = class CompanyOrderRepository {
     }
     findByStripeSessionId(orderId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield CompanyOrder_1.CompanyOrderModel.findOne({ stripeSessionId: orderId });
+            return yield CompanyOrder_1.CompanyOrderModel.findOne({ stripeSessionId: orderId })
+                .populate("purchasedCourses.courseId", "title price");
         });
     }
     updateStatus(orderId, status) {
@@ -41,7 +42,7 @@ let CompanyOrderRepository = class CompanyOrderRepository {
                 companyId,
                 status: 'paid',
             })
-                .populate('courses')
+                .populate('purchasedCourses.courseId')
                 .exec();
         });
     }
@@ -50,15 +51,26 @@ let CompanyOrderRepository = class CompanyOrderRepository {
             return CompanyOrder_1.CompanyOrderModel.find({
                 companyId,
                 status: 'paid',
-            });
+            })
+                .populate('purchasedCourses.courseId');
         });
     }
     getCompanyOrders() {
         return __awaiter(this, void 0, void 0, function* () {
             return CompanyOrder_1.CompanyOrderModel.find()
                 .populate('companyId', 'name email')
-                .populate('courses', 'title')
+                .populate('purchasedCourses.courseId', 'title')
                 .sort({ createdAt: -1 });
+        });
+    }
+    getPurchasedCourseIds(companyId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const orders = yield CompanyOrder_1.CompanyOrderModel.find({
+                companyId,
+                status: "paid"
+            }).select("purchasedCourses");
+            const purchasedCourseIds = orders.flatMap(order => order.purchasedCourses.map(pc => pc.courseId.toString()));
+            return purchasedCourseIds;
         });
     }
 };

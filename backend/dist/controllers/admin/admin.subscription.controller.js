@@ -33,7 +33,7 @@ let AdminSubscriptionPlanController = class AdminSubscriptionPlanController {
     }
     createPlan(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("coming requests ", req.body);
+            console.log("description plan", req.body);
             const plan = yield this._planService.createPlan(req.body);
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.CREATED, ResponseMessages_1.MESSAGES.SUBSCRIPTION_PLAN_CREATED, true, plan);
         });
@@ -41,7 +41,6 @@ let AdminSubscriptionPlanController = class AdminSubscriptionPlanController {
     getAllPlans(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const plans = yield this._planService.getAllPlans();
-            console.log("coming plan  ", plans);
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.SUBSCRIPTION_PLANS_FETCHED, true, plans);
         });
     }

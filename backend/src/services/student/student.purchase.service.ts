@@ -159,12 +159,10 @@ export class StudentPurchaseService implements IStudentPurchaseService {
     for (const rawCourseId of order.courses) {
       // Normalize courseId to a string (safe) and an ObjectId for DB usage
       const courseIdStr = (rawCourseId as any)?.toString();
-      console.log("courseIdStr", courseIdStr)
       if (!courseIdStr) continue;
 
       const course = (await this._courseRepo.findById(courseIdStr)) as ICourse | null;
       if (!course) continue;
-      console.log("course", course)
 
       // teacherId may be ObjectId or a populated document; normalize to string/ObjectId
       const rawTeacherId = (course as any).teacherId._id;
@@ -181,7 +179,6 @@ export class StudentPurchaseService implements IStudentPurchaseService {
 
       const teacherCut = Math.round(coursePrice * (1 - commissionRate));
       const platformCut = coursePrice - teacherCut;
-      console.log("final check here", teacherIdStr, courseIdStr)
 
 
       // Create TEACHER_EARNING transaction
@@ -240,7 +237,6 @@ export class StudentPurchaseService implements IStudentPurchaseService {
   }
 
   async getOrderDetails(studentId: string, orderId: string): Promise<IOrder> {
-    console.log("checking for details ids are", studentId, orderId)
     const order = await this._orderRepo.getOrderDetailsByrazorpayOrderId(studentId, orderId);
 
     if (!order) throwError(MESSAGES.ORDER_NOT_FOUND, STATUS_CODES.NOT_FOUND);

@@ -99,6 +99,29 @@ let EmployeeAuthController = class EmployeeAuthController {
             yield this._employeeAuthService.resendOtp(email, purpose);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.OTP_RESENT, true);
         });
+        this.sendChangeEmailOtp = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const { newEmail } = req.body;
+            console.log("req.body new email otp", req.body);
+            if (!newEmail)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMAIL_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            yield this._employeeAuthService.sendChangeEmailOtp(req.user.id, newEmail);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "OTP sent to new email", true);
+        });
+        this.verifyChangeEmail = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const { newEmail, otp } = req.body;
+            if (!newEmail || !otp)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMAIL_OTP_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            yield this._employeeAuthService.verifyChangeEmail(req.user.id, newEmail, otp);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Email updated successfully", true);
+        });
+        this.changePassword = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const { currentPassword, newPassword } = req.body;
+            console.log("req.body change pass word", req.body);
+            if (!currentPassword || !newPassword)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMAIL_PASSWORD_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            yield this._employeeAuthService.changePassword(req.user.id, currentPassword, newPassword);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Password updated successfully", true);
+        });
     }
 };
 exports.EmployeeAuthController = EmployeeAuthController;

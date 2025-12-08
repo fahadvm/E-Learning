@@ -69,10 +69,12 @@ const mongoose_1 = require("mongoose");
 const dayjs_1 = __importDefault(require("dayjs"));
 const razorpay_1 = __importDefault(require("razorpay"));
 let StudentBookingService = class StudentBookingService {
-    constructor(_bookingRepo, _availibilityRepo, _notificationRepo) {
+    constructor(_bookingRepo, _availibilityRepo, _notificationRepo, _transactionRepo, _walletRepo) {
         this._bookingRepo = _bookingRepo;
         this._availibilityRepo = _availibilityRepo;
         this._notificationRepo = _notificationRepo;
+        this._transactionRepo = _transactionRepo;
+        this._walletRepo = _walletRepo;
         this._razorpay = new razorpay_1.default({
             key_id: process.env.RAZORPAY_KEY_ID,
             key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -86,7 +88,7 @@ let StudentBookingService = class StudentBookingService {
             return (0, student_booking_dto_1.bookingsDto)(availability);
         });
     }
-    bookSlot(studentId, teacherId, courseId, date, day, startTime, endTime, note) {
+    lockingSlot(studentId, teacherId, courseId, date, day, startTime, endTime, note) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!studentId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
@@ -95,6 +97,9 @@ let StudentBookingService = class StudentBookingService {
             const studentIdObj = new mongoose_1.Types.ObjectId(studentId);
             const teacherIdObj = new mongoose_1.Types.ObjectId(teacherId);
             const courseIdObj = new mongoose_1.Types.ObjectId(courseId);
+            const conflict = yield this._bookingRepo.findConflictingSlot(teacherId, date, startTime, endTime);
+            if (conflict)
+                (0, ResANDError_1.throwError)("Slot already locked or booked", HttpStatuscodes_1.STATUS_CODES.CONFLICT);
             const booking = yield this._bookingRepo.createBooking({
                 studentId: studentIdObj,
                 teacherId: teacherIdObj,
@@ -115,17 +120,17 @@ let StudentBookingService = class StudentBookingService {
         return __awaiter(this, void 0, void 0, function* () {
             if (!bookingId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            const cancelled = yield this._bookingRepo.updateBookingStatus(bookingId, 'cancelled', reason);
+            const cancelled = yield this._bookingRepo.updateBookingStatus(bookingId, 'booked', reason);
             if (!cancelled)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.BOOKING_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             return (0, student_booking_dto_1.bookingDto)(cancelled);
         });
     }
-    approveBooking(bookingId) {
+    approveReschedule(bookingId) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!bookingId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            const approved = yield this._bookingRepo.updateBookingStatus(bookingId, 'approved');
+            const approved = yield this._bookingRepo.approveReschedule(bookingId);
             if (!approved)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.BOOKING_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             return (0, student_booking_dto_1.bookingDto)(approved);
@@ -156,9 +161,58 @@ let StudentBookingService = class StudentBookingService {
                 .digest('hex');
             if (expectedSignature !== razorpay_signature)
                 (0, ResANDError_1.throwError)('Payment verification failed', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            const updated = yield this._bookingRepo.verifyAndMarkPaid(razorpay_order_id);
-            if (!!updated) {
+            const callId = crypto.randomBytes(4).toString("hex");
+            const updated = yield this._bookingRepo.verifyAndMarkPaid(razorpay_order_id, callId);
+            if (updated) {
                 yield this._notificationRepo.createNotification(updated.teacherId.toString(), 'New Booking Confirmed!', ' booked a paid session for .', 'booking', 'teacher');
+                // --- Transaction Logic ---
+                // Hardcoding default booking price/commission for now if not in Booking model
+                // Usually booking amount is determined at initiatePayment. 
+                // Assuming a standard fee or we should have stored amount in Booking.
+                // Booking model DOES NOT have amount. 
+                // `initiatePayment` took `amount`.
+                // We rely on external tracking or assumption here.
+                // Requirement says "₹100 per booking" (assumed from user prompt or logic).
+                // Prompt said: "Video Call Bookings (₹100 per booking)".
+                const BOOKING_AMOUNT = 100; // Fixed for now based on prompt
+                const COMMISSION_RATE = 0.2; // 20%
+                const platformFee = BOOKING_AMOUNT * COMMISSION_RATE;
+                const teacherShare = BOOKING_AMOUNT - platformFee;
+                // 1. Transaction: Student Paid (MEETING_BOOKING)
+                // Transaction model has `meetingId`. Using that for bookingId.
+                yield this._transactionRepo.create({
+                    userId: updated.studentId,
+                    meetingId: updated._id,
+                    type: "MEETING_BOOKING",
+                    txnNature: "CREDIT", // Money credited TO SYSTEM (from student)
+                    amount: BOOKING_AMOUNT,
+                    grossAmount: BOOKING_AMOUNT,
+                    teacherShare,
+                    platformFee,
+                    paymentMethod: "RAZORPAY",
+                    paymentStatus: "SUCCESS",
+                    notes: `Booking Payment: ${updated._id}`
+                });
+                // 2. Transaction: Teacher Earning (TEACHER_EARNING)
+                const earningTx = yield this._transactionRepo.create({
+                    teacherId: updated.teacherId,
+                    meetingId: updated._id,
+                    type: "TEACHER_EARNING",
+                    txnNature: "CREDIT",
+                    amount: teacherShare,
+                    grossAmount: BOOKING_AMOUNT,
+                    teacherShare,
+                    platformFee,
+                    paymentMethod: "WALLET",
+                    paymentStatus: "SUCCESS",
+                    notes: `Earning from Booking: ${updated._id}`
+                });
+                // Credit Wallet
+                yield this._walletRepo.creditTeacherWallet({
+                    teacherId: updated.teacherId,
+                    amount: teacherShare,
+                    transactionId: earningTx._id
+                });
             }
             return updated;
         });
@@ -176,12 +230,20 @@ let StudentBookingService = class StudentBookingService {
             if (!studentId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const scheduledCalls = yield this._bookingRepo.getScheduledCalls(studentId);
-            return (0, student_booking_dto_1.bookingsDto)(scheduledCalls);
+            return scheduledCalls;
         });
     }
     getBookingDetails(bookingId) {
         return __awaiter(this, void 0, void 0, function* () {
             const details = yield this._bookingRepo.findById(bookingId);
+            if (!details)
+                throw new Error('Booking not found');
+            return details;
+        });
+    }
+    getBookingDetailsByPaymentId(paymentOrderId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const details = yield this._bookingRepo.findByPaymentId(paymentOrderId);
             if (!details)
                 throw new Error('Booking not found');
             return details;
@@ -214,12 +276,14 @@ let StudentBookingService = class StudentBookingService {
             }
             // fetch bookings for next 7 days
             const bookings = yield this._bookingRepo.findBookedSlots(teacherId, today.format('YYYY-MM-DD'), nextWeek.format('YYYY-MM-DD'));
+            console.log("findBookedSlots slots ", bookings);
             // convert booked slots into ISO strings
             const bookedSlots = new Set(bookings.map(b => (0, dayjs_1.default)(`${b.date}T${b.slot.start}`).toISOString()));
             // filter out already booked slots
             const availableSlots = slotsForWeek.filter(s => !bookedSlots.has((0, dayjs_1.default)(s.slot).toISOString()));
             // remove duplicates
             const uniqueSlots = Array.from(new Map(availableSlots.map(s => [`${s.date}-${s.start}-${s.end}`, s])).values());
+            console.log("available slots ", uniqueSlots);
             return uniqueSlots;
         });
     }
@@ -230,5 +294,7 @@ exports.StudentBookingService = StudentBookingService = __decorate([
     __param(0, (0, inversify_1.inject)(types_1.TYPES.StudentBookingRepository)),
     __param(1, (0, inversify_1.inject)(types_1.TYPES.TeacherAvailabilityRepository)),
     __param(2, (0, inversify_1.inject)(types_1.TYPES.NotificationRepository)),
-    __metadata("design:paramtypes", [Object, Object, Object])
+    __param(3, (0, inversify_1.inject)(types_1.TYPES.TransactionRepository)),
+    __param(4, (0, inversify_1.inject)(types_1.TYPES.WalletRepository)),
+    __metadata("design:paramtypes", [Object, Object, Object, Object, Object])
 ], StudentBookingService);

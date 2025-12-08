@@ -38,7 +38,7 @@ let StudentAiTutorService = class StudentAiTutorService {
             throw new Error('Missing Google API key');
         this.genAI = new generative_ai_1.GoogleGenerativeAI(apiKey);
     }
-    getCourseAnswer(studentId, courseId, prompt) {
+    getCourseAnswer(courseId, prompt) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             const course = yield this._courseRepo.findById(courseId);

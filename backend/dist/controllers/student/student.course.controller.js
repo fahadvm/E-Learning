@@ -32,8 +32,9 @@ const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const axios_1 = __importDefault(require("axios"));
 let StudentCourseController = class StudentCourseController {
-    constructor(_courseService) {
+    constructor(_courseService, _subscriptionService) {
         this._courseService = _courseService;
+        this._subscriptionService = _subscriptionService;
         this.getAllCourses = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const { search, category, level, language, sort = 'createdAt', order = 'desc', page = '1', limit = '8' } = req.query;
             const courses = yield this._courseService.getAllCourses({
@@ -69,10 +70,18 @@ let StudentCourseController = class StudentCourseController {
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COMPLETD_LESSON_MARKED, true, result);
         });
         this.codecompiler = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
             const JUDGE0_URL = 'https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true';
             const { language, code } = req.body;
+            const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!studentId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             if (!language || !code)
                 (0, ResANDError_1.throwError)('Language and code are required', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            const canAccess = yield this._subscriptionService.hasFeature(studentId, "Compiler");
+            if (!canAccess) {
+                return (0, ResANDError_1.throwError)("You don't have access to this feature.", 403);
+            }
             const languageMap = {
                 python: 71, // Python 3
                 javascript: 63, // Node.js
@@ -123,5 +132,6 @@ exports.StudentCourseController = StudentCourseController;
 exports.StudentCourseController = StudentCourseController = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(types_1.TYPES.StudentCourseService)),
-    __metadata("design:paramtypes", [Object])
+    __param(1, (0, inversify_1.inject)(types_1.TYPES.StudentSubscriptionService)),
+    __metadata("design:paramtypes", [Object, Object])
 ], StudentCourseController);

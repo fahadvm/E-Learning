@@ -13,5 +13,6 @@ const chatController = container_1.default.get(types_1.TYPES.ChatController);
 router.get('/messages/:chatId', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(chatController.getMessages.bind(chatController)));
 router.get('/:chatId', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(chatController.getChatDetails.bind(chatController)));
 router.get('/', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(chatController.getUserChats.bind(chatController)));
+router.get('/new/chat', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(chatController.getTeachers.bind(chatController)));
 router.post('/start', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(chatController.startChat.bind(chatController)));
 exports.default = router;

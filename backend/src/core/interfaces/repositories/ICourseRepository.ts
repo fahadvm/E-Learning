@@ -24,6 +24,12 @@ export interface ICourseRepository {
     skip: number,
     limit: number
   ): Promise<ICourse[]>
+  findRecommendedCourses(
+    courseId: string,
+    category: string,
+    level: string,
+    limit: number
+  ): Promise<ICourse[]>
   countAllCourses(query: CourseQuery): Promise<number>;
   findCourseById(courseId: string): Promise<ICourse | null>;
   findAll(params: { skip: number; limit: number; search?: string }): Promise<ICourse[]>;

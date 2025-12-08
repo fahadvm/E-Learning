@@ -224,12 +224,12 @@ export class TeacherCourseService implements ITeacherCourseService {
       category: req.body.category,
       level: req.body.level,
       language: req.body.language,
-      isTechnicalCourse: req.body.isTechnicalCourse === 'true' || req.body.isTechnicalCourse === true,
+      isTechnicalCourse: req.body.isTechnicalCourse === true,
       price,
       coverImage: coverImageUrl,
       learningOutcomes: learningOutcomes || [],
       requirements: requirements || [],
-      isPublished: req.body.isPublished === 'true' || req.body.isPublished === true,
+      isPublished: req.body.isPublished === 'true',
       totalDuration: req.body.totalDuration ? Number(req.body.totalDuration) : undefined,
       modules: modules as any, // casting to any to match ICourse module structure if strict typing complains
     };

@@ -27,7 +27,6 @@ const types_1 = require("../../core/di/types");
 const ResANDError_1 = require("../../utils/ResANDError");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
-// ✅ Define all messages as constants
 let EmployeeCompanyController = class EmployeeCompanyController {
     constructor(_employeeCompanyService) {
         this._employeeCompanyService = _employeeCompanyService;
@@ -68,6 +67,24 @@ let EmployeeCompanyController = class EmployeeCompanyController {
         return __awaiter(this, void 0, void 0, function* () {
             yield this._employeeCompanyService.leaveCompany(req.user.id);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.LEFT_COMPANY, true);
+        });
+    }
+    getInvitation(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield this._employeeCompanyService.getInvitation(req.user.id);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Invitation fetched", true, result);
+        });
+    }
+    acceptInvite(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this._employeeCompanyService.acceptInvite(req.user.id);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Invitation accepted", true);
+        });
+    }
+    rejectInvite(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this._employeeCompanyService.rejectInvite(req.user.id);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Invitation rejected", true);
         });
     }
 };

@@ -39,9 +39,15 @@ let StudentRepository = class StudentRepository {
             return Student_1.Student.findOne({ googleId }).lean().exec();
         });
     }
-    findAll(skip, limit, search) {
+    findAll(skip, limit, search, status) {
         return __awaiter(this, void 0, void 0, function* () {
-            const filter = search ? { name: { $regex: search, $options: 'i' } } : {};
+            const filter = {};
+            if (search)
+                filter.name = { $regex: search, $options: 'i' };
+            if (status === 'blocked')
+                filter.isBlocked = true;
+            if (status === 'active')
+                filter.isBlocked = false;
             return Student_1.Student.find(filter).skip(skip).limit(limit).lean().exec();
         });
     }
@@ -73,10 +79,16 @@ let StudentRepository = class StudentRepository {
             return Student_1.Student.findByIdAndUpdate(studentId, profileData, { new: true }).lean().exec();
         });
     }
-    count(search) {
+    count(search, status) {
         return __awaiter(this, void 0, void 0, function* () {
-            const filter = search ? { name: { $regex: search, $options: 'i' } } : {};
-            return Student_1.Student.countDocuments(filter).exec();
+            const filter = {};
+            if (search)
+                filter.name = { $regex: search, $options: 'i' };
+            if (status === 'blocked')
+                filter.isBlocked = true;
+            if (status === 'active')
+                filter.isBlocked = false;
+            return Student_1.Student.countDocuments(filter);
         });
     }
     updateStudentProgress(studentId, courseId, lessonId) {

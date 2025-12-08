@@ -22,6 +22,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminTeacherController = void 0;
+// controllers/admin/admin.teacher.controller.ts
 const inversify_1 = require("inversify");
 const types_1 = require("../../core/di/types");
 const ResANDError_1 = require("../../utils/ResANDError");
@@ -34,35 +35,29 @@ let AdminTeacherController = class AdminTeacherController {
     }
     getAllTeachers(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { page = '1', limit = '10', search = '' } = req.query;
-            const { pageNum, limitNum, error } = (0, validatePagination_1.validatePagination)(page, limit);
-            if (error) {
+            const { page = '1', limit = '10', search = '', status = '' } = req.query;
+            const { pageNum, limitNum, error } = (0, validatePagination_1.validatePagination)(String(page), String(limit));
+            if (error)
                 return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST, error, false);
-            }
-            const result = yield this._teacherService.getAllTeachers(pageNum, limitNum, String(search || ''));
+            const result = yield this._teacherService.getAllTeachers(pageNum, limitNum, String(search || ''), String(status || ''));
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.TEACHERS_FETCHED, true, result);
+        });
+    }
+    getVerificationRequests(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { page = '1', limit = '10', search = '' } = req.query;
+            const { pageNum, limitNum, error } = (0, validatePagination_1.validatePagination)(String(page), String(limit));
+            if (error)
+                return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST, error, false);
+            const result = yield this._teacherService.getVerificationRequests(pageNum, limitNum, String(search || ''));
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.VERIFICATION_REQUESTS_FETCHED, true, result);
         });
     }
     getTeacherById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { teacherId } = req.params;
             const teacher = yield this._teacherService.getTeacherById(teacherId);
-            if (!teacher)
-                return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND, ResponseMessages_1.MESSAGES.TEACHER_NOT_FOUND, false);
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.TEACHER_DETAILS_FETCHED, true, teacher);
-        });
-    }
-    getTeacherCourses(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { teacherId } = req.params;
-            const courses = yield this._teacherService.getTeacherCourses(teacherId);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.TEACHER_COURSES_FETCHED, true, courses);
-        });
-    }
-    getUnverifiedTeachers(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const result = yield this._teacherService.getUnverifiedTeachers();
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.UNVERIFIED_TEACHERS_FETCHED, true, result);
         });
     }
     verifyTeacher(req, res) {
@@ -75,7 +70,8 @@ let AdminTeacherController = class AdminTeacherController {
     rejectTeacher(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { teacherId } = req.params;
-            const updated = yield this._teacherService.rejectTeacher(teacherId);
+            const { reason } = req.body;
+            const updated = yield this._teacherService.rejectTeacher(teacherId, String(reason || ''));
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.REJECTED, true, updated);
         });
     }

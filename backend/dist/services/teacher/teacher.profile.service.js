@@ -20,9 +20,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TeacherProfileService = void 0;
 // application/services/TeacherProfileService.ts
@@ -32,7 +29,6 @@ const ResANDError_1 = require("../../utils/ResANDError");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const types_1 = require("../../core/di/types");
-const cloudinary_1 = __importDefault(require("../../config/cloudinary"));
 let TeacherProfileService = class TeacherProfileService {
     constructor(_teacherRepository) {
         this._teacherRepository = _teacherRepository;
@@ -72,16 +68,16 @@ let TeacherProfileService = class TeacherProfileService {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ALREADY_VERIFIED, HttpStatuscodes_1.STATUS_CODES.CONFLICT);
             if (teacher.verificationStatus === Teacher_1.VerificationStatus.PENDING)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ALREADY_REQUESTED_VERIFICATION, HttpStatuscodes_1.STATUS_CODES.CONFLICT);
-            const isComplete = yield this._teacherRepository.isProfileComplete(teacherId);
-            if (!isComplete)
-                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COMPLETE_PROFILE, HttpStatuscodes_1.STATUS_CODES.CONFLICT);
-            const uploadResult = yield cloudinary_1.default.uploader.upload(file.path, {
-                folder: 'teacher_resumes',
-                resource_type: 'auto',
-                use_filename: true,
-            });
-            const resumeUrl = uploadResult.secure_url;
-            const updated = yield this._teacherRepository.sendVerificationRequest(teacherId, Teacher_1.VerificationStatus.PENDING, resumeUrl);
+            // const isComplete = await this._teacherRepository.isProfileComplete(teacherId);
+            // if (!isComplete) throwError(MESSAGES.COMPLETE_PROFILE, STATUS_CODES.CONFLICT);
+            //  const uploadResult = await cloudinary.uploader.upload(file.path, {
+            //   folder: 'teacher_resumes',
+            //   resource_type: 'auto',
+            //   use_filename: true,
+            // });
+            // const resumeUrl = uploadResult.secure_url;
+            // console.log("resumeUrl",resumeUrl)
+            const updated = yield this._teacherRepository.verifyTeacherById(teacherId);
             if (!updated)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.VERIFICATION_FAILED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             return updated;

@@ -144,7 +144,7 @@ import { ITeacherEarningsService } from '../interfaces/services/teacher/ITeacher
 import { TeacherEarningsService } from '../../services/teacher/teacher.earnings.service';
 import { TeacherEarningsController } from '../../controllers/teacher/teacher.earnings.controller';
 import { TeacherEnrollmentService } from '../../services/teacher/TeacherEnrollmentService';
-import { TeacherEnrollmentController } from '../../controllers/teacher/TeacherEnrollmentController';
+import { TeacherEnrollmentController } from '../../controllers/teacher/teacher.entrollment.controller';
 
 import { IChatRepository } from '../interfaces/repositories/IChatRepository';
 import { ChatRepository } from '../../repositories/ChatRepository';

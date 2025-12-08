@@ -20,6 +20,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CompanyCourseService = void 0;
 const inversify_1 = require("inversify");
@@ -27,11 +30,14 @@ const types_1 = require("../../core/di/types");
 const ResANDError_1 = require("../../utils/ResANDError");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
+const mongoose_1 = __importDefault(require("mongoose"));
 let CompanyCourseService = class CompanyCourseService {
-    constructor(_courseRepository, _companyOrderRepository, _employeeRepo) {
+    constructor(_courseRepository, _companyOrderRepository, _purchasedRepository, _employeeRepo, _resourceRepository) {
         this._courseRepository = _courseRepository;
         this._companyOrderRepository = _companyOrderRepository;
+        this._purchasedRepository = _purchasedRepository;
         this._employeeRepo = _employeeRepo;
+        this._resourceRepository = _resourceRepository;
     }
     getAllCourses(filters) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -60,7 +66,8 @@ let CompanyCourseService = class CompanyCourseService {
     }
     getMycoursesById(companyId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const orders = yield this._companyOrderRepository.getOrdersByCompanyId(companyId);
+            const companyIdObj = new mongoose_1.default.Types.ObjectId(companyId);
+            const orders = yield this._purchasedRepository.getAllPurchasesByCompany(companyIdObj);
             console.log("orders in service", orders);
             return orders;
         });
@@ -80,12 +87,19 @@ let CompanyCourseService = class CompanyCourseService {
             return course;
         });
     }
+    getResources(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this._resourceRepository.getResourcesByCourse(courseId);
+        });
+    }
 };
 exports.CompanyCourseService = CompanyCourseService;
 exports.CompanyCourseService = CompanyCourseService = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(types_1.TYPES.CourseRepository)),
     __param(1, (0, inversify_1.inject)(types_1.TYPES.CompanyOrderRepository)),
-    __param(2, (0, inversify_1.inject)(types_1.TYPES.EmployeeRepository)),
-    __metadata("design:paramtypes", [Object, Object, Object])
+    __param(2, (0, inversify_1.inject)(types_1.TYPES.CompanyCoursePurchaseRepository)),
+    __param(3, (0, inversify_1.inject)(types_1.TYPES.EmployeeRepository)),
+    __param(4, (0, inversify_1.inject)(types_1.TYPES.CourseResourceRepository)),
+    __metadata("design:paramtypes", [Object, Object, Object, Object, Object])
 ], CompanyCourseService);

@@ -33,6 +33,8 @@ const StudentCourseDTO = (course) => {
         teacherId: (_a = course.teacherId) === null || _a === void 0 ? void 0 : _a.toString(),
         modules: ((_b = course.modules) === null || _b === void 0 ? void 0 : _b.map(exports.StudentModuleDTO)) || [],
         totalDuration: (_c = course.totalDuration) !== null && _c !== void 0 ? _c : undefined,
+        reviewCount: course.reviewCount,
+        averageRating: course.averageRating,
         language: course.language,
         createdAt: course.createdAt,
         updatedAt: course.updatedAt,

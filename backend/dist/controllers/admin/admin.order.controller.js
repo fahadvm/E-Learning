@@ -32,7 +32,6 @@ let AdminOrderController = class AdminOrderController {
     constructor(_orderService) {
         this._orderService = _orderService;
     }
-    // ✅ Get all company purchases
     getCompanyOrders(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const orders = yield this._orderService.getCompanyOrders();

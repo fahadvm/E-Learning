@@ -13,4 +13,5 @@ const studentProfileCtrl = container_1.default.get(types_1.TYPES.StudentProfileC
 profileRouter.route('/')
     .get((0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentProfileCtrl.getProfile.bind(studentProfileCtrl)))
     .patch((0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentProfileCtrl.editProfile.bind(studentProfileCtrl)));
+profileRouter.get('/contributions/:leetcode/:github', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentProfileCtrl.getContributions.bind(studentProfileCtrl)));
 exports.default = profileRouter;

@@ -95,7 +95,7 @@ export class CompanyProfileService implements ICompanyProfileService {
     // Check rate limiting (1 OTP per minute)
     const existing = emailOtpStore.get(companyId);
     if (existing && Date.now() - existing.createdAt < 60000) {
-      throwError("Please wait 1 minute before requesting another OTP", STATUS_CODES.TOO_MANY_REQUESTS);
+      throwError("Please wait 1 minute before requesting another OTP", STATUS_CODES.BAD_REQUEST);
     }
 
     // Generate OTP

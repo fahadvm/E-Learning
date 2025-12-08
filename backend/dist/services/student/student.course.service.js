@@ -30,10 +30,11 @@ const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const Student_course_Dto_1 = require("../../core/dtos/student/Student.course.Dto");
 let StudentCourseService = class StudentCourseService {
-    constructor(_courseRepo, _resourceRepository, _studentRepo) {
+    constructor(_courseRepo, _resourceRepository, _studentRepo, _courseCertificateService) {
         this._courseRepo = _courseRepo;
         this._resourceRepository = _resourceRepository;
         this._studentRepo = _studentRepo;
+        this._courseCertificateService = _courseCertificateService;
     }
     getAllCourses(filters) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -69,7 +70,8 @@ let StudentCourseService = class StudentCourseService {
             const course = yield this._courseRepo.findById(courseId);
             if (!course)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
-            return course;
+            const recommended = yield this._courseRepo.findRecommendedCourses(courseId, course.category, course.level, 6);
+            return { course, recommendedCourses: recommended };
         });
     }
     markLessonComplete(studentId, courseId, lessonId) {
@@ -78,6 +80,9 @@ let StudentCourseService = class StudentCourseService {
             if (!course)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             const progress = yield this._studentRepo.updateStudentProgress(studentId, courseId, lessonId);
+            if (progress.percentage === 100) {
+                yield this._courseCertificateService.generateCourseCertificate(studentId, courseId);
+            }
             return progress;
         });
     }
@@ -106,5 +111,6 @@ exports.StudentCourseService = StudentCourseService = __decorate([
     __param(0, (0, inversify_1.inject)(types_1.TYPES.CourseRepository)),
     __param(1, (0, inversify_1.inject)(types_1.TYPES.CourseResourceRepository)),
     __param(2, (0, inversify_1.inject)(types_1.TYPES.StudentRepository)),
-    __metadata("design:paramtypes", [Object, Object, Object])
+    __param(3, (0, inversify_1.inject)(types_1.TYPES.StudentCourseCertificateService)),
+    __metadata("design:paramtypes", [Object, Object, Object, Object])
 ], StudentCourseService);

@@ -70,7 +70,7 @@ let StudentSubscriptionService = class StudentSubscriptionService {
             if (digest !== razorpay_signature) {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.PAYMENT_VERIFICATION_FAILED);
             }
-            yield this._planRepo.updatePaymentStatus(razorpay_order_id, 'active', razorpay_payment_id);
+            yield this._planRepo.updatePaymentStatus(studentId, razorpay_order_id, 'active', razorpay_payment_id);
         });
     }
     activateFreePlan(studentId, planId) {
@@ -87,6 +87,17 @@ let StudentSubscriptionService = class StudentSubscriptionService {
     getActiveSubscription(studentId) {
         return __awaiter(this, void 0, void 0, function* () {
             return this._planRepo.findActiveSubscription(studentId);
+        });
+    }
+    hasFeature(studentId, featureName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const subscription = yield this._planRepo.findActiveSubscription(studentId);
+            if (!subscription)
+                return false;
+            const plan = yield this._planRepo.getById(subscription.planId);
+            if (!plan)
+                return false;
+            return plan.features.some(feature => feature.name === featureName);
         });
     }
 };

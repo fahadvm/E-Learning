@@ -21,8 +21,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CompanyEmployeeService = void 0;
+const mongoose_1 = __importDefault(require("mongoose"));
 const inversify_1 = require("inversify");
 const ResANDError_1 = require("../../utils/ResANDError");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
@@ -30,9 +34,13 @@ const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const types_1 = require("../../core/di/types");
 const company_employee_Dto_1 = require("../../core/dtos/company/company.employee.Dto");
 let CompanyEmployeeService = class CompanyEmployeeService {
-    constructor(_employeeRepo) {
+    constructor(_employeeRepo, _companyRepo, _learningPathRepo, _purchaseRepo, _learningPathAssignRepo) {
         this._employeeRepo = _employeeRepo;
-    }
+        this._companyRepo = _companyRepo;
+        this._learningPathRepo = _learningPathRepo;
+        this._purchaseRepo = _purchaseRepo;
+        this._learningPathAssignRepo = _learningPathAssignRepo;
+    } // Injected CompanyRepository
     getAllEmployees(companyId, page, limit, search, sortBy, sortOrder) {
         return __awaiter(this, void 0, void 0, function* () {
             const total = yield this._employeeRepo.countEmployeesByCompany(companyId, search);
@@ -72,14 +80,90 @@ let CompanyEmployeeService = class CompanyEmployeeService {
     }
     approvingEmployee(companyId, employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const courses = yield this._employeeRepo.findEmployeeAndApprove(companyId, employeeId);
-            return courses;
+            const employee = yield this._employeeRepo.findEmployeeAndApprove(companyId, employeeId);
+            if (employee) {
+                yield this._companyRepo.addEmployee(companyId, employeeId);
+            }
+            return employee;
         });
     }
-    rejectingEmployee(companyId) {
+    rejectingEmployee(employeeId, reason) {
         return __awaiter(this, void 0, void 0, function* () {
-            const courses = yield this._employeeRepo.findEmployeeAndReject(companyId);
-            return courses;
+            const employee = yield this._employeeRepo.findById(employeeId);
+            if (!employee)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMPLOYEE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            const updated = yield this._employeeRepo.updateById(employeeId, {
+                status: 'rejected',
+                rejectionReason: reason,
+                rejectedAt: new Date(),
+                requestedCompanyId: null
+            });
+            return updated;
+        });
+    }
+    inviteEmployee(companyId, email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Check if employee exists
+            const employee = yield this._employeeRepo.findByEmail(email);
+            if (employee) {
+                // Employee exists, send invitation
+                if (employee.companyId) {
+                    (0, ResANDError_1.throwError)('Employee already belongs to a company', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                }
+                if (employee.status === 'requested' || employee.status === 'invited') {
+                    (0, ResANDError_1.throwError)('Employee already has a pending request or invitation', HttpStatuscodes_1.STATUS_CODES.CONFLICT);
+                }
+                const updated = yield this._employeeRepo.updateById(employee._id.toString(), {
+                    requestedCompanyId: null, // Clear any previous request
+                    status: 'invited',
+                    invitedBy: new mongoose_1.default.Types.ObjectId(companyId),
+                    invitedAt: new Date()
+                });
+                return updated;
+            }
+            // Employee doesn't exist - return null to indicate invitation link should be sent
+            return null;
+        });
+    }
+    searchEmployees(query) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this._employeeRepo.searchByEmailOrName(query);
+        });
+    }
+    removeEmployee(companyId, employeeId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const employee = yield this._employeeRepo.findById(employeeId);
+            if (!employee)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMPLOYEE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            if (((_a = employee.companyId) === null || _a === void 0 ? void 0 : _a.toString()) !== companyId) {
+                (0, ResANDError_1.throwError)('Employee does not belong to this company', HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
+            }
+            /* 1 Find assigned learning paths */
+            const assignedPaths = yield this._learningPathAssignRepo.findAssigned(companyId, employeeId);
+            console.log('checkpoint 1');
+            /* 2 For each learning path → decrease seat usage */
+            console.log("assignedPaths", assignedPaths);
+            for (const path of assignedPaths) {
+                console.log('checkpoint 1.5', companyId, path.learningPathId._id.toString());
+                const lp = yield this._learningPathRepo.findOneForCompany(companyId, path.learningPathId._id.toString());
+                console.log('checkpoint 1');
+                if (lp) {
+                    for (const course of lp.courses) {
+                        yield this._purchaseRepo.decreaseSeatUsage(new mongoose_1.default.Types.ObjectId(companyId), new mongoose_1.default.Types.ObjectId(course.courseId.toString()));
+                    }
+                }
+                console.log('checkpoint 1');
+                /* 3️ Remove assigned progress */
+                yield this._learningPathAssignRepo.delete(companyId, employeeId, path.learningPathId._id.toString());
+            }
+            console.log('checkpoint 1');
+            /* 4️ Remove employee from company */
+            yield this._employeeRepo.updateById(employeeId, {
+                companyId: null,
+                status: 'notRequsted'
+            });
+            yield this._companyRepo.removeEmployee(companyId, employeeId);
         });
     }
 };
@@ -87,5 +171,9 @@ exports.CompanyEmployeeService = CompanyEmployeeService;
 exports.CompanyEmployeeService = CompanyEmployeeService = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(types_1.TYPES.EmployeeRepository)),
-    __metadata("design:paramtypes", [Object])
+    __param(1, (0, inversify_1.inject)(types_1.TYPES.CompanyRepository)),
+    __param(2, (0, inversify_1.inject)(types_1.TYPES.EmployeeLearningPathRepository)),
+    __param(3, (0, inversify_1.inject)(types_1.TYPES.CompanyCoursePurchaseRepository)),
+    __param(4, (0, inversify_1.inject)(types_1.TYPES.EmployeeLearningPathProgressRepository)),
+    __metadata("design:paramtypes", [Object, Object, Object, Object, Object])
 ], CompanyEmployeeService);

@@ -2,10 +2,6 @@
 import { ICourse } from '../../../../models/Course';
 import { CourseCreateDTO } from '../../../../core/dtos/teacher/TeacherDTO';
 import { ICourseResource } from '../../../../models/CourseResource';
-
-import { ICourse } from '../../../../models/Course';
-import { CourseCreateDTO } from '../../../../core/dtos/teacher/TeacherDTO';
-import { ICourseResource } from '../../../../models/CourseResource';
 import { CreateCourseRequest } from '../../../../types/filter/fiterTypes';
 export interface ITeacherCourseService {
   createCourse(req: CreateCourseRequest): Promise<CourseCreateDTO>;

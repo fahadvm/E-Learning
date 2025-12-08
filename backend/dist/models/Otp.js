@@ -44,7 +44,7 @@ const OtpSchema = new mongoose_1.Schema({
         default: () => new Date(Date.now() + 10 * 60 * 1000), //ttl
         index: { expires: '10m' }
     },
-    purpose: { type: String, enum: ['signup', 'forgot-password'] },
+    purpose: { type: String, enum: ['signup', 'forgot-password', 'change-email'] },
     tempUserData: {
         name: String,
         password: String,

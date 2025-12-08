@@ -70,8 +70,21 @@ let TeacherRepository = class TeacherRepository {
             if (params === null || params === void 0 ? void 0 : params.search) {
                 query.$or = [
                     { name: { $regex: params.search, $options: 'i' } },
-                    { email: { $regex: params.search, $options: 'i' } }
+                    { email: { $regex: params.search, $options: 'i' } },
                 ];
+            }
+            // status can be 'active' | 'blocked' | 'unverified' | 'pending' | 'verified' | 'rejected'
+            if (params === null || params === void 0 ? void 0 : params.status) {
+                const s = params.status;
+                if (s === 'active') {
+                    query.isBlocked = false;
+                }
+                else if (s === 'blocked') {
+                    query.isBlocked = true;
+                }
+                else if (Object.values(Teacher_1.VerificationStatus).includes(s)) {
+                    query.verificationStatus = s;
+                }
             }
             return Teacher_1.Teacher.find(query)
                 .skip((params === null || params === void 0 ? void 0 : params.skip) || 0)
@@ -79,16 +92,25 @@ let TeacherRepository = class TeacherRepository {
                 .lean();
         });
     }
-    count(search) {
+    count(search, status) {
         return __awaiter(this, void 0, void 0, function* () {
             const query = {};
             if (search) {
                 query.$or = [
                     { name: { $regex: search, $options: 'i' } },
-                    { email: { $regex: search, $options: 'i' } }
+                    { email: { $regex: search, $options: 'i' } },
                 ];
             }
-            return Teacher_1.Teacher.countDocuments(query);
+            if (status) {
+                if (status === 'active')
+                    query.isBlocked = false;
+                else if (status === 'blocked')
+                    query.isBlocked = true;
+                else if (Object.values(Teacher_1.VerificationStatus).includes(status)) {
+                    query.verificationStatus = status;
+                }
+            }
+            return Teacher_1.Teacher.countDocuments(query).exec();
         });
     }
     getUnverifiedTeachers() {
@@ -98,17 +120,17 @@ let TeacherRepository = class TeacherRepository {
     }
     findUnverified() {
         return __awaiter(this, void 0, void 0, function* () {
-            return Teacher_1.Teacher.find({ isVerified: false }).lean();
+            return Teacher_1.Teacher.find({ verificationStatus: "pending" }).lean();
         });
     }
     verifyTeacherById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return Teacher_1.Teacher.findByIdAndUpdate(id, { isVerified: true, isRejected: false }, { new: true }).lean();
+            return Teacher_1.Teacher.findByIdAndUpdate(id, { verificationStatus: Teacher_1.VerificationStatus.VERIFIED, isRejected: false, verificationReason: '' }, { new: true }).lean();
         });
     }
-    rejectTeacherById(id) {
+    rejectTeacherById(id, reason) {
         return __awaiter(this, void 0, void 0, function* () {
-            return Teacher_1.Teacher.findByIdAndUpdate(id, { isVerified: false, isRejected: true }, { new: true }).lean();
+            return Teacher_1.Teacher.findByIdAndUpdate(id, { verificationStatus: Teacher_1.VerificationStatus.REJECTED, isRejected: true, verificationReason: reason }, { new: true }).lean();
         });
     }
     updateStatus(teacherId, updates) {
@@ -141,6 +163,33 @@ let TeacherRepository = class TeacherRepository {
     }
     sendVerificationRequest(id, status, resumeUrl) {
         return Teacher_1.Teacher.findByIdAndUpdate(id, { verificationStatus: status, resumeUrl }, { new: true });
+    }
+    findPendingRequests(params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const query = { verificationStatus: Teacher_1.VerificationStatus.PENDING };
+            if (params === null || params === void 0 ? void 0 : params.search) {
+                query.$or = [
+                    { name: { $regex: params.search, $options: 'i' } },
+                    { email: { $regex: params.search, $options: 'i' } },
+                ];
+            }
+            return Teacher_1.Teacher.find(query)
+                .skip((params === null || params === void 0 ? void 0 : params.skip) || 0)
+                .limit((params === null || params === void 0 ? void 0 : params.limit) || 0)
+                .lean();
+        });
+    }
+    countPendingRequests(search) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const query = { verificationStatus: Teacher_1.VerificationStatus.PENDING };
+            if (search) {
+                query.$or = [
+                    { name: { $regex: search, $options: 'i' } },
+                    { email: { $regex: search, $options: 'i' } },
+                ];
+            }
+            return Teacher_1.Teacher.countDocuments(query).exec();
+        });
     }
 };
 exports.TeacherRepository = TeacherRepository;

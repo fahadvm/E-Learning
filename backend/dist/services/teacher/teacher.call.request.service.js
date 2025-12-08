@@ -43,14 +43,14 @@ let TeacherCallRequestService = class TeacherCallRequestService {
             return this._callRequestRepo.findPending(page, limit);
         });
     }
-    cancelBooking(bookingId, reason) {
+    rescheduleBooking(bookingId, reason, nextSlot) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!bookingId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            const cancelled = yield this._callRequestRepo.updateBookingStatus(bookingId, 'cancelled', reason);
-            if (!cancelled)
+            const reschedulled = yield this._callRequestRepo.requestReschedule(bookingId, reason, nextSlot);
+            if (!reschedulled)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.BOOKING_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
-            return (0, student_booking_dto_1.bookingDto)(cancelled);
+            return (0, student_booking_dto_1.bookingDto)(reschedulled);
         });
     }
     getConfirmedRequests() {
@@ -65,7 +65,7 @@ let TeacherCallRequestService = class TeacherCallRequestService {
     }
     getTeacherSlots(teacherId) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b, _c, _d;
+            var _a;
             const availability = yield this._availibilityRepo.getAvailabilityByTeacherId(teacherId);
             if (!availability)
                 return [];
@@ -81,13 +81,14 @@ let TeacherCallRequestService = class TeacherCallRequestService {
                 for (const slot of matchingDay.slots) {
                     const booking = yield this._callRequestRepo.findByTeacherDateSlot(teacherId, formattedDate, slot);
                     results.push({
-                        _id: (_b = (_a = booking === null || booking === void 0 ? void 0 : booking._id) === null || _a === void 0 ? void 0 : _a.toString()) !== null && _b !== void 0 ? _b : '',
+                        _id: (_a = booking === null || booking === void 0 ? void 0 : booking._id.toString()) !== null && _a !== void 0 ? _a : `${formattedDate}-${slot}`,
                         date: formattedDate,
                         day: dayName,
                         slot,
                         status: booking ? booking.status : 'available',
-                        student: (_c = booking === null || booking === void 0 ? void 0 : booking.studentId) === null || _c === void 0 ? void 0 : _c.toString(),
-                        course: (_d = booking === null || booking === void 0 ? void 0 : booking.courseId) === null || _d === void 0 ? void 0 : _d.toString(),
+                        student: booking === null || booking === void 0 ? void 0 : booking.studentId,
+                        course: booking === null || booking === void 0 ? void 0 : booking.courseId,
+                        callId: booking === null || booking === void 0 ? void 0 : booking.callId
                     });
                 }
             }

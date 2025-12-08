@@ -76,6 +76,7 @@ const TeacherSchema = new mongoose_1.Schema({
     googleId: { type: String },
     role: { type: String, default: 'Teacher' },
     verificationStatus: { type: String, enum: Object.values(VerificationStatus), default: VerificationStatus.UNVERIFIED },
+    verificationReason: { type: String, default: '' },
     isRejected: { type: Boolean, default: false },
     isBlocked: { type: Boolean, default: false },
     googleUser: { type: Boolean, default: false },

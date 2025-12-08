@@ -43,10 +43,13 @@ let CompanyCartController = class CompanyCartController {
             const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!companyId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
-            const { courseId } = req.body;
+            console.log("add to cart req.body", req.body);
+            const { courseId, seats = 1 } = req.body;
             if (!courseId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_ID, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            const cart = yield this._cartService.addToCart(companyId, courseId);
+            // Ensure seats is a valid number
+            const seatCount = Number(seats) || 1;
+            const cart = yield this._cartService.addToCart(companyId, courseId, "seats", seatCount);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.CART_COURSE_ADDED, true, cart);
         });
         this.removeFromCart = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -67,6 +70,19 @@ let CompanyCartController = class CompanyCartController {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const cart = yield this._cartService.clearCart(companyId);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.CART_CLEARED, true, cart);
+        });
+        this.updateSeat = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!companyId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            const { courseId } = req.params;
+            const { seats } = req.body;
+            if (!courseId || seats === undefined || seats === null) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_DATA, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            }
+            const updatedCart = yield this._cartService.updateSeat(companyId, courseId, Number(seats));
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.CART_UPDATED, true, updatedCart);
         });
     }
 };

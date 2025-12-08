@@ -178,6 +178,46 @@ let StudentAuthService = class StudentAuthService {
             yield this._otpRepo.deleteByEmail(email);
         });
     }
+    changePassword(studentId, currentPassword, newPassword) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const student = yield this._studentRepo.findById(studentId);
+            if (!student || !student.password)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STUDENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            const isMatch = yield bcryptjs_1.default.compare(currentPassword, student.password);
+            if (!isMatch)
+                (0, ResANDError_1.throwError)("Incorrect current password", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            const hashed = yield bcryptjs_1.default.hash(newPassword, 10);
+            yield this._studentRepo.update(studentId, { password: hashed });
+        });
+    }
+    sendEmailChangeOtp(studentId, newEmail) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const existing = yield this._studentRepo.findByEmail(newEmail);
+            if (existing)
+                (0, ResANDError_1.throwError)("Email already in use", HttpStatuscodes_1.STATUS_CODES.CONFLICT);
+            const otp = (0, OtpServices_1.generateOtp)();
+            const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+            yield this._otpRepo.create({
+                email: newEmail,
+                otp,
+                expiresAt,
+                purpose: "change-email",
+            });
+            yield (0, OtpServices_1.sendOtpEmail)(newEmail, otp);
+        });
+    }
+    verifyEmailChangeOtp(studentId, newEmail, otp) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const record = yield this._otpRepo.findByEmail(newEmail);
+            if (!record || record.purpose !== "change-email")
+                (0, ResANDError_1.throwError)("Invalid OTP request", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            if (record.otp !== otp || record.expiresAt < new Date())
+                (0, ResANDError_1.throwError)("OTP is invalid or expired", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            const updatedUser = yield this._studentRepo.update(studentId, { email: newEmail });
+            yield this._otpRepo.deleteByEmail(newEmail);
+            return updatedUser;
+        });
+    }
 };
 exports.StudentAuthService = StudentAuthService;
 exports.StudentAuthService = StudentAuthService = __decorate([
