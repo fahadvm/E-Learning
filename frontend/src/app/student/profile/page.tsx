@@ -147,7 +147,7 @@ export default function StudentProfilePage() {
   }
 
   // GitHub Heatmap
-  let weeks: (IGithubContribution | null)[][] = [];
+  const weeks: (IGithubContribution | null)[][] = [];
   let totalContributions = 0;
 
   if (contribData && !loadingContrib) {
@@ -165,7 +165,7 @@ export default function StudentProfilePage() {
     totalContributions = validContributions.reduce((s, d) => s + d.count, 0);
 
     let currentWeek: (IGithubContribution | null)[] = [];
-    let currentDate = new Date(oneYearAgo);
+    const currentDate = new Date(oneYearAgo);
     let i = 0;
 
     while (currentDate <= today) {

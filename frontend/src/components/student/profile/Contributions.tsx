@@ -77,7 +77,7 @@ export default function Contributions() {
 
   const weeks: (IGithubContribution | null)[][] = [];
   let currentWeek: (IGithubContribution | null)[] = [];
-  let currentDate = new Date(oneYearAgo);
+  const currentDate = new Date(oneYearAgo);
   let dataIndex = 0;
 
   while (currentDate <= today) {
