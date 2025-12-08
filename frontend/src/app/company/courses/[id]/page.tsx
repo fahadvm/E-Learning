@@ -12,7 +12,7 @@ import {
 import { useParams } from "next/navigation"
 import { showSuccessToast } from "@/utils/Toast"
 import { formatMinutesToHours } from "@/utils/timeConverter"
-import { ICourse, Module, Review } from "@/types/student/studentTypes"
+import { ICourse, Module } from "@/types/student/studentTypes"
 import { companyApiMethods } from "@/services/APIservices/companyApiService"
 import Header from "@/components/company/Header"
 
@@ -22,7 +22,7 @@ export default function CourseDetailPage() {
   const [expandedModules, setExpandedModules] = useState<number[]>([])
   const [courseData, setCourseData] = useState<ICourse | null>(null)
   const [modules, setModules] = useState<Module[]>([])
-  const [reviews, setReviews] = useState<Review[]>([])
+  // const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(false);
   const [alreadyPurchased, setAlreadyPurchased] = useState(false);
 
@@ -63,7 +63,7 @@ export default function CourseDetailPage() {
       console.log("res.data is", res.data)
       setCourseData(res.data)
       setModules(res.data.modules)
-      setReviews(res.data.reviews)
+      // setReviews(res.data.reviews)
 
 
       const purchased = await companyApiMethods.getPurchasedCourseIds();

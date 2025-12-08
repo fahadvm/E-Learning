@@ -3,11 +3,9 @@
 import { useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { easeInOut } from "framer-motion";
 import { Variants } from 'framer-motion';
 
 import Header from '@/components/company/Header';
-import axios from '@/utils/axios';
 import { companyApiMethods } from '@/services/APIservices/companyApiService';
 
 interface Plan {

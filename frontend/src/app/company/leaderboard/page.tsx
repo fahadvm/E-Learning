@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Flame, Trophy, Crown } from "lucide-react";
+import { Flame, Trophy } from "lucide-react";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
 import { useCompany } from "@/context/companyContext";
 import { formatMinutesToHours } from "@/utils/timeConverter";

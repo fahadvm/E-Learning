@@ -63,7 +63,7 @@ export default function EmployeeVerification() {
   const handleApprove = async (id: string) => {
     setLoading(true);
     try {
-    await companyApiMethods.approveEmployeeRequest(id, { status: "approve" });
+    await companyApiMethods.approveEmployeeRequest(id);
       setRequests((prev) => prev.filter((r) => r._id !== id));
       showSuccessToast("Request Approved");
     } catch (err) {
@@ -76,7 +76,7 @@ export default function EmployeeVerification() {
   const handleReject = async (id: string) => {
     setLoading(true);
     try {
-    await companyApiMethods.rejectEmployeeRequest(id, { status: "reject" });
+    await companyApiMethods.rejectEmployeeRequest(id ,"");
       setRequests((prev) => prev.filter((r) => r._id !== id));
       showSuccessToast("Request Rejected");
     } catch (err) {

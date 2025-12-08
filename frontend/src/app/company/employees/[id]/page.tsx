@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Header from "@/components/company/Header";
-import { useRouter, useParams } from "next/navigation";
+import {  useParams } from "next/navigation";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
 import { showSuccessToast } from "@/utils/Toast";
 import { Trash2 } from "lucide-react";
@@ -42,7 +42,6 @@ export default function EmployeeDetailsPage() {
 
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
-  const router = useRouter();
   const { id } = useParams();
   const employeeId = Array.isArray(id) ? id[0] : id || "";
 

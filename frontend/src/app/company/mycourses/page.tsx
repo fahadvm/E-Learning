@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CourseCard } from "@/components/company/mycourses/CourseCard";
 import { Search, BookOpen, TrendingUp, ShoppingCart, AlertCircle } from "lucide-react";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
 import { Button } from "@/components/ui/button";

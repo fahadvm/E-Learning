@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Header from "@/components/company/Header";
-import { studentCartApi } from "@/services/APIservices/studentApiservice";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
 
 interface Course {

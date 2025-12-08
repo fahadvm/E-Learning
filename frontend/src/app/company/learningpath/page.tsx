@@ -13,6 +13,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
+import { showErrorToast } from "@/utils/Toast";
 
 /* ------------------------- Types ------------------------- */
 type Difficulty = "Beginner" | "Intermediate" | "Advanced";
@@ -167,6 +168,17 @@ export default function LearningPathsPage() {
 }
 
 /* ------------------------- List View ------------------------- */
+interface ListViewProps {
+  paths: LearningPath[];
+  page: number;
+  totalPages: number;
+  onPageChange: (p: number) => void;
+  onCreate: () => void;
+  onViewDetail: (p: LearningPath) => void;
+  onEdit: (p: LearningPath) => void;
+  onDelete: (id: string) => void;
+}
+
 function ListView({
   paths,
   page,
@@ -176,7 +188,8 @@ function ListView({
   onViewDetail,
   onEdit,
   onDelete,
-}: any) {
+}: ListViewProps) {
+
   return (
     <motion.div
       key="list"
@@ -262,7 +275,28 @@ function ListView({
 }
 
 /* ------------------------- Create / Edit View ------------------------- */
-function CreateOrEditView({ isEdit, existing, onBack, onSaved }: any) {
+interface PurchasedCourse {
+  courseId: {
+    _id: string;
+    title: string;
+    subtitle?: string;
+    description?: string;
+    totalDuration?: number;
+    difficulty?: Difficulty;
+  };
+}
+
+interface CompanyOrder {
+  purchasedCourses?: PurchasedCourse[];
+}
+interface CreateOrEditViewProps {
+  isEdit: boolean;
+  existing: LearningPath | null;
+  onBack: () => void;
+  onSaved: () => void;
+}
+
+function CreateOrEditView({ isEdit, existing, onBack, onSaved }: CreateOrEditViewProps) {
   const [form, setForm] = useState({
     title: existing?.title || "",
     description: existing?.description || "",
@@ -292,9 +326,9 @@ function CreateOrEditView({ isEdit, existing, onBack, onSaved }: any) {
       const allCourses: CourseOption[] = [];
 
       if (res.data && Array.isArray(res.data)) {
-        res.data.forEach((order: any) => {
+       (res.data as CompanyOrder[]).forEach((order) => {
           if (order.purchasedCourses && Array.isArray(order.purchasedCourses)) {
-            order.purchasedCourses.forEach((pc: any) => {
+            order.purchasedCourses.forEach((pc) => {
               if (pc.courseId) {
                 allCourses.push({
                   _id: pc.courseId._id,
@@ -377,9 +411,9 @@ function CreateOrEditView({ isEdit, existing, onBack, onSaved }: any) {
         alert("Learning path created successfully!");
       }
       onSaved();
-    } catch (error: any) {
+    } catch (error) {
       console.error("Failed to save learning path:", error);
-      alert(error?.response?.data?.message || "Failed to save learning path");
+      showErrorToast("Failed to save learning path");
     }
   };
 

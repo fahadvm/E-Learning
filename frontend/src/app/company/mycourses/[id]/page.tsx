@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, BookOpen, Clock2, Download, Play, Lock, FileText, Video, Image, Code, File } from "lucide-react";
+import { ArrowLeft, BookOpen, Clock2, Download, Play, FileText, Video, Image, Code, File } from "lucide-react";
 import { showErrorToast } from "@/utils/Toast";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
 

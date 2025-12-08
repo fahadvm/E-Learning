@@ -3,7 +3,7 @@
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useCompany } from "@/context/companyContext";
 import { useRouter } from "next/navigation";
-import { Mail, Phone, Globe, Upload, Lock, Key, Clock } from "lucide-react";
+import { Mail,  Upload, Lock,  Clock } from "lucide-react";
 import Header from "@/components/company/Header";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";

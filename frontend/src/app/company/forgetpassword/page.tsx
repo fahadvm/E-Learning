@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import axios, { AxiosError } from "axios";
+import  { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
 import { showSuccessToast } from "@/utils/Toast";

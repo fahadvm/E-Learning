@@ -5,7 +5,6 @@ import Header from '@/components/company/Header';
 import { Badge } from "@/components/ui/badge";
 import { Mail, Phone, Globe, Linkedin, Instagram, Twitter, MapPin, Clipboard, Check } from 'lucide-react';
 import { useCompany } from '@/context/companyContext';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { showSuccessToast } from '@/utils/Toast';
 import VerificationModal from '@/components/company/profile/VerificationModal';
@@ -13,7 +12,6 @@ import { companyApiMethods } from '@/services/APIservices/companyApiService';
 
 export default function CompanyProfilePage() {
   const { company, setCompany } = useCompany();
-  const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);

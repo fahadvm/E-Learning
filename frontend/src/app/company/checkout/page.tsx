@@ -9,21 +9,17 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { CreditCard, Lock, Shield, ArrowLeft, Wallet, Smartphone } from "lucide-react"
 import type { CartData } from "@/types/company/carts"
 import { useRouter } from "next/navigation"
-import { showErrorToast, showSuccessToast } from "@/utils/Toast"
-import { useCompany } from "@/context/companyContext"
+import { showErrorToast } from "@/utils/Toast"
 import { usePaymentStore } from "@/hooks/usePaymentStore"
 import { PaymentStatus } from "@/components/company/checkout/paymentStatus"
 import { companyApiMethods } from "@/services/APIservices/companyApiService"
-import { loadStripe } from "@stripe/stripe-js";
 
 
 
 export default function CheckoutPage() {
-  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY!);
   const [paymentMethod, setPaymentMethod] = useState("card")
   const [cartData, setCartData] = useState<CartData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const { company } = useCompany();
   const router = useRouter()
 
   useEffect(() => {
@@ -47,6 +43,13 @@ export default function CheckoutPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-lg font-medium">Your cart is empty. Go add some courses 🚀</p>
+      </div>
+    )
+  }
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-lg font-medium">Loading...</p>
       </div>
     )
   }

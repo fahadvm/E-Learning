@@ -1,8 +1,7 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState,useEffect } from 'react';
-import axios from 'axios';
+import { useState } from 'react';
 import { companyApiMethods } from '@/services/APIservices/companyApiService';
 import { showSuccessToast } from '@/utils/Toast';
 
