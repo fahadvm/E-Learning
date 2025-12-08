@@ -69,8 +69,8 @@ export const studentBookingApi = {
   getBookingDetails: (bookingId: string) => get(STUDENT_ROUTES.bookings.details(bookingId)),
   getBookingDetailsBypaymentOrderId: (paymentOrderId: string) => get(STUDENT_ROUTES.bookings.paymentOrderIdDetails(paymentOrderId)),
   getScheduledCalls: (params: { page: number; limit: number }) => get(STUDENT_ROUTES.bookings.scheduledCalls, params),
-  approveReschedule: (bookingId : string) => get(STUDENT_ROUTES.bookings.scheduledCalls),
-  rejectReschedule: (bookingId : string) => get(STUDENT_ROUTES.bookings.scheduledCalls ),
+  approveReschedule: (bookingId : string) => get(STUDENT_ROUTES.bookings.approvescheduledCalls(bookingId)),
+  rejectReschedule: (bookingId : string) => get(STUDENT_ROUTES.bookings.rejectscheduledCalls(bookingId)),
 };
 
 export const studentWishlistApi = {

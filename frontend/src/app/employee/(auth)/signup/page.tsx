@@ -95,7 +95,7 @@ export default function StudentSignupPage() {
     }
   };
 
-  const handleGoogleSuccess = (user: any) => {
+  const handleGoogleSuccess = () => {
     showSuccessToast("Google signup successful!");
     router.push("/employee/home");
   };

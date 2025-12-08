@@ -58,6 +58,7 @@ export default function UpcomingTab({
             }));
           setAvailableSlots(available);
         } catch (err) {
+          console.log(err)
           setError("Failed to fetch available slots. Please try again.");
         } finally {
           setIsLoading(false);
@@ -121,6 +122,7 @@ export default function UpcomingTab({
           setSelectedNewSlot(null);
         }
       } catch (err) {
+        console.log(err)
         setError("Failed to reschedule. Please try again.");
       } finally {
         setIsLoading(false);
@@ -308,11 +310,10 @@ export default function UpcomingTab({
                   availableSlots.map((slot) => (
                     <label
                       key={slot._id}
-                      className={`flex items-center p-2 border rounded-lg cursor-pointer ${
-                        selectedNewSlot?._id === slot._id
+                      className={`flex items-center p-2 border rounded-lg cursor-pointer ${selectedNewSlot?._id === slot._id
                           ? "border-blue-500 bg-blue-50"
                           : "hover:bg-gray-50"
-                      }`}
+                        }`}
                     >
                       <input
                         type="radio"

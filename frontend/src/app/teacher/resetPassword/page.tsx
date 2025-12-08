@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { teacherAuthApi } from "@/services/APIservices/teacherApiService";
 import { showInfoToast, showSuccessToast } from "@/utils/Toast";
@@ -19,14 +19,14 @@ export default function StudentResetPasswordPage() {
 
 
 
-  // useEffect(() => {
-  //   const storedEmail = localStorage.getItem("tempforgetEmail");
-  //   if (storedEmail) {
-  //     setEmail(storedEmail);
-  //   } else {
-  //     router.push("/teacher/forgot-password"); // Redirect if email is missing
-  //   }
-  // }, []);
+  useEffect(() => {
+    const storedEmail = localStorage.getItem("tempforgetEmail");
+    if (storedEmail) {
+      setEmail(storedEmail);
+    } else {
+      router.push("/teacher/forgot-password"); // Redirect if email is missing
+    }
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

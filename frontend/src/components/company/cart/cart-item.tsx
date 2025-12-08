@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { Trash2, Minus, Plus } from "lucide-react"
+import { Trash2, } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import type { CartCourse } from "@/types/company/carts"
@@ -14,7 +14,7 @@ interface CartItemProps {
     onSeatChange?: (courseId: string, seat: number) => void
 }
 
-export function CartItem({ course, onRemove, onSeatChange }: CartItemProps) {
+export function CartItem({ course, onRemove }: CartItemProps) {
     const [isRemoving, setIsRemoving] = useState(false)
 
     const handleRemove = async () => {

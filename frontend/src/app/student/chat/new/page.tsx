@@ -8,25 +8,9 @@ import { studentChatApi } from "@/services/APIservices/studentApiservice";
 import { Input } from "@/components/ui/input";
 import Header from "@/components/student/header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { PurchasedCourse, TabType, Teacher } from "@/types/student/chat";
 
-interface Teacher {
-    _id: string;
-    name: string;
-    profilePicture?: string;
-    about?: string;
-    courseCount?: number;
-}
 
-interface PurchasedCourse {
-    _id: string;
-    title: string;
-    coverImage?: string;
-    teacherId: Teacher;
-    purchasedAt: string;
-    progress?: number;
-}
-
-type TabType = "instructors" | "courses";
 
 export default function StartNewChatPage() {
     const [activeTab, setActiveTab] = useState<TabType>("instructors");

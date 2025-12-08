@@ -168,7 +168,7 @@ export default function AvailabilityScheduler() {
                 <div className="md:col-span-9">
                   {d.enabled ? (
                     <div className="space-y-3">
-                      {d.slots.map((s, idx) => (
+                      {d.slots.map((s) => (
                         <div key={s.id} className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
                           <Select
                             value={`${s.start} - ${s.end}`}

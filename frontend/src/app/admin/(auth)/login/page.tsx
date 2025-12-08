@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { adminApiMethods } from "@/services/APIservices/adminApiService";
-import { showErrorToast, showSuccessToast } from "@/utils/Toast";
+import { showSuccessToast } from "@/utils/Toast";
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -10,7 +10,6 @@ export default function AdminLogin() {
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error" | "">("");
   const [showPassword, setShowPassword] = useState(false); 
 
@@ -139,14 +138,7 @@ export default function AdminLogin() {
           </button>
         </form>
 
-        {message && (
-          <p
-            className={`mt-4 text-center text-sm font-medium ${messageType === "success" ? "text-green-600" : "text-red-600"
-              }`}
-          >
-            {message}
-          </p>
-        )}
+        
 
         <p className="mt-6 text-center text-gray-600">
           Not a Admin?{" "}

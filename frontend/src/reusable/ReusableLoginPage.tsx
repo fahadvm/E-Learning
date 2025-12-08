@@ -68,7 +68,7 @@ export default function ReusableLoginPage({
     return validateField("email", email) && validateField("password", password);
   };
 
-  const handleGoogleSuccess = (user: any) => {
+  const handleGoogleSuccess = ( ) => {
     showSuccessToast("Google signup successful!");
     router.push(redirectPath);
   };

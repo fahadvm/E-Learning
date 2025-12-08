@@ -22,7 +22,7 @@ export class TeacherEarningsService implements ITeacherEarningsService {
         filters: {
             page: number;
             limit: number;
-            type?: string;
+            type?: 'COURSE' | 'CALL'; 
             startDate?: string;
             endDate?: string;
         }
@@ -32,43 +32,36 @@ export class TeacherEarningsService implements ITeacherEarningsService {
 
         const query: any = {
             teacherId: new mongoose.Types.ObjectId(teacherId),
-            // Only show earnings/credits by default unless otherwise specified, 
-            // but requirements say "Transaction History", so maybe all? 
-            // The prompt says "Show: Date, Student/Company Name, Type, ... Amount Earned".
-            // Usually this means credit transactions.
-            // Filter by type if provided.
+            type: 'TEACHER_EARNING', // Only earnings
+            txnNature: 'CREDIT',
+            paymentStatus: 'SUCCESS',
         };
 
-        if (type && type !== 'ALL') {
-            if (type === 'COURSE') query.type = 'TEACHER_EARNING'; // Simplified mapping
-            else if (type === 'CALL') query.type = 'MEETING_BOOKING'; // Wait, calls also generate TEACHER_EARNING?
-            // Actually, my implementation in StudentBookingService created TEACHER_EARNING for calls too.
-            // Notes field differentiates or source.
-            // But strictly speaking:
-            // Course Purchase -> TEACHER_EARNING (notes: "Earning from Company Order..." or generic)
-            // Call Booking -> TEACHER_EARNING (notes: "Earning from Booking...")
-            // So filtering by "Type" (Course vs Call) relies on checking the `courseId` or `meetingId` existence.
+        // Filter by source: Course or Call
+        if (type === 'COURSE') {
+            query.courseId = { $exists: true, $ne: null };
+        } else if (type === 'CALL') {
+            query.meetingId = { $exists: true, $ne: null };
+        }
 
-            if (type === 'COURSE') {
-                query.courseId = { $exists: true };
-            } else if (type === 'CALL') {
-                query.meetingId = { $exists: true };
+        // Proper date range (inclusive start, end of day)
+        if (startDate || endDate) {
+            query.createdAt = {};
+            if (startDate) {
+                query.createdAt.$gte = new Date(startDate);
+                query.createdAt.$gte.setHours(0, 0, 0, 0);
+            }
+            if (endDate) {
+                query.createdAt.$lte = new Date(endDate);
+                query.createdAt.$lte.setHours(23, 59, 59, 999);
             }
         }
 
-        if (startDate && endDate) {
-            query.createdAt = {
-                $gte: new Date(startDate),
-                $lte: new Date(endDate),
-            };
-        }
-
-        // Sort by newest first
         const sort = { createdAt: -1 };
 
         const [data, total] = await Promise.all([
             this._transactionRepo.find(query, { skip, limit, sort }),
-            this._transactionRepo.count(query)
+            this._transactionRepo.count(query),
         ]);
 
         return {
@@ -76,7 +69,7 @@ export class TeacherEarningsService implements ITeacherEarningsService {
             total,
             page,
             limit,
-            totalPages: Math.ceil(total / limit),
+            totalPages: Math.ceil(total / limit) || 1,
         };
     }
 

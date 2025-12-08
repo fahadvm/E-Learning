@@ -9,7 +9,7 @@ import type { LeaderboardUser, LeaderboardResponse } from "@/types/employee/lead
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
 import { useEmployee } from "@/context/employeeContext";
 import { useRouter } from "next/navigation";
-import { convertTo12Hour, formatMinutesToHours } from "@/utils/timeConverter";
+import {  formatMinutesToHours } from "@/utils/timeConverter";
 export default function LeaderboardPage() {
   const [selectedTab, setSelectedTab] = useState<"all-time" | "weekly" | "monthly">("all-time");
   const [allTimeData, setAllTimeData] = useState<LeaderboardUser[]>([]);

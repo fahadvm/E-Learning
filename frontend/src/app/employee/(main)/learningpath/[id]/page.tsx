@@ -6,7 +6,6 @@ import {
   ArrowLeft,
   Play,
   Clock,
-  Star,
   Download,
   BookOpen,
   CheckCircle,
@@ -18,7 +17,6 @@ import {
   UserRound,
   VideoIcon,
   FileText,
-  MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -201,7 +199,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     try {
       setLoading(true);
       const res = await employeeApiMethods.getMyCourseDetails(courseId);
-      console.log("course details:",res)
+      console.log("course details:", res)
       if (res.ok) {
         const { course: courseData, progress: progressData }: StudentCourseResponse = res.data;
 
@@ -228,6 +226,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
         showErrorToast(res.message);
       }
     } catch (err) {
+      console.log(err)
       showErrorToast("Failed to fetch course");
     } finally {
       setLoading(false);
@@ -264,6 +263,8 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
         const response = await employeeApiMethods.getCourseResources(courseId);
         setResources(response.data || []);
       } catch (err) {
+        console.log(err)
+
         showErrorToast("Failed to load course resources");
       } finally {
         setLoading(false);
@@ -385,6 +386,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
         showErrorToast(res.message);
       }
     } catch (err) {
+      console.log(err)
       await fetchCourse();
       showErrorToast("Failed to mark lesson complete");
     }
@@ -406,6 +408,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
           showErrorToast(res.message);
         }
       } catch (err) {
+        console.log(err)
         showErrorToast("Failed to save notes");
       }
     }, 1000);
@@ -426,6 +429,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
       const res = await studentCourseApi.codeRunner({ language, code });
       setOutput(res.data);
     } catch (err) {
+      console.log(err)
       setOutput("Error running code");
     }
   };
@@ -439,7 +443,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     );
 
   if (!course || !progress)
-     return (
+    return (
       <div className="flex justify-center items-center h-screen text-lg">
         Loading course...
       </div>

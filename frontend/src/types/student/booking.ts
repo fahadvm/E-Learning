@@ -10,3 +10,21 @@ export interface IBooking {
   status?: string;
   amount?: number;
 }
+
+
+
+export interface BookingDetails {
+    teacherId: {
+        name: string
+    };
+    courseId: {
+        title: string
+    };
+    date: string;
+    day: string;
+    slot: { start: string; end: string };
+    paymentOrderId: string;
+    status: string;
+    amount: number;
+}
+

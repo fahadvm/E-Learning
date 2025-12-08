@@ -3,6 +3,7 @@ import container from '../../core/di/container';
 import { asyncHandler } from '../../middleware/asyncHandler';
 import { TYPES } from '../../core/di/types';
 import { EmployeeAuthController } from '../../controllers/employee/employee.auth.controller';
+import { authMiddleware } from '../../middleware/authMiddleware';
 
 const authRouter = Router();
 const employeeAuthCtrl = container.get<EmployeeAuthController>(TYPES.EmployeeAuthController);
@@ -22,9 +23,8 @@ authRouter.put('/set-new-password', asyncHandler(employeeAuthCtrl.setNewPassword
 authRouter.post('/resend-otp', asyncHandler(employeeAuthCtrl.resendOtp.bind(employeeAuthCtrl)));
 
 
-authRouter.post('/change-email/send-otp', asyncHandler(employeeAuthCtrl.sendChangeEmailOtp.bind(employeeAuthCtrl)));
-authRouter.post('/change-email/verify', asyncHandler(employeeAuthCtrl.verifyChangeEmail.bind(employeeAuthCtrl)));
-
-authRouter.put('/change-password', asyncHandler(employeeAuthCtrl.changePassword.bind(employeeAuthCtrl)));
+authRouter.post('/change-email/send-otp', authMiddleware('employee'), asyncHandler(employeeAuthCtrl.sendChangeEmailOtp.bind(employeeAuthCtrl)));
+authRouter.post('/change-email/verify', authMiddleware('employee'), asyncHandler(employeeAuthCtrl.verifyChangeEmail.bind(employeeAuthCtrl)));
+authRouter.put('/change-password', authMiddleware('employee'), asyncHandler(employeeAuthCtrl.changePassword.bind(employeeAuthCtrl)));
 
 export default authRouter;

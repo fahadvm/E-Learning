@@ -73,7 +73,7 @@ export default function StudentSignupPage() {
     setIsLoading(true);
     try {
       const response = await studentAuthApi.signup(formData);
-    
+
       if (response?.ok) {
         localStorage.setItem("tempSignupEmail", formData.email);
         showSuccessToast(response.message);
@@ -95,7 +95,7 @@ export default function StudentSignupPage() {
     }
   };
 
-  const handleGoogleSuccess = () => {
+  const handleGoogleSuccess = (user: any) => {
     showSuccessToast("Google signup successful!");
     router.push("/student/home");
   };
@@ -117,7 +117,8 @@ export default function StudentSignupPage() {
           <GoogleLoginButton
             onLoginSuccess={handleGoogleSuccess}
             onLoginError={handleGoogleError}
-          
+            apiRouter={studentAuthApi.googleSignup}
+
           />
         </div>
 
@@ -133,9 +134,8 @@ export default function StudentSignupPage() {
               placeholder="Full Name"
               value={formData.name}
               onChange={handleInputChange}
-              className={`p-3 border ${
-                formErrors.name ? "border-red-500" : "border-gray-300"
-              } rounded-lg w-full text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm`}
+              className={`p-3 border ${formErrors.name ? "border-red-500" : "border-gray-300"
+                } rounded-lg w-full text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm`}
             />
             {formErrors.name && <p className="text-red-600 text-sm mt-1">{formErrors.name}</p>}
           </div>
@@ -149,9 +149,8 @@ export default function StudentSignupPage() {
               placeholder="Email Address"
               value={formData.email}
               onChange={handleInputChange}
-              className={`p-3 border ${
-                formErrors.email ? "border-red-500" : "border-gray-300"
-              } rounded-lg w-full text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm`}
+              className={`p-3 border ${formErrors.email ? "border-red-500" : "border-gray-300"
+                } rounded-lg w-full text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm`}
             />
             {formErrors.email && <p className="text-red-600 text-sm mt-1">{formErrors.email}</p>}
           </div>
@@ -165,9 +164,8 @@ export default function StudentSignupPage() {
               placeholder="Create Password"
               value={formData.password}
               onChange={handleInputChange}
-              className={`p-3 border ${
-                formErrors.password ? "border-red-500" : "border-gray-300"
-              } rounded-lg w-full text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm`}
+              className={`p-3 border ${formErrors.password ? "border-red-500" : "border-gray-300"
+                } rounded-lg w-full text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm`}
             />
             <button
               type="button"
@@ -212,9 +210,8 @@ export default function StudentSignupPage() {
               placeholder="Confirm Password"
               value={formData.confirmPassword}
               onChange={handleInputChange}
-              className={`p-3 border ${
-                formErrors.confirmPassword ? "border-red-500" : "border-gray-300"
-              } rounded-lg w-full text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm`}
+              className={`p-3 border ${formErrors.confirmPassword ? "border-red-500" : "border-gray-300"
+                } rounded-lg w-full text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm`}
             />
             <button
               type="button"
@@ -253,9 +250,8 @@ export default function StudentSignupPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full p-3 bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-lg font-semibold hover:from-gray-700 hover:to-gray-700 transition-all shadow-md hover:shadow-lg ${
-              isLoading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            className={`w-full p-3 bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-lg font-semibold hover:from-gray-700 hover:to-gray-700 transition-all shadow-md hover:shadow-lg ${isLoading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
           >
             {isLoading ? "Loading..." : "Continue with Email"}
           </button>

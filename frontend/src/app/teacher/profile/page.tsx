@@ -60,7 +60,7 @@ export default function TeacherProfilePage() {
 
     try {
       setLoading(true);
-      const res = await teacherProfileApi.sendVerificationRequest(formData); // assuming ATS API accepts PDF
+      const res = await teacherProfileApi.sendVerificationRequest(formData); 
       if (res.ok) {
         showSuccessToast('Verification request submitted successfully!');
         setTeacher((prev) => ({
@@ -72,6 +72,7 @@ export default function TeacherProfilePage() {
         showErrorToast(res?.data?.message || 'Failed to submit verification.');
       }
     } catch (error) {
+      console.log(error)
       showErrorToast('Something went wrong during upload.');
     } finally {
       setLoading(false);

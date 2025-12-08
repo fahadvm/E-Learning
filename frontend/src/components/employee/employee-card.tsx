@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Linkedin, Github, Globe } from "lucide-react";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
 
 interface EmployeeCardProps {

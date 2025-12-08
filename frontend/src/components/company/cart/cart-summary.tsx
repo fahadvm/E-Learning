@@ -1,10 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Tag, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import type { CartSummary as CartSummaryType } from "@/types/student/carts"
 
@@ -17,31 +14,7 @@ interface CartSummaryProps {
 }
 
 export function CartSummary({ summary, onClearCart, onCheckout, isLoading ,total }: CartSummaryProps) {
-  const [couponCode, setCouponCode] = useState("")
-  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null)
-  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
 
-  const handleApplyCoupon = async () => {
-    if (!couponCode.trim()) return
-
-    setIsApplyingCoupon(true)
-    // Simulate coupon validation
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // Mock coupon validation - accept "STUDENT10" for 10% discount
-    if (couponCode.toUpperCase() === "STUDENT10") {
-      setAppliedCoupon(couponCode)
-      setCouponCode("")
-    } else {
-      // In a real app, show error toast
-      console.error("Invalid coupon code")
-    }
-    setIsApplyingCoupon(false)
-  }
-
-  const handleRemoveCoupon = () => {
-    setAppliedCoupon(null)
-  }
 
   return (
     <Card className="sticky top-4">

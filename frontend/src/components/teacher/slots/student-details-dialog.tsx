@@ -1,6 +1,5 @@
 "use client"
 
-import { useMemo } from "react"
 import type { Slot } from "@/app/teacher/slots/page"
 import {
   Dialog,

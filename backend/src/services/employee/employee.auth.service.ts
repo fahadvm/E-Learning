@@ -189,8 +189,10 @@ export class EmployeeAuthService implements IEmployeeAuthService {
   }
 
   async changePassword(employeeID: string, oldPassword: string, newPassword: string) {
+    console.log("change pass word id in service with ",employeeID, oldPassword, newPassword)
     const employee = await this._employeeRepo.findById(employeeID);
     if (!employee) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    if (!employee.password) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
     const match = await bcrypt.compare(oldPassword, employee.password);
     if (!match) throwError("Old password incorrect", STATUS_CODES.BAD_REQUEST);

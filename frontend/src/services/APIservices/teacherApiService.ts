@@ -1,13 +1,12 @@
 // teacherApi.ts
 
-import { getRequest, postRequest, patchRequest, putRequest, deleteRequest } from "../api";
+import { getRequest, postRequest, patchRequest, putRequest } from "../api";
 import { TEACHER_ROUTES } from "../constantRoutes/teacherRoutes";
 
 const get = getRequest,
   post = postRequest,
   patch = patchRequest,
-  put = putRequest,
-  del = deleteRequest;
+  put = putRequest
 
 export const teacherAuthApi = {
   signup: (data: { name: string; email: string; password: string }) => post(TEACHER_ROUTES.auth.signup, data),
@@ -24,6 +23,8 @@ export const teacherProfileApi = {
   getProfile: () => get(TEACHER_ROUTES.profile.base),
   createProfile: (data: any) => post(TEACHER_ROUTES.profile.base, data),
   editProfile: (data: any) => patch(TEACHER_ROUTES.profile.base, data),
+  sendVerificationRequest: (data: any) => patch(TEACHER_ROUTES.profile.base, data),
+  
 };
 
 export const teacherAvailabilityApi = {

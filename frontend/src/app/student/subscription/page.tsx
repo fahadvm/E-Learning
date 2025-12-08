@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { showErrorToast, showSuccessToast } from '@/utils/Toast';
 import Header from '@/components/student/header';
 import { studentSubscriptionApi } from '@/services/APIservices/studentApiservice';
 import { useStudent } from '@/context/studentContext';
+import { motion, Easing } from 'framer-motion';
 
 interface Feature {
     name: string;
@@ -60,7 +60,11 @@ export default function SubscriptionPlansPage() {
             opacity: 1,
             y: 0,
             scale: 1,
-            transition: { delay: i * 0.2, duration: 0.5, ease: 'easeOut' },
+            transition: {
+                delay: i * 0.2,
+                duration: 0.5,
+                ease: [0, 0, 0.2, 1] as unknown as Easing[]
+            },
         }),
     };
 
@@ -165,10 +169,10 @@ export default function SubscriptionPlansPage() {
                 ) : (
                     <div
                         className={`max-w-3xl mx-auto gap-6 ${plans.length === 1
-                                ? 'flex justify-center'
-                                : plans.length === 2
-                                    ? 'grid grid-cols-1 md:grid-cols-2'
-                                    : 'grid grid-cols-1 md:grid-cols-3'
+                            ? 'flex justify-center'
+                            : plans.length === 2
+                                ? 'grid grid-cols-1 md:grid-cols-2'
+                                : 'grid grid-cols-1 md:grid-cols-3'
                             }`}
                     >
                         {plans.map((plan, index) => {

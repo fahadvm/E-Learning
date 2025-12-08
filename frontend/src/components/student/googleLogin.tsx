@@ -70,6 +70,8 @@ export const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
       const idToken = response.credential;
 
       // Correct API call: send { tokenId } object
+            console.log("res  in google signup",apiRouter)
+
       const res = await apiRouter({ tokenId: idToken });
       console.log("res  in google signup",res)
       

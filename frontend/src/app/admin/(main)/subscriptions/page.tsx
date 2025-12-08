@@ -34,7 +34,6 @@ export default function AdminSubscriptionsPage() {
   const router = useRouter();
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const fetchPlans = async () => {
     try {

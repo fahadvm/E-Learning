@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Rocket, Code } from "lucide-react";
+import { Code } from "lucide-react";
 
 export default function Navigation() {
   const [open, setOpen] = useState(false);

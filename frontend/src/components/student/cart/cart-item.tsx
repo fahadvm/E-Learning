@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { Trash2, Minus, Plus } from "lucide-react"
+import { Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import type { CartCourse } from "@/types/student/carts"
@@ -14,13 +14,13 @@ interface CartItemProps {
     onQuantityChange?: (courseId: string, quantity: number) => void
 }
 
-export function CartItem({ course, onRemove, onQuantityChange }: CartItemProps) {
+export function CartItem({ course, onRemove }: CartItemProps) {
     const [isRemoving, setIsRemoving] = useState(false)
 
     const handleRemove = async () => {
         setIsRemoving(true)
         try {
-            await onRemove(course.id)
+            await onRemove(course._id)
         } catch (error) {
             console.error("Failed to remove item:", error)
             setIsRemoving(false)

@@ -4,7 +4,6 @@ import React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import Header from '@/components/student/header2';
 import {
   BookOpen,
   Users,
@@ -19,6 +18,7 @@ import {
   Eye,
   Edit,
 } from 'lucide-react';
+import Header from '../header';
 
 // Mock data - in a real app, this would come from an API
 const teacherData = {
@@ -110,7 +110,7 @@ const teacherData = {
 export default function TeacherDashboard() {
   return (
     <div className="min-h-screen bg-background">
-      <Header userRole="teacher" isLoggedIn={true} />
+      <Header />
       
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Section */}

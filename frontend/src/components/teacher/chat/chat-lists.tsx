@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
+import {  } from "@/components/ui/badge"
 
 interface Conversation {
   _id: string

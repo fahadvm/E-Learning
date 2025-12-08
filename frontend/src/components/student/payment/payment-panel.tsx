@@ -207,9 +207,7 @@ export default function PaymentPanel({
 }
 
 
-function readableName(id: string, methods: PaymentMethod[]) {
-  return methods.find((m) => m.id === id)?.name ?? "selected method"
-}
+
 
 function SecureBadge() {
   return (

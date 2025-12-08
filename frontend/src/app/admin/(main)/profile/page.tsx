@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 import {
     User,
@@ -10,8 +9,6 @@ import {
     Camera,
     Shield,
     Edit3,
-    X,
-    Save,
     Loader2
 } from "lucide-react";
 
@@ -36,14 +33,12 @@ interface AdminProfile {
 }
 
 export default function AdminProfilePage() {
-    const router = useRouter();
 
     const [profile, setProfile] = useState<AdminProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
     const [isEditing, setIsEditing] = useState(false);
-    const [isChangingPassword, setIsChangingPassword] = useState(false);
 
     const [formData, setFormData] = useState({
         name: "",

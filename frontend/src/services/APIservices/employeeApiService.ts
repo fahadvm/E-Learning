@@ -20,6 +20,9 @@ export const employeeApiMethods = {
   setNewPassword: (data: { email: string; newPassword: string }) => put(EMPLOYEE_ROUTES.auth.setNewPassword, data),
   resendOtp: (data: { email: string }) => post(EMPLOYEE_ROUTES.auth.resendOtp, data),
   logout: () => post(EMPLOYEE_ROUTES.auth.logout, {}),
+  changePassword: (data: { currentPassword: string, newPassword: string }) => put(EMPLOYEE_ROUTES.auth.changePassword, data),
+  sendEmailOtp: (data: { newEmail: string }) => post(EMPLOYEE_ROUTES.auth.sendEmailOtp, data),
+  verifyEmailOtp: (data: { newEmail: string, otp: string }) => post(EMPLOYEE_ROUTES.auth.verifyEmailOtp, data),
 
   // Profile
   getProfile: () => get(EMPLOYEE_ROUTES.profile.base),

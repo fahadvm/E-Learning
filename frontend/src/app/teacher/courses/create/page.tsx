@@ -40,7 +40,7 @@ interface CourseData {
   level: string;
   language: string;
   price: number;
-  isTechnicalCourse:boolean,
+  isTechnicalCourse: boolean;
   currency: string;
   coverImage: File | null;
   tags: string[];
@@ -61,6 +61,7 @@ const steps = [
 export default function CreateCoursePage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
+
   const [courseData, setCourseData] = useState<CourseData>({
     title: '',
     subtitle: '',
@@ -69,8 +70,8 @@ export default function CreateCoursePage() {
     level: 'Beginner',
     language: 'English',
     price: 0,
+    isTechnicalCourse: false,
     currency: 'INR',
-    isTechnicalCourse:false,
     coverImage: null,
     tags: [],
     learningOutcomes: [''],
@@ -80,99 +81,133 @@ export default function CreateCoursePage() {
     totalDuration: 0,
   });
 
-  const [modules, setModules] = useState<CourseModule[]>([]); // Empty initial state
+  const [modules, setModules] = useState<CourseModule[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const getTotalDuration = () => {
+  const getTotalDuration = (): number => {
     return modules.reduce(
       (total, module) =>
-        total + module.lessons.reduce((moduleTotal, lesson) => moduleTotal + lesson.duration, 0),
+        total + module.lessons.reduce((sum, lesson) => sum + lesson.duration, 0),
       0
     );
   };
 
-  const getTotalLessons = () => {
+  const getTotalLessons = (): number => {
     return modules.reduce((total, module) => total + module.lessons.length, 0);
   };
 
-  const canProceed = () => {
-    console.log('canProceed called, currentStep:', currentStep);
-    console.log('Modules state:', modules);
-
+  const canProceed = (): boolean => {
     switch (currentStep) {
       case 1:
-        return courseData.title && courseData.description && courseData.category && courseData.coverImage;
-      case 2: {
+        return !!(
+          courseData.title.trim() &&
+          courseData.description.trim() &&
+          courseData.category &&
+          courseData.coverImage
+        );
+
+      case 2:
+        // Enforce exactly 7 modules (days)
         if (modules.length !== 7) {
-          console.log('Validation failed: modules.length !== 7', modules.length);
-          // showErrorToast('You must have exactly 7 days in the curriculum.');
+          showErrorToast('You must create exactly 7 days in the curriculum.');
           return false;
         }
-        const emptyModules = modules.filter(module => module.lessons.length === 0);
-        if (emptyModules.length > 0) {
-          console.log('Validation failed: empty modules', emptyModules);
-          // showErrorToast('Each day must have at least one lesson.');
+
+        // Each module must have at least one lesson
+        const hasEmptyModule = modules.some((m) => m.lessons.length === 0);
+        if (hasEmptyModule) {
+          showErrorToast('Every day must contain at least one lesson.');
           return false;
         }
-        const lessonsWithoutVideo = modules
-          .flatMap(module => module.lessons)
-          .filter(lesson => !lesson.videoFile);
-        if (lessonsWithoutVideo.length > 0) {
-          console.log('Validation failed: lessons without video', lessonsWithoutVideo);
-          // showErrorToast('All lessons must have a video file uploaded.');
+
+        // Every lesson must have a video file
+        const missingVideo = modules
+          .flatMap((m) => m.lessons)
+          .some((lesson) => !lesson.videoFile);
+
+        if (missingVideo) {
+          showErrorToast('All lessons must have a video uploaded.');
           return false;
         }
+
         return true;
-      }
+
       case 3:
         return courseData.price >= 0;
+
       case 4:
         return true;
+
       default:
         return false;
     }
   };
 
   const handleSubmit = async () => {
-    if (!canProceed()) {
-      console.log('handleSubmit: canProceed returned false');
-      return;
-    }
+    if (!canProceed()) return;
 
     setIsSubmitting(true);
 
     try {
       const formData = new FormData();
+
+      // Basic fields
       formData.append('title', courseData.title);
       formData.append('subtitle', courseData.subtitle || '');
       formData.append('description', courseData.description);
       formData.append('category', courseData.category);
-      formData.append('isTechnicalCourse', courseData.isTechnicalCourse);
       formData.append('level', courseData.level);
-      formData.append('totalDuration', getTotalDuration().toString());
       formData.append('language', courseData.language);
       formData.append('price', courseData.price.toString());
       formData.append('currency', courseData.currency);
-      formData.append('isPublished', courseData.isPublished.toString());
-      formData.append('allowDiscounts', courseData.allowDiscounts.toString());
+      formData.append('totalDuration', getTotalDuration().toString());
+
+      // Booleans → string
+      formData.append('isTechnicalCourse', String(courseData.isTechnicalCourse));
+      formData.append('isPublished', String(courseData.isPublished));
+      formData.append('allowDiscounts', String(courseData.allowDiscounts));
+
+      // Arrays → JSON string
       formData.append('tags', JSON.stringify(courseData.tags));
-      formData.append('learningOutcomes', JSON.stringify(courseData.learningOutcomes.filter(outcome => outcome.trim())));
-      formData.append('requirements', JSON.stringify(courseData.requirements.filter(req => req.trim())));
+      formData.append(
+        'learningOutcomes',
+        JSON.stringify(courseData.learningOutcomes.filter((o) => o.trim()))
+      );
+      formData.append(
+        'requirements',
+        JSON.stringify(courseData.requirements.filter((r) => r.trim()))
+      );
 
-      // Append modules as JSON string
-      formData.append('modules', JSON.stringify(modules));
+      // Modules structure (without files)
+      const modulesWithoutFiles = modules.map((module) => ({
+        ...module,
+        lessons: module.lessons.map((lesson) => ({
+          ...lesson,
+          videoFile: null,
+          thumbnail: lesson.thumbnail ? null : null, // keep only metadata
+        })),
+      }));
+      formData.append('modules', JSON.stringify(modulesWithoutFiles));
 
-      // Append files
+      // Cover image
       if (courseData.coverImage) {
         formData.append('coverImage', courseData.coverImage);
       }
-      modules.forEach((module, moduleIndex) => {
-        module.lessons.forEach((lesson, lessonIndex) => {
+
+      // Video & thumbnail files with clean keys
+      modules.forEach((module, moduleIdx) => {
+        module.lessons.forEach((lesson, lessonIdx) => {
           if (lesson.videoFile) {
-            formData.append(`modules[${moduleIndex}][lessons][${lessonIndex}][videoFile]`, lesson.videoFile);
+            formData.append(
+              `video_${moduleIdx}_${lessonIdx}`,
+              lesson.videoFile
+            );
           }
           if (lesson.thumbnail) {
-            formData.append(`modules[${moduleIndex}][lessons][${lessonIndex}][thumbnail]`, lesson.thumbnail);
+            formData.append(
+              `thumbnail_${moduleIdx}_${lessonIdx}`,
+              lesson.thumbnail
+            );
           }
         });
       });
@@ -187,7 +222,9 @@ export default function CreateCoursePage() {
       }
     } catch (error: any) {
       console.error('Error creating course:', error);
-      showErrorToast(error.response?.data?.message || 'Failed to create course. Please try again.');
+      showErrorToast(
+        error.response?.data?.message || 'Something went wrong. Please try again.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -196,19 +233,26 @@ export default function CreateCoursePage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="container mx-auto px-4 py-8">
+
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
-            <Button variant="outline" size="sm" onClick={() => router.back()} data-testid="button-back">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.back()}
+              data-testid="button-back"
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
+
             <div>
               <h1 className="text-3xl font-bold" data-testid="text-page-title">
                 Create New Course
               </h1>
               <p className="text-muted-foreground">
-                Step {currentStep} of 4: {steps[currentStep - 1].title}
+                Step {currentStep} of {steps.length}: {steps[currentStep - 1].title}
               </p>
             </div>
           </div>
@@ -216,7 +260,7 @@ export default function CreateCoursePage() {
 
         <ProgressSteps currentStep={currentStep} steps={steps} />
 
-        <div className="mb-8">
+        <div className="my-10">
           {currentStep === 1 && (
             <BasicInformation courseData={courseData} setCourseData={setCourseData} />
           )}

@@ -214,7 +214,7 @@ export default function TeacherEnrollmentsPage() {
                                             <td className="px-6 py-4">
                                                 {enrollment.source === 'company' ? (
                                                     enrollment.purchasedSeats  ? (
-                                                        <SeatUsageBar purchased={enrollment.purchasedSeats} assigned={enrollment.assignedSeats} />
+                                                        <SeatUsageBar purchased={enrollment.purchasedSeats} assigned={enrollment.assignedSeats??0} />
                                                     ) : null
                                                 ) : (
                                                     enrollment.progress !== undefined && <ProgressBar progress={enrollment.progress} status={enrollment.status || 'Not Started'} />

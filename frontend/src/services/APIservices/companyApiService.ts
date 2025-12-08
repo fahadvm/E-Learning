@@ -1,6 +1,5 @@
 // src/api/companyApiMethods.ts
 
-import LearningPath from "@/app/employee/learningpath/page";
 import { getRequest, patchRequest, postRequest, putRequest, deleteRequest } from "../api";
 import { COMPANY_ROUTES } from "../constantRoutes/companyRoutes";
 

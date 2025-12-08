@@ -7,10 +7,11 @@ import { MessageCirclePlus, Search } from "lucide-react";
 import Header from "@/components/student/header";
 import { studentChatApi } from "@/services/APIservices/studentApiservice";
 import Link from "next/link";
+import { IConversation } from "@/types/student/chat";
 
 export default function MessagesPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [conversations, setConversations] = useState<any[]>([]);
+  const [conversations, setConversations] = useState<IConversation[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

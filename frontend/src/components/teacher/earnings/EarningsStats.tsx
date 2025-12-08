@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { IndianRupee, Wallet, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
+import {  Wallet, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
 
 interface EarningsStatsProps {
     stats: {

@@ -5,7 +5,6 @@ import { useState } from "react";
 import {
   Menu,
   X,
-  Heart,
   ShoppingCart,
   LogOut,
   Trophy,
@@ -15,9 +14,7 @@ import {
   Compass,
   User,
   Bell,
-  Star,
-  Lightbulb,
-  Layers,
+
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
@@ -220,7 +217,7 @@ export default function Header() {
 
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <button className="block text-red-400 hover:text-red-300 transition flex items-center gap-2">
+              <button className=" text-red-400 hover:text-red-300 transition flex items-center gap-2">
                 <LogOut size={18} /> Logout
               </button>
             </AlertDialogTrigger>

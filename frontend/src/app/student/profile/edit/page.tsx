@@ -12,6 +12,8 @@ import { useStudent } from "@/context/studentContext";
 import { studentProfileApi } from "@/services/APIservices/studentApiservice";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";
 import { motion } from "framer-motion";
+import { cubicBezier } from "framer-motion";
+
 
 const CropperModal = dynamic(() => import("@/components/common/ImageCropper"), {
   ssr: false,
@@ -20,8 +22,12 @@ const CropperModal = dynamic(() => import("@/components/common/ImageCropper"), {
 const fadeIn = {
   initial: { opacity: 0, y: 18 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.36, ease: "easeOut" },
+  transition: {
+    duration: 0.36,
+    ease: cubicBezier(0, 0, 0.2, 1),
+  },
 };
+
 
 // Reusable Password Input with Eye Toggle
 const PasswordInput = ({

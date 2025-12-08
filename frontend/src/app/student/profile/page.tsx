@@ -4,56 +4,28 @@ import { Mail, Phone, Linkedin, Edit2, User, Target, Github, Code2 } from 'lucid
 import { motion } from 'framer-motion';
 import React, { useEffect, useState } from "react";
 import Header from '@/components/student/header';
-import Link from "next/link";  
+import Link from "next/link";
+import { cubicBezier } from "framer-motion";
 import { studentProfileApi } from '@/services/APIservices/studentApiservice';
+import { ContributionLevel, GithubColorMap, IContributionResponse, IGithubContribution, IStudentProfile } from '@/types/student/profile';
 
-interface IGithubContribution {
-  date: string;
-  count: number;
-  level: 0 | 1 | 2 | 3 | 4;
-}
 
-interface ILeetCodeStats {
-  totalSolved: number;
-  easySolved: number;
-  mediumSolved: number;
-  hardSolved: number;
-}
-
-interface IContributionResponse {
-  github: IGithubContribution[];
-  leetcode: ILeetCodeStats;
-}
-
-interface IStudentProfile {
-  _id: string;
-  name: string;
-  role?: string;
-  email: string;
-  phone?: string;
-  profilePicture?: string;
-  about?: string;
-  planName?: string;
-  planStatus?: "active" | "expired" | "none";
-  social_links?: {
-    linkedin?: string;
-    gitHub?: string;
-    leetCode?: string;
-  };
-}
-
-const GITHUB_COLORS = {
+const GITHUB_COLORS: GithubColorMap = {
   0: "bg-gray-100",
   1: "bg-emerald-200",
   2: "bg-emerald-400",
   3: "bg-emerald-600",
   4: "bg-emerald-800",
 };
+// ----------------------------------------------------
 
 const fadeIn = {
-  initial: { opacity: 0, y: 20 },
+  initial: { opacity: 0, y: 18 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5, ease: 'easeOut' }
+  transition: {
+    duration: 0.36,
+    ease: cubicBezier(0, 0, 0.2, 1),
+  },
 };
 
 export default function StudentProfilePage() {
@@ -136,6 +108,16 @@ export default function StudentProfilePage() {
   }, [student]);
 
   if (!student) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+  if (loadingStudent) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -433,7 +415,7 @@ export default function StudentProfilePage() {
                   <div className="flex items-center gap-2 mt-4 text-xs text-gray-600">
                     <span>Less</span>
                     {[0, 1, 2, 3, 4].map((l) => (
-                      <div key={l} className={`w-3 h-3 rounded-sm ${GITHUB_COLORS[l]}`} />
+                      <div key={l} className={`w-3 h-3 rounded-sm ${GITHUB_COLORS[l as ContributionLevel]}`} />
                     ))}
                     <span>More</span>
                   </div>

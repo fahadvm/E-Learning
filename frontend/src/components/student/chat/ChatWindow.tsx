@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { sendMessage, Message } from '@/lib/socket'
+import { sendMessage } from '@/lib/socket'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Video, MoreVertical , Paperclip ,Smile } from 'lucide-react'
+import { ArrowLeft, Video, MoreVertical, Paperclip, Smile } from 'lucide-react'
 import Link from 'next/link'
+import { ChatMessage } from '@/types/student/chat'
 
 interface User {
     _id: string
@@ -27,9 +28,9 @@ interface Chat {
 
 interface ChatWindowProps {
     selectedChat: Chat | null
-    messages: Message[]
+    messages: ChatMessage[]
     currentUserId: string
-    addMessage: (message: Message) => void // for optimistic updates
+    addMessage: (message: ChatMessage) => void // for optimistic updates
 }
 
 export default function ChatWindow({
@@ -59,7 +60,7 @@ export default function ChatWindow({
         console.log("currentUserId", currentUserId)
         if (!receiver) return
 
-        const tempMessage: Message = {
+        const tempMessage: ChatMessage = {
             _id: 'temp-' + Date.now(),
             chatId: selectedChat._id,
             senderId: currentUserId,
@@ -76,7 +77,8 @@ export default function ChatWindow({
         sendMessage({
             senderId: currentUserId,
             receiverId: receiver,
-            content: tempMessage.message,
+            message: tempMessage.message,  
+            chatId: selectedChat._id,     
         })
     }
 
@@ -102,7 +104,7 @@ export default function ChatWindow({
                         </Button>
                     </Link>
                     <Avatar className="w-10 h-10">
-                        <AvatarImage src={selectedChat?.teacherId?.profilePicture } alt={selectedChat?.teacherId.name} />
+                        <AvatarImage src={selectedChat?.teacherId?.profilePicture} alt={selectedChat?.teacherId.name} />
                         <AvatarFallback className="bg-primary text-primary-foreground">
                             {selectedChat?.teacherId.name
                                 .split(' ')
@@ -146,7 +148,7 @@ export default function ChatWindow({
             </div>
 
             <form onSubmit={handleSendMessage} className="p-4 border-t">
-                <div className="flex gap-2 flex  items-center">
+                <div className="flex gap-2  items-center">
                     <Button variant="ghost" size="sm" className="p-2">
                         <Paperclip className="w-4 h-4" />
                     </Button>

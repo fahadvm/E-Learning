@@ -10,34 +10,34 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 
-interface Transaction {
-    _id: string;
-    type: string;
-    amount: number;
-    description?: string; // or mapped from other fields
-    createdAt: string;
-    status: string;
-    // backend specific fields for display
-    courseId?: { title: string };
-    meetingId?: { title: string }; // Assuming population, otherwise we might just have ID
-    // Actually, standard Transaction model might not populate deeply by default unless service does.
-    // Service code: this._transactionRepo.find(query, ...).
-    // TransactionRepository find usually just returns docs.
-    // We might need to ensure backend populates or just display generic info.
-    // For now, let's assume we might need to handle raw IDs or simple types.
-    // Adjusting based on `TeacherEarningsService` implementation which returns `ITransaction`.
+// interface Transaction {
+//     _id: string;
+//     type: string;
+//     amount: number;
+//     description?: string; // or mapped from other fields
+//     createdAt: string;
+//     status: string;
+//     // backend specific fields for display
+//     courseId?: { title: string };
+//     meetingId?: { title: string }; // Assuming population, otherwise we might just have ID
+//     // Actually, standard Transaction model might not populate deeply by default unless service does.
+//     // Service code: this._transactionRepo.find(query, ...).
+//     // TransactionRepository find usually just returns docs.
+//     // We might need to ensure backend populates or just display generic info.
+//     // For now, let's assume we might need to handle raw IDs or simple types.
+//     // Adjusting based on `TeacherEarningsService` implementation which returns `ITransaction`.
 
-    // Checking Transaction model:
-    // userId, teacherId, courseId, meetingId are Refs.
-    // To display names, we need population.
-    // The service didn't explicitly populate. This is a potential issue.
-    // I will check if I need to update service to populate.
-    // For now, I'll render what I can.
+//     // Checking Transaction model:
+//     // userId, teacherId, courseId, meetingId are Refs.
+//     // To display names, we need population.
+//     // The service didn't explicitly populate. This is a potential issue.
+//     // I will check if I need to update service to populate.
+//     // For now, I'll render what I can.
 
-    courseTitle?: string; // Helper if we populate
-    studentName?: string; // Helper if we populate
-    companyName?: string; // Helper if we populate
-}
+//     courseTitle?: string; // Helper if we populate
+//     studentName?: string; // Helper if we populate
+//     companyName?: string; // Helper if we populate
+// }
 
 interface TransactionTableProps {
     transactions: any[]; // Using any to be flexible with backend response for now

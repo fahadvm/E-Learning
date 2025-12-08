@@ -25,7 +25,6 @@ export default function OrdersPage() {
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [itemsPerPage] = useState(5);
-    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     useEffect(() => {
         fetchOrders();

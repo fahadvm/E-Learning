@@ -1,6 +1,5 @@
 // src/constants/employeeRoutes.ts
 
-import LearningPathsPage from "@/app/company/learningpath/page";
 
 const EMPLOYEE_BASE = '/employee';
 
@@ -22,6 +21,9 @@ export const EMPLOYEE_ROUTES = {
     setNewPassword: `${EMPLOYEE_AUTH}/set-new-password`,
     resendOtp: `${EMPLOYEE_AUTH}/resend-otp`,
     logout: `${EMPLOYEE_AUTH}/logout`,
+    changePassword: `${EMPLOYEE_AUTH}/change-password`,
+    sendEmailOtp: `${EMPLOYEE_AUTH}/change-email/send-otp`,
+    verifyEmailOtp: `${EMPLOYEE_AUTH}/change-email/verify`,
   },
 
   profile: {

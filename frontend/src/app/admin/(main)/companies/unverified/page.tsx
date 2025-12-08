@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, Check, X, Ban, Building2 } from "lucide-react";
+import { Search, Check, X,  Building2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -94,6 +94,14 @@ export default function CompanyVerificationPage() {
     await adminApiMethods.rejectAllCompanies("Rejected by admin");
     fetchCompanies();
   };
+
+  if(loading){
+    return(
+      <div>
+        <p>Loading orders...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">

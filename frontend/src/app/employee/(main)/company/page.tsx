@@ -9,9 +9,7 @@ import {
   X,
   Mail,
   Code,
-  Briefcase,
   Loader2,
-  ArrowRight,
   MapPin,
   Phone,
   LogOut,
@@ -208,7 +206,7 @@ const CompanySearchCard = ({ onSearch, searching, searchResult, onSendRequest, r
   );
 }
 
-const CurrentCompanyDetails = ({ company, onLeave }: any) => (
+const CurrentCompanyDetails = ({ company }: any) => (
   <Card className="!p-0 overflow-hidden">
 
     {/* Top Banner */}

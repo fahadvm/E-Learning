@@ -53,25 +53,10 @@ export default function Header() {
 
     fetchNotifications();
 
-    const socket = initSocket(
-      teacher._id,
-      (message) => console.log("New message:", message),
-      (data: any) => {
-        const notification: Notification = {
-          ...data,
-          _id: Date.now().toString(),
-          isRead: false,
-          type: data.type || 'default', // Adjust based on actual NotificationData shape
-          createdAt: data.createdAt || new Date().toISOString(),
-        };
-        setNotifications((prev) => [notification, ...prev]);
-        setUnreadCount((prev) => prev + 1);
-        showSuccessToast("New notification received!");
-      }
-    );
+    let socket :string | null = ""
 
     return () => {
-      socket?.disconnect();
+      socket = null;
     };
   }, [teacher?._id, fetchNotifications]);
 

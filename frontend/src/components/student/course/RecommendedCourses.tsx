@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Star, Clock, Users, PlayCircle } from "lucide-react";
+import {  Clock, Users, PlayCircle } from "lucide-react";
 import { ICourse } from "@/types/student/studentTypes";
 
 

@@ -1,6 +1,5 @@
 // companyRoutes.ts
 
-import { verify } from "crypto";
 
 // Base path
 const COMPANY_BASE = '/company';
@@ -81,7 +80,7 @@ export const COMPANY_ROUTES = {
     checkoutSession: `${COMPANY_PURCHASE}/checkout-session`,
     verifyPayment: `${COMPANY_PURCHASE}/verify-payment`,
     myCourses: `${COMPANY_PURCHASE}/entrollments`,
-    courseDetails: (id: string) => `${COMPANY_PURCHASE}/entrollments/`,
+    courseDetails: (id: string) => `${COMPANY_PURCHASE}/entrollments/${id}`,
     courseIds: `${COMPANY_PURCHASE}/entrollments-course/ids`,
     Reciept: (orderId: string) => `${COMPANY_PURCHASE}/receipt/${orderId}`,
     orders: `${COMPANY_PURCHASE}/orders`,
@@ -98,9 +97,6 @@ export const COMPANY_ROUTES = {
     assigned: (id: string) => `${COMPANY_LEARNING_PATH}/assigned/${id}`,
   },
 
-  leaderboard: {
-    base: `${COMPANY_BASE}/leaderboard`,
-  },
 
   analytics: {
     tracker: `${COMPANY_BASE}/analytics/tracker`,

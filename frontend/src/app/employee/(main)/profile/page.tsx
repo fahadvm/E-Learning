@@ -4,10 +4,14 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 
+// External Services/Utilities
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
+import { showSuccessToast, showErrorToast } from "@/utils/Toast";
 
+// UI Components
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertDialog,
@@ -20,32 +24,26 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
 import {
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Briefcase,
-  Edit2,
-  Save,
-  Flame,
-  LogOut,
-  Building2,
-  Globe,
-  Github,
-  Linkedin,
-  Shield,
-  Key,
-  AtSign,
-  Award,
-  Calendar,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+// Lucide Icons
+import {
+  User, Mail, Phone, MapPin, Briefcase, Edit2, Save,
+  Flame, LogOut, Building2, Globe, Github, Linkedin,
+  Shield, Key, AtSign, Award, Calendar, Loader2
 } from "lucide-react";
 
-const CropperModal = dynamic(() => import("@/components/common/ImageCropper"), {
-  ssr: false,
-});
+// Dynamically imported component
+const CropperModal = dynamic(() => import("@/components/common/ImageCropper"), { ssr: false });
 
+// --- Interface Definitions ---
 interface SocialLinks {
   linkedin?: string;
   github?: string;
@@ -75,6 +73,103 @@ interface Company {
   website?: string;
 }
 
+// --- Helper Components ---
+function SectionTitle({ title }: { title: string }) {
+  return <h3 className="text-lg font-semibold border-b pb-2">{title}</h3>;
+}
+
+function StatCard({ icon, label, value }: any) {
+  return (
+    <div className="bg-slate-50 rounded-lg p-4 text-center">
+      <div className="flex justify-center mb-2">{icon}</div>
+      <p className="text-xs text-slate-600">{label}</p>
+      <p className="text-lg font-bold">{value}</p>
+    </div>
+  );
+}
+
+function InfoCard({ icon, title, value, subtitle, link }: any) {
+  const content = (
+    <div className="flex items-center gap-3">
+      <div className="p-2 bg-slate-100 rounded-lg">{icon}</div>
+      <div>
+        <p className="text-xs text-slate-500">{title}</p>
+        <p className="font-medium">{value}</p>
+        {subtitle && <p className="text-xs text-slate-500 mt-1">{subtitle}</p>}
+      </div>
+    </div>
+  );
+
+  return link ? (
+    <a href={link} target="_blank" rel="noopener noreferrer" className="block p-4 border rounded-lg hover:bg-slate-50">
+      {content}
+    </a>
+  ) : (
+    <div className="p-4 border rounded-lg">{content}</div>
+  );
+}
+
+function ContactField({ icon, label, value, editable, onChange, error }: any) {
+  return (
+    <div>
+      <Label className="flex items-center gap-2 text-sm">
+        {icon} {label}
+      </Label>
+      {editable ? (
+        <>
+          <Input value={value || ""} onChange={(e) => onChange(e.target.value)} className="mt-1" />
+          {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+        </>
+      ) : (
+        <p className="mt-1 text-sm text-slate-700">{value || "Not provided"}</p>
+      )}
+    </div>
+  );
+}
+
+function SocialField({ icon, platform, url, editable, onChange, error }: any) {
+  return (
+    <div>
+      <Label className="flex items-center gap-2 text-sm">
+        {icon} {platform}
+      </Label>
+      {editable ? (
+        <>
+          <Input
+            value={url || ""}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={`https://${platform.toLowerCase()}.com/in/yourname`}
+            className="mt-1"
+          />
+          {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+        </>
+      ) : url ? (
+        <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-sm mt-1 block hover:underline">
+          {url}
+        </a>
+      ) : (
+        <p className="text-sm text-slate-400 mt-1">Not added</p>
+      )}
+    </div>
+  );
+}
+
+function SettingsButton({ icon, label, description, onClick }: any) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full text-left p-4 border rounded-lg hover:bg-slate-50 transition flex items-center gap-4"
+    >
+      <div className="p-2 bg-slate-100 rounded-lg">{icon}</div>
+      <div>
+        <p className="font-medium">{label}</p>
+        <p className="text-sm text-slate-500">{description}</p>
+      </div>
+    </button>
+  );
+}
+
+// --- Main Component ---
 export default function EmployeeProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -89,13 +184,38 @@ export default function EmployeeProfilePage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState("overview");
 
+  const [emailModal, setEmailModal] = useState(false);
+  const [emailForm, setEmailForm] = useState({ newEmail: "", otp: "" });
+  const [showOtpField, setShowOtpField] = useState(false);
+  const [timer, setTimer] = useState(0);
+  const [resendLoading, setResendLoading] = useState(false);
+
+  // Password modal
+  const [passwordModal, setPasswordModal] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  const [modalLoading, setModalLoading] = useState(false);
+
   const router = useRouter();
+
+  // ⏱ OTP Timer
+  useEffect(() => {
+    if (timer <= 0) return;
+    const interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
+    return () => clearInterval(interval);
+  }, [timer]);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const profileRes = await employeeApiMethods.getProfile();
-        const companyRes = await employeeApiMethods.getMyCompany();
+        const [profileRes, companyRes] = await Promise.all([
+          employeeApiMethods.getProfile(),
+          employeeApiMethods.getMyCompany(),
+        ]);
 
         const companyData = companyRes.data.companyId as Company | null;
 
@@ -103,7 +223,7 @@ export default function EmployeeProfilePage() {
         setProfile(profileRes.data);
         setEditedProfile(profileRes.data);
       } catch (err) {
-        console.log("Profile fetch error:", err);
+        showErrorToast("Failed to load profile");
       } finally {
         setLoading(false);
       }
@@ -112,6 +232,7 @@ export default function EmployeeProfilePage() {
     fetchProfile();
   }, []);
 
+  // IMAGE HANDLER
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -130,67 +251,130 @@ export default function EmployeeProfilePage() {
     setShowCropper(false);
   };
 
+  // SAVE PROFILE
   const validate = () => {
     if (!editedProfile) return false;
-
     const newErrors: Record<string, string> = {};
 
     if (!editedProfile.name?.trim()) newErrors.name = "Name is required";
-
     if (editedProfile.phone && !/^\d{10}$/.test(editedProfile.phone)) {
-      newErrors.phone = "Enter a valid 10-digit phone number";
-    }
-
-    const isValidUrl = (url: string) => /^https?:\/\/.+$/.test(url);
-
-    if (editedProfile.social_links?.linkedin && !isValidUrl(editedProfile.social_links.linkedin)) {
-      newErrors.linkedin = "Enter a valid LinkedIn URL";
-    }
-
-    if (editedProfile.social_links?.github && !isValidUrl(editedProfile.social_links.github)) {
-      newErrors.github = "Enter a valid GitHub URL";
-    }
-
-    if (editedProfile.social_links?.portfolio && !isValidUrl(editedProfile.social_links.portfolio)) {
-      newErrors.portfolio = "Enter a valid portfolio URL";
+      newErrors.phone = "Enter valid 10-digit phone";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleSave = async () => {
+    if (!editedProfile || !validate()) return;
+
+    try {
+      const res = await employeeApiMethods.editProfile(editedProfile);
+      setProfile(res.data);
+      setEditedProfile(res.data);
+      setIsEditing(false);
+      showSuccessToast("Profile updated!");
+    } catch (err: any) {
+      showErrorToast(err.response?.data?.message || "Failed to update");
+    }
+  };
+
+  // CHANGE EMAIL HANDLER
+  const handleChangeEmail = async () => {
+    if (!showOtpField) {
+      if (!emailForm.newEmail) return showErrorToast("Enter new email");
+
+      setModalLoading(true);
+      try {
+        await employeeApiMethods.sendEmailOtp({ newEmail: emailForm.newEmail });
+        showSuccessToast("OTP sent!");
+        setShowOtpField(true);
+        setTimer(60);
+      } catch (err: any) {
+        showErrorToast(err.response?.data?.message || "Failed to send OTP");
+      } finally {
+        setModalLoading(false);
+      }
+    } else {
+      if (!emailForm.otp) return showErrorToast("Enter OTP");
+
+      setModalLoading(true);
+      try {
+        const res = await employeeApiMethods.verifyEmailOtp({
+          newEmail: emailForm.newEmail,
+          otp: emailForm.otp,
+        });
+        if (res.ok) {
+          showSuccessToast("Email updated!");
+          setEmailModal(false);
+          setProfile((prev) => {
+            if (!prev) return prev; 
+            return {
+              ...prev,
+              email: emailForm.newEmail,
+            };
+          });
+          setEmailForm({ newEmail: "", otp: "" });
+          setShowOtpField(false);
+        }
+      } catch (err: any) {
+        showErrorToast(err.response?.data?.message || "OTP verification failed");
+      } finally {
+        setModalLoading(false);
+      }
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setResendLoading(true);
+    try {
+      await employeeApiMethods.sendEmailOtp({ newEmail: emailForm.newEmail });
+      showSuccessToast("OTP resent!");
+      setTimer(60);
+    } catch (err: any) {
+      showErrorToast(err.response?.data?.message || "Failed to resend OTP");
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
+  // CHANGE PASSWORD
+  const handleChangePassword = async () => {
+    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword)
+      return showErrorToast("All fields required");
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword)
+      return showErrorToast("Passwords mismatch");
+
+    if (passwordForm.newPassword.length < 6)
+      return showErrorToast("Password must be ≥ 6 characters");
+
+    setModalLoading(true);
+    try {
+      const res = await employeeApiMethods.changePassword({
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
+      });
+      if (res.ok) {
+        showSuccessToast("Password updated successfully!");
+      }
+      setPasswordModal(false);
+      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    } catch (err: any) {
+      showErrorToast(err.response?.data?.message || "Failed to change");
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  // LOGOUT
   const handleLogout = async () => {
     try {
       await employeeApiMethods.logout();
       localStorage.clear();
       router.push("/employee/login");
     } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
-
-  const handleLeaveCompany = async () => {
-    try {
-      await employeeApiMethods.leaveCompany();
-      alert("You have left the company successfully");
-      window.location.reload();
-    } catch (error: any) {
-      console.error("Failed to leave company:", error);
-      alert(error?.response?.data?.message || "Error leaving company");
-    }
-  };
-
-  const handleSave = async () => {
-    if (!editedProfile) return;
-    if (!validate()) return;
-
-    try {
-      const profileRes = await employeeApiMethods.editProfile(editedProfile);
-      setProfile(profileRes.data);
-      setEditedProfile(profileRes.data);
-      setIsEditing(false);
-    } catch (err) {
-      console.log("Save error:", err);
+      console.error(error);
     }
   };
 
@@ -209,339 +393,163 @@ export default function EmployeeProfilePage() {
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-6xl mx-auto px-4 py-8 lg:py-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* LEFT: Profile Sidebar */}
+          {/* LEFT SIDEBAR */}
           <aside className="lg:col-span-4">
             <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6 space-y-6">
-              {/* Avatar + name */}
+
+              {/* Avatar */}
               <div className="flex flex-col items-center text-center gap-4">
                 <div className="relative">
-                  <div className="w-28 h-28 rounded-full overflow-hidden border border-slate-200 bg-slate-100">
+                  <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-lg">
                     <img
-                      src={
-                        isEditing
-                          ? editedProfile.profilePicture || "/gallery/avatar.jpg"
-                          : profile.profilePicture || "/gallery/avatar.jpg"
-                      }
+                      src={isEditing ? editedProfile.profilePicture || "/gallery/avatar.jpg" : profile.profilePicture || "/gallery/avatar.jpg"}
                       alt="Profile"
                       className="w-full h-full object-cover"
                     />
                   </div>
                   {isEditing && (
-                    <label className="absolute bottom-0 right-0 inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-white shadow cursor-pointer">
+                    <label className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full shadow-lg cursor-pointer hover:bg-blue-700">
                       <Edit2 className="w-4 h-4" />
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleProfileImageChange}
-                      />
+                      <input type="file" accept="image/*" className="hidden" onChange={handleProfileImageChange} />
                     </label>
                   )}
                 </div>
 
-                <div className="w-full space-y-1">
+                <div className="space-y-2">
                   {isEditing ? (
                     <>
                       <Input
                         value={editedProfile.name}
-                        onChange={(e) =>
-                          setEditedProfile({ ...editedProfile, name: e.target.value })
-                        }
-                        className="text-lg font-semibold text-center"
-                        placeholder="Your name"
+                        onChange={(e) => setEditedProfile({ ...editedProfile, name: e.target.value })}
+                        className="text-center text-lg font-semibold"
                       />
-                      {errors.name && (
-                        <p className="text-xs text-red-500 mt-1 text-center">
-                          {errors.name}
-                        </p>
-                      )}
+                      {errors.name && <p className="text-xs text-red-500">{errors.name}</p>}
                     </>
                   ) : (
-                    <h1 className="text-lg font-semibold text-slate-900">{profile.name}</h1>
+                    <h1 className="text-xl font-bold">{profile.name}</h1>
                   )}
-
-                  <p className="text-xs text-slate-500 flex items-center justify-center gap-1">
-                    <Mail className="w-3 h-3" />
-                    {profile.email}
-                  </p>
-
-                  {profile.position && (
-                    <p className="text-xs text-slate-600 flex items-center justify-center gap-1 mt-1">
-                      <Briefcase className="w-3 h-3" />
-                      {profile.position}
-                      {company?.name && <span className="text-slate-400">· {company.name}</span>}
-                    </p>
-                  )}
+                  <p className="text-sm text-slate-600">{profile.email}</p>
                 </div>
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-2 gap-3">
-                <StatCard
-                  label="Current streak"
-                  icon={<Flame className="w-4 h-4 text-orange-500" />}
-                  value={`${profile.streakCount || 0} days`}
-                />
-                <StatCard
-                  label="Best streak"
-                  icon={<Award className="w-4 h-4 text-emerald-500" />}
-                  value={`${profile.longestStreak || 0} days`}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <StatCard icon={<Flame className="w-5 h-5 text-orange-500" />} label="Streak" value={`${profile.streakCount || 0} days`} />
+                <StatCard icon={<Award className="w-5 h-5 text-emerald-500" />} label="Best" value={`${profile.longestStreak || 0} days`} />
               </div>
 
               {/* About */}
               <div>
-                <p className="text-xs font-medium text-slate-500 mb-1">About</p>
+                <p className="text-sm font-medium text-slate-600 mb-2">About</p>
                 {isEditing ? (
                   <textarea
                     value={editedProfile.about || ""}
-                    onChange={(e) =>
-                      setEditedProfile({ ...editedProfile, about: e.target.value })
-                    }
-                    rows={3}
-                    className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-800 outline-none focus:border-slate-400 resize-none"
-                    placeholder="Briefly describe your professional journey..."
+                    onChange={(e) => setEditedProfile({ ...editedProfile, about: e.target.value })}
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm resize-none h-24"
+                    placeholder="Tell us about yourself..."
                   />
                 ) : (
-                  <p className="text-sm text-slate-700 leading-relaxed">
-                    {profile.about ||
-                      "No summary added yet. Share a short overview of your experience and strengths."}
+                  <p className="text-sm text-slate-700">
+                    {profile.about || "No bio added yet."}
                   </p>
                 )}
               </div>
 
-
-
-
-
               {/* Actions */}
-              <div className="space-y-3">
+              <div className="space-y-3 pt-4 border-t">
                 {isEditing ? (
-                  <div className="flex gap-2">
+                  <div className="flex gap-3">
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button className="flex-1 gap-2" size="sm">
-                          <Save className="w-4 h-4" />
-                          Save changes
+                        <Button className="flex-1">
+                          <Save className="w-4 h-4 mr-2" />
+                          Save
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Save changes?</AlertDialogTitle>
+                          <AlertDialogTitle>Save Changes?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Your profile details will be updated across the platform.
+                            Your profile will be updated.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={handleSave}>
-                            Confirm & Save
-                          </AlertDialogAction>
+                          <AlertDialogAction onClick={handleSave}>Save</AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => {
-                        setEditedProfile(profile);
-                        setErrors({});
-                        setIsEditing(false);
-                      }}
-                    >
+
+                    <Button variant="outline" onClick={() => {
+                      setEditedProfile(profile);
+                      setErrors({});
+                      setIsEditing(false);
+                    }}>
                       Cancel
                     </Button>
                   </div>
                 ) : (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-center"
-                    onClick={() => setIsEditing(true)}
-                  >
+                  <Button variant="default" className="w-full" onClick={() => setIsEditing(true)}>
                     <Edit2 className="w-4 h-4 mr-2" />
-                    Edit profile
+                    Edit Profile
                   </Button>
                 )}
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-center text-red-600 border-red-200 hover:bg-red-50"
-                  onClick={handleLogout}
-                >
+                <Button variant="destructive" className="w-full" onClick={handleLogout}>
                   <LogOut className="w-4 h-4 mr-2" />
-                  Sign out
+                  Sign Out
                 </Button>
               </div>
             </div>
-
-
           </aside>
 
-          {/* RIGHT: Main Content / Tabs */}
+          {/* MAIN CONTENT */}
           <main className="lg:col-span-8">
-            <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
+            <div className="bg-white rounded-xl shadow-sm border p-6">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="flex w-full justify-start gap-1 rounded-lg bg-slate-50 p-1 border border-slate-200">
-                  <TabsTrigger
-                    value="overview"
-                    className="px-3 py-1.5 text-xs sm:text-sm data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm rounded-md"
-                  >
-                    <User className="w-3 h-3 mr-1" />
-                    Overview
-                  </TabsTrigger>
-
-                  <TabsTrigger
-                    value="contact"
-                    className="px-3 py-1.5 text-xs sm:text-sm data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm rounded-md"
-                  >
-                    <Phone className="w-3 h-3 mr-1" />
-                    Contact
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="settings"
-                    className="px-3 py-1.5 text-xs sm:text-sm data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm rounded-md"
-                  >
-                    <Key className="w-3 h-3 mr-1" />
-                    Settings
-                  </TabsTrigger>
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="contact">Contact</TabsTrigger>
+                  <TabsTrigger value="settings">Settings</TabsTrigger>
                 </TabsList>
 
-                {/* OVERVIEW */}
                 <TabsContent value="overview" className="mt-6 space-y-6">
-                  <SectionTitle title="Profile overview" />
+                  <SectionTitle title="Profile Overview" />
                   <div className="grid gap-4 md:grid-cols-2">
-                    <EmployeeInfoCard
-                      icon={<Mail className="w-4 h-4 text-slate-500" />}
-                      title="Email"
-                      value={profile.email}
-                      description="Primary contact email"
-                    />
-                    <EmployeeInfoCard
-                      icon={<Calendar className="w-4 h-4 text-slate-500" />}
-                      title="Join date"
-                      value={
-                        profile.joinDate
-                          ? new Date(profile.joinDate).toLocaleDateString()
-                          : "Not available"
-                      }
-                      description="Date you joined the platform"
-                    />
-                    <EmployeeInfoCard
-                      icon={<Shield className="w-4 h-4 text-slate-500" />}
-                      title="Employee ID"
-                      value={profile.employeeID || "Not assigned"}
-                      description="Unique identifier in the organization"
-                    />
-                    {company && (
-                      <EmployeeInfoCard
-                        icon={<Building2 className="w-4 h-4 text-slate-500" />}
-                        title="Company"
-                        value={company.name}
-                        description={
-                          company.about
-                            ? company.about.length > 100
-                              ? company.about.slice(0, 100) + "..."
-                              : company.about
-                            : "No company description available."
-                        }
-                        link={company.website}
-                      />
-                    )}
+                    <InfoCard icon={<Mail />} title="Email" value={profile.email} />
+                    <InfoCard icon={<Calendar />} title="Joined" value={profile.joinDate ? new Date(profile.joinDate).toLocaleDateString() : "N/A"} />
+                    <InfoCard icon={<Shield />} title="Employee ID" value={profile.employeeID || "Not set"} />
+                    {company && <InfoCard icon={<Building2 />} title="Company" value={company.name} subtitle={company.about} link={company.website} />}
                   </div>
                 </TabsContent>
 
-
-
-                {/* CONTACT */}
                 <TabsContent value="contact" className="mt-6 space-y-6">
-                  <SectionTitle title="Contact & social" />
+                  <SectionTitle title="Contact & Social Links" />
                   <div className="grid gap-4 md:grid-cols-2">
-                    <ContactInfoField
-                      icon={<Phone className="w-4 h-4 text-slate-500" />}
-                      label="Phone number"
-                      value={editedProfile.phone}
-                      editable={isEditing}
-                      onChange={(v) => setEditedProfile({ ...editedProfile, phone: v })}
-                      error={errors.phone}
-                    />
-                    <ContactInfoField
-                      icon={<MapPin className="w-4 h-4 text-slate-500" />}
-                      label="Location"
-                      value={editedProfile.location}
-                      editable={isEditing}
-                      onChange={(v) => setEditedProfile({ ...editedProfile, location: v })}
-                    />
+                    <ContactField icon={<Phone />} label="Phone" value={editedProfile.phone} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, phone: v })} error={errors.phone} />
+                    <ContactField icon={<MapPin />} label="Location" value={editedProfile.location} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, location: v })} />
 
-                    <SocialLinkField
-                      icon={<Linkedin className="w-4 h-4" />}
-                      platform="LinkedIn"
-                      url={editedProfile.social_links?.linkedin}
-                      editable={isEditing}
-                      onChange={(v) =>
-                        setEditedProfile({
-                          ...editedProfile,
-                          social_links: {
-                            ...editedProfile.social_links,
-                            linkedin: v,
-                          },
-                        })
-                      }
-                      error={errors.linkedin}
-                    />
-                    <SocialLinkField
-                      icon={<Github className="w-4 h-4" />}
-                      platform="GitHub"
-                      url={editedProfile.social_links?.github}
-                      editable={isEditing}
-                      onChange={(v) =>
-                        setEditedProfile({
-                          ...editedProfile,
-                          social_links: {
-                            ...editedProfile.social_links,
-                            github: v,
-                          },
-                        })
-                      }
-                      error={errors.github}
-                    />
-                    <SocialLinkField
-                      icon={<Globe className="w-4 h-4" />}
-                      platform="Portfolio"
-                      url={editedProfile.social_links?.portfolio}
-                      editable={isEditing}
-                      onChange={(v) =>
-                        setEditedProfile({
-                          ...editedProfile,
-                          social_links: {
-                            ...editedProfile.social_links,
-                            portfolio: v,
-                          },
-                        })
-                      }
-                      error={errors.portfolio}
-                    />
+                    <SocialField icon={<Linkedin />} platform="LinkedIn" url={editedProfile.social_links?.linkedin} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, social_links: { ...editedProfile.social_links, linkedin: v } })} error={errors.linkedin} />
+                    <SocialField icon={<Github />} platform="GitHub" url={editedProfile.social_links?.github} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, social_links: { ...editedProfile.social_links, github: v } })} error={errors.github} />
+                    <SocialField icon={<Globe />} platform="Portfolio" url={editedProfile.social_links?.portfolio} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, social_links: { ...editedProfile.social_links, portfolio: v } })} error={errors.portfolio} />
                   </div>
                 </TabsContent>
 
-                {/* SETTINGS */}
                 <TabsContent value="settings" className="mt-6 space-y-6">
-                  <SectionTitle title="Account settings" />
-                  <div className="grid gap-4 md:grid-cols-2">
+                  <SectionTitle title="Account Settings" />
+                  <div className="space-y-4">
                     <SettingsButton
-                      icon={<Key className="w-4 h-4" />}
-                      label="Change password"
+                      icon={<Key className="w-5 h-5" />}
+                      label="Change Password"
                       description="Update your account password"
+                      onClick={() => setPasswordModal(true)}
                     />
                     <SettingsButton
-                      icon={<AtSign className="w-4 h-4" />}
-                      label="Change email"
+                      icon={<AtSign className="w-5 h-5" />}
+                      label="Change Email"
                       description="Update your primary email address"
                       onClick={() => setEmailModal(true)}
                     />
-                    
                   </div>
                 </TabsContent>
               </Tabs>
@@ -550,6 +558,7 @@ export default function EmployeeProfilePage() {
         </div>
       </div>
 
+      {/* Cropper Modal */}
       {showCropper && rawImage && (
         <CropperModal
           image={rawImage}
@@ -557,219 +566,123 @@ export default function EmployeeProfilePage() {
           onClose={() => setShowCropper(false)}
         />
       )}
+
+      {/* 🔥 Change Email Modal */}
+      <Dialog open={emailModal} onOpenChange={setEmailModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change Email Address</DialogTitle>
+            <DialogDescription>Enter your new email to receive OTP.</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {/* Email Field */}
+            <div>
+              <Label htmlFor="newEmail">New Email</Label>
+              <Input
+                id="newEmail"
+                type="email"
+                disabled={showOtpField}
+                value={emailForm.newEmail}
+                onChange={(e) => setEmailForm({ ...emailForm, newEmail: e.target.value })}
+                placeholder="newemail@example.com"
+              />
+            </div>
+
+            {/* OTP Field */}
+            {showOtpField && (
+              <div>
+                <Label htmlFor="otp">Enter OTP</Label>
+                <Input
+                  id="otp"
+                  type="text"
+                  value={emailForm.otp}
+                  onChange={(e) => setEmailForm({ ...emailForm, otp: e.target.value })}
+                  placeholder="Enter 6-digit OTP"
+                />
+
+                {/* Timer + Resend */}
+                <div className="flex items-center justify-between mt-2 text-sm">
+                  {timer > 0 ? (
+                    <p className="text-blue-600">Resend OTP in {timer}s</p>
+                  ) : (
+                    <button
+                      onClick={handleResendOtp}
+                      disabled={resendLoading}
+                      className="text-blue-600 hover:underline"
+                    >
+                      {resendLoading ? "Sending..." : "Resend OTP"}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setEmailModal(false);
+              setEmailForm({ newEmail: "", otp: "" });
+              setShowOtpField(false);
+            }}>
+              Cancel
+            </Button>
+
+            <Button onClick={handleChangeEmail} disabled={modalLoading}>
+              {modalLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+              {showOtpField ? "Verify & Update" : "Send OTP"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 🔐 Change Password Modal */}
+      <Dialog open={passwordModal} onOpenChange={setPasswordModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change Password</DialogTitle>
+            <DialogDescription>Make sure your password is strong.</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="currentPassword">Current Password</Label>
+              <Input
+                id="currentPassword"
+                type="password"
+                value={passwordForm.currentPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="newPassword">New Password</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                value={passwordForm.newPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={passwordForm.confirmPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPasswordModal(false)}>Cancel</Button>
+            <Button onClick={handleChangePassword} disabled={modalLoading}>
+              {modalLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+              Update Password
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
-
-    
-
-    
-  );
-
-  
-}
-
-/* ========== SMALL COMPONENTS ========== */
-
-function SidebarInfoRow({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-3">
-      <div className="flex items-center gap-2">
-        {icon}
-        <span className="text-xs text-slate-500">{label}</span>
-      </div>
-      <span className="text-xs font-medium text-slate-800 text-right truncate">
-        {value}
-      </span>
-    </div>
-  );
-}
-
-function StatCard({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
-      <div className="flex items-center gap-2 text-xs text-slate-500">
-        {icon}
-        <span>{label}</span>
-      </div>
-      <p className="mt-1 text-sm font-semibold text-slate-900">{value}</p>
-    </div>
-  );
-}
-
-function SectionTitle({ title }: { title: string }) {
-  return (
-    <h2 className="text-sm font-semibold text-slate-900 border-b border-slate-200 pb-2">
-      {title}
-    </h2>
-  );
-}
-
-function EmployeeInfoCard({
-  icon,
-  title,
-  value,
-  description,
-  link,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  value: string;
-  description?: string;
-  link?: string;
-}) {
-  const content = (
-    <>
-      <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
-        {icon}
-        <span>{title}</span>
-      </div>
-      <p className="text-sm font-medium text-slate-900 truncate">{value}</p>
-      {description && (
-        <p className="text-xs text-slate-500 mt-1 line-clamp-2">{description}</p>
-      )}
-    </>
-  );
-
-  return (
-    <div className="rounded-md border border-slate-200 bg-white px-4 py-3">
-      {link ? (
-        <a
-          href={link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block hover:text-blue-600"
-        >
-          {content}
-        </a>
-      ) : (
-        content
-      )}
-    </div>
-  );
-}
-
-function ContactInfoField({
-  icon,
-  label,
-  value,
-  editable = false,
-  onChange,
-  error,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value?: string;
-  editable?: boolean;
-  onChange?: (v: string) => void;
-  error?: string;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <label className="text-xs font-medium text-slate-600 flex items-center gap-2">
-        {icon}
-        {label}
-      </label>
-      {editable ? (
-        <div>
-          <Input
-            value={value || ""}
-            onChange={(e) => onChange?.(e.target.value)}
-            className="h-9 text-sm"
-          />
-          {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
-        </div>
-      ) : (
-        <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800">
-          {value || "Not provided"}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function SocialLinkField({
-  icon,
-  platform,
-  url,
-  editable = false,
-  onChange,
-  error,
-}: {
-  icon: React.ReactNode;
-  platform: string;
-  url?: string;
-  editable?: boolean;
-  onChange?: (v: string) => void;
-  error?: string;
-}) {
-  const placeholder = `https://${platform.toLowerCase()}.com/...`;
-
-  return (
-    <div className="space-y-1.5">
-      <label className="text-xs font-medium text-slate-600 flex items-center gap-2">
-        {icon}
-        {platform}
-      </label>
-      {editable ? (
-        <div>
-          <Input
-            value={url || ""}
-            onChange={(e) => onChange?.(e.target.value)}
-            placeholder={placeholder}
-            className="h-9 text-sm"
-          />
-          {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
-        </div>
-      ) : (
-        <a
-          href={url || "#"}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`block rounded-md border px-3 py-2 text-sm transition ${url
-            ? "border-slate-200 bg-slate-50 text-slate-800 hover:border-slate-300"
-            : "border-dashed border-slate-200 text-slate-400"
-            }`}
-        >
-          {url ? `${platform} profile` : `Add ${platform} link`}
-        </a>
-      )}
-    </div>
-  );
-}
-
-function SettingsButton({
-  icon,
-  label,
-  description,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  description: string;
-}) {
-  return (
-    <button className="flex w-full items-start gap-3 rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-left text-sm hover:border-slate-300">
-      <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100">
-        {icon}
-      </div>
-      <div>
-        <p className="font-medium text-slate-900">{label}</p>
-        <p className="text-xs text-slate-500 mt-0.5">{description}</p>
-      </div>
-    </button>
   );
 }

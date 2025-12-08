@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { useEmployee } from '@/context/employeeContext';
 import { useRouter } from "next/navigation";
 import { useInView } from 'react-intersection-observer';
@@ -9,16 +9,12 @@ import VANTA from 'vanta/dist/vanta.waves.min';
 import * as THREE from 'three';
 
 import {
-  ChevronRight, PlayCircle, Award, Calendar, TrendingUp, Users, Star, ArrowRight, BookOpen,
+  ChevronRight, PlayCircle, Award, TrendingUp, Users, Star, ArrowRight,
   Target,
   BarChart3,
   Lightbulb,
-  Clock,
-  Shield,
-  Zap,
   Trophy,
   Building2,
-  Layers
 } from 'lucide-react';
 
 interface Testimonial {
@@ -67,7 +63,6 @@ const leaderboard = [
 export default function DevNextLanding() {
   const [vantaEffect, setVantaEffect] = useState<any>(null);
   const vantaRef = useRef<HTMLDivElement>(null);
-  const [activeTestimonial, setActiveTestimonial] = useState(0);
   const { employee } = useEmployee()
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
@@ -100,35 +95,9 @@ export default function DevNextLanding() {
     };
   }, [vantaEffect]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
+ 
 
-  const features = [
-    {
-      icon: <PlayCircle className="w-8 h-8" />,
-      title: "Learn Anytime",
-      description: "Access courses 24/7 from any device with offline support"
-    },
-    {
-      icon: <Award className="w-8 h-8" />,
-      title: "Earn Recognition",
-      description: "Get certified badges that showcase your achievements"
-    },
-    {
-      icon: <Users className="w-8 h-8" />,
-      title: "Expert Mentors",
-      description: "Book 1-on-1 sessions with industry leaders"
-    },
-    {
-      icon: <TrendingUp className="w-8 h-8" />,
-      title: "Track Progress",
-      description: "Visual dashboards show your growth journey"
-    }
-  ];
+ 
 
   const benefits = [
     {

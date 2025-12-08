@@ -12,7 +12,6 @@ import {
   Menu,
   X,
   MessageCircle,
-  Crown,
   ChevronDown,
 } from "lucide-react";
 import { studentAuthApi } from "@/services/APIservices/studentApiservice";
@@ -30,12 +29,10 @@ interface Notification {
 }
 
 export default function Header() {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,10 +44,7 @@ export default function Header() {
   const { student, socket } = useStudent();
   const isPremium = student?.isPremium;
 
-  // Scroll effect: transparent → solid + blur
-
-
-  // Fetch notifications (same logic)
+  // Fetch notifications
   const fetchNotifications = useCallback(async () => {
     if (!student?._id) return;
     try {
@@ -61,7 +55,10 @@ export default function Header() {
           id: n._id,
           message: n.message,
           createdAt: n.createdAt,
-          time: new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          time: new Date(n.createdAt).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
           type: n.type || "info",
           isRead: n.isRead ?? false,
         }));
@@ -79,7 +76,7 @@ export default function Header() {
     if (student?._id) fetchNotifications();
   }, [student?._id, fetchNotifications]);
 
-  // WebSocket real-time notifications
+  // Real-time notifications
   useEffect(() => {
     if (!socket) return;
     socket.on("receive_notification", (data: any) => {
@@ -87,12 +84,15 @@ export default function Header() {
         id: Date.now().toString(),
         message: data.message,
         createdAt: new Date().toISOString(),
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        time: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
         type: data.type || "info",
         isRead: false,
       };
-      setNotifications(prev => [newNotif, ...prev]);
-      setUnreadCount(prev => prev + 1);
+      setNotifications((prev) => [newNotif, ...prev]);
+      setUnreadCount((prev) => prev + 1);
     });
     return () => socket.off("receive_notification");
   }, [socket]);
@@ -114,8 +114,8 @@ export default function Header() {
   const markAsRead = async (id: string) => {
     try {
       await teacherCallRequestApi.testerMark({ notificationId: id });
-      setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
-      setUnreadCount(prev => Math.max(0, prev - 1));
+      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
+      setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch {
       showErrorToast("Failed to mark as read");
     }
@@ -134,11 +134,8 @@ export default function Header() {
 
   return (
     <>
-      {/* Modern Header */}
-      <header
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${"bg-primary  backdrop-blur-xl shadow-lg"
-          }`}
-      >
+      {/* Header */}
+      <header className="fixed inset-x-0 top-0 z-50 transition-all duration-500 bg-primary backdrop-blur-xl shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
 
@@ -150,56 +147,45 @@ export default function Header() {
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
 
-            {/* Logo - Left on mobile, Center on desktop */}
-            <div className="absolute left-1/2 -translate-x-1/2 lg:translate-x-0 lg:left-auto lg:relative">
-              <div
-                onClick={() => router.push("/student/home")}
-                className="flex items-center gap-2 cursor-pointer"
-              >
-                <h1 className={`text-2xl lg:text-3xl font-black tracking-tighter ${isScrolled ? "text-gray-900 dark:text-white" : "text-white"}`}>
-                  DevNext
-                </h1>
-                {isPremium && (
-                  <span className="bg-gradient-to-r from-yellow-400 to-amber-500 text-black text-xs font-bold px-3 py-1 rounded-full">
-                    PRO
-                  </span>
-                )}
-              </div>
+            {/* Logo */}
+            <div
+              onClick={() => router.push("/student/home")}
+              className="absolute left-1/2 -translate-x-1/2 lg:translate-x-0 lg:left-auto lg:relative flex items-center gap-2 cursor-pointer"
+            >
+              <h1 className="text-2xl lg:text-3xl font-black tracking-tighter text-white">
+                DevNext
+              </h1>
+              {isPremium && (
+                <span className="bg-gradient-to-r from-yellow-400 to-amber-500 text-black text-xs font-bold px-3 py-1 rounded-full">
+                  PRO
+                </span>
+              )}
             </div>
 
-            {/* Desktop Navigation - Centered */}
+            {/* Navigation */}
             <nav className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
               {["Home", "Subscription", "Courses", "My Courses", "Call Schedule"].map((item) => (
                 <Link
                   key={item}
                   href={`/student/${item.toLowerCase().replace(" ", "") || "home"}`}
-                  className={`font-medium transition ${isScrolled
-                    ? "text-gray-700 hover:text-indigo-600 dark:text-gray-200"
-                    : "text-white/90 hover:text-white"
-                    }`}
+                  className="font-medium text-white/90 hover:text-white transition"
                 >
-                  {item || "Home"}
+                  {item}
                 </Link>
               ))}
             </nav>
 
             {/* Right Icons */}
             <div className="flex items-center gap-3">
-              <Link href="/student/wishlist" className={iconClass(isScrolled)}>
-                <Heart size={20} />
-              </Link>
-              <Link href="/student/cart" className={iconClass(isScrolled)}>
-                <ShoppingCart size={20} />
-              </Link>
-              <Link href="/student/chat" className={iconClass(isScrolled)}>
-                <MessageCircle size={20} />
-              </Link>
+              <Icon href="/student/wishlist"><Heart size={20} /></Icon>
+              <Icon href="/student/cart"><ShoppingCart size={20} /></Icon>
+              <Icon href="/student/chat"><MessageCircle size={20} /></Icon>
 
               {/* Notifications */}
               <div ref={notificationRef} className="relative">
                 <button
                   onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                  className={`${iconClass(isScrolled)} relative`}
+                  className="p-2 text-white/90 hover:text-white transition relative"
                 >
                   <Bell size={20} />
                   {unreadCount > 0 && (
@@ -208,8 +194,6 @@ export default function Header() {
                     </span>
                   )}
                 </button>
-
-                {/* Notification Dropdown */}
                 {isNotificationOpen && (
                   <div className="absolute right-0 mt-4 w-80 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-800 overflow-hidden">
                     <div className="p-4 border-b border-gray-200 dark:border-gray-800">
@@ -237,12 +221,11 @@ export default function Header() {
                         notifications.map((n) => (
                           <div
                             key={n.id}
-                            className={`p-4 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition ${!n.isRead ? "bg-indigo-50 dark:bg-indigo-900/20" : ""
-                              }`}
+                            className={`p-4 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition ${
+                              !n.isRead ? "bg-indigo-50 dark:bg-indigo-900/20" : ""
+                            }`}
                           >
-                            <p className={`text-sm ${!n.isRead ? "font-medium" : ""}`}>
-                              {n.message}
-                            </p>
+                            <p className={`text-sm ${!n.isRead ? "font-medium" : ""}`}>{n.message}</p>
                             <div className="flex justify-between items-center mt-2">
                               <span className="text-xs text-gray-500">{n.time}</span>
                               {!n.isRead && (
@@ -266,27 +249,19 @@ export default function Header() {
               <div ref={userMenuRef} className="relative">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className={`flex items-center gap-2 p-2 rounded-xl transition ${isScrolled
-                    ? "hover:bg-gray-100 dark:hover:bg-gray-800"
-                    : "hover:bg-white/10"
-                    }`}
+                  className="flex items-center gap-2 p-2 rounded-xl hover:bg-white/10 transition text-white"
                 >
                   <div className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-semibold">
                     {student?.profilePicture ? (
-                      <img
-                        src={student.profilePicture}
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={student.profilePicture} className="w-full h-full object-cover" />
                     ) : student?.name ? (
                       student.name[0].toUpperCase()
                     ) : (
                       <User size={18} />
                     )}
                   </div>
-                  <ChevronDown size={16} className={isScrolled ? "text-gray-700 dark:text-gray-300" : "text-white"} />
+                  <ChevronDown size={16} className="text-white" />
                 </button>
-
                 {isUserMenuOpen && (
                   <div className="absolute right-0 mt-3 w-64 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700 py-2">
                     <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800">
@@ -319,14 +294,16 @@ export default function Header() {
                   </div>
                 )}
               </div>
+
             </div>
           </div>
         </div>
 
-        {/* Mobile Slide-In Menu */}
+        {/* Mobile Menu */}
         <div
-          className={`fixed inset-y-0 left-0 w-80 bg-white dark:bg-gray-950 shadow-2xl transform transition-transform duration-300 z-50 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-            } lg:hidden`}
+          className={`fixed inset-y-0 left-0 w-80 bg-white dark:bg-gray-950 shadow-2xl transform transition-transform duration-300 z-50 ${
+            isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          } lg:hidden`}
         >
           <div className="p-6 border-b">
             <div className="flex items-center justify-between">
@@ -350,7 +327,6 @@ export default function Header() {
           </nav>
         </div>
 
-        {/* Overlay */}
         {isMobileMenuOpen && (
           <div
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
@@ -359,21 +335,19 @@ export default function Header() {
         )}
       </header>
 
-      {/* Spacer for fixed header */}
+      {/* Spacer */}
       <div className="h-16 lg:h-20" />
 
-      {/* Logout Confirmation Modal */}
+      {/* Logout Modal */}
       {showLogoutModal && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-6 w-80 animate-scaleIn border border-gray-200 dark:border-gray-700">
-
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
               Logout Confirmation
             </h3>
             <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
               Are you sure you want to logout?
             </p>
-
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowLogoutModal(false)}
@@ -381,7 +355,6 @@ export default function Header() {
               >
                 Cancel
               </button>
-
               <button
                 onClick={handleLogoutConfirm}
                 className="px-4 py-2 rounded-lg text-sm bg-red-600 text-white hover:bg-red-700"
@@ -389,19 +362,18 @@ export default function Header() {
                 Yes, Logout
               </button>
             </div>
-
           </div>
         </div>
       )}
-
     </>
   );
 }
 
-// Helper for dynamic icon color
-function iconClass(isScrolled: boolean) {
-  return `p-2 rounded-lg transition ${isScrolled
-    ? "text-gray-700 hover:text-indigo-600 dark:text-gray-300"
-    : "text-white/90 hover:text-white"
-    }`;
+// Icon Component
+function Icon({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link href={href} className="p-2 text-white/90 hover:text-white transition">
+      {children}
+    </Link>
+  );
 }

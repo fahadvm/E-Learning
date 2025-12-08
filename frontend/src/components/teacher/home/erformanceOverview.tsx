@@ -6,14 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import Header from '@/components/student/header2';
 import {
   BookOpen,
   Upload,
   Plus,
   Trash2,
 //   DragHandle,
-  Play,
   FileText,
   Video,
   Code,
@@ -23,7 +21,6 @@ import {
   ArrowLeft,
   Settings,
   Globe,
-  Lock,
   DollarSign,
   Clock,
   Users,
@@ -428,7 +425,7 @@ export default function CreateCoursePage() {
       </div>
 
       <div className="space-y-4">
-        {sections.map((section, sectionIndex) => (
+        {sections.map((section) => (
           <Card key={section.id} data-testid={`section-${section.id}`}>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -464,7 +461,7 @@ export default function CreateCoursePage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {section.lessons.map((lesson, lessonIndex) => (
+                {section.lessons.map((lesson, ) => (
                   <div
                     key={lesson.id}
                     className="flex items-center space-x-3 p-3 border rounded-lg"
@@ -805,7 +802,6 @@ export default function CreateCoursePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
       
       <div className="container mx-auto px-4 py-8">
         {/* Header */}

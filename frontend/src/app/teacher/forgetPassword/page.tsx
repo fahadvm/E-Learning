@@ -1,6 +1,6 @@
 "use client";
-import { useState ,useEffect} from "react";
-import axios, { AxiosError } from "axios";
+import { useState } from "react";
+import  { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { teacherAuthApi } from "@/services/APIservices/teacherApiService";
 
@@ -44,7 +44,9 @@ export default function StudentSignupPage() {
     setIsLoading(true);
     try {
       const response = await teacherAuthApi.forgotPassword(formData)
-      setMessage(" OTP sent to your email");
+      if(response.ok){
+        setMessage(" OTP sent to your email");
+      }
       localStorage.setItem("tempforgetEmail", formData.email);
       router.push("/teacher/verify-forget-otp");
     } catch (err) {

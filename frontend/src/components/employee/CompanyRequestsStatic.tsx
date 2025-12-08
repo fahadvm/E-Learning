@@ -5,7 +5,6 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export default function CompanyRequestsStatic() {
-  // 👉 Temporary Static Data (will replace later)
   const requests = [
     {
       id: "1",

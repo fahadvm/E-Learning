@@ -1,11 +1,7 @@
 "use client"
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Card, CardContent,  } from "@/components/ui/card"
 import { PhoneCall } from "lucide-react"
-import RequestCallList from "@/components/teacher/callSchedule/callRequests"
 import AvailabilityScheduler from "@/components/teacher/callSchedule/availability"
 import Header from "@/components/teacher/header"
 

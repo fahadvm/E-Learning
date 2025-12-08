@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
 import { useRouter } from "next/navigation";
 
 import {
@@ -20,7 +19,6 @@ import {
   Cell,
   LineChart,
   Line,
-  TooltipProps,
 } from "recharts";
 import { TrendingUp, Award, Target, Calendar, Clock, Users, Building2, ArrowRight } from "lucide-react";
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
@@ -76,12 +74,7 @@ const AnimatedNumber = ({ value }: { value: number }) => {
 };
 
 /* ────── Date Helpers ────── */
-const getMonday = (date: Date) => {
-  const d = new Date(date);
-  const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-  return new Date(d.setDate(diff));
-};
+
 
 
 

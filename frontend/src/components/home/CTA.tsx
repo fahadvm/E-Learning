@@ -1,4 +1,4 @@
-import { ArrowRight, Code, Sparkles } from 'lucide-react';
+import {  Code, Sparkles } from 'lucide-react';
 
 export default function CTA() {
   return (

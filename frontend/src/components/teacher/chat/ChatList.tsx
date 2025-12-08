@@ -3,11 +3,7 @@
 import { AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Avatar } from "@radix-ui/react-avatar"
 
-interface User {
-    _id: string
-    name: string
-    email: string
-}
+
 
 interface Chat {
     _id: string
@@ -45,7 +41,6 @@ export default function ChatList({
             ) : (
                 <ul>
                     {chats.map((chat) => {
-                        const otherUser = chat.participants.find((p) => p !== currentUserId)
                         const isSelected = chat._id === selectedChatId
                         return (
                             <li

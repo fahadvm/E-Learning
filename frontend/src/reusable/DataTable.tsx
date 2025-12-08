@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 
 type Column<T> = {
-  key: keyof any;
+  key: keyof T;
   label: string;
   render?: (row: T) => React.ReactNode;
   className?: string;
@@ -41,9 +41,8 @@ export default function DataTable<T extends Record<string, any>>({
   };
 
   return (
-    <div
-      className={`bg-white shadow-lg rounded-lg p-4 sm:p-6 ${className}`}
-    >
+    <div className={`bg-white shadow-lg rounded-lg p-4 sm:p-6 ${className}`}>
+      
       {/* Search Bar */}
       <div className="mb-4 sm:mb-6 flex items-center gap-3 bg-gray-100 rounded-full px-4 py-2 transition-all duration-200 hover:ring-2 hover:ring-blue-500/50">
         <Search className="text-gray-500 w-4 sm:w-5 h-4 sm:h-5" aria-hidden="true" />
@@ -63,7 +62,7 @@ export default function DataTable<T extends Record<string, any>>({
             <tr className="bg-gray-50 border-b border-gray-200">
               {columns.map((col) => (
                 <th
-                  key={col.key as string}
+                  key={String(col.key)}
                   className={`px-4 sm:px-6 py-3 sm:py-4 font-semibold text-gray-700 uppercase tracking-wide text-xs sm:text-sm ${col.className || ''}`}
                 >
                   {col.label}
@@ -76,6 +75,7 @@ export default function DataTable<T extends Record<string, any>>({
               )}
             </tr>
           </thead>
+
           <tbody>
             {data.length === 0 ? (
               <tr>
@@ -94,10 +94,10 @@ export default function DataTable<T extends Record<string, any>>({
                 >
                   {columns.map((col) => (
                     <td
-                      key={col.key as string}
+                      key={String(col.key)}
                       className={`px-4 sm:px-6 py-3 sm:py-4 text-gray-900 text-sm sm:text-base ${col.className || ''}`}
                     >
-                      {col.render ? col.render(row) : row[col.key]}
+                      {col.render ? col.render(row) : (row[col.key] as React.ReactNode)}
                     </td>
                   ))}
                   {onDetailClick && (
@@ -124,16 +124,17 @@ export default function DataTable<T extends Record<string, any>>({
             Page {currentPage} of {totalPages}
           </div>
           <div className="flex items-center gap-2 flex-wrap">
+
+            {/* Prev Button */}
             <button
               onClick={() => onPageChange && onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
               className="px-3 sm:px-4 py-2 rounded-full bg-gray-100 text-gray-700 hover:bg-blue-500 hover:text-white disabled:opacity-50 disabled:hover:bg-gray-100 transition-all duration-200 flex items-center gap-1 text-sm sm:text-base"
-              aria-label="Previous page"
             >
-              <ChevronLeft className="w-4 h-4" />
-              Prev
+              <ChevronLeft className="w-4 h-4" /> Prev
             </button>
 
+            {/* Page Numbers */}
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <button
                 key={page}
@@ -150,15 +151,15 @@ export default function DataTable<T extends Record<string, any>>({
               </button>
             ))}
 
+            {/* Next Button */}
             <button
               onClick={() => onPageChange && onPageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
               className="px-3 sm:px-4 py-2 rounded-full bg-gray-100 text-gray-700 hover:bg-blue-500 hover:text-white disabled:opacity-50 disabled:hover:bg-gray-100 transition-all duration-200 flex items-center gap-1 text-sm sm:text-base"
-              aria-label="Next page"
             >
-              Next
-              <ChevronRight className="w-4 h-4" />
+              Next <ChevronRight className="w-4 h-4" />
             </button>
+
           </div>
         </div>
       )}

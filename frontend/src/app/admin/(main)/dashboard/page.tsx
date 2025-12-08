@@ -123,7 +123,6 @@ const item = {
 /* -------------------- Component -------------------- */
 export default function WelcomePage() {
   const [displayText, setDisplayText] = useState('');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const fullText = 'Your ultimate e-learning platform';
 
   useEffect(() => {

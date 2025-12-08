@@ -300,7 +300,6 @@ export default function EditCoursePage() {
                             modules={modules as any}
                             totalDuration={getTotalDuration()}
                             totalLessons={getTotalLessons()}
-                            isEditing={true}
                         />
                     )}
                 </div>
@@ -313,7 +312,6 @@ export default function EditCoursePage() {
                     handleSubmit={handleSubmit}
                     isPublished={courseData.isPublished}
                     steps={steps}
-                    isEditing={true}
                 />
             </div>
         </div>

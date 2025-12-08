@@ -84,6 +84,7 @@ export class EmployeeAuthController implements IEmployeeAuthController {
 
   sendChangeEmailOtp = async (req: AuthRequest, res: Response) => {
     const { newEmail } = req.body;
+    console.log("req.body new email otp",req.body)
     if (!newEmail) throwError(MESSAGES.EMAIL_REQUIRED, STATUS_CODES.BAD_REQUEST);
     await this._employeeAuthService.sendChangeEmailOtp(req.user!.id, newEmail);
     return sendResponse(res, STATUS_CODES.OK, "OTP sent to new email", true);
@@ -97,9 +98,11 @@ export class EmployeeAuthController implements IEmployeeAuthController {
   };
 
   changePassword = async (req: AuthRequest, res: Response) => {
-    const { oldPassword, newPassword } = req.body;
-    if (!oldPassword || !newPassword) throwError(MESSAGES.EMAIL_PASSWORD_REQUIRED, STATUS_CODES.BAD_REQUEST);
-    await this._employeeAuthService.changePassword(req.user!.id, oldPassword, newPassword);
+    const { currentPassword, newPassword } = req.body;
+        console.log("req.body change pass word",req.body)
+
+    if (!currentPassword || !newPassword) throwError(MESSAGES.EMAIL_PASSWORD_REQUIRED, STATUS_CODES.BAD_REQUEST);
+    await this._employeeAuthService.changePassword(req.user!.id, currentPassword, newPassword);
     return sendResponse(res, STATUS_CODES.OK, "Password updated successfully", true);
   };
 

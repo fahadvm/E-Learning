@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mail, Loader2, CheckCircle, XCircle } from "lucide-react";
+import { Mail, Loader2,  XCircle } from "lucide-react";
 
 interface InviteModalProps {
     isOpen: boolean;
