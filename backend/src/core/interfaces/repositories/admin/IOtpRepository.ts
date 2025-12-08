@@ -30,7 +30,7 @@ export interface IOtpRepository {
     email: string,
     otp: string,
     expiresAt: Date,
-    purpose?: 'signup' | 'forgot-password',
+    purpose?: 'signup' | 'forgot-password '|'change-email' ,
     tempUserData?: {
       name: string;
       password: string;

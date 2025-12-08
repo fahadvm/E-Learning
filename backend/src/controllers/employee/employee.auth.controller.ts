@@ -9,6 +9,7 @@ import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { IEmployeeAuthController } from '../../core/interfaces/controllers/employee/IEmployeeAuthController';
 import logger from '../../utils/logger';
+import { AuthRequest } from '../../types/AuthenticatedRequest';
 
 
 @injectable()
@@ -16,7 +17,7 @@ export class EmployeeAuthController implements IEmployeeAuthController {
   constructor(@inject(TYPES.EmployeeAuthService) private readonly _employeeAuthService: IEmployeeAuthService) { }
 
   signup = async (req: Request, res: Response) => {
-    
+
     if (!req.body.email) throwError(MESSAGES.EMAIL_REQUIRED, STATUS_CODES.BAD_REQUEST);
     await this._employeeAuthService.sendOtp(req.body);
     return sendResponse(res, STATUS_CODES.CREATED, MESSAGES.OTP_SENT, true);
@@ -40,14 +41,14 @@ export class EmployeeAuthController implements IEmployeeAuthController {
 
   logout = async (_req: Request, res: Response) => {
     clearTokens(res);
-     logger.info('logout successfull ');
+    logger.info('logout successfull ');
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.LOGOUT_SUCCESS, true);
   };
 
   googleAuth = async (req: Request, res: Response) => {
     console.log("employee side google login is working")
-    const {  tokenId  } = req.body;
-     console.log('tokenId',tokenId);
+    const { tokenId } = req.body;
+    console.log('tokenId', tokenId);
     if (!tokenId) throwError(MESSAGES.GOOGLE_AUTH_REQUIRED, STATUS_CODES.BAD_REQUEST);
     const result = await this._employeeAuthService.googleAuth(tokenId);
     setTokensInCookies(res, result.token, result.refreshToken);
@@ -80,6 +81,29 @@ export class EmployeeAuthController implements IEmployeeAuthController {
     await this._employeeAuthService.resendOtp(email, purpose);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.OTP_RESENT, true);
   };
+
+  sendChangeEmailOtp = async (req: AuthRequest, res: Response) => {
+    const { newEmail } = req.body;
+    if (!newEmail) throwError(MESSAGES.EMAIL_REQUIRED, STATUS_CODES.BAD_REQUEST);
+    await this._employeeAuthService.sendChangeEmailOtp(req.user!.id, newEmail);
+    return sendResponse(res, STATUS_CODES.OK, "OTP sent to new email", true);
+  };
+
+  verifyChangeEmail = async (req: AuthRequest, res: Response) => {
+    const { newEmail, otp } = req.body;
+    if (!newEmail || !otp) throwError(MESSAGES.EMAIL_OTP_REQUIRED, STATUS_CODES.BAD_REQUEST);
+    await this._employeeAuthService.verifyChangeEmail(req.user!.id, newEmail, otp);
+    return sendResponse(res, STATUS_CODES.OK, "Email updated successfully", true);
+  };
+
+  changePassword = async (req: AuthRequest, res: Response) => {
+    const { oldPassword, newPassword } = req.body;
+    if (!oldPassword || !newPassword) throwError(MESSAGES.EMAIL_PASSWORD_REQUIRED, STATUS_CODES.BAD_REQUEST);
+    await this._employeeAuthService.changePassword(req.user!.id, oldPassword, newPassword);
+    return sendResponse(res, STATUS_CODES.OK, "Password updated successfully", true);
+  };
+
+
 
 
 

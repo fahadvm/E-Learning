@@ -12,7 +12,7 @@ export class EmployeeLeaderboardService implements IEmployeeLeaderboardService {
     const leaderboard: ILeaderboardUserDTO[] = data.map((item) => ({
       _id: item._id.toString(),
       name: item.name,
-      hours: Math.round((item.totalMinutes || 0) / 60),
+      hours: Math.round((item.totalMinutes || 0) ),
       streak: item.streakCount || 0,
       courses: item.completedCourses || 0,
       isYou: item._id.toString() === employeeId,

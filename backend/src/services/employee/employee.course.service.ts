@@ -15,6 +15,7 @@ import { ICourseResourceRepository } from '../../core/interfaces/repositories/IC
 import { IEmployeeLearningRecord } from '../../models/EmployeeLearningRecord';
 import { IEmployeeLearningPathRepository } from '../../core/interfaces/repositories/IEmployeeLearningPathRepository';
 import { IEmployeeLearningPathProgressRepository } from '../../core/interfaces/repositories/IEmployeeLearningPathProgressRepository';
+import { updateCompanyLeaderboard } from '../../utils/redis/leaderboard';
 
 @injectable()
 export class EmployeeCourseService implements IEmployeeCourseService {
@@ -32,7 +33,6 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     if (!employee.companyId) throwError(MESSAGES.NOT_PART_OF_COMPANY, STATUS_CODES.CONFLICT);
 
     const orders = await this._employeeRepo.getAssignedCourses(employeeId);
-    console.log("order in service page ", orders)
     if (!orders) throwError(MESSAGES.ORDER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     return orders;
   }
@@ -42,14 +42,16 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     if (!employee.companyId) throwError(MESSAGES.NOT_PART_OF_COMPANY, STATUS_CODES.CONFLICT);
     if (!courseId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
-
     const orders = await this._companyOrderRepo.getOrdersById(employee.companyId.toString());
-    const purchasedCourseIds = orders.flatMap(order => order.courses.map(c => c.toString()));
+
+    const purchasedCourseIds = orders.flatMap(order => order.purchasedCourses.map(c => c.courseId._id.toString()));
+
     if (!purchasedCourseIds.includes(courseId)) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
     const course = await this._courseRepo.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    const progress = await this._employeeRepo.getOrCreateCourseProgress(employeeId, courseId);
+        
+        const progress = await this._employeeRepo.getOrCreateCourseProgress(employeeId, courseId);
     return { course, progress };
   }
 
@@ -67,15 +69,28 @@ export class EmployeeCourseService implements IEmployeeCourseService {
   }
 
 
-  async addLearningTime(employeeId: string, courseId: string,  seconds: number): Promise<IEmployeeLearningRecord> {
+  async addLearningTime(employeeId: string, courseId: string, seconds: number): Promise<IEmployeeLearningRecord> {
     const course = await this._courseRepo.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    const today = new Date();
-    const date = new Date(today.getFullYear(), today.getMonth(), today.getDate())
-     const minutes = seconds / 60
-    const record = await this._employeeRepo.updateLearningTime(employeeId, courseId, date , minutes);
-    return record;
 
+    const today = new Date();
+    const date = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const minutes = seconds / 60;
+
+    const record = await this._employeeRepo.updateLearningTime(employeeId, courseId, date, minutes);
+
+    const employee = await this._employeeRepo.findById(employeeId);
+    if(!employee)throwError(MESSAGES.EMPLOYEE_NOT_FOUND,STATUS_CODES.NOT_FOUND)
+    const companyId = employee?.companyId?.toString();
+    if (companyId) {
+      const completedCourses = employee.coursesProgress?.filter(c => c.percentage === 100).length || 0;
+      const streakCount = employee.streakCount || 0;
+      const totalMinutes = await this._employeeRepo.getTotalMinutes(employeeId, companyId);
+
+      await updateCompanyLeaderboard(companyId, employeeId, totalMinutes, completedCourses, streakCount);
+    }
+
+    return record;
   }
 
   async saveNotes(employeeId: string, courseId: string, notes: string): Promise<ICourseProgress> {

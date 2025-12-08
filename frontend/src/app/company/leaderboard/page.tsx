@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Flame, Trophy, Crown } from "lucide-react";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
 import { useCompany } from "@/context/companyContext";
+import { formatMinutesToHours } from "@/utils/timeConverter";
 
 export default function CompanyLeaderboardPage() {
   const { company } = useCompany();
@@ -88,7 +89,7 @@ export default function CompanyLeaderboardPage() {
             </thead>
 
             <tbody>
-              {topList.map((user) => (
+              {topList.map((user:any) => (
                 <tr key={user._id} className="border-b hover:bg-gray-50 transition">
                   <td className="px-6 py-4">{getRankIcon(user.rank)}</td>
 
@@ -104,7 +105,7 @@ export default function CompanyLeaderboardPage() {
                     </div>
                   </td>
 
-                  <td className="px-6 py-4 text-right font-bold text-emerald-700">{user.hours}</td>
+                  <td className="px-6 py-4 text-right font-bold text-emerald-700">{formatMinutesToHours(user.hours)}</td>
 
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-1">

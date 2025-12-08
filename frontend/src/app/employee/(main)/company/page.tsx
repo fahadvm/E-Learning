@@ -12,9 +12,23 @@ import {
   Briefcase,
   Loader2,
   ArrowRight,
+  MapPin,
+  Phone,
   LogOut,
   AlertTriangle,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";
 
@@ -195,47 +209,102 @@ const CompanySearchCard = ({ onSearch, searching, searchResult, onSendRequest, r
 }
 
 const CurrentCompanyDetails = ({ company, onLeave }: any) => (
-  <Card>
-    <div className="flex justify-between items-start mb-6">
+  <Card className="!p-0 overflow-hidden">
+
+    {/* Top Banner */}
+    <div className="h-24  w-full rounded-t-xl" />
+
+    {/* Company Info */}
+    <div className="p-6 -mt-12 flex items-center gap-4">
+      <div className="w-20 h-20 rounded-xl overflow-hidden shadow-lg border border-white bg-white">
+        <img
+          src={company.profilePicture || "/gallery/company-logo.png"}
+          alt={company.name}
+          className="w-full h-full object-cover"
+        />
+      </div>
+
       <div>
-        <h2 className="text-2xl font-bold flex items-center gap-2">
-          <Building2 className="w-6 h-6 text-indigo-600" />
+        <h2 className="text-xl font-bold flex items-center gap-2 text-gray-900">
           {company.name}
+          {company.isVerified && (
+            <span className="text-blue-600 text-xs bg-blue-100 px-2 py-1 rounded-md font-semibold">
+              Verified
+            </span>
+          )}
         </h2>
-        <p className="text-gray-500">{company.industry}</p>
-      </div>
-      {company.profilePicture && (
-        <img src={company.profilePicture} alt={company.name} className="w-16 h-16 rounded-lg object-cover" />
-      )}
-    </div>
-
-    <div className="space-y-4 mb-6">
-      <div className="flex gap-2">
-        <Badge>{company.activePlan || "Standard Plan"}</Badge>
-        {company.isVerified && <Badge variant="success">Verified</Badge>}
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-        <div>
-          <p className="font-semibold text-gray-700">Contact</p>
-          <p className="text-gray-600">{company.email}</p>
-          <p className="text-gray-600">{company.phone || "N/A"}</p>
-        </div>
-        <div>
-          <p className="font-semibold text-gray-700">Location</p>
-          <p className="text-gray-600">{company.address || "N/A"}</p>
-        </div>
+        <p className="text-sm text-gray-500">{company.industry || "No industry listed"}</p>
       </div>
     </div>
 
-    <div className="pt-4 border-t">
-      <Button variant="danger" className="w-full sm:w-auto" onClick={onLeave}>
-        <LogOut className="w-4 h-4 mr-2" />
-        Leave Company
-      </Button>
+    {/* Details */}
+    <div className="px-6 pb-6">
+      <div className="flex items-center gap-2 mb-5">
+        <Badge variant="default" className="text-xs py-1 px-3">
+          {company.activePlan || "Standard Plan"}
+        </Badge>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+        <div className="space-y-2">
+          <p className="text-xs uppercase font-semibold text-gray-500">Contact</p>
+          <p className="text-gray-800 font-medium flex items-center gap-1">
+            <Mail className="w-4 h-4 text-indigo-500" /> {company.email}
+          </p>
+          <p className="text-gray-800 font-medium flex items-center gap-1">
+            <Phone className="w-4 h-4 text-indigo-500" /> {company.phone || "N/A"}
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <p className="text-xs uppercase font-semibold text-gray-500">Location</p>
+          <p className="text-gray-800 font-medium flex items-center gap-1">
+            <MapPin className="w-4 h-4 text-indigo-500" /> {company.address || "N/A"}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* Leave Button */}
+    <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-xl">
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <button
+            className="text-xs text-red-600 border border-red-200 px-3 py-1.5 rounded-md hover:bg-red-50 transition"
+          >
+            <LogOut className="inline w-3 h-3 mr-1" /> Leave Company
+          </button>
+        </AlertDialogTrigger>
+
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-slate-900">Are you sure you want to leave?</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-600">
+              You will lose access to your company learning programs and tracking.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel className="text-xs">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="text-xs bg-red-600 hover:bg-red-700"
+              onClick={async () => {
+                try {
+                  await employeeApiMethods.leaveCompany();
+                } catch {
+                  alert("Failed to leave company");
+                }
+              }}
+            >
+              Yes, Leave
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   </Card>
-)
+);
+
 
 const RequestStatusCard = ({ requestedCompany, onCancel }: any) => (
   <Card>
@@ -426,12 +495,17 @@ export default function EmployeeCompanyPage() {
       <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-r from-indigo-100 via-blue-100 to-white opacity-50"></div>
 
       <div className="relative max-w-7xl mx-auto">
-        <main className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <main
+          className={`grid gap-8 ${status === "active" ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-3"
+            }`}
+        >
 
-          {/* Left Column: Profile */}
-          <div className="lg:col-span-1">
-            <EmployeeProfileCard profile={profile} company={company} status={status} />
-          </div>
+          {/* Left Column: Profile (Only show if no active company) */}
+          {status !== "active" && (
+            <div className="lg:col-span-1">
+              <EmployeeProfileCard profile={profile} company={company} status={status} />
+            </div>
+          )}
 
           {/* Right Column: Actions */}
           <div className="lg:col-span-2 space-y-8">

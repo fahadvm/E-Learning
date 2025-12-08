@@ -27,13 +27,13 @@ export class EmployeeAuthService implements IEmployeeAuthService {
 
   private async handleOtp(
     email: string,
-    purpose: 'signup' | 'forgot-password',
+    purpose: 'signup' | 'forgot-password' | 'change-email',
     tempUserData?: { name: string; password: string }
   ) {
     const otp = generateOtp();
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
     const existingOtp = await this._otpRepo.findByEmail(email);
-    if (existingOtp) await this._otpRepo.updateOtp(email, otp, expiresAt, purpose, tempUserData);
+    if (existingOtp) await this._otpRepo.updateOtp(email, otp, expiresAt, pur pose, tempUserData);
     else await this._otpRepo.create({ email, otp, expiresAt, purpose, tempUserData });
     await sendOtpEmail(email, otp);
   }
@@ -164,4 +164,39 @@ export class EmployeeAuthService implements IEmployeeAuthService {
     await this._employeeRepo.updateByEmail(email, { password: hashedPassword });
     await this._otpRepo.deleteByEmail(email);
   }
+
+  async sendChangeEmailOtp(employeeId: string, newEmail: string) {
+    const existing = await this._employeeRepo.findByEmail(newEmail);
+    if (existing) throwError("Email already in use.", STATUS_CODES.CONFLICT);
+
+    const otp = generateOtp();
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+    const existingOtp = await this._otpRepo.findByEmail(newEmail);
+    if (existingOtp) await this._otpRepo.updateOtp(newEmail, otp, expiresAt, "change-email");
+    else await this._otpRepo.create({ email: newEmail, otp, expiresAt, purpose: "change-email" });
+
+    await sendOtpEmail(newEmail, otp);
+  }
+
+  async verifyChangeEmail(employeeId: string, newEmail: string, otp: string) {
+    const record = await this._otpRepo.findByEmail(newEmail);
+    if (!record || record.purpose !== "change-email") throwError("OTP not valid", STATUS_CODES.BAD_REQUEST);
+    if (record.otp !== otp || record.expiresAt < new Date()) throwError("Invalid OTP", STATUS_CODES.BAD_REQUEST);
+
+    await this._employeeRepo.updateById(employeeId, { email: newEmail });
+    await this._otpRepo.deleteByEmail(newEmail);
+  }
+
+  async changePassword(employeeID: string, oldPassword: string, newPassword: string) {
+    const employee = await this._employeeRepo.findById(employeeID);
+    if (!employee) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
+    const match = await bcrypt.compare(oldPassword, employee.password);
+    if (!match) throwError("Old password incorrect", STATUS_CODES.BAD_REQUEST);
+
+    const hashed = await bcrypt.hash(newPassword, 10);
+    await this._employeeRepo.updateById(employeeID, { password: hashed });
+  }
+
 }

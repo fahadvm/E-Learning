@@ -201,6 +201,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     try {
       setLoading(true);
       const res = await employeeApiMethods.getMyCourseDetails(courseId);
+      console.log("course details:",res)
       if (res.ok) {
         const { course: courseData, progress: progressData }: StudentCourseResponse = res.data;
 
@@ -438,9 +439,9 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     );
 
   if (!course || !progress)
-    return (
+     return (
       <div className="flex justify-center items-center h-screen text-lg">
-        Course not found
+        Loading course...
       </div>
     );
 

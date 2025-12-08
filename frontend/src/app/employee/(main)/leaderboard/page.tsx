@@ -9,6 +9,7 @@ import type { LeaderboardUser, LeaderboardResponse } from "@/types/employee/lead
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
 import { useEmployee } from "@/context/employeeContext";
 import { useRouter } from "next/navigation";
+import { convertTo12Hour, formatMinutesToHours } from "@/utils/timeConverter";
 export default function LeaderboardPage() {
   const [selectedTab, setSelectedTab] = useState<"all-time" | "weekly" | "monthly">("all-time");
   const [allTimeData, setAllTimeData] = useState<LeaderboardUser[]>([]);
@@ -105,7 +106,7 @@ export default function LeaderboardPage() {
               <p className="text-sm text-muted-foreground">Your Current Rank</p>
               <p className="text-4xl font-bold mt-2">#{userRank.rank}</p>
               <p className="text-sm text-muted-foreground mt-2">
-                {userRank.hours} learning hours • {userRank.courses} courses completed
+                {formatMinutesToHours(userRank.hours)} learning hours • {userRank.courses} courses completed
               </p>
             </div>
             <div className="text-right">
@@ -154,7 +155,7 @@ export default function LeaderboardPage() {
                         {user.isYou && <Badge variant="secondary">You</Badge>}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-right">{user.hours}</td>
+                    <td className="px-6 py-4 text-right">{formatMinutesToHours(user.hours)}</td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Flame className="h-4 w-4 text-orange-500" /> {user.streak}
@@ -175,7 +176,7 @@ export default function LeaderboardPage() {
               {getRankIcon(user.rank)}
               <h3 className="font-semibold">{user.name}</h3>
               <p className="text-sm text-muted-foreground">{user.courses} courses</p>
-              <p className="text-2xl font-bold text-primary">{user.hours}</p>
+              <p className="text-2xl font-bold text-primary">{formatMinutesToHours(user.hours)}</p>
             </Card>
           ))}
         </TabsContent>
@@ -190,7 +191,7 @@ export default function LeaderboardPage() {
                 <Flame className="h-4 w-4 text-orange-500" />
                 <p className="text-sm text-muted-foreground">{user.streak}-day streak</p>
               </div>
-              <p className="text-2xl font-bold text-primary">{user.hours}</p>
+              <p className="text-2xl font-bold text-primary">{formatMinutesToHours(user.hours)}</p>
             </Card>
           ))}
         </TabsContent>

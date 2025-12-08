@@ -21,4 +21,10 @@ authRouter.post('/verify-forgot-otp', asyncHandler(employeeAuthCtrl.verifyForgot
 authRouter.put('/set-new-password', asyncHandler(employeeAuthCtrl.setNewPassword.bind(employeeAuthCtrl)));
 authRouter.post('/resend-otp', asyncHandler(employeeAuthCtrl.resendOtp.bind(employeeAuthCtrl)));
 
+
+authRouter.post('/change-email/send-otp', asyncHandler(employeeAuthCtrl.sendChangeEmailOtp.bind(employeeAuthCtrl)));
+authRouter.post('/change-email/verify', asyncHandler(employeeAuthCtrl.verifyChangeEmail.bind(employeeAuthCtrl)));
+
+authRouter.put('/change-password', asyncHandler(employeeAuthCtrl.changePassword.bind(employeeAuthCtrl)));
+
 export default authRouter;

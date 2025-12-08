@@ -15,6 +15,7 @@ export interface IEmployeeRepository {
   blockEmployee(employeeId: string, status: boolean): Promise<IEmployee | null>;
   findByGoogleId(googleId: string): Promise<IEmployee | null>;
   findCompanyByEmployeeId(employeeId: string): Promise<IEmployee | null>;
+  getTotalMinutes(employeeId: string, companyId: string): Promise<number>;
   findRequestedCompanyByEmployeeId(employeeId: string): Promise<IEmployee | null>;
   findRequestedEmployees(companyId: string): Promise<IEmployee[]>
   findEmployeeAndApprove(companyId: string, employeeId: string): Promise<IEmployee | null>

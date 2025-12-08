@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  User, Mail, Phone, MapPin, Briefcase, Edit2, Save, Flame, Link, FileText, LogOut,
-  Building2, Globe, Github, Linkedin, Twitter, Instagram, Shield, Key, AtSign
-} from "lucide-react";
-import dynamic from "next/dynamic";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,30 +20,86 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useRouter } from "next/navigation";
 
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Briefcase,
+  Edit2,
+  Save,
+  Flame,
+  LogOut,
+  Building2,
+  Globe,
+  Github,
+  Linkedin,
+  Shield,
+  Key,
+  AtSign,
+  Award,
+  Calendar,
+} from "lucide-react";
 
-const CropperModal = dynamic(() => import("@/components/common/ImageCropper"), { ssr: false });
+const CropperModal = dynamic(() => import("@/components/common/ImageCropper"), {
+  ssr: false,
+});
 
-export default function ProfilePage() {
+interface SocialLinks {
+  linkedin?: string;
+  github?: string;
+  portfolio?: string;
+}
+
+interface EmployeeProfile {
+  name: string;
+  email: string;
+  phone?: string;
+  location?: string;
+  about?: string;
+  position?: string;
+  department?: string;
+  profilePicture?: string;
+  social_links?: SocialLinks;
+  joinDate?: string;
+  employeeID?: string;
+  streakCount?: number;
+  longestStreak?: number;
+  role?: string;
+}
+
+interface Company {
+  name: string;
+  about?: string;
+  website?: string;
+}
+
+export default function EmployeeProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState<any>(null);
-  const [company, setCompany] = useState<any>(null);
-  const [editedProfile, setEditedProfile] = useState<any>(null);
+
+  const [profile, setProfile] = useState<EmployeeProfile | null>(null);
+  const [company, setCompany] = useState<Company | null>(null);
+  const [editedProfile, setEditedProfile] = useState<EmployeeProfile | null>(null);
+
   const [showCropper, setShowCropper] = useState(false);
   const [rawImage, setRawImage] = useState<string>("");
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const router = useRouter();
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [activeTab, setActiveTab] = useState("overview");
+
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const profileRes = await employeeApiMethods.getProfile();
         const companyRes = await employeeApiMethods.getMyCompany();
-        const companyData = companyRes.data.companyId;
-        setCompany(companyData);
+
+        const companyData = companyRes.data.companyId as Company | null;
+
+        setCompany(companyData || null);
         setProfile(profileRes.data);
         setEditedProfile(profileRes.data);
       } catch (err) {
@@ -53,12 +108,14 @@ export default function ProfilePage() {
         setLoading(false);
       }
     };
+
     fetchProfile();
   }, []);
 
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     const reader = new FileReader();
     reader.onloadend = () => {
       setRawImage(reader.result as string);
@@ -68,23 +125,35 @@ export default function ProfilePage() {
   };
 
   const handleCroppedImage = (img: string) => {
+    if (!editedProfile) return;
     setEditedProfile({ ...editedProfile, profilePicture: img });
     setShowCropper(false);
   };
 
   const validate = () => {
+    if (!editedProfile) return false;
+
     const newErrors: Record<string, string> = {};
+
     if (!editedProfile.name?.trim()) newErrors.name = "Name is required";
-    if (!editedProfile.phone || !/^\d{10}$/.test(editedProfile.phone))
+
+    if (editedProfile.phone && !/^\d{10}$/.test(editedProfile.phone)) {
       newErrors.phone = "Enter a valid 10-digit phone number";
+    }
 
     const isValidUrl = (url: string) => /^https?:\/\/.+$/.test(url);
-    if (editedProfile.social_links?.linkedin && !isValidUrl(editedProfile.social_links.linkedin))
+
+    if (editedProfile.social_links?.linkedin && !isValidUrl(editedProfile.social_links.linkedin)) {
       newErrors.linkedin = "Enter a valid LinkedIn URL";
-    if (editedProfile.social_links?.github && !isValidUrl(editedProfile.social_links.github))
+    }
+
+    if (editedProfile.social_links?.github && !isValidUrl(editedProfile.social_links.github)) {
       newErrors.github = "Enter a valid GitHub URL";
-    if (editedProfile.social_links?.portfolio && !isValidUrl(editedProfile.social_links.portfolio))
+    }
+
+    if (editedProfile.social_links?.portfolio && !isValidUrl(editedProfile.social_links.portfolio)) {
       newErrors.portfolio = "Enter a valid portfolio URL";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -99,11 +168,12 @@ export default function ProfilePage() {
       console.error("Logout failed:", error);
     }
   };
+
   const handleLeaveCompany = async () => {
     try {
       await employeeApiMethods.leaveCompany();
       alert("You have left the company successfully");
-      window.location.reload(); // or redirect to dashboard
+      window.location.reload();
     } catch (error: any) {
       console.error("Failed to leave company:", error);
       alert(error?.response?.data?.message || "Error leaving company");
@@ -111,336 +181,496 @@ export default function ProfilePage() {
   };
 
   const handleSave = async () => {
+    if (!editedProfile) return;
     if (!validate()) return;
+
     try {
       const profileRes = await employeeApiMethods.editProfile(editedProfile);
       setProfile(profileRes.data);
+      setEditedProfile(profileRes.data);
       setIsEditing(false);
     } catch (err) {
       console.log("Save error:", err);
     }
   };
 
-  if (loading) return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center p-6">
-      <p className="text-lg text-slate-600 animate-pulse">Loading your profile...</p>
-    </div>
-  );
+  if (loading || !profile || !editedProfile) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-slate-200 border-t-slate-600 rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-slate-600">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-        <div className="max-w-7xl mx-auto p-6 lg:p-12 space-y-10">
-
-          {/* Hero Header Section */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 lg:p-10">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
-              <div className="flex items-start gap-6">
-                <div className="relative group">
-                  <div className="w-28 h-28 lg:w-32 lg:h-32 rounded-full overflow-hidden ring-4 ring-slate-100 shadow-md">
+    <div className="min-h-screen bg-slate-50">
+      <div className="max-w-6xl mx-auto px-4 py-8 lg:py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* LEFT: Profile Sidebar */}
+          <aside className="lg:col-span-4">
+            <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6 space-y-6">
+              {/* Avatar + name */}
+              <div className="flex flex-col items-center text-center gap-4">
+                <div className="relative">
+                  <div className="w-28 h-28 rounded-full overflow-hidden border border-slate-200 bg-slate-100">
                     <img
-                      src={isEditing ? editedProfile.profilePicture : profile.profilePicture || "/placeholder-user.png"}
+                      src={
+                        isEditing
+                          ? editedProfile.profilePicture || "/gallery/avatar.jpg"
+                          : profile.profilePicture || "/gallery/avatar.jpg"
+                      }
                       alt="Profile"
                       className="w-full h-full object-cover"
                     />
                   </div>
                   {isEditing && (
-                    <label className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                      <Edit2 className="w-6 h-6 text-white" />
-                      <input type="file" accept="image/*" className="hidden" onChange={handleProfileImageChange} />
+                    <label className="absolute bottom-0 right-0 inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-white shadow cursor-pointer">
+                      <Edit2 className="w-4 h-4" />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleProfileImageChange}
+                      />
                     </label>
                   )}
                 </div>
 
-                <div className="flex-1 space-y-3">
+                <div className="w-full space-y-1">
                   {isEditing ? (
-                    <div className="space-y-3">
+                    <>
                       <Input
                         value={editedProfile.name}
-                        onChange={(e) => setEditedProfile({ ...editedProfile, name: e.target.value })}
-                        className="text-2xl lg:text-3xl font-bold h-12"
-                        placeholder="Your Name"
+                        onChange={(e) =>
+                          setEditedProfile({ ...editedProfile, name: e.target.value })
+                        }
+                        className="text-lg font-semibold text-center"
+                        placeholder="Your name"
                       />
-                      {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
-                      <Input
-                        value={editedProfile.about}
-                        onChange={(e) => setEditedProfile({ ...editedProfile, about: e.target.value })}
-                        placeholder="A short bio about yourself..."
-                        className="text-base text-slate-600"
-                      />
-                    </div>
-                  ) : (
-                    <>
-                      <h1 className="text-2xl lg:text-3xl font-bold text-slate-900">{profile.name}</h1>
-                      <p className="text-slate-600 max-w-2xl">{profile.about || "No bio added yet."}</p>
+                      {errors.name && (
+                        <p className="text-xs text-red-500 mt-1 text-center">
+                          {errors.name}
+                        </p>
+                      )}
                     </>
+                  ) : (
+                    <h1 className="text-lg font-semibold text-slate-900">{profile.name}</h1>
+                  )}
+
+                  <p className="text-xs text-slate-500 flex items-center justify-center gap-1">
+                    <Mail className="w-3 h-3" />
+                    {profile.email}
+                  </p>
+
+                  {profile.position && (
+                    <p className="text-xs text-slate-600 flex items-center justify-center gap-1 mt-1">
+                      <Briefcase className="w-3 h-3" />
+                      {profile.position}
+                      {company?.name && <span className="text-slate-400">· {company.name}</span>}
+                    </p>
                   )}
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center gap-4">
-                {/* Streak Badges */}
-                <div className="flex gap-6 text-center">
-                  <div className="bg-orange-50 px-4 py-3 rounded-xl">
-                    <p className="text-2xl font-bold text-orange-600 flex items-center gap-1">
-                      {profile.streakCount || 0} <Flame className="w-5 h-5" />
-                    </p>
-                    <p className="text-xs text-slate-600">Current</p>
-                  </div>
-                  <div className="bg-emerald-50 px-4 py-3 rounded-xl">
-                    <p className="text-2xl font-bold text-emerald-600">{profile.longestStreak || 0}</p>
-                    <p className="text-xs text-slate-600">Longest</p>
-                  </div>
-                </div>
+              {/* Stats */}
+              <div className="grid grid-cols-2 gap-3">
+                <StatCard
+                  label="Current streak"
+                  icon={<Flame className="w-4 h-4 text-orange-500" />}
+                  value={`${profile.streakCount || 0} days`}
+                />
+                <StatCard
+                  label="Best streak"
+                  icon={<Award className="w-4 h-4 text-emerald-500" />}
+                  value={`${profile.longestStreak || 0} days`}
+                />
+              </div>
 
-                {/* Action Buttons */}
-                <div className="flex gap-3">
-                  {isEditing ? (
+              {/* About */}
+              <div>
+                <p className="text-xs font-medium text-slate-500 mb-1">About</p>
+                {isEditing ? (
+                  <textarea
+                    value={editedProfile.about || ""}
+                    onChange={(e) =>
+                      setEditedProfile({ ...editedProfile, about: e.target.value })
+                    }
+                    rows={3}
+                    className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-800 outline-none focus:border-slate-400 resize-none"
+                    placeholder="Briefly describe your professional journey..."
+                  />
+                ) : (
+                  <p className="text-sm text-slate-700 leading-relaxed">
+                    {profile.about ||
+                      "No summary added yet. Share a short overview of your experience and strengths."}
+                  </p>
+                )}
+              </div>
+
+
+
+
+
+              {/* Actions */}
+              <div className="space-y-3">
+                {isEditing ? (
+                  <div className="flex gap-2">
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button size="lg" className="gap-2 shadow-sm">
-                          <Save className="w-4 h-4" /> Save
+                        <Button className="flex-1 gap-2" size="sm">
+                          <Save className="w-4 h-4" />
+                          Save changes
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Save Changes?</AlertDialogTitle>
+                          <AlertDialogTitle>Save changes?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            This will update your personal profile information.
+                            Your profile details will be updated across the platform.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={handleSave}>Confirm</AlertDialogAction>
+                          <AlertDialogAction onClick={handleSave}>
+                            Confirm & Save
+                          </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
-                  ) : (
-                    <Button onClick={() => setIsEditing(true)} size="lg" variant="outline" className="gap-2">
-                      <Edit2 className="w-4 h-4" /> Edit
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => {
+                        setEditedProfile(profile);
+                        setErrors({});
+                        setIsEditing(false);
+                      }}
+                    >
+                      Cancel
                     </Button>
-                  )}
+                  </div>
+                ) : (
                   <Button
-                    size="lg"
-                    variant="destructive"
-                    className="gap-2"
-                    onClick={handleLogout}
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-center"
+                    onClick={() => setIsEditing(true)}
                   >
-                    <LogOut className="w-4 h-4" />
-                    Logout
+                    <Edit2 className="w-4 h-4 mr-2" />
+                    Edit profile
                   </Button>
-                </div>
+                )}
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-center text-red-600 border-red-200 hover:bg-red-50"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign out
+                </Button>
               </div>
             </div>
-          </div>
 
-          {/* Tabs Section */}
-          <Tabs defaultValue="personal" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 h-14 rounded-xl bg-slate-100 p-1.5">
-              <TabsTrigger value="personal" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                <User className="w-4 h-4 mr-2" /> Personal
-              </TabsTrigger>
-              <TabsTrigger value="company" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                <Building2 className="w-4 h-4 mr-2" /> Company
-              </TabsTrigger>
-            </TabsList>
 
-            {/* Personal Info */}
-            <TabsContent value="personal" className="mt-8">
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 lg:p-8 space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <InfoField icon={<Mail />} label="Email" value={profile.email} />
-                  <InfoField
-                    icon={<Phone />}
-                    label="Phone"
-                    value={editedProfile.phone}
-                    editable={isEditing}
-                    onChange={(v) => setEditedProfile({ ...editedProfile, phone: v })}
-                    error={errors.phone}
-                  />
-                  <InfoField
-                    icon={<MapPin />}
-                    label="Location"
-                    value={editedProfile.location}
-                    editable={isEditing}
-                    onChange={(v) => setEditedProfile({ ...editedProfile, location: v })}
-                  />
-                  <InfoField
-                    icon={<Briefcase />}
-                    label="Department"
-                    value={editedProfile.department}
-                    editable={isEditing}
-                    onChange={(v) => setEditedProfile({ ...editedProfile, department: v })}
-                  />
-                  <InfoField
-                    icon={<Briefcase />}
-                    label="Position"
-                    value={editedProfile.position}
-                    editable={isEditing}
-                    onChange={(v) => setEditedProfile({ ...editedProfile, position: v })}
-                  />
-                  <InfoField icon={<Shield />} label="Employee ID" value={profile.employeeID} />
-                </div>
+          </aside>
 
-                <div className="border-t pt-6">
-                  <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                    <Link className="w-5 h-5" /> Social Presence
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    <SocialField
-                      icon={<Linkedin />}
-                      label="LinkedIn"
-                      value={editedProfile.social_links?.linkedin}
+          {/* RIGHT: Main Content / Tabs */}
+          <main className="lg:col-span-8">
+            <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="flex w-full justify-start gap-1 rounded-lg bg-slate-50 p-1 border border-slate-200">
+                  <TabsTrigger
+                    value="overview"
+                    className="px-3 py-1.5 text-xs sm:text-sm data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm rounded-md"
+                  >
+                    <User className="w-3 h-3 mr-1" />
+                    Overview
+                  </TabsTrigger>
+
+                  <TabsTrigger
+                    value="contact"
+                    className="px-3 py-1.5 text-xs sm:text-sm data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm rounded-md"
+                  >
+                    <Phone className="w-3 h-3 mr-1" />
+                    Contact
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="settings"
+                    className="px-3 py-1.5 text-xs sm:text-sm data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm rounded-md"
+                  >
+                    <Key className="w-3 h-3 mr-1" />
+                    Settings
+                  </TabsTrigger>
+                </TabsList>
+
+                {/* OVERVIEW */}
+                <TabsContent value="overview" className="mt-6 space-y-6">
+                  <SectionTitle title="Profile overview" />
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <EmployeeInfoCard
+                      icon={<Mail className="w-4 h-4 text-slate-500" />}
+                      title="Email"
+                      value={profile.email}
+                      description="Primary contact email"
+                    />
+                    <EmployeeInfoCard
+                      icon={<Calendar className="w-4 h-4 text-slate-500" />}
+                      title="Join date"
+                      value={
+                        profile.joinDate
+                          ? new Date(profile.joinDate).toLocaleDateString()
+                          : "Not available"
+                      }
+                      description="Date you joined the platform"
+                    />
+                    <EmployeeInfoCard
+                      icon={<Shield className="w-4 h-4 text-slate-500" />}
+                      title="Employee ID"
+                      value={profile.employeeID || "Not assigned"}
+                      description="Unique identifier in the organization"
+                    />
+                    {company && (
+                      <EmployeeInfoCard
+                        icon={<Building2 className="w-4 h-4 text-slate-500" />}
+                        title="Company"
+                        value={company.name}
+                        description={
+                          company.about
+                            ? company.about.length > 100
+                              ? company.about.slice(0, 100) + "..."
+                              : company.about
+                            : "No company description available."
+                        }
+                        link={company.website}
+                      />
+                    )}
+                  </div>
+                </TabsContent>
+
+
+
+                {/* CONTACT */}
+                <TabsContent value="contact" className="mt-6 space-y-6">
+                  <SectionTitle title="Contact & social" />
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <ContactInfoField
+                      icon={<Phone className="w-4 h-4 text-slate-500" />}
+                      label="Phone number"
+                      value={editedProfile.phone}
                       editable={isEditing}
-                      onChange={(v) => setEditedProfile({
-                        ...editedProfile,
-                        social_links: { ...editedProfile.social_links, linkedin: v },
-                      })}
+                      onChange={(v) => setEditedProfile({ ...editedProfile, phone: v })}
+                      error={errors.phone}
+                    />
+                    <ContactInfoField
+                      icon={<MapPin className="w-4 h-4 text-slate-500" />}
+                      label="Location"
+                      value={editedProfile.location}
+                      editable={isEditing}
+                      onChange={(v) => setEditedProfile({ ...editedProfile, location: v })}
+                    />
+
+                    <SocialLinkField
+                      icon={<Linkedin className="w-4 h-4" />}
+                      platform="LinkedIn"
+                      url={editedProfile.social_links?.linkedin}
+                      editable={isEditing}
+                      onChange={(v) =>
+                        setEditedProfile({
+                          ...editedProfile,
+                          social_links: {
+                            ...editedProfile.social_links,
+                            linkedin: v,
+                          },
+                        })
+                      }
                       error={errors.linkedin}
                     />
-                    <SocialField
-                      icon={<Github />}
-                      label="GitHub"
-                      value={editedProfile.social_links?.github}
+                    <SocialLinkField
+                      icon={<Github className="w-4 h-4" />}
+                      platform="GitHub"
+                      url={editedProfile.social_links?.github}
                       editable={isEditing}
-                      onChange={(v) => setEditedProfile({
-                        ...editedProfile,
-                        social_links: { ...editedProfile.social_links, github: v },
-                      })}
+                      onChange={(v) =>
+                        setEditedProfile({
+                          ...editedProfile,
+                          social_links: {
+                            ...editedProfile.social_links,
+                            github: v,
+                          },
+                        })
+                      }
                       error={errors.github}
                     />
-                    <SocialField
-                      icon={<Globe />}
-                      label="Portfolio"
-                      value={editedProfile.social_links?.portfolio}
+                    <SocialLinkField
+                      icon={<Globe className="w-4 h-4" />}
+                      platform="Portfolio"
+                      url={editedProfile.social_links?.portfolio}
                       editable={isEditing}
-                      onChange={(v) => setEditedProfile({
-                        ...editedProfile,
-                        social_links: { ...editedProfile.social_links, portfolio: v },
-                      })}
+                      onChange={(v) =>
+                        setEditedProfile({
+                          ...editedProfile,
+                          social_links: {
+                            ...editedProfile.social_links,
+                            portfolio: v,
+                          },
+                        })
+                      }
                       error={errors.portfolio}
                     />
                   </div>
-                </div>
+                </TabsContent>
 
-                <div className="flex gap-3 pt-4 border-t">
-                  <Button variant="outline" className="gap-2">
-                    <Key className="w-4 h-4" /> Change Password
-                  </Button>
-                  <Button variant="outline" className="gap-2">
-                    <AtSign className="w-4 h-4" /> Change Email
-                  </Button>
-                </div>
-              </div>
-            </TabsContent>
-
-            {/* Company Info - STATIC */}
-            <TabsContent value="company" className="mt-8">
-              {company ? (
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 lg:p-8 space-y-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <InfoField icon={<Building2 />} label="Company Name" value={company.name} />
-                    <InfoField icon={<Mail />} label="Email" value={company.email} />
-                    <InfoField icon={<Phone />} label="Phone" value={company.phone} />
-                    <InfoField icon={<Globe />} label="Website" value={company.website} />
-                    <InfoField icon={<MapPin />} label="Address" value={company.address} />
-                    <InfoField icon={<FileText />} label="Company Code" value={company.companyCode} />
+                {/* SETTINGS */}
+                <TabsContent value="settings" className="mt-6 space-y-6">
+                  <SectionTitle title="Account settings" />
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <SettingsButton
+                      icon={<Key className="w-4 h-4" />}
+                      label="Change password"
+                      description="Update your account password"
+                    />
+                    <SettingsButton
+                      icon={<AtSign className="w-4 h-4" />}
+                      label="Change email"
+                      description="Update your primary email address"
+                      onClick={() => setEmailModal(true)}
+                    />
+                    
                   </div>
-
-                  <div className="space-y-3">
-                    <label className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-                      <FileText className="w-4 h-4" /> About Company
-                    </label>
-                    <p className="text-slate-600 bg-slate-50 p-4 rounded-lg">
-                      {company.about || "No description provided."}
-                    </p>
-                  </div>
-
-                  <div className="border-t pt-6">
-                    <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                      <Link className="w-5 h-5" /> Company Socials
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                      <SocialField icon={<Linkedin />} label="LinkedIn" value={company.social_links?.linkedin} />
-                      <SocialField icon={<Twitter />} label="Twitter" value={company.social_links?.twitter} />
-                      <SocialField icon={<Instagram />} label="Instagram" value={company.social_links?.instagram} />
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t">
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="destructive" className="gap-2">
-                          <LogOut className="w-4 h-4" /> Leave Company
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Leave Company?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This will remove you from the company and revoke access to its learning paths.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={handleLeaveCompany}>Yes, Leave</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 text-center">
-                  <div className="bg-slate-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Building2 className="w-10 h-10 text-slate-400" />
-                  </div>
-                  <p className="text-slate-600">You are not currently assigned to any company.</p>
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
+                </TabsContent>
+              </Tabs>
+            </div>
+          </main>
         </div>
       </div>
 
       {showCropper && rawImage && (
-        <CropperModal image={rawImage} onCropComplete={handleCroppedImage} onClose={() => setShowCropper(false)} />
+        <CropperModal
+          image={rawImage}
+          onCropComplete={handleCroppedImage}
+          onClose={() => setShowCropper(false)}
+        />
+      )}
+    </div>
+
+    
+
+    
+  );
+
+  
+}
+
+/* ========== SMALL COMPONENTS ========== */
+
+function SidebarInfoRow({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center gap-2">
+        {icon}
+        <span className="text-xs text-slate-500">{label}</span>
+      </div>
+      <span className="text-xs font-medium text-slate-800 text-right truncate">
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function StatCard({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
+      <div className="flex items-center gap-2 text-xs text-slate-500">
+        {icon}
+        <span>{label}</span>
+      </div>
+      <p className="mt-1 text-sm font-semibold text-slate-900">{value}</p>
+    </div>
+  );
+}
+
+function SectionTitle({ title }: { title: string }) {
+  return (
+    <h2 className="text-sm font-semibold text-slate-900 border-b border-slate-200 pb-2">
+      {title}
+    </h2>
+  );
+}
+
+function EmployeeInfoCard({
+  icon,
+  title,
+  value,
+  description,
+  link,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  value: string;
+  description?: string;
+  link?: string;
+}) {
+  const content = (
+    <>
+      <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
+        {icon}
+        <span>{title}</span>
+      </div>
+      <p className="text-sm font-medium text-slate-900 truncate">{value}</p>
+      {description && (
+        <p className="text-xs text-slate-500 mt-1 line-clamp-2">{description}</p>
       )}
     </>
   );
-}
 
-// Reusable Info Field
-function InfoField({ icon, label, value, editable = false, onChange, error }: {
-  icon: React.ReactNode;
-  label: string;
-  value?: string;
-  editable?: boolean;
-  onChange?: (v: string) => void;
-  error?: string;
-}) {
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-        {icon} {label}
-      </label>
-      {editable ? (
-        <div>
-          <Input
-            value={value || ""}
-            onChange={(e) => onChange?.(e.target.value)}
-            className="h-11"
-          />
-          {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-        </div>
+    <div className="rounded-md border border-slate-200 bg-white px-4 py-3">
+      {link ? (
+        <a
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block hover:text-blue-600"
+        >
+          {content}
+        </a>
       ) : (
-        <p className="text-slate-900 font-medium">{value || "Not provided"}</p>
+        content
       )}
     </div>
   );
 }
 
-// Reusable Social Field
-function SocialField({ icon, label, value, editable = false, onChange, error }: {
+function ContactInfoField({
+  icon,
+  label,
+  value,
+  editable = false,
+  onChange,
+  error,
+}: {
   icon: React.ReactNode;
   label: string;
   value?: string;
@@ -449,30 +679,97 @@ function SocialField({ icon, label, value, editable = false, onChange, error }: 
   error?: string;
 }) {
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-        {icon} {label}
+    <div className="space-y-1.5">
+      <label className="text-xs font-medium text-slate-600 flex items-center gap-2">
+        {icon}
+        {label}
       </label>
       {editable ? (
         <div>
           <Input
             value={value || ""}
             onChange={(e) => onChange?.(e.target.value)}
-            placeholder={`https://${label.toLowerCase()}.com/...`}
-            className="h-11"
+            className="h-9 text-sm"
           />
-          {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+          {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+        </div>
+      ) : (
+        <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800">
+          {value || "Not provided"}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SocialLinkField({
+  icon,
+  platform,
+  url,
+  editable = false,
+  onChange,
+  error,
+}: {
+  icon: React.ReactNode;
+  platform: string;
+  url?: string;
+  editable?: boolean;
+  onChange?: (v: string) => void;
+  error?: string;
+}) {
+  const placeholder = `https://${platform.toLowerCase()}.com/...`;
+
+  return (
+    <div className="space-y-1.5">
+      <label className="text-xs font-medium text-slate-600 flex items-center gap-2">
+        {icon}
+        {platform}
+      </label>
+      {editable ? (
+        <div>
+          <Input
+            value={url || ""}
+            onChange={(e) => onChange?.(e.target.value)}
+            placeholder={placeholder}
+            className="h-9 text-sm"
+          />
+          {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
         </div>
       ) : (
         <a
-          href={value || "#"}
+          href={url || "#"}
           target="_blank"
           rel="noopener noreferrer"
-          className={`text-slate-900 font-medium hover:underline ${!value && "text-slate-400"}`}
+          className={`block rounded-md border px-3 py-2 text-sm transition ${url
+            ? "border-slate-200 bg-slate-50 text-slate-800 hover:border-slate-300"
+            : "border-dashed border-slate-200 text-slate-400"
+            }`}
         >
-          {value || "Not linked"}
+          {url ? `${platform} profile` : `Add ${platform} link`}
         </a>
       )}
     </div>
+  );
+}
+
+function SettingsButton({
+  icon,
+  label,
+  description,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  description: string;
+}) {
+  return (
+    <button className="flex w-full items-start gap-3 rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-left text-sm hover:border-slate-300">
+      <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100">
+        {icon}
+      </div>
+      <div>
+        <p className="font-medium text-slate-900">{label}</p>
+        <p className="text-xs text-slate-500 mt-0.5">{description}</p>
+      </div>
+    </button>
   );
 }

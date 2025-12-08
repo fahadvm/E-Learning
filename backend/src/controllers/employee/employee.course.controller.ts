@@ -24,11 +24,13 @@ export class EmployeeCourseController {
     }
 
     async myCourseDetails(req: AuthRequest, res: Response) {
+        console.log("getting course details in controller")
         const employeeId = req.user?.id;
         if (!employeeId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
         const { courseId } = req.params;
         const course = await this._employeeCourseService.getMyCourseDetails(employeeId, courseId);
         console.log("fetching course details", course)
+        console.log("the course details finalyy ",course)
         sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, course);
     }
     markLessonComplete = async (req: AuthRequest, res: Response) => {

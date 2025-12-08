@@ -25,21 +25,27 @@ export class CompanyLeaderboardService implements ICompanyLeaderboardService {
       .select("_id name profilePicture coursesProgress streakCount")
       .lean();
 
+      console.log("employeeIds", employeeIds)
+      console.log("companyId", companyId)
     // Compute course count & total learning minutes
     const learningRecords = await EmployeeLearningRecord.aggregate([
-      { $match: { employeeId: { $in: employeeIds }, companyId: new mongoose.Types.ObjectId(companyId) } },
+      { $match: { employeeId: { $in: employeeIds }} },
       { $group: { _id: "$employeeId", totalMinutes: { $sum: "$totalMinutes" } } }
     ]);
+
+    console.log("learningRecords", learningRecords)
+
 
     return ranked.map((item, index) => {
       const emp = employees.find(e => e._id.toString() === item.employeeId);
       const learning = learningRecords.find(l => l._id.toString() === item.employeeId);
+      console.log("learning", learning)
 
       return {
         _id: item.employeeId,
         name: emp?.name ?? "Unknown",
         avatar: emp?.profilePicture ?? null,
-        hours: Math.round((learning?.totalMinutes || 0) / 60),
+        hours: Math.round(learning?.totalMinutes || 0),
         courses: emp?.coursesProgress?.filter(c => c.percentage === 100).length || 0,
         streak: emp?.streakCount || 0,
         rank: index + 1
@@ -48,7 +54,7 @@ export class CompanyLeaderboardService implements ICompanyLeaderboardService {
   }
 
   // Search ANY employee rank (even if not in Top 50)
-  async  searchEmployee(companyId: string, name: string): Promise<ICompanyLeaderboardUserDTO | null> {
+  async searchEmployee(companyId: string, name: string): Promise<ICompanyLeaderboardUserDTO | null> {
     const employee = await Employee.findOne({
       companyId,
       name: { $regex: name, $options: "i" }
@@ -80,7 +86,7 @@ export class CompanyLeaderboardService implements ICompanyLeaderboardService {
       _id: employee._id.toString(),
       name: employee.name,
       avatar: employee.profilePicture ?? null,
-      hours: Math.round(totalMinutes / 60),
+      hours: Math.round(totalMinutes),
       courses: completedCourses,
       streak: employee.streakCount,
       rank

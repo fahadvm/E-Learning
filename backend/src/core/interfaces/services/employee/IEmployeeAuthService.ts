@@ -10,4 +10,7 @@ export interface IEmployeeAuthService {
   sendForgotPasswordOtp(email: string): Promise<void>;
   verifyForgotOtp(email: string, otp: string): Promise<void>;
   setNewPassword(email: string, newPassword: string): Promise<void>;
+  sendChangeEmailOtp(employeeId: string, newEmail: string): Promise<void>;
+  verifyChangeEmail(employeeId: string, newEmail: string, otp: string): Promise<void>;
+  changePassword(employeeID: string, oldPassword: string, newPassword: string): Promise<void>;
 }

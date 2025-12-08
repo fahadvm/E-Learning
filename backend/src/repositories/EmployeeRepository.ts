@@ -4,7 +4,7 @@ import { IEmployee, Employee, ICourseProgress } from '../models/Employee';
 import { Course } from '../models/Course';
 import { throwError } from '../utils/ResANDError';
 import { MESSAGES } from '../utils/ResponseMessages';
-import { Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import { STATUS_CODES } from '../utils/HttpStatuscodes';
 import { EmployeeLearningRecord, IEmployeeLearningRecord } from '../models/EmployeeLearningRecord';
 
@@ -38,6 +38,16 @@ export class EmployeeRepository implements IEmployeeRepository {
             .lean();
         return employee;
     }
+
+    async getTotalMinutes(employeeId: string, companyId: string) {
+        const result = await EmployeeLearningRecord.aggregate([
+            { $match: { employeeId: new mongoose.Types.ObjectId(employeeId), companyId: new mongoose.Types.ObjectId(companyId) } },
+            { $group: { _id: null, total: { $sum: "$totalMinutes" } } }
+        ]);
+
+        return result.length > 0 ? result[0].total : 0;
+    }
+
 
 
     async findByCompanyId(
