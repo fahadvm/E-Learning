@@ -18,7 +18,7 @@ import {
   Eye,
   Edit,
 } from 'lucide-react';
-import Header from '../header';
+import Header from '@/components/teacher/header';
 
 // Mock data - in a real app, this would come from an API
 const teacherData = {

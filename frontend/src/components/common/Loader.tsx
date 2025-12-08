@@ -2,7 +2,7 @@
 
 'use client';
 import { BookOpen, GraduationCap } from "lucide-react";
-import { useLoading } from "../../hooks/useLoading";
+import { useLoading } from "@/hooks/useLoading";
 import React, { useEffect, useState } from "react";
 
 interface LoaderProps {
