@@ -15,12 +15,12 @@ import {
   Clock2,
   Send,
   Trash2,
-  UserRound,
   VideoIcon,
   FileText,
   MessageCircle,
   Copy,
-  RotateCcw
+  RotateCcw,
+  GraduationCap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -37,7 +37,6 @@ import AiTutorChat from "@/components/student/aiBot/AiTutorChat";
 import RecommendedCourses from "@/components/student/course/RecommendedCourses";
 import { ICourse } from "@/types/student/studentTypes";
 import CourseReviewModal from "@/components/student/course/CourseReviewModal";
-import ReviewList from "@/components/student/course/ReviewList";
 import ReviewListModal from "@/components/student/course/ReviewList";
 
 interface Lesson {
@@ -239,11 +238,11 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
         const { course: courseData, progress: progressData, recommended: recommendedCourses }: StudentCourseResponse = res.data;
 
         // Map module and lesson IDs and completion status
-        const updatedModules = courseData.modules?.map((module, moduleIndex) => ({
+        const updatedModules = courseData.modules?.map((module) => ({
           ...module,
           id: module._id,
           completed: progressData.completedModules?.includes(module._id) || false,
-          lessons: module.lessons.map((lesson, lessonIndex) => ({
+          lessons: module.lessons.map((lesson) => ({
             ...lesson,
             id: lesson._id,
             completed: progressData.completedLessons?.includes(lesson._id) || false,
@@ -267,8 +266,9 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
       } else {
         showErrorToast(res.message);
       }
-    } catch (err) {
+    } catch(err){
       showErrorToast("Failed to fetch course");
+      console.log(err)
     } finally {
       setLoading(false);
     }
@@ -311,6 +311,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
         const response = await studentCourseApi.getCourseResources(courseId);
         setResources(response.data || []);
       } catch (err) {
+         console.log(err)
         showErrorToast("Failed to load course resources");
       } finally {
         setLoading(false);
@@ -389,6 +390,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
         showErrorToast(res.message);
       }
     } catch (err) {
+      console.log(err)
       await fetchCourse();
       showErrorToast("Failed to mark lesson complete");
     }
@@ -411,6 +413,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
           showErrorToast(res.message);
         }
       } catch (err) {
+        console.log(err)
         showErrorToast("Failed to save notes");
       }
     }, 1000);
@@ -424,7 +427,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
 
   const handleRunCode = async () => {
     if (!code.trim()) {
-      setOutput("Error: No code to execute.");
+      setOutput("or: No code to execute.");
       return;
     }
     setOutput("Running...");
@@ -433,7 +436,8 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
       console.log("res of output:", res)
       setOutput(res.data);
     } catch (err) {
-      setOutput("Error running code");
+      console.log(err)
+      setOutput("or running code");
     }
   };
 
@@ -531,7 +535,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
               <Card className="rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 border border-gray-200">
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center gap-2">
-                    <UserRound className="w-5 h-5" />
+                    <Usound className="w-5 h-5" />
                     About Instructor
                   </CardTitle>
                 </CardHeader>
@@ -619,7 +623,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
               <Card className="rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 border border-gray-200">
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center gap-2">
-                    <UserRound className="w-5 h-5" />
+                    <GraduationCap className="w-5 h-5" />
                     About Instructor
                   </CardTitle>
                 </CardHeader>

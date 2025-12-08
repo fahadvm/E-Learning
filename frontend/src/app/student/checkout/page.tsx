@@ -46,6 +46,13 @@ export default function CheckoutPage() {
       </div>
     )
   }
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-lg font-medium">loading...</p>
+      </div>
+    )
+  }
 
   const subtotal = cartData.total
   const discount = 0

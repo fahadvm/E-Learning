@@ -1,9 +1,7 @@
 "use client";
 
-import AdminSidebar from '@/components/admin/sidebar'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
-import { Menu, X } from 'lucide-react'
 import { motion } from "framer-motion";
 
 import {

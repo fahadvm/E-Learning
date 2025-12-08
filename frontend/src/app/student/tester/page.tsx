@@ -1,7 +1,7 @@
 // app/student/chat/new/page.tsx
 'use client';
 
-import { Search, MessageCircle, User, BookOpen, Clock } from "lucide-react";
+import { Search, MessageCircle, User, BookOpen } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useMemo } from "react";
@@ -133,8 +133,6 @@ export default function StartNewChatPage() {
     );
   }, [searchQuery]);
 
-  const truncate = (str: string, n: number) =>
-    str.length > n ? str.slice(0, n) + "..." : str;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8 px-4 sm:px-6 lg:px-8">

@@ -33,8 +33,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { showSuccessToast } from "@/utils/Toast";
-import { sendNotification } from "@/lib/socket";
+
 import { formatDateToDDMMYYYY } from "@/utils/timeConverter";
 
 interface Slot {
@@ -83,7 +82,6 @@ export default function StudentTeacherSlotPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterTime, setFilterTime] = useState("all");
   const [note, setNote] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const timezone = "IST"; // optional: dynamic detection
 
   // Fetch slots
@@ -110,8 +108,8 @@ export default function StudentTeacherSlotPage() {
         );
 
         setDaysOfWeek(grouped);
-      } catch (err: any) {
-        setError(err.message || "Error fetching slots");
+      } catch (err) {
+        console.log(err || "Error fetching slots");
       }
     };
 
@@ -185,8 +183,8 @@ export default function StudentTeacherSlotPage() {
 
 
 
-    } catch (err: any) {
-      setError(err.message || "Booking failed");
+    } catch (err) {
+      console.log(err || "Booking failed");
     }
   };
 

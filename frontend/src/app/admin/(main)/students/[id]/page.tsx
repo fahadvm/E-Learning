@@ -233,14 +233,14 @@ export default function StudentDetailsPage() {
                       "success"
                     }
                   >
-                    {student.activePlan ? student.subscriptionStatus : "active"}
+                    {student.activePlan ?  "active":""}
                   </Badge>
                 </div>
 
                 <div className="flex justify-between">
                   <span>Expires</span>
                   <span className="font-medium">
-                    {student.activePlan ? student.subscriptionExpiry : "Unlimited"}
+                    {student.activePlan ?  "Unlimited":""}
                   </span>
                 </div>
 
@@ -345,7 +345,7 @@ export default function StudentDetailsPage() {
                     </div>
 
                     <div className="flex justify-between text-xs text-slate-400">
-                      <span>Last accessed: {course.lastAccessed}</span>
+                      <span>Last accessed: {course.updatedAt.toString()}</span>
                       <span
                         className={
                           course.percentage === 100

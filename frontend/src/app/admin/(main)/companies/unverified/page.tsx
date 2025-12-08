@@ -44,7 +44,7 @@ export default function CompanyVerificationPage() {
     try {
       setLoading(true);
       const data: ICompanyVerificationResponse =
-        await adminApiMethods.UnVerifiedCompanies(page, search);
+        await adminApiMethods.UnVerifiedCompanies({page,limit: 6 , search});
 
       setCompanies(data.data);
       setTotalPages(data.totalPages);

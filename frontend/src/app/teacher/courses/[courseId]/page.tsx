@@ -1,13 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
-import axios from 'axios'
+import { useParams ,useRouter } from 'next/navigation'
 import Header from '@/components/teacher/header'
 import { teacherCourseApi } from '@/services/APIservices/teacherApiService'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Plus  } from 'lucide-react'
+import { Plus } from 'lucide-react'
 
 interface ILesson {
   title: string
@@ -39,6 +38,8 @@ export default function CourseDetailPage() {
   const [course, setCourse] = useState<ICourse | null>(null)
   const [loading, setLoading] = useState(true)
   const [openModules, setOpenModules] = useState<boolean[]>([])
+  const router = useRouter()
+
   // Track playing state for each video using a map of moduleIndex_lessonIndex
   const [playingVideos, setPlayingVideos] = useState<{ [key: string]: boolean }>({})
 
@@ -120,7 +121,12 @@ export default function CourseDetailPage() {
               {/* <button className="px-4 py-2 bg-cyan-500 text-white rounded-md">
                 Edit
               </button> */}
-              <Button variant="outline" size="sm" className="hover:bg-muted bg-transparent">
+              <Button
+                variant="outline"
+                size="sm"
+                className="hover:bg-muted bg-transparent"
+                onClick={() => router.push(`/teacher/courses/${courseId}/resources`)}
+              >
                 <Plus className="w-4 h-4 mr-1" />
                 Resources
               </Button>

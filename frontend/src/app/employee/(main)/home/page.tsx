@@ -358,65 +358,54 @@ export default function DevNextLanding() {
             <p className="text-xl text-gray-600">Everything you need to grow, in one platform</p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => {
-              const [ref, inView] = useInView({
-                threshold: 0.1,
-                triggerOnce: true
-              });
+          {benefits.map((b, i) => (
+            <FadeInOnView
+              key={i}
+              delay={i * 0.2}
+              from={i % 2 === 0 ? "left" : "right"}
+              className={`flex flex-col ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"} gap-12 items-center mb-24 last:mb-0`}
+            >
+              <div className="flex-1 flex justify-center">
+                <img src={b.image} alt={b.title} className="w-90 h-70 object-cover rounded-xl shadow-lg" />
+              </div>
 
-              return (
-                <motion.div
-                  key={index}
-                  ref={ref}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={inView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ delay: index * 0.1, duration: 0.6 }}
-                  className="group"
-                >
-                  <div className="bg-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 h-full border border-gray-100">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform">
-                      {feature.icon}
-                    </div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-3">{feature.title}</h3>
-                    <p className="text-gray-600">{feature.description}</p>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
+              <div className="flex-1">
+                <h3 className="text-3xl font-bold text-gray-900 mb-4">{b.title}</h3>
+                <p className="text-lg text-gray-600 leading-relaxed">{b.description}</p>
+              </div>
+            </FadeInOnView>
+          ))}
+
         </div>
       </section>
 
       {/* What You Can Do Section */}
       <section className="py-24 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
-          {benefits.map((b, i) => {
-            const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true });
-            return (
-              <motion.div
-                key={i}
-                ref={ref}
-                initial={{ opacity: 0, x: i % 2 === 0 ? -50 : 50 }}
-                animate={inView ? { opacity: 1, x: 0 } : {}}
-                transition={{ delay: i * 0.2, duration: 0.8 }}
-                className={`flex flex-col ${i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} gap-12 items-center mb-24 last:mb-0`}
-              >
-                <div className="flex-1 flex justify-center">
-                  <img
-                    src={b.image}
-                    alt={b.title}
-                    className="w-90 h-70 object-cover rounded-xl shadow-lg"
-                  />
-                </div>
+          {benefits.map((b, i) => (
+  <FadeInOnView
+    key={i}
+    delay={i * 0.2}
+    from={i % 2 === 0 ? "left" : "right"}
+    className={`flex flex-col ${
+      i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
+    } gap-12 items-center mb-24 last:mb-0`}
+  >
+    <div className="flex-1 flex justify-center">
+      <img
+        src={b.image}
+        alt={b.title}
+        className="w-90 h-70 object-cover rounded-xl shadow-lg"
+      />
+    </div>
 
-                <div className="flex-1">
-                  <h3 className="text-3xl font-bold text-gray-900 mb-4">{b.title}</h3>
-                  <p className="text-lg text-gray-600 leading-relaxed">{b.description}</p>
-                </div>
-              </motion.div>
-            );
-          })}
+    <div className="flex-1">
+      <h3 className="text-3xl font-bold text-gray-900 mb-4">{b.title}</h3>
+      <p className="text-lg text-gray-600 leading-relaxed">{b.description}</p>
+    </div>
+  </FadeInOnView>
+))}
+
         </div>
       </section>
 
@@ -482,3 +471,31 @@ export default function DevNextLanding() {
     </>
   );
 }
+
+
+const FadeInOnView: React.FC<{
+  delay?: number;
+  className?: string;
+  children: React.ReactNode;
+  from?: "left" | "right" | "bottom";
+}> = ({ delay = 0, children, className = "", from = "bottom" }) => {
+  const { ref, inView } = useInView({ threshold: 0.1, triggerOnce: true });
+
+  const initial = {
+    opacity: 0,
+    x: from === "left" ? -50 : from === "right" ? 50 : 0,
+    y: from === "bottom" ? 50 : 0,
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={initial}
+      animate={inView ? { opacity: 1, x: 0, y: 0 } : {}}
+      transition={{ delay, duration: 0.7 }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};

@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
-import AdminSidebar from '@/components/admin/sidebar';
 import {
   Pencil,
   Trash2,
@@ -12,8 +10,7 @@ import {
   Star,
   IndianRupee,
   Tag,
-  Menu,
-  X,
+
 } from 'lucide-react';
 import { adminApiMethods } from '@/services/APIservices/adminApiService';
 import { showSuccessToast } from '@/utils/Toast';

@@ -22,7 +22,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/Table";
+} from "@/components/ui/table";
 
 import { adminApiMethods } from "@/services/APIservices/adminApiService";
 import { IStudent, IStudentListResponse } from "@/types/admin/student";

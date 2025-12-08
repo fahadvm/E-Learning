@@ -7,9 +7,7 @@ import {
   Clock,
   Users,
   Star,
-  Download,
   BookOpen,
-  ArrowLeft,
   TrendingUp,
   Award,
   Calendar
@@ -20,11 +18,8 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { studentCertificateApi, studentCourseApi, studentProfileApi } from "@/services/APIservices/studentApiservice"
 import Header from "@/components/student/header"
-import { showSuccessToast } from "@/utils/Toast"
 
-interface Review {
-  rating: number
-}
+
 
 interface Course {
   _id: string
@@ -69,7 +64,6 @@ interface StudentProfile {
 
 export default function MyCourses() {
   const [courses, setCourses] = useState<Course[]>([])
-  const [student, setStudent] = useState<StudentProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
@@ -85,7 +79,6 @@ export default function MyCourses() {
       const res: ApiResponse = await studentCourseApi.getMyCourses()
       const studentRes = await studentProfileApi.getProfile()
       const studentData: StudentProfile = studentRes.data
-      setStudent(studentRes)
 
       const allCourses = res.data.flatMap((order) => order.courses)
       console.log("alll courses response", res)
@@ -129,11 +122,6 @@ export default function MyCourses() {
     URL.revokeObjectURL(url);
   };
 
-  const calculateAverageRating = (reviews?: Review[]) => {
-    if (!reviews || reviews.length === 0) return "No rating"
-    const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-    return avg.toFixed(1)
-  }
 
   const getProgressColor = (progress: number) => {
     if (progress >= 80) return "bg-white"

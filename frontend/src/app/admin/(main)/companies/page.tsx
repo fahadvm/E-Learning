@@ -21,7 +21,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/Table";
+} from "@/components/ui/table";
 
 import { ICompany, ICompanyListResponse } from "@/types/admin/company";
 import { adminApiMethods } from "@/services/APIservices/adminApiService";

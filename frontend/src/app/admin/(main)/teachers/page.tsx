@@ -24,7 +24,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/Table";
+} from "@/components/ui/table";
 
 import { adminApiMethods } from "@/services/APIservices/adminApiService";
 import { ITeacher, ITeacherListResponse } from "@/types/admin/teacher";

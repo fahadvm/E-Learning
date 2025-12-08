@@ -28,7 +28,6 @@ export default function StudentTeacherProfilePage() {
   const courseId = searchParams.get("courseId");
 
   const [teacher, setTeacher] = useState<any>(null);
-  const [availability, setAvailability] = useState<any[]>([]);
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -51,8 +50,7 @@ export default function StudentTeacherProfilePage() {
         const profileRes = await studentTeacherApi.getTeacherDetails(teacherId);
         setTeacher(profileRes.data);
 
-        const availabilityRes = await studentTeacherApi.getTeacherAvailability(teacherId);
-        setAvailability(availabilityRes.data.week || []);
+      
 
         const reviewRes = await studentTeacherApi.getTeacherReviews(teacherId);
         setReviews(reviewRes.data || []);
@@ -81,8 +79,6 @@ export default function StudentTeacherProfilePage() {
   const hasValidCourse = !!courseId;
 
   const handleChat = () => router.push(`/student/chat/${teacherId}`);
-  const handleBookSession = () =>
-    router.push(`/student/teacher/call-shedule/${teacherId}?courseId=${courseId}`);
 
   // ================================
   // Submit Review

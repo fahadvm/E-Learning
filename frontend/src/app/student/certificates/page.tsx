@@ -1,42 +1,32 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import {
-  Award,
-  Download,
-  Search,
-  FileText,
-  Calendar,
-  ChevronRight,
-} from "lucide-react";
+import React, { useEffect, useState, useCallback } from "react";
+import { Award, Download, Search, FileText, Calendar } from "lucide-react";
 import { studentCertificateApi } from "@/services/APIservices/studentApiservice";
 import Header from "@/components/student/header";
-
-interface Certificate {
-  _id: string;
-  courseId: { _id: string; title: string };
-  certificateUrl: string;
-  certificateNumber: string;
-  issuedAt: string;
-}
+import type { Certificate, CertificateApiResponse } from "@/types/student/certificates";
 
 export default function CertificatesPage() {
   const [certificates, setCertificates] = useState<Certificate[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   // Pagination State
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
 
-  useEffect(() => {
-    fetchCertificates();
-  }, [page, searchTerm]);
-
-  const fetchCertificates = async () => {
+  /* -------------------------------------------------------
+      Fetch Certificates (with useCallback)
+  -------------------------------------------------------- */
+  const fetchCertificates = useCallback(async (): Promise<void> => {
     try {
       setLoading(true);
-      const res = await studentCertificateApi.getMyCertificates({page, limit:6,search: searchTerm});
+
+      const res: CertificateApiResponse = await studentCertificateApi.getMyCertificates({
+        page,
+        limit: 6,
+        search: searchTerm,
+      });
 
       if (res.ok) {
         setCertificates(res.data.certificates);
@@ -47,13 +37,23 @@ export default function CertificatesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, searchTerm]);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    fetchCertificates(); // eslint compliant
+  }, [fetchCertificates]);
+
+  /* -------------------------------------------------------
+      Search Handler
+  -------------------------------------------------------- */
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setSearchTerm(e.target.value);
     setPage(1); // reset page on new search
   };
 
+  /* -------------------------------------------------------
+      Page Layout
+  -------------------------------------------------------- */
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
       <Header />
@@ -136,7 +136,7 @@ function CertificateItem({ cert }: { cert: Certificate }) {
     day: "numeric",
   });
 
-  const handleDownload = async () => {
+  const handleDownload = async (): Promise<void> => {
     const res = await fetch(cert.certificateUrl);
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
@@ -175,7 +175,7 @@ function CertificateItem({ cert }: { cert: Certificate }) {
         <div className="flex flex-col gap-2">
           <button
             onClick={handleDownload}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg"
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg flex items-center gap-1 justify-center"
           >
             <Download size={16} /> Download
           </button>

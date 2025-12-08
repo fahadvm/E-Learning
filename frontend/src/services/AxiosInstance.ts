@@ -1,32 +1,18 @@
+// src/services/AxiosInstance.ts
 import axios from "axios";
 import { useLoading } from "@/hooks/useLoading";
 import { showInfoToast } from "@/utils/Toast";
 
-export const baseURL = `${process.env.NEXT_PUBLIC_API_URL}`
+export const baseURL = `${process.env.NEXT_PUBLIC_API_URL}`;
 
 const axiosInstance = axios.create({
   baseURL,
-  withCredentials: true
-})
+  withCredentials: true,
+});
 
-let activeRequests = 0
-const { start, stop } = useLoading.getState()
+let activeRequests = 0;
 
-axiosInstance.interceptors.request.use(config => {
-  if (activeRequests === 0) start()
-  activeRequests++;
-  return config
-})
-
-const handleResponseCompletion = () => {
-  activeRequests--;
-  if (activeRequests <= 0) {
-    activeRequests = 0;
-    stop();
-  }
-};
-
-// Token refresh handling
+// Token refresh logic
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (value: unknown) => void;
@@ -34,22 +20,42 @@ let failedQueue: Array<{
 }> = [];
 
 const processQueue = (error: any) => {
-  failedQueue.forEach(prom => {
+  failedQueue.forEach((prom) => {
     error ? prom.reject(error) : prom.resolve(null);
   });
   failedQueue = [];
 };
 
+// REQUEST INTERCEPTOR
+axiosInstance.interceptors.request.use((config) => {
+  if (activeRequests === 0) {
+    useLoading.getState().start(); // called only when request starts → safe
+  }
+  activeRequests++;
+  return config;
+});
+
+// RESPONSE INTERCEPTOR
 axiosInstance.interceptors.response.use(
   (response) => {
-    handleResponseCompletion();
+    activeRequests--;
+    if (activeRequests <= 0) {
+      activeRequests = 0;
+      useLoading.getState().stop();
+    }
     return response;
   },
   async (error) => {
-    handleResponseCompletion();
-    const originalRequest = error.config;
-    if (error.response?.status === 403) {
+    activeRequests--;
+    if (activeRequests <= 0) {
+      activeRequests = 0;
+      useLoading.getState().stop();
+    }
 
+    const originalRequest = error.config;
+
+    // 403 - blocked user
+    if (error.response?.status === 403) {
       const msg = error.response.data?.message || "";
       if (msg.includes("blocked")) {
         localStorage.clear();
@@ -61,14 +67,14 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Only handle 401 errors here
+    // 401 - token expired + refresh logic
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
           .then(() => axiosInstance(originalRequest))
-          .catch(err => Promise.reject(err));
+          .catch((err) => Promise.reject(err));
       }
 
       originalRequest._retry = true;

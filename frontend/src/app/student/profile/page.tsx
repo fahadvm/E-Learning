@@ -4,7 +4,7 @@ import { Mail, Phone, Linkedin, Edit2, User, Target, Github, Code2 } from 'lucid
 import { motion } from 'framer-motion';
 import React, { useEffect, useState } from "react";
 import Header from '@/components/student/header';
-import Link from "next/link";  // ✅ FIXED
+import Link from "next/link";  
 import { studentProfileApi } from '@/services/APIservices/studentApiservice';
 
 interface IGithubContribution {

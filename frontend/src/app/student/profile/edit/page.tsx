@@ -256,6 +256,7 @@ export default function EditProfilePage() {
         showErrorToast(res?.message || "Failed to update profile");
       }
     } catch (err) {
+       console.log(err)
       showErrorToast("Something went wrong");
     } finally {
       setSaving(false);
@@ -280,6 +281,7 @@ export default function EditProfilePage() {
         showErrorToast(res?.message || "Failed to change password");
       }
     } catch (err) {
+       console.log(err)
       showErrorToast("Something went wrong");
     } finally {
       setPwSaving(false);
@@ -300,6 +302,7 @@ export default function EditProfilePage() {
         showErrorToast(res?.message || "Failed to send OTP");
       }
     } catch (err) {
+      console.log(err)
       showErrorToast("Failed to send OTP");
     } finally {
       setEmailSaving(false);
@@ -330,6 +333,7 @@ export default function EditProfilePage() {
         showErrorToast(res?.message || "Invalid or expired OTP");
       }
     } catch (err) {
+       console.log(err)
       showErrorToast("Verification failed");
     } finally {
       setEmailSaving(false);

@@ -17,7 +17,7 @@ import { useParams } from "next/navigation"
 import { studentWishlistApi } from "@/services/APIservices/studentApiservice"
 import { showSuccessToast } from "@/utils/Toast"
 import { formatMinutesToHours } from "@/utils/timeConverter"
-import { ICourse, Module, Review } from "@/types/student/studentTypes"
+import { ICourse, Module } from "@/types/student/studentTypes"
 import RecommendedCourses from "@/components/student/course/RecommendedCourses"
 import ReviewListModal from "@/components/student/course/ReviewList"
 

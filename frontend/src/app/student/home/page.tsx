@@ -10,11 +10,9 @@ import 'swiper/css/navigation';
 
 
 
-import { useEffect, useState } from "react";
-import { Book, Clock, GraduationCap, Star } from "lucide-react";
-import axios from "axios";
-import { studentCourseApi, studentTeacherApi } from "@/services/APIservices/studentApiservice";
-import { useStudent } from '@/context/studentContext';
+import {  useState } from "react";
+
+import {  studentTeacherApi } from "@/services/APIservices/studentApiservice";
 
 
 
@@ -39,7 +37,6 @@ export default function HeroSection() {
 
     const [recommendedCourses, setRecommendedCourses] = useState<ICourse[]>([]);
     const [teachers, setTeachers] = useState<ITeacher[]>([])
-    const { student } = useStudent()
 
     // const fetchCourses = async () => {
     //     try {

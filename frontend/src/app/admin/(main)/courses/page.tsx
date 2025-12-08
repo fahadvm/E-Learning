@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { adminApiMethods } from '@/services/APIservices/adminApiService';
-import AdminSidebar from '@/components/admin/sidebar';
-import { Menu, X } from 'lucide-react';
+
 
 export default function MyCoursesPage() {
   const [courses, setCourses] = useState<any[]>([]);
@@ -14,7 +13,6 @@ export default function MyCoursesPage() {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState(search);
   const [totalPages, setTotalPages] = useState(1);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const handler = setTimeout(() => {

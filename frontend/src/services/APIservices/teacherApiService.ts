@@ -57,24 +57,19 @@ export const teacherNotificationApi = {
 };
 
 export const teacherCourseApi = {
-  addCourse: (data: FormData) => post(TEACHER_ROUTES.courses.create, data, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  }),
+  addCourse: (data: FormData) => post(TEACHER_ROUTES.courses.create, data),
   getMyCourses: () => get(TEACHER_ROUTES.courses.myCourses),
   getCourseById: (courseId: string) => get(TEACHER_ROUTES.courses.details(courseId)),
+  getResources: (courseId: string) => get(TEACHER_ROUTES.courses.fetchResources(courseId)),
+  addResources: (courseId: string,data:any) => post(TEACHER_ROUTES.courses.uploadResource(courseId),data),
+  deleteResources: (resourceId:string) => get(TEACHER_ROUTES.courses.deleteResource(resourceId)),
 
   // Note: If you have a separate endpoint for detailed fetching versus basic fetching, use it.
   // Assuming getCourseById or similar is used for editing as well.
   getCourseDetailById: (courseId: string) => get(TEACHER_ROUTES.courses.details(courseId)),
 
   editCourse: (courseId: string, data: FormData) =>
-    put(`${TEACHER_ROUTES.courses.update(courseId)}`, data, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    }),
+    put(`${TEACHER_ROUTES.courses.update(courseId)}`, data),
 };
 
 export const teacherEarningsApi = {

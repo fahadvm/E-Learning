@@ -33,7 +33,7 @@ export class EmployeeAuthService implements IEmployeeAuthService {
     const otp = generateOtp();
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
     const existingOtp = await this._otpRepo.findByEmail(email);
-    if (existingOtp) await this._otpRepo.updateOtp(email, otp, expiresAt, pur pose, tempUserData);
+    if (existingOtp) await this._otpRepo.updateOtp(email, otp, expiresAt, purpose, tempUserData);
     else await this._otpRepo.create({ email, otp, expiresAt, purpose, tempUserData });
     await sendOtpEmail(email, otp);
   }

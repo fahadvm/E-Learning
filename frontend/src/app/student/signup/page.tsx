@@ -95,7 +95,7 @@ export default function StudentSignupPage() {
     }
   };
 
-  const handleGoogleSuccess = (user: any) => {
+  const handleGoogleSuccess = () => {
     showSuccessToast("Google signup successful!");
     router.push("/student/home");
   };
@@ -117,6 +117,7 @@ export default function StudentSignupPage() {
           <GoogleLoginButton
             onLoginSuccess={handleGoogleSuccess}
             onLoginError={handleGoogleError}
+          
           />
         </div>
 

@@ -121,13 +121,17 @@ export default function EditProfilePage() {
     if (!formData.about.trim()) newErrors.about = 'About is required';
     if (!formData.phone.trim()) newErrors.phone = 'Phone is required';
     if (formData.phone && !/^\d{10}$/.test(formData.phone)) newErrors.phone = 'Phone must be 10 digits';
-    if (formData.website && !/^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-./?%&=]*)?$/.test(formData.website))
-      newErrors.website = 'Invalid website URL';
+    if (
+      formData.website &&
+      !/^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-./?%&=]*)?$/.test(formData.website)
+    )
+      newErrors.website = "Invalid website URL";
 
     Object.entries(formData.social_links).forEach(([key, value]) => {
       if (value && !/^https?:\/\/.+\..+/.test(value)) {
         newErrors[`social_links.${key}`] = `Invalid ${key} URL`;
       }
+
     });
 
     if (!formData.skills.length) newErrors.skills = 'Add at least one skill';

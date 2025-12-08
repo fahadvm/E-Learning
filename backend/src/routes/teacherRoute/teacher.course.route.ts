@@ -33,7 +33,7 @@ router.delete('/:resourceId/resources', authMiddleware('teacher'), asyncHandler(
 router.put(
     '/:courseId',
     authMiddleware('teacher'),
-    upload.any(), // Handle multipart/form-data
+    upload.any(),
     asyncHandler(teacherCourseController.editCourse.bind(teacherCourseController))
 );
 

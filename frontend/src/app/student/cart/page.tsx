@@ -1,8 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ArrowLeft } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { CartItem } from "@/components/student/cart/cart-item"
 import { CartSummary } from "@/components/student/cart/cart-summary"
 import { EmptyCart } from "@/components/student/cart/empty-cart"
@@ -51,7 +49,7 @@ export default function CartPage() {
             if (cartData) {
                 setCartData({
                     ...cartData,
-                    courses: cartData.courses.filter((course) => course.id !== courseId),
+                    courses: cartData.courses.filter((course) => course._id !== courseId),
                 })
             }
             const data = await studentCartApi.getCart()
@@ -84,9 +82,7 @@ export default function CartPage() {
          router.push("/student/courses")
     }
 
-    const handleGoBack = () => {
-        router.back()
-    }
+
 
     const calculateSummary = (): CartSummaryType => {
         if (!cartData || cartData.courses.length === 0) {
@@ -163,7 +159,7 @@ export default function CartPage() {
                         {/* Cart Items */}
                         <div className="lg:col-span-2 space-y-4">
                             {cartData.courses.map((course) => (
-                                <CartItem key={course.id} course={course} onRemove={handleRemoveItem} />
+                                <CartItem key={course._id} course={course} onRemove={handleRemoveItem} />
                             ))}
                         </div>
 

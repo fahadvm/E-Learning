@@ -36,8 +36,7 @@ export default function TeacherRequestDetails() {
       } catch (err: any) {
         console.error(err)
         setError("Failed to fetch request data.")
-      } finally {
-      }
+      } 
     }
 
     fetchRequest()
