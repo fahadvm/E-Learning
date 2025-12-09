@@ -14,6 +14,7 @@ import { PaginatedEmployeeDTO, companyEmployeeDto } from '../../core/dtos/compan
 import { ICompanyCoursePurchaseRepository } from '../../core/interfaces/repositories/ICompanyCoursePurchaseRepository';
 import { IEmployeeLearningPathRepository } from '../../core/interfaces/repositories/IEmployeeLearningPathRepository';
 import { IEmployeeLearningPathProgressRepository } from '../../core/interfaces/repositories/IEmployeeLearningPathProgressRepository';
+import { ICompanyChatService } from '../../core/interfaces/services/company/ICompanyChatService';
 
 
 @injectable()
@@ -24,6 +25,7 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
         @inject(TYPES.EmployeeLearningPathRepository) private _learningPathRepo: IEmployeeLearningPathRepository,
         @inject(TYPES.CompanyCoursePurchaseRepository) private _purchaseRepo: ICompanyCoursePurchaseRepository,
         @inject(TYPES.EmployeeLearningPathProgressRepository) private _learningPathAssignRepo: IEmployeeLearningPathProgressRepository,
+        @inject(TYPES.CompanyChatService) private _companyChatService: ICompanyChatService,
 
     ) { } // Injected CompanyRepository
 
@@ -64,6 +66,13 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
         const employee = await this._employeeRepo.findEmployeeAndApprove(companyId, employeeId);
         if (employee) {
             await this._companyRepo.addEmployee(companyId, employeeId);
+
+            // Add to Company Group Chat
+            const company = await this._companyRepo.findById(companyId);
+            if (company) {
+                await this._companyChatService.createCompanyGroup(companyId, company.name); // Ensure group exists
+                await this._companyChatService.addEmployeeToGroup(companyId, employeeId);
+            }
         }
         return employee;
     }
@@ -122,13 +131,13 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
 
         /* 1 Find assigned learning paths */
         const assignedPaths = await this._learningPathAssignRepo.findAssigned(companyId, employeeId);
-console.log('checkpoint 1')
+        console.log('checkpoint 1')
         /* 2 For each learning path → decrease seat usage */
-        console.log("assignedPaths",assignedPaths)
+        console.log("assignedPaths", assignedPaths)
         for (const path of assignedPaths) {
-console.log('checkpoint 1.5',companyId, path.learningPathId._id.toString())
+            console.log('checkpoint 1.5', companyId, path.learningPathId._id.toString())
             const lp = await this._learningPathRepo.findOneForCompany(companyId, path.learningPathId._id.toString());
-console.log('checkpoint 1')
+            console.log('checkpoint 1')
 
             if (lp) {
                 for (const course of lp.courses) {
@@ -138,12 +147,12 @@ console.log('checkpoint 1')
                     );
                 }
             }
-console.log('checkpoint 1')
+            console.log('checkpoint 1')
 
             /* 3️ Remove assigned progress */
             await this._learningPathAssignRepo.delete(companyId, employeeId, path.learningPathId._id.toString());
         }
-console.log('checkpoint 1')
+        console.log('checkpoint 1')
 
         /* 4️ Remove employee from company */
         await this._employeeRepo.updateById(employeeId, {
@@ -152,6 +161,9 @@ console.log('checkpoint 1')
         });
 
         await this._companyRepo.removeEmployee(companyId, employeeId);
+
+        // Remove from Company Group Chat
+        await this._companyChatService.removeEmployeeFromGroup(companyId, employeeId);
     }
 
 

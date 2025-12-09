@@ -15,10 +15,10 @@ export class ChatService implements IChatService {
     @inject(TYPES.OrderRepository) private readonly _orderRepo: IOrderRepository,
   ) { }
 
-  async sendMessage(senderId: string, receiverId: string, message: string, chatId: string): Promise<IMessage> {
-    if (!senderId || !chatId || !message || !receiverId) throwError(MESSAGES.REQUIRED_FIELDS_MISSING);
+  async sendMessage(senderId: string, message: string, chatId: string, senderType: string, receiverId?: string, receiverType?: string, fileUrl?: string, messageType?: string): Promise<IMessage> {
+    if (!senderId || !chatId || !message) throwError(MESSAGES.REQUIRED_FIELDS_MISSING);
 
-    return this._chatRepository.saveMessage(senderId, receiverId, message, chatId);
+    return this._chatRepository.saveMessage(senderId, message, chatId, senderType, receiverId, receiverType, fileUrl, messageType);
   }
 
   async getMessages(chatId: string, limit: number, before: string): Promise<IMessage[]> {
@@ -106,8 +106,8 @@ export class ChatService implements IChatService {
 
         purchasedCourses.push(course);
 
-        const teacher = course.teacherId; 
-        console.log("populated teacher:",teacher)
+        const teacher = course.teacherId;
+        console.log("populated teacher:", teacher)
 
         if (!teacher) continue;
 

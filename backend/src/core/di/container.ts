@@ -151,6 +151,9 @@ import { ChatRepository } from '../../repositories/ChatRepository';
 import { IChatService } from '../interfaces/services/student/IStudentChatService';
 import { ChatService } from '../../services/student/student.chat.service';
 import { ChatController } from '../../controllers/student/student.chat.controller';
+import { ICompanyChatService } from '../interfaces/services/company/ICompanyChatService';
+import { CompanyChatService } from '../../services/company/company.chat.service';
+import { CompanyChatController } from '../../controllers/company/company.chat.controller';
 import { IStudentNotificationRepository } from '../interfaces/repositories/IStudentNotification';
 import { IStudentNotificationService } from '../interfaces/services/student/IStudentNotificationService';
 import { StudentNotificationController } from '../../controllers/student/student.notification.controller';
@@ -274,7 +277,9 @@ container.bind<IPublicApiRepository>(TYPES.PublicApiRepository).to(PublicApiRepo
 
 container.bind<IChatRepository>(TYPES.ChatRepository).to(ChatRepository);
 container.bind<IChatService>(TYPES.ChatService).to(ChatService);
+container.bind<ICompanyChatService>(TYPES.CompanyChatService).to(CompanyChatService);
 container.bind<ChatController>(TYPES.ChatController).to(ChatController);
+container.bind<CompanyChatController>(TYPES.CompanyChatController).to(CompanyChatController);
 container.bind<TeacherChatController>(TYPES.TeacherChatController).to(TeacherChatController);
 container.bind<ITeacherChatService>(TYPES.TeacherChatService).to(TeacherChatService);
 container.bind<IStudentCommentService>(TYPES.StudentCommentService).to(StudentCommentService);

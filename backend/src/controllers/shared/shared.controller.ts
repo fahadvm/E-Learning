@@ -18,7 +18,24 @@ export class SharedController implements ISharedController {
             throwError(MESSAGES.TOKEN_INVALID, STATUS_CODES.UNAUTHORIZED);
         }
         setTokensInCookies(res, tokens.accessToken, tokens.refreshToken);
-        sendResponse(res, STATUS_CODES.OK,MESSAGES.TOKEN_REFRESHED, true);
- 
+        sendResponse(res, STATUS_CODES.OK, MESSAGES.TOKEN_REFRESHED, true);
+
     };
+
+    uploadFile = async (req: Request, res: Response): Promise<void> => {
+        try {
+            if (!req.file) {
+                return throwError(MESSAGES.FILE_REQUIRED, STATUS_CODES.BAD_REQUEST);
+            }
+            // The file is already uploaded to Cloudinary or we have the buffer if using memory storage
+            // If using uploadToCloudinary utility with memory storage:
+            const { uploadToCloudinary } = await import('../../utils/upload');
+            const url = await uploadToCloudinary(req.file.buffer, 'chat-uploads', 'auto');
+
+            sendResponse(res, STATUS_CODES.OK, "File uploaded successfully", true, { url });
+        } catch (error) {
+            console.error("Upload error:", error);
+            throwError(MESSAGES.FILE_UPLOAD_FAILED, STATUS_CODES.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

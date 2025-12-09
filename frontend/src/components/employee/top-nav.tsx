@@ -78,11 +78,11 @@ export function TopNav() {
             </Button>
           </Link>
 
-          <Link href="/employee/chat">
+          {/* <Link href="/employee/chat">
             <Button variant="ghost" size="icon" className="relative">
               <MessageCircle className="h-5 w-5" />
             </Button>
-          </Link>
+          </Link> */}
 
           <Link href="/employee/streak">
             <Button variant="ghost" size="icon" className="relative">

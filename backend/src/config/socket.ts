@@ -42,11 +42,36 @@ export function initSocket(server: HTTPServer) {
       broadcastOnlineUsers();
     });
 
-    socket.on("send_message", async (data: { senderId: string; receiverId: string; message: string; chatId: string }) => {
-      const receiverSocketId = onlineUsers.get(data.receiverId);
+    socket.on("join_chat", (chatId: string) => {
+      socket.join(chatId);
+      console.log(`User ${socket.id} joined chat ${chatId}`);
+    });
+
+    socket.on("send_message", async (data: { senderId: string; receiverId?: string; message: string; chatId: string; senderType: string; receiverType?: string }) => {
       const messageData = { ...data, read: false, createdAt: new Date(), reactions: [] };
-      await chatService.sendMessage(data.senderId, data.receiverId, data.message, data.chatId);
-      if (receiverSocketId) io.to(receiverSocketId).emit("receive_message", messageData);
+
+      // Save to DB
+      await chatService.sendMessage(data.senderId, data.message, data.chatId, data.senderType, data.receiverId, data.receiverType);
+
+      // Group Chat Broadcast (Room based)
+      io.to(data.chatId).emit("receive_message", messageData);
+
+      // Direct Message Fallback (for online users not in room - mostly for retro-compatibility or notifications)
+      if (data.receiverId) {
+        const receiverSocketId = onlineUsers.get(data.receiverId);
+        // If receiver is NOT in the room (checked via socket.rooms?), send direct.
+        // But determining if they are in room is complex here without fetching sockets.
+        // Simply emitting to socketId is fine, but might duplicate if they are also in room.
+        // However, for Student-Teacher, they likely ARE NOT in room yet (unless I update frontend).
+        // So this preserves existing behavior.
+        if (receiverSocketId) {
+          // Check if already in room to avoid double emit?
+          // let receiverSocket = io.sockets.sockets.get(receiverSocketId);
+          // if (!receiverSocket?.rooms.has(data.chatId)) {
+          io.to(receiverSocketId).emit("receive_message", messageData);
+          // }
+        }
+      }
     });
 
     socket.on("typing", (data: { senderId: string; receiverId: string }) => {
@@ -94,17 +119,17 @@ export function initSocket(server: HTTPServer) {
       }
     });
 
-      socket.on("send_notification", async (data: { receiverId: string; title: string; message: string }) => {
-        try {
-          console.log("here the notification event on in ", data)
-          await notificationService.createNotification(data.receiverId, data.title, data.message, "general");
-          const receiverSocketId = onlineUsers.get(data.receiverId);
-          console.log("now onwanrd student will get the notification")
-          if (receiverSocketId) io.to(receiverSocketId).emit("receive_notification", data);
-        } catch (err) {
-          logger.error("Error sending notification:", err);
-        }
-      });
+    socket.on("send_notification", async (data: { receiverId: string; title: string; message: string }) => {
+      try {
+        console.log("here the notification event on in ", data)
+        await notificationService.createNotification(data.receiverId, data.title, data.message, "general");
+        const receiverSocketId = onlineUsers.get(data.receiverId);
+        console.log("now onwanrd student will get the notification")
+        if (receiverSocketId) io.to(receiverSocketId).emit("receive_notification", data);
+      } catch (err) {
+        logger.error("Error sending notification:", err);
+      }
+    });
 
     /** ------------------- VIDEO CALL ------------------- **/
 
