@@ -27,6 +27,21 @@ export class TransactionRepository implements ITransactionRepository {
     return await query.exec();
   }
 
+  async findWithPopulation(
+    filter: any,
+    options: { skip?: number; limit?: number; sort?: any } = {},
+    populate?: any
+  ): Promise<ITransaction[]> {
+    const query = Transaction.find(filter);
+
+    if (options.sort) query.sort(options.sort);
+    if (options.skip) query.skip(options.skip);
+    if (options.limit) query.limit(options.limit);
+    if (populate) query.populate(populate);
+
+    return await query.exec();
+  }
+
   async teacherEarnings(teacherId: string): Promise<number> {
     const result = await Transaction.aggregate([
       {

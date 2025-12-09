@@ -5,6 +5,7 @@ export interface ITransactionRepository {
   create(data: Partial<ITransaction>): Promise<ITransaction>;
   findById(id: Types.ObjectId | string): Promise<ITransaction | null>;
   find(filter: any, options?: { skip?: number; limit?: number; sort?: any }): Promise<ITransaction[]>;
+  findWithPopulation(filter: any, options?: { skip?: number; limit?: number; sort?: any }, populate?: any): Promise<ITransaction[]>;
   teacherEarnings(teacherId: string): Promise<number>;
   count(filter: any): Promise<number>;
 }

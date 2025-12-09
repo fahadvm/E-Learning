@@ -163,4 +163,11 @@ export const TYPES = {
     TeacherEnrollmentService: Symbol.for('TeacherEnrollmentService'),
     TeacherEnrollmentController: Symbol.for('TeacherEnrollmentController'),
 
+    TransactionAdminService: Symbol.for('TransactionAdminService'),
+    TransactionAdminController: Symbol.for('TransactionAdminController'),
+
+    AdminReportsRepository: Symbol.for('AdminReportsRepository'),
+    AdminReportsService: Symbol.for('AdminReportsService'),
+    AdminReportsController: Symbol.for('AdminReportsController'),
+
 };

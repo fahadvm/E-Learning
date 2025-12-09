@@ -32,7 +32,7 @@ const navItems = [
   { icon: BookOpen, label: "Courses", href: "/admin/courses" },
   { icon: CreditCard, label: "Orders", href: "/admin/orders" },
   { icon: Layers, label: "Subscriptions", href: "/admin/subscriptions" },
-  { icon: Coins, label: "Credits", href: "/admin/credits" },
+  { icon: Coins, label: "Transactions", href: "/admin/transactions" },
   { icon: BarChart3, label: "Reports", href: "/admin/reports" },
   { icon: Settings, label: "Settings", href: "/admin/settings" },
 ];

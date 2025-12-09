@@ -17,6 +17,7 @@ export interface ITransaction extends Document {
 
   userId?: Types.ObjectId;
   teacherId?: Types.ObjectId;
+  companyId?: Types.ObjectId;
 
   courseId?: Types.ObjectId;
   meetingId?: Types.ObjectId;
@@ -45,6 +46,7 @@ const TransactionSchema = new Schema<ITransaction>(
   {
     userId: { type: Schema.Types.ObjectId, ref: "Student" },
     teacherId: { type: Schema.Types.ObjectId, ref: "Teacher" },
+    companyId: { type: Schema.Types.ObjectId, ref: "Company" },
 
     courseId: { type: Schema.Types.ObjectId, ref: "Course" },
     meetingId: { type: Schema.Types.ObjectId, ref: "Meeting" },
@@ -71,7 +73,7 @@ const TransactionSchema = new Schema<ITransaction>(
     amount: { type: Number, required: true },
 
     // NEW fields ↓↓↓
-    grossAmount: { type: Number, required: true },  
+    grossAmount: { type: Number, required: true },
     teacherShare: { type: Number, default: 0 },
     platformFee: { type: Number, default: 0 },
 

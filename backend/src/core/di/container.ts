@@ -199,6 +199,15 @@ import { CompanyAnalyticsController } from '../../controllers/company/company.an
 import { IAdminProfileService } from '../interfaces/services/admin/IAdminProfileService';
 import { AdminProfileService } from '../../services/admin/Admin.Profile.Service';
 import { AdminProfileController } from '../../controllers/admin/admin.profile.controller';
+import { ITransactionAdminService } from '../interfaces/services/admin/ITransactionAdminService';
+import { TransactionAdminService } from '../../services/admin/transaction.admin.service';
+import { TransactionAdminController } from '../../controllers/admin/transaction.admin.controller';
+
+import { IAdminReportsRepository } from '../interfaces/repositories/admin/IAdminReportsRepository';
+import { AdminReportsRepository } from '../../repositories/AdminReportsRepository';
+import { IAdminReportsService } from '../interfaces/services/admin/IAdminReportsService';
+import { AdminReportsService } from '../../services/admin/admin.reports.service';
+import { AdminReportsController } from '../../controllers/admin/admin.reports.controller';
 import { IPublicApiRepository } from '../interfaces/repositories/IPublicApiRepository';
 import { PublicApiRepository } from '../../repositories/PublicApiRepository';
 import { IWalletRepository } from '../interfaces/repositories/IwalletRepository';
@@ -400,6 +409,12 @@ container.bind<CompanyAnalyticsController>(TYPES.CompanyAnalyticsController).to(
 container.bind<IAdminProfileService>(TYPES.AdminProfileService).to(AdminProfileService);
 container.bind<ICompanyCartRepository>(TYPES.CompanyCartRepository).to(CompanyCartRepository);
 container.bind<AdminProfileController>(TYPES.AdminProfileController).to(AdminProfileController);
+container.bind<ITransactionAdminService>(TYPES.TransactionAdminService).to(TransactionAdminService);
+container.bind<TransactionAdminController>(TYPES.TransactionAdminController).to(TransactionAdminController);
+
+container.bind<IAdminReportsRepository>(TYPES.AdminReportsRepository).to(AdminReportsRepository);
+container.bind<IAdminReportsService>(TYPES.AdminReportsService).to(AdminReportsService);
+container.bind<AdminReportsController>(TYPES.AdminReportsController).to(AdminReportsController);
 
 container.bind<StudentTeacherReviewController>(TYPES.StudentTeacherReviewController).to(StudentTeacherReviewController);
 container.bind<IStudentTeacherReviewService>(TYPES.StudentTeacherReviewService).to(StudentTeacherReviewService);
