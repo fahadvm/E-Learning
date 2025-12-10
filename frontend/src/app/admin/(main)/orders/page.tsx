@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { adminApiMethods } from "@/services/APIservices/adminApiService";
 
+// Updated CompanyOrder type to include the mapped 'courses' field
 type CompanyOrder = {
     _id: string;
     companyId: { email: string; name: string; _id: string };
@@ -12,6 +13,8 @@ type CompanyOrder = {
     }[];
     amount: number;
     createdAt: string;
+    // Add the mapped courses for frontend use
+    courses: { title: string; _id: string; seats: number }[];
 };
 
 type StudentOrder = {
@@ -28,11 +31,11 @@ export default function OrdersPage() {
     const [studentOrders, setStudentOrders] = useState<StudentOrder[]>([]);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
-    const [itemsPerPage] = useState(8);
+    const itemsPerPage = 8;
 
     useEffect(() => {
         fetchOrders();
-        setPage(1); 
+        setPage(1);
     }, [activeTab]);
 
     const fetchOrders = async () => {
@@ -40,12 +43,12 @@ export default function OrdersPage() {
         try {
             if (activeTab === "company") {
                 const res = await adminApiMethods.getCompanyOrders();
-                const mapped = (res?.data || []).map((order: any) => ({
+                const mapped: CompanyOrder[] = (res?.data || []).map((order: any) => ({
                     ...order,
                     courses: order.purchasedCourses.map((c: any) => ({
-                        title: c.courseId?.title,
-                        _id: c.courseId?._id,
-                        seats: c.seats
+                        title: c.courseId?.title || "Unknown Course",
+                        _id: c.courseId?._id || "",
+                        seats: c.seats || 0
                     }))
                 }));
                 setCompanyOrders(mapped);
@@ -85,7 +88,7 @@ export default function OrdersPage() {
                 <div className="flex space-x-4 border-b mb-6">
                     <button
                         onClick={() => setActiveTab("company")}
-                        className={`px-4 py-2 font-medium border-b-2 ${
+                        className={`px-4 py-2 font-medium border-b-2 transition-colors ${
                             activeTab === "company"
                                 ? "border-blue-600 text-blue-600"
                                 : "border-transparent text-gray-600 hover:text-blue-600"
@@ -95,7 +98,7 @@ export default function OrdersPage() {
                     </button>
                     <button
                         onClick={() => setActiveTab("student")}
-                        className={`px-4 py-2 font-medium border-b-2 ${
+                        className={`px-4 py-2 font-medium border-b-2 transition-colors ${
                             activeTab === "student"
                                 ? "border-blue-600 text-blue-600"
                                 : "border-transparent text-gray-600 hover:text-blue-600"
@@ -106,81 +109,94 @@ export default function OrdersPage() {
                 </div>
 
                 {/* Orders Table */}
-                <div className="bg-white rounded-xl shadow-md p-4">
+                <div className="bg-white rounded-xl shadow-md overflow-hidden">
                     {loading ? (
-                        <p className="text-center text-gray-500 py-6">Loading orders...</p>
+                        <p className="text-center text-gray-500 py-12">Loading orders...</p>
                     ) : (
                         <>
                             <div className="overflow-x-auto">
                                 <table className="w-full border-collapse text-sm">
                                     <thead>
                                         <tr className="bg-gray-100 text-left text-sm font-semibold text-gray-700">
-                                            <th className="p-3">Order ID</th>
-                                            <th className="p-3">{activeTab === "company" ? "Company" : "Student"}</th>
-                                            <th className="p-3">Courses</th>
-                                            <th className="p-3">Amount</th>
-                                            <th className="p-3">Date</th>
+                                            <th className="p-4">Order ID</th>
+                                            <th className="p-4">{activeTab === "company" ? "Company" : "Student"}</th>
+                                            <th className="p-4">Courses</th>
+                                            <th className="p-4">Amount</th>
+                                            <th className="p-4">Date</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {activeTab === "company"
-                                            ? getPaginatedData(companyOrders).map((order) => (
-                                                  <tr key={order._id} className="border-b hover:bg-gray-50">
-                                                      <td className="p-3">{order._id}</td>
-                                                      <td className="p-3">{order.companyId.name}</td>
-                                                      <td className="p-3">
-                                                          {order.courses.map((c, i) => (
-                                                              <span key={c._id}>
-                                                                  {c.title} <span className="text-xs text-gray-500">(Seats: {c.seats})</span>
-                                                                  {i < order.courses.length - 1 && ", "}
-                                                              </span>
-                                                          ))}
-                                                      </td>
-                                                      <td className="p-3 font-semibold text-green-600">₹{order.amount}</td>
-                                                      <td className="p-3">
-                                                          {new Date(order.createdAt).toLocaleDateString()}
-                                                      </td>
-                                                  </tr>
-                                              ))
-                                            : getPaginatedData(studentOrders).map((order) => (
-                                                  <tr key={order._id} className="border-b hover:bg-gray-50">
-                                                      <td className="p-3">{order._id}</td>
-                                                      <td className="p-3">{order.studentId?.name || "N/A"}</td>
-                                                      <td className="p-3">
-                                                          {order.courses.map((c, i) => (
-                                                              <span key={c._id}>
-                                                                  {c.title}
-                                                                  {i < order.courses.length - 1 && ", "}
-                                                              </span>
-                                                          ))}
-                                                      </td>
-                                                      <td className="p-3 font-semibold text-green-600">₹{order.amount}</td>
-                                                      <td className="p-3">
-                                                          {new Date(order.createdAt).toLocaleDateString()}
-                                                      </td>
-                                                  </tr>
-                                              ))}
+                                        {activeTab === "company" ? (
+                                            getPaginatedData(companyOrders).map((order) => (
+                                                <tr key={order._id} className="border-b hover:bg-gray-50 transition">
+                                                    <td className="p-4 font-mono text-xs">{order._id}</td>
+                                                    <td className="p-4">
+                                                        <div>
+                                                            <p className="font-medium">{order.companyId.name}</p>
+                                                            <p className="text-xs text-gray-500">{order.companyId.email}</p>
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4">
+                                                        {order.courses.map((course, index) => (
+                                                            <span key={course._id}>
+                                                                <span className="font-medium">{course.title}</span>
+                                                                <span className="text-xs text-gray-500 ml-1">(Seats: {course.seats})</span>
+                                                                {index < order.courses.length - 1 && <span className="text-gray-400">, </span>}
+                                                            </span>
+                                                        ))}
+                                                    </td>
+                                                    <td className="p-4 font-semibold text-green-600">₹{order.amount.toLocaleString()}</td>
+                                                    <td className="p-4 text-gray-600">
+                                                        {new Date(order.createdAt).toLocaleDateString("en-IN")}
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            getPaginatedData(studentOrders).map((order) => (
+                                                <tr key={order._id} className="border-b hover:bg-gray-50 transition">
+                                                    <td className="p-4 font-mono text-xs">{order._id}</td>
+                                                    <td className="p-4">
+                                                        <div>
+                                                            <p className="font-medium">{order.studentId?.name || "N/A"}</p>
+                                                            <p className="text-xs text-gray-500">{order.studentId?.email || "N/A"}</p>
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4">
+                                                        {order.courses.map((course, index) => (
+                                                            <span key={course._id}>
+                                                                {course.title}
+                                                                {index < order.courses.length - 1 && <span className="text-gray-400">, </span>}
+                                                            </span>
+                                                        ))}
+                                                    </td>
+                                                    <td className="p-4 font-semibold text-green-600">₹{order.amount.toLocaleString()}</td>
+                                                    <td className="p-4 text-gray-600">
+                                                        {new Date(order.createdAt).toLocaleDateString("en-IN")}
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
 
                             {/* Pagination */}
                             {totalPages > 1 && (
-                                <div className="flex justify-center mt-4 space-x-2">
+                                <div className="flex justify-center items-center gap-4 py-6 bg-gray-50">
                                     <button
                                         onClick={() => handlePageChange(page - 1)}
                                         disabled={page === 1}
-                                        className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+                                        className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition"
                                     >
-                                        Prev
+                                        Previous
                                     </button>
-                                    <span className="px-3 py-1 text-gray-700">
+                                    <span className="text-sm font-medium text-gray-700">
                                         Page {page} of {totalPages}
                                     </span>
                                     <button
                                         onClick={() => handlePageChange(page + 1)}
                                         disabled={page === totalPages}
-                                        className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+                                        className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition"
                                     >
                                         Next
                                     </button>
