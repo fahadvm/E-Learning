@@ -65,7 +65,7 @@ let StudentRepository = class StudentRepository {
         return __awaiter(this, void 0, void 0, function* () {
             const updated = yield Student_1.Student.findByIdAndUpdate(id, { $set: data }, { new: true }).lean().exec();
             if (!updated)
-                throw new Error('Student not found for update.');
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STUDENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             return updated;
         });
     }

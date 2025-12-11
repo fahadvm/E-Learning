@@ -39,6 +39,20 @@ class TransactionRepository {
             return yield query.exec();
         });
     }
+    findWithPopulation(filter_1) {
+        return __awaiter(this, arguments, void 0, function* (filter, options = {}, populate) {
+            const query = Transaction_1.Transaction.find(filter);
+            if (options.sort)
+                query.sort(options.sort);
+            if (options.skip)
+                query.skip(options.skip);
+            if (options.limit)
+                query.limit(options.limit);
+            if (populate)
+                query.populate(populate);
+            return yield query.exec();
+        });
+    }
     teacherEarnings(teacherId) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield Transaction_1.Transaction.aggregate([

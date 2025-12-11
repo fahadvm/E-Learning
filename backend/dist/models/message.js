@@ -8,8 +8,10 @@ const reactionSchema = new mongoose_1.Schema({
 }, { _id: false });
 const messageSchema = new mongoose_1.Schema({
     chatId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Chat', required: true, index: true },
-    senderId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Student', required: true },
-    receiverId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Teacher', required: true },
+    senderId: { type: mongoose_1.Schema.Types.ObjectId, required: true, refPath: 'senderType' },
+    senderType: { type: String, required: true, enum: ['Student', 'Teacher', 'Company', 'Employee'] },
+    receiverId: { type: mongoose_1.Schema.Types.ObjectId, refPath: 'receiverType' }, // Optional for group
+    receiverType: { type: String, enum: ['Student', 'Teacher', 'Company', 'Employee'] },
     message: { type: String, required: true },
     type: { type: String, enum: ['text', 'image', 'file'], default: 'text' },
     fileUrl: { type: String },

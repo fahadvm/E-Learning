@@ -32,11 +32,11 @@ let ChatService = class ChatService {
         this._chatRepository = _chatRepository;
         this._orderRepo = _orderRepo;
     }
-    sendMessage(senderId, receiverId, message, chatId) {
+    sendMessage(senderId, message, chatId, senderType, receiverId, receiverType, fileUrl, messageType) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!senderId || !chatId || !message || !receiverId)
+            if (!senderId || !chatId || !message)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.REQUIRED_FIELDS_MISSING);
-            return this._chatRepository.saveMessage(senderId, receiverId, message, chatId);
+            return this._chatRepository.saveMessage(senderId, message, chatId, senderType, receiverId, receiverType, fileUrl, messageType);
         });
     }
     getMessages(chatId, limit, before) {

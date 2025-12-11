@@ -34,12 +34,13 @@ const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const types_1 = require("../../core/di/types");
 const company_employee_Dto_1 = require("../../core/dtos/company/company.employee.Dto");
 let CompanyEmployeeService = class CompanyEmployeeService {
-    constructor(_employeeRepo, _companyRepo, _learningPathRepo, _purchaseRepo, _learningPathAssignRepo) {
+    constructor(_employeeRepo, _companyRepo, _learningPathRepo, _purchaseRepo, _learningPathAssignRepo, _companyChatService) {
         this._employeeRepo = _employeeRepo;
         this._companyRepo = _companyRepo;
         this._learningPathRepo = _learningPathRepo;
         this._purchaseRepo = _purchaseRepo;
         this._learningPathAssignRepo = _learningPathAssignRepo;
+        this._companyChatService = _companyChatService;
     } // Injected CompanyRepository
     getAllEmployees(companyId, page, limit, search, sortBy, sortOrder) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -83,6 +84,12 @@ let CompanyEmployeeService = class CompanyEmployeeService {
             const employee = yield this._employeeRepo.findEmployeeAndApprove(companyId, employeeId);
             if (employee) {
                 yield this._companyRepo.addEmployee(companyId, employeeId);
+                // Add to Company Group Chat
+                const company = yield this._companyRepo.findById(companyId);
+                if (company) {
+                    yield this._companyChatService.createCompanyGroup(companyId, company.name); // Ensure group exists
+                    yield this._companyChatService.addEmployeeToGroup(companyId, employeeId);
+                }
             }
             return employee;
         });
@@ -164,6 +171,8 @@ let CompanyEmployeeService = class CompanyEmployeeService {
                 status: 'notRequsted'
             });
             yield this._companyRepo.removeEmployee(companyId, employeeId);
+            // Remove from Company Group Chat
+            yield this._companyChatService.removeEmployeeFromGroup(companyId, employeeId);
         });
     }
 };
@@ -175,5 +184,6 @@ exports.CompanyEmployeeService = CompanyEmployeeService = __decorate([
     __param(2, (0, inversify_1.inject)(types_1.TYPES.EmployeeLearningPathRepository)),
     __param(3, (0, inversify_1.inject)(types_1.TYPES.CompanyCoursePurchaseRepository)),
     __param(4, (0, inversify_1.inject)(types_1.TYPES.EmployeeLearningPathProgressRepository)),
-    __metadata("design:paramtypes", [Object, Object, Object, Object, Object])
+    __param(5, (0, inversify_1.inject)(types_1.TYPES.CompanyChatService)),
+    __metadata("design:paramtypes", [Object, Object, Object, Object, Object, Object])
 ], CompanyEmployeeService);

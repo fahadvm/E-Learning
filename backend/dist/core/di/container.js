@@ -90,6 +90,8 @@ const teacher_entrollment_controller_1 = require("../../controllers/teacher/teac
 const ChatRepository_1 = require("../../repositories/ChatRepository");
 const student_chat_service_1 = require("../../services/student/student.chat.service");
 const student_chat_controller_1 = require("../../controllers/student/student.chat.controller");
+const company_chat_service_1 = require("../../services/company/company.chat.service");
+const company_chat_controller_1 = require("../../controllers/company/company.chat.controller");
 const student_notification_controller_1 = require("../../controllers/student/student.notification.controller");
 const StudentNotificationRepository_1 = require("../../repositories/StudentNotificationRepository");
 const student_notification_service_1 = require("../../services/student/student.notification.service");
@@ -121,6 +123,11 @@ const company_analytics_service_1 = require("../../services/company/company.anal
 const company_analytics_controller_1 = require("../../controllers/company/company.analytics.controller");
 const Admin_Profile_Service_1 = require("../../services/admin/Admin.Profile.Service");
 const admin_profile_controller_1 = require("../../controllers/admin/admin.profile.controller");
+const transaction_admin_service_1 = require("../../services/admin/transaction.admin.service");
+const transaction_admin_controller_1 = require("../../controllers/admin/transaction.admin.controller");
+const AdminReportsRepository_1 = require("../../repositories/AdminReportsRepository");
+const admin_reports_service_1 = require("../../services/admin/admin.reports.service");
+const admin_reports_controller_1 = require("../../controllers/admin/admin.reports.controller");
 const PublicApiRepository_1 = require("../../repositories/PublicApiRepository");
 const WalletRepository_1 = require("../../repositories/WalletRepository");
 const TransactionRepository_1 = require("../../repositories/TransactionRepository");
@@ -158,7 +165,9 @@ container.bind(types_1.TYPES.CourseResourceRepository).to(CourseResourceReposito
 container.bind(types_1.TYPES.PublicApiRepository).to(PublicApiRepository_1.PublicApiRepository);
 container.bind(types_1.TYPES.ChatRepository).to(ChatRepository_1.ChatRepository);
 container.bind(types_1.TYPES.ChatService).to(student_chat_service_1.ChatService);
+container.bind(types_1.TYPES.CompanyChatService).to(company_chat_service_1.CompanyChatService);
 container.bind(types_1.TYPES.ChatController).to(student_chat_controller_1.ChatController);
+container.bind(types_1.TYPES.CompanyChatController).to(company_chat_controller_1.CompanyChatController);
 container.bind(types_1.TYPES.TeacherChatController).to(teacher_chat_controller_1.TeacherChatController);
 container.bind(types_1.TYPES.TeacherChatService).to(teacher_chat_service_1.TeacherChatService);
 container.bind(types_1.TYPES.StudentCommentService).to(student_comment_service_1.StudentCommentService);
@@ -268,6 +277,11 @@ container.bind(types_1.TYPES.CompanyAnalyticsController).to(company_analytics_co
 container.bind(types_1.TYPES.AdminProfileService).to(Admin_Profile_Service_1.AdminProfileService);
 container.bind(types_1.TYPES.CompanyCartRepository).to(CompanyCartRepository_1.CompanyCartRepository);
 container.bind(types_1.TYPES.AdminProfileController).to(admin_profile_controller_1.AdminProfileController);
+container.bind(types_1.TYPES.TransactionAdminService).to(transaction_admin_service_1.TransactionAdminService);
+container.bind(types_1.TYPES.TransactionAdminController).to(transaction_admin_controller_1.TransactionAdminController);
+container.bind(types_1.TYPES.AdminReportsRepository).to(AdminReportsRepository_1.AdminReportsRepository);
+container.bind(types_1.TYPES.AdminReportsService).to(admin_reports_service_1.AdminReportsService);
+container.bind(types_1.TYPES.AdminReportsController).to(admin_reports_controller_1.AdminReportsController);
 container.bind(types_1.TYPES.StudentTeacherReviewController).to(student_teacherReview_controller_1.StudentTeacherReviewController);
 container.bind(types_1.TYPES.StudentTeacherReviewService).to(student_teacherReview_service_1.StudentTeacherReviewService);
 container.bind(types_1.TYPES.TeacherReviewRepository).to(TeacherReviewRepository_1.TeacherReviewRepository);

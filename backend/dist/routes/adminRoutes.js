@@ -24,4 +24,8 @@ adminRouter.use('/subscriptions', admin_subscription_route_1.default);
 adminRouter.use('/orders', admin_order_route_1.default);
 adminRouter.use('/profile', admin_profile_route_1.default);
 // adminRouter.use('/employees', employeeRoutes);
+const admin_transaction_route_1 = __importDefault(require("./adminRoute/admin.transaction.route"));
+adminRouter.use('/transactions', admin_transaction_route_1.default);
+const admin_reports_route_1 = __importDefault(require("./adminRoute/admin.reports.route"));
+adminRouter.use('/reports', admin_reports_route_1.default);
 exports.default = adminRouter;

@@ -12,7 +12,7 @@ export class TeacherChatService implements ITeacherChatService {
   ) {}
 
   async sendMessage(senderId: string, receiverId: string, message: string): Promise<IMessage> {  
-    return this.chatRepository.saveMessage(senderId, receiverId, message);
+    return this.chatRepository.saveMessage(senderId, receiverId, message , 'group');
   }
 
   async getMessages(chatId: string): Promise<IMessage[]> {

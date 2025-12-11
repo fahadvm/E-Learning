@@ -21,38 +21,44 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TeacherChatService = void 0;
+exports.AdminReportsService = void 0;
 const inversify_1 = require("inversify");
 const types_1 = require("../../core/di/types");
-let TeacherChatService = class TeacherChatService {
-    constructor(chatRepository) {
-        this.chatRepository = chatRepository;
+let AdminReportsService = class AdminReportsService {
+    constructor(_reportsRepo) {
+        this._reportsRepo = _reportsRepo;
     }
-    sendMessage(senderId, receiverId, message) {
+    getDashboardStats() {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.chatRepository.saveMessage(senderId, receiverId, message, 'group');
+            const stats = yield this._reportsRepo.getDashboardStats();
+            const monthlyRevenue = yield this._reportsRepo.getMonthlyRevenue(new Date().getFullYear());
+            const userDistribution = yield this._reportsRepo.getUserDistribution();
+            const topCourses = yield this._reportsRepo.getTopCourses(5);
+            const companyRevenue = yield this._reportsRepo.getCompanyRevenue();
+            const activeTeachers = yield this._reportsRepo.getMostActiveTeachers(5);
+            const dailyTrend = yield this._reportsRepo.getDailyTrend(7);
+            return {
+                stats,
+                monthlyRevenue,
+                userDistribution,
+                topCourses,
+                companyRevenue,
+                activeTeachers,
+                dailyTrend
+            };
         });
     }
-    getMessages(chatId) {
+    exportReport(format) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.chatRepository.getTeacherMessages(chatId);
-        });
-    }
-    getChatDetails(chatId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.chatRepository.getChatDetails(chatId);
-        });
-    }
-    getUserChats(userId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const chat = yield this.chatRepository.getTeacherChats(userId);
-            return chat;
+            // Implementation for export will be handled here or in controller
+            // depending on library usage. Logic: fetch all data -> generate PDF/CSV
+            throw new Error("Method not implemented.");
         });
     }
 };
-exports.TeacherChatService = TeacherChatService;
-exports.TeacherChatService = TeacherChatService = __decorate([
+exports.AdminReportsService = AdminReportsService;
+exports.AdminReportsService = AdminReportsService = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)(types_1.TYPES.ChatRepository)),
+    __param(0, (0, inversify_1.inject)(types_1.TYPES.AdminReportsRepository)),
     __metadata("design:paramtypes", [Object])
-], TeacherChatService);
+], AdminReportsService);

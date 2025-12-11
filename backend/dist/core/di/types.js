@@ -83,6 +83,7 @@ exports.TYPES = {
     TransactionRepository: Symbol.for('TransactionRepository'),
     CompanyCoursePurchaseRepository: Symbol.for('CompanyCoursePurchaseRepository'),
     ChatService: Symbol.for('ChatService'),
+    CompanyChatService: Symbol.for('CompanyChatService'),
     // Controllers
     StudentAuthController: Symbol.for('StudentAuthController'),
     StudentCourseReviewService: Symbol.for('StudentCourseReviewService'),
@@ -125,6 +126,7 @@ exports.TYPES = {
     EmployeeCommentController: Symbol.for('EmployeeCommentController'),
     EmployeeCourseController: Symbol.for('EmployeeCourseController'),
     ChatController: Symbol.for('ChatController'),
+    CompanyChatController: Symbol.for('CompanyChatController'),
     StudentNotificationController: Symbol.for('StudentNotificationController'),
     StudentNotificationService: Symbol.for('StudentNotificationService'),
     StudentNotificationRepository: Symbol.for('StudentNotificationRepository'),
@@ -142,4 +144,9 @@ exports.TYPES = {
     EmployeeLeaderboardService: Symbol.for('EmployeeLeaderboardService'),
     TeacherEnrollmentService: Symbol.for('TeacherEnrollmentService'),
     TeacherEnrollmentController: Symbol.for('TeacherEnrollmentController'),
+    TransactionAdminService: Symbol.for('TransactionAdminService'),
+    TransactionAdminController: Symbol.for('TransactionAdminController'),
+    AdminReportsRepository: Symbol.for('AdminReportsRepository'),
+    AdminReportsService: Symbol.for('AdminReportsService'),
+    AdminReportsController: Symbol.for('AdminReportsController'),
 };

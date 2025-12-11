@@ -23,29 +23,39 @@ const mongoose_1 = require("mongoose");
 let ChatRepository = class ChatRepository {
     findOrCreateChat(participants) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Convert string IDs to ObjectId
             const participantIds = participants.map(id => new mongoose_1.Types.ObjectId(id));
             const chat = yield chat_1.Chat.findOne({ participants: { $all: participantIds } });
-            // console.log("found one of most chat i got ",chat)
             if (chat)
                 return chat;
             const newChat = yield chat_1.Chat.create({ participants: participantIds });
             return newChat;
         });
     }
-    saveMessage(senderId, receiverId, content, chatId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // console.log("here the saving message with :",senderId,receiverId)
-            const chat = yield this.findOrCreateChat([senderId, receiverId]);
-            // console.log("founded chat is" ,chat )
-            const message = yield message_1.Message.create({
+    saveMessage(senderId_1, content_1, chatId_1, senderType_1, receiverId_1, receiverType_1, fileUrl_1) {
+        return __awaiter(this, arguments, void 0, function* (senderId, content, chatId, senderType, receiverId, receiverType, fileUrl, messageType = 'text') {
+            let chat;
+            if (chatId) {
+                chat = yield chat_1.Chat.findById(chatId);
+            }
+            else if (receiverId) {
+                chat = yield this.findOrCreateChat([senderId, receiverId]);
+            }
+            if (!chat)
+                throw new Error("Chat not found");
+            const messageData = {
                 chatId: chat._id,
                 senderId: new mongoose_1.Types.ObjectId(senderId),
-                receiverId: new mongoose_1.Types.ObjectId(receiverId),
-                message: content, // Updated to match schema
-            });
-            console.log("chat id from repo for last seen", chatId);
-            yield chat_1.Chat.findByIdAndUpdate(chatId, { lastMessage: content });
+                senderType: senderType,
+                message: content,
+                type: messageType,
+                fileUrl: fileUrl
+            };
+            if (receiverId) {
+                messageData.receiverId = new mongoose_1.Types.ObjectId(receiverId);
+                messageData.receiverType = receiverType;
+            }
+            const message = yield message_1.Message.create(messageData);
+            yield chat_1.Chat.findByIdAndUpdate(chat._id, { lastMessage: content });
             return message;
         });
     }
@@ -55,12 +65,16 @@ let ChatRepository = class ChatRepository {
             if (before) {
                 query.createdAt = { $lt: before };
             }
-            return message_1.Message.find({ chatId: new mongoose_1.Types.ObjectId(chatId) }).populate('receiverId', 'name email profilePicture').sort({ createdAt: 1 });
+            return message_1.Message.find(query).populate('receiverId', 'name email profilePicture').sort({ createdAt: 1 });
         });
     }
-    getTeacherMessages(chatId) {
+    getTeacherMessages(chatId, limit, before) {
         return __awaiter(this, void 0, void 0, function* () {
-            return message_1.Message.find({ chatId: new mongoose_1.Types.ObjectId(chatId) }).populate('receiverId', 'name email profilePicture').sort({ createdAt: 1 });
+            const query = { chatId: new mongoose_1.Types.ObjectId(chatId) };
+            if (before) {
+                query.createdAt = { $lt: before };
+            }
+            return message_1.Message.find(query).populate('receiverId', 'name email profilePicture').sort({ createdAt: 1 });
         });
     }
     getChatDetails(chatId) {
@@ -78,6 +92,39 @@ let ChatRepository = class ChatRepository {
     getTeacherChats(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             return chat_1.Chat.find({ teacherId: new mongoose_1.Types.ObjectId(userId) }).populate('studentId', 'name email profilePicture');
+        });
+    }
+    findOrCreateCompanyGroup(companyId, groupName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let chat = yield chat_1.Chat.findOne({ companyId: new mongoose_1.Types.ObjectId(companyId), type: 'group' });
+            if (!chat) {
+                chat = yield chat_1.Chat.create({
+                    companyId: new mongoose_1.Types.ObjectId(companyId),
+                    type: 'group',
+                    groupName: groupName,
+                    participants: []
+                });
+            }
+            return chat;
+        });
+    }
+    addParticipantToGroup(chatId, participantId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return chat_1.Chat.findByIdAndUpdate(chatId, {
+                $addToSet: { participants: new mongoose_1.Types.ObjectId(participantId) }
+            }, { new: true });
+        });
+    }
+    removeParticipantFromGroup(chatId, participantId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return chat_1.Chat.findByIdAndUpdate(chatId, {
+                $pull: { participants: new mongoose_1.Types.ObjectId(participantId) }
+            }, { new: true });
+        });
+    }
+    getCompanyGroupChat(companyId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return chat_1.Chat.findOne({ companyId: new mongoose_1.Types.ObjectId(companyId), type: 'group' });
         });
     }
 };

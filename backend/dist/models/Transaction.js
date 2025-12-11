@@ -38,6 +38,7 @@ const mongoose_1 = __importStar(require("mongoose"));
 const TransactionSchema = new mongoose_1.Schema({
     userId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Student" },
     teacherId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Teacher" },
+    companyId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Company" },
     courseId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Course" },
     meetingId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Meeting" },
     type: {

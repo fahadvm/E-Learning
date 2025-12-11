@@ -1,23 +1,33 @@
-# Use Node.js official image
-FROM node:20-alpine
+# ---------- BUILD STAGE ----------
+FROM node:20-alpine AS build
 
-# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Copy dependency files
 COPY package*.json ./
 
 # Install dependencies
 RUN npm install
 
-# Copy the rest of the files
+# Copy source code
 COPY . .
 
-# If using TypeScript, build it (remove if JS only)
-RUN npm run build || echo "No build script, skipping"
+# Build TypeScript
+RUN npm run build
 
-# Expose the backend port (change if needed)
+
+# ---------- PRODUCTION STAGE ----------
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy only necessary files from build stage
+COPY --from=build /app/package*.json ./
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
+
+# Expose the backend port
 EXPOSE 8000
 
-# Start the backend
-CMD ["npm", "start"]
+# Start the backend (run compiled JS file)
+CMD ["node", "dist/index.js"]

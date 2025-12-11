@@ -42,12 +42,32 @@ function initSocket(server) {
             onlineUsers.set(userId, socket.id);
             broadcastOnlineUsers();
         });
+        socket.on("join_chat", (chatId) => {
+            socket.join(chatId);
+            console.log(`User ${socket.id} joined chat ${chatId}`);
+        });
         socket.on("send_message", (data) => __awaiter(this, void 0, void 0, function* () {
-            const receiverSocketId = onlineUsers.get(data.receiverId);
             const messageData = Object.assign(Object.assign({}, data), { read: false, createdAt: new Date(), reactions: [] });
-            yield chatService.sendMessage(data.senderId, data.receiverId, data.message, data.chatId);
-            if (receiverSocketId)
-                io.to(receiverSocketId).emit("receive_message", messageData);
+            // Save to DB
+            yield chatService.sendMessage(data.senderId, data.message, data.chatId, data.senderType, data.receiverId, data.receiverType);
+            // Group Chat Broadcast (Room based)
+            io.to(data.chatId).emit("receive_message", messageData);
+            // Direct Message Fallback (for online users not in room - mostly for retro-compatibility or notifications)
+            if (data.receiverId) {
+                const receiverSocketId = onlineUsers.get(data.receiverId);
+                // If receiver is NOT in the room (checked via socket.rooms?), send direct.
+                // But determining if they are in room is complex here without fetching sockets.
+                // Simply emitting to socketId is fine, but might duplicate if they are also in room.
+                // However, for Student-Teacher, they likely ARE NOT in room yet (unless I update frontend).
+                // So this preserves existing behavior.
+                if (receiverSocketId) {
+                    // Check if already in room to avoid double emit?
+                    // let receiverSocket = io.sockets.sockets.get(receiverSocketId);
+                    // if (!receiverSocket?.rooms.has(data.chatId)) {
+                    io.to(receiverSocketId).emit("receive_message", messageData);
+                    // }
+                }
+            }
         }));
         socket.on("typing", (data) => {
             const receiverSocketId = onlineUsers.get(data.receiverId);

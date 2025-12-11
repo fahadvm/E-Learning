@@ -21,38 +21,28 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TeacherChatService = void 0;
+exports.AdminReportsController = void 0;
 const inversify_1 = require("inversify");
 const types_1 = require("../../core/di/types");
-let TeacherChatService = class TeacherChatService {
-    constructor(chatRepository) {
-        this.chatRepository = chatRepository;
-    }
-    sendMessage(senderId, receiverId, message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.chatRepository.saveMessage(senderId, receiverId, message, 'group');
-        });
-    }
-    getMessages(chatId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.chatRepository.getTeacherMessages(chatId);
-        });
-    }
-    getChatDetails(chatId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.chatRepository.getChatDetails(chatId);
-        });
-    }
-    getUserChats(userId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const chat = yield this.chatRepository.getTeacherChats(userId);
-            return chat;
+const ResANDError_1 = require("../../utils/ResANDError");
+const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
+let AdminReportsController = class AdminReportsController {
+    constructor(_service) {
+        this._service = _service;
+        this.getDashboardStats = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = yield this._service.getDashboardStats();
+                return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Dashboard stats fetched successfully", true, data);
+            }
+            catch (error) {
+                next(error);
+            }
         });
     }
 };
-exports.TeacherChatService = TeacherChatService;
-exports.TeacherChatService = TeacherChatService = __decorate([
+exports.AdminReportsController = AdminReportsController;
+exports.AdminReportsController = AdminReportsController = __decorate([
     (0, inversify_1.injectable)(),
-    __param(0, (0, inversify_1.inject)(types_1.TYPES.ChatRepository)),
+    __param(0, (0, inversify_1.inject)(types_1.TYPES.AdminReportsService)),
     __metadata("design:paramtypes", [Object])
-], TeacherChatService);
+], AdminReportsController);

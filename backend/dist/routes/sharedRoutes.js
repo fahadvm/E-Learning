@@ -8,9 +8,11 @@ const shared_auth_route_1 = __importDefault(require("./sharedRoute/shared.auth.r
 const shared_notification_route_1 = __importDefault(require("./sharedRoute/shared.notification.route"));
 const shared_ai_route_1 = __importDefault(require("./sharedRoute/shared.ai.route"));
 // import compilerRoutes from './sharedRoute/shared.compiler.route';
+const shared_upload_route_1 = __importDefault(require("./sharedRoute/shared.upload.route"));
 const sharedRoutes = (0, express_1.Router)();
 sharedRoutes.use('/auth', shared_auth_route_1.default);
 sharedRoutes.use('/notification', shared_notification_route_1.default);
 sharedRoutes.use('/ai', shared_ai_route_1.default);
 sharedRoutes.use('/compiler', shared_ai_route_1.default);
+sharedRoutes.use('/', shared_upload_route_1.default);
 exports.default = sharedRoutes;

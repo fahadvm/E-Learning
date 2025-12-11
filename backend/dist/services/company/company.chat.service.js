@@ -21,38 +21,43 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TeacherChatService = void 0;
+exports.CompanyChatService = void 0;
 const inversify_1 = require("inversify");
 const types_1 = require("../../core/di/types");
-let TeacherChatService = class TeacherChatService {
-    constructor(chatRepository) {
-        this.chatRepository = chatRepository;
+let CompanyChatService = class CompanyChatService {
+    constructor(_chatRepo) {
+        this._chatRepo = _chatRepo;
     }
-    sendMessage(senderId, receiverId, message) {
+    createCompanyGroup(companyId, groupName) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.chatRepository.saveMessage(senderId, receiverId, message, 'group');
+            return this._chatRepo.findOrCreateCompanyGroup(companyId, groupName);
         });
     }
-    getMessages(chatId) {
+    addEmployeeToGroup(companyId, employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.chatRepository.getTeacherMessages(chatId);
+            const group = yield this._chatRepo.getCompanyGroupChat(companyId);
+            if (group) {
+                yield this._chatRepo.addParticipantToGroup(group._id, employeeId);
+            }
         });
     }
-    getChatDetails(chatId) {
+    removeEmployeeFromGroup(companyId, employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.chatRepository.getChatDetails(chatId);
+            const group = yield this._chatRepo.getCompanyGroupChat(companyId);
+            if (group) {
+                yield this._chatRepo.removeParticipantFromGroup(group._id, employeeId);
+            }
         });
     }
-    getUserChats(userId) {
+    getCompanyGroup(companyId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const chat = yield this.chatRepository.getTeacherChats(userId);
-            return chat;
+            return this._chatRepo.getCompanyGroupChat(companyId);
         });
     }
 };
-exports.TeacherChatService = TeacherChatService;
-exports.TeacherChatService = TeacherChatService = __decorate([
+exports.CompanyChatService = CompanyChatService;
+exports.CompanyChatService = CompanyChatService = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(types_1.TYPES.ChatRepository)),
     __metadata("design:paramtypes", [Object])
-], TeacherChatService);
+], CompanyChatService);
