@@ -92,3 +92,4 @@ export interface ITeacherSlot {
   password: string;
   createdAt: number;
 }
+

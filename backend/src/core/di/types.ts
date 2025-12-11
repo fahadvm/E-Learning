@@ -10,6 +10,7 @@ export const TYPES = {
     TeacherReviewRepository: Symbol.for('TeacherReviewRepository'),
     StudentTeacherReviewService: Symbol.for('StudentTeacherReviewService'),
     StudentTeacherReviewController: Symbol.for('StudentTeacherReviewController'),
+    CompanyAnalyticsRepository: Symbol.for('CompanyAnalyticsRepository'),
     StudentCourseCertificateService: Symbol.for('StudentCourseCertificateService'),
     CourseCertificateRepository: Symbol.for('CourseCertificateRepository'),
     StudentCourseCertificateController: Symbol.for('StudentCourseCertificateController'),

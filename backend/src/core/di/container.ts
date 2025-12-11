@@ -236,6 +236,8 @@ import { CompanyCartRepository } from '../../repositories/CompanyCartRepository'
 import { ICompanyCartRepository } from '../interfaces/repositories/ICompanyCartRepository';
 import { ICompanyCoursePurchaseRepository } from '../interfaces/repositories/ICompanyCoursePurchaseRepository';
 import { CompanyCoursePurchaseRepository } from '../../repositories/CompanyCoursePurchaseRepository';
+import { ICompanyAnalyticsRepository } from '../interfaces/repositories/ICompanyAnalyticsRepository';
+import { CompanyAnalyticsRepository } from '../../repositories/CompanyAnalyticsRepository';
 
 
 
@@ -268,6 +270,7 @@ container.bind<ISubscriptionPlanRepository>(TYPES.SubscriptionPlanRepository).to
 container.bind<IWishlistRepository>(TYPES.WishlistRepository).to(WishlistRepository);
 container.bind<ICartRepository>(TYPES.CartRepository).to(CartRepository);
 container.bind<IOrderRepository>(TYPES.OrderRepository).to(OrderRepository);
+container.bind<ICompanyAnalyticsRepository>(TYPES.CompanyAnalyticsRepository).to(CompanyAnalyticsRepository);
 container.bind<ICompanyOrderRepository>(TYPES.CompanyOrderRepository).to(CompanyOrderRepository);
 container.bind<ITeacherAvailabilityRepository>(TYPES.TeacherAvailabilityRepository).to(TeacherAvailabilityRepository);
 container.bind<IStudentBookingRepository>(TYPES.StudentBookingRepository).to(StudentBookingRepository);
