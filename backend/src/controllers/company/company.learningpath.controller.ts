@@ -80,8 +80,6 @@ export class CompanyLearningPathController implements ICompanyLearningPathContro
     // GET /company/learning-paths/assigned/:employeeId
     async listAssigned(req: AuthRequest, res: Response): Promise<void> {
 
-        const id = "690af26db231f92da7c44db4";
-        console.log("checker:::", mongoose.Types.ObjectId.isValid(id));
         const companyId = req.user?.id;
         if (!companyId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
@@ -89,7 +87,7 @@ export class CompanyLearningPathController implements ICompanyLearningPathContro
         if (!employeeId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
 
         const items = await this._service.listAssignedLearningPaths(companyId, employeeId);
-        sendResponse(res, STATUS_CODES.OK, MESSAGES.LEARNING_PATHS_FETCHED || "Assigned learning paths fetched", true, items);
+        sendResponse(res, STATUS_CODES.OK, MESSAGES.LEARNING_PATHS_FETCHED, true, items);
     }
 
     // POST /company/learning-paths/assign

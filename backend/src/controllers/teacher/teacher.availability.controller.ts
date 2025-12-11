@@ -1,4 +1,3 @@
-// controllers/teacher/TeacherAvailabilityController.ts
 import { inject, injectable } from 'inversify';
 import { Response } from 'express';
 import { AuthRequest } from '../../types/AuthenticatedRequest';
@@ -18,9 +17,11 @@ export class TeacherAvailabilityController {
   async saveAvailability(req: AuthRequest, res: Response): Promise<void> {
     const teacherId = req.user?.id;
     if (!teacherId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+
     const { week } = req.body;
     const saved = await this._availabilityService.saveAvailability(teacherId, week);
-    sendResponse(res, STATUS_CODES.CREATED, 'Availability saved successfully', true, saved);
+
+    sendResponse(res, STATUS_CODES.CREATED, MESSAGES.AVAILABILITY_SAVED, true, saved);
   }
 
   async getMyAvailability(req: AuthRequest, res: Response): Promise<void> {
@@ -28,6 +29,7 @@ export class TeacherAvailabilityController {
     if (!teacherId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
     const availabilities = await this._availabilityService.getAvailabilityByTeacherId(teacherId);
-    sendResponse(res, STATUS_CODES.OK, 'Availability fetched', true, availabilities);
+
+    sendResponse(res, STATUS_CODES.OK, MESSAGES.AVAILABILITY_FETCHED, true, availabilities);
   }
 }

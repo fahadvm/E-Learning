@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.studentProfileDto = void 0;
-// ✅ Map student to DTO
 const studentProfileDto = (student) => ({
     _id: student._id.toString(),
     name: student.name,

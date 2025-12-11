@@ -16,7 +16,7 @@ export class TransactionAdminController {
     getTransactions = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = await this._service.getAllTransactions(req.query);
-            return sendResponse(res, STATUS_CODES.OK, "Transactions fetched successfully", true, data);
+            return sendResponse(res, STATUS_CODES.OK,MESSAGES.TRANSACTION_FETCHED, true, data);
         } catch (error) {
             next(error);
         }

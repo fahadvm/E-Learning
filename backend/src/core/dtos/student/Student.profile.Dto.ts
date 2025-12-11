@@ -29,7 +29,6 @@ export interface IStudentProfileDTO {
   coursesProgress?: ICourseProgressDTO[];
 }
 
-// ✅ Map student to DTO
 export const studentProfileDto = (student: IStudent): IStudentProfileDTO => ({
   _id: student._id.toString(),
   name: student.name,

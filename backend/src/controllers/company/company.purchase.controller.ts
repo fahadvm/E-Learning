@@ -49,7 +49,6 @@ export class CompanyPurchaseController implements ICompanyPurchaseController {
     // GET /api/company/orders/:orderId/receipt
     async downloadReceipt(req: AuthRequest, res: Response) {
         const { orderId } = req.params;
-        console.log("downloading receipt is working successfully")
 
         const order = await CompanyOrderModel.findById(orderId).populate(
             "purchasedCourses.courseId",

@@ -13,39 +13,34 @@ export class StudentProfileController implements IStudentProfileController {
   constructor(
     @inject(TYPES.StudentProfileService)
     private readonly _studentProfileService: IStudentProfileService
-  ) { }
+  ) {}
 
   getProfile = async (req: Request, res: Response) => {
     const decoded = decodeToken(req.cookies.token);
     if (!decoded?.id) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+
     const student = await this._studentProfileService.getProfile(decoded.id);
     if (!student) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.STUDENT_DETAILS_FETCHED, true, student);
   };
 
   editProfile = async (req: Request, res: Response) => {
     const decoded = decodeToken(req.cookies.token);
     if (!decoded?.id) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+
     const updated = await this._studentProfileService.updateStudentProfile(decoded.id, req.body);
+
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.PROFILE_UPDATED, true, updated);
   };
 
-
   getContributions = async (req: Request, res: Response) => {
-    const leetcode = req.params.leetcode;
-    const github = req.params.github;
-    if (!leetcode || !github) {
-      throwError(MESSAGES.INVALID_DATA, STATUS_CODES.BAD_REQUEST);
-    }
-    const contributions = await this._studentProfileService.getContributions(leetcode,github);
-    console.log('contributions are:',contributions)
-    return sendResponse(res,STATUS_CODES.OK,"CONTRIBUTIONS_FETCHED",true,contributions);
+    const { leetcode, github } = req.params as { leetcode: string; github: string };
+
+    if (!leetcode || !github) throwError(MESSAGES.INVALID_DATA, STATUS_CODES.BAD_REQUEST);
+
+    const contributions = await this._studentProfileService.getContributions(leetcode, github);
+
+    return sendResponse(res, STATUS_CODES.OK, MESSAGES.CONTRIBUTIONS_FETCHED, true, contributions);
   };
-
-
-
-
-
-
-
 }

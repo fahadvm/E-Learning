@@ -12,13 +12,13 @@ export class StudentCourseCertificateController {
   constructor(
     @inject(TYPES.StudentCourseCertificateService)
     private readonly _certService: IStudentCourseCertificateService
-  ) { }
+  ) {}
 
   generateCourseCertificate = async (req: AuthRequest, res: Response) => {
     const studentId = req.user?.id;
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
-    const { courseId } = req.body;
+    const { courseId }: { courseId: string } = req.body;
     if (!courseId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
 
     const certificate = await this._certService.generateCourseCertificate(studentId, courseId);
@@ -36,16 +36,11 @@ export class StudentCourseCertificateController {
     const studentId = req.user?.id;
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 6;
-    const search = (req.query.search as string) || "";
+    const page: number = Number(req.query.page) || 1;
+    const limit: number = Number(req.query.limit) || 6;
+    const search: string = typeof req.query.search === "string" ? req.query.search : "";
 
-    const result = await this._certService.getMyCourseCertificates(
-      studentId,
-      page,
-      limit,
-      search
-    );
+    const result = await this._certService.getMyCourseCertificates(studentId, page, limit, search);
 
     return sendResponse(
       res,
@@ -57,34 +52,20 @@ export class StudentCourseCertificateController {
         total: result.total,
         page,
         limit,
-        totalPages: Math.ceil(result.total / limit),
+        totalPages: Math.ceil(result.total / limit)
       }
     );
   };
 
-
-  
-
   getCourseCertificate = async (req: AuthRequest, res: Response) => {
     const studentId = req.user?.id;
-    if (!studentId) throwError(MESSAGES.UNAUTHORIZED, 401);
+    if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
-    const courseId = req.params.courseId;
-    if (!courseId) throwError(MESSAGES.INVALID_ID, 400);
+    const { courseId } = req.params as { courseId: string };
+    if (!courseId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
 
-    const cert = await this._certService.getCourseCertificate(
-      studentId,
-      courseId
-    );
+    const certificate = await this._certService.getCourseCertificate(studentId, courseId);
 
-    return sendResponse(
-      res,
-      200,
-      "Certificate fetched successfully",
-      true,
-      cert
-    );
+    return sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_CERTIFICATE_FETCHED, true, certificate);
   };
-
-
 }

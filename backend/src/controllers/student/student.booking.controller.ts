@@ -1,4 +1,3 @@
-// src/controllers/student/student.booking.controller.ts
 import { Response } from 'express';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../core/di/types';
@@ -18,7 +17,7 @@ export class StudentBookingController implements IStudentBookingController {
 
     @inject(TYPES.StudentSubscriptionService)
     private readonly _subscriptionService: IStudentSubscriptionService
-  ) { }
+  ) {}
 
   getAvailability = async (req: AuthRequest, res: Response) => {
     const { teacherId } = req.params;
@@ -31,34 +30,35 @@ export class StudentBookingController implements IStudentBookingController {
   lockSlot = async (req: AuthRequest, res: Response) => {
     const studentId = req.user?.id;
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+
     const canAccess = await this._subscriptionService.hasFeature(studentId, "Video Call");
-    if (!canAccess) {
-      return throwError("You don't have access to this feature.", 403);
-    }
+    if (!canAccess) throwError(MESSAGES.FEATURE_NOT_ALLOWED, STATUS_CODES.FORBIDDEN);
+
     const { teacherId, courseId, date, day, startTime, endTime, note } = req.body;
     if (!teacherId || !courseId || !date || !day || !startTime || !endTime)
       throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
 
-    const locking = await this._bookingService.lockingSlot(studentId, teacherId, courseId, date, day, startTime, endTime, note);
-    console.log("locking", locking)
-    return sendResponse(res, STATUS_CODES.CREATED, MESSAGES.BOOKING_CREATED, true, locking);
+    const result = await this._bookingService.lockingSlot(
+      studentId, teacherId, courseId, date, day, startTime, endTime, note
+    );
+
+    return sendResponse(res, STATUS_CODES.CREATED, MESSAGES.BOOKING_CREATED, true, result);
   };
 
   bookingDetails = async (req: AuthRequest, res: Response) => {
-    const bookingId = req.params.bookingId;
-    if (!bookingId)
-      throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
+    const { bookingId } = req.params;
+    if (!bookingId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
 
     const booking = await this._bookingService.getBookingDetails(bookingId);
-    return sendResponse(res, STATUS_CODES.CREATED, MESSAGES.BOOKING_CREATED, true, booking);
+    return sendResponse(res, STATUS_CODES.OK, MESSAGES.BOOKING_DETAILS_FETCHED, true, booking);
   };
+
   bookingDetailsByPaymentId = async (req: AuthRequest, res: Response) => {
-    const paymentOrderId = req.params.paymentOrderId;
-    if (!paymentOrderId)
-      throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
+    const { paymentOrderId } = req.params;
+    if (!paymentOrderId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
 
     const booking = await this._bookingService.getBookingDetailsByPaymentId(paymentOrderId);
-    return sendResponse(res, STATUS_CODES.CREATED, MESSAGES.BOOKING_CREATED, true, booking);
+    return sendResponse(res, STATUS_CODES.OK, MESSAGES.BOOKING_DETAILS_FETCHED, true, booking);
   };
 
   cancelBooking = async (req: AuthRequest, res: Response) => {
@@ -67,7 +67,6 @@ export class StudentBookingController implements IStudentBookingController {
     if (!bookingId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
 
     const result = await this._bookingService.cancelBooking(bookingId, reason);
-
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.BOOKING_CANCELLED, true, result);
   };
 
@@ -93,18 +92,19 @@ export class StudentBookingController implements IStudentBookingController {
 
   verifyPayment = async (req: AuthRequest, res: Response) => {
     const studentId = req.user?.id;
-    if (!studentId) {
-      throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
-    }
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-      throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
-    }
+    if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
-    const verified = await this._bookingService.verifyPayment(razorpay_order_id, razorpay_payment_id, razorpay_signature);
-    if (!!verified) {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature)
+      throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
+
+    const verified = await this._bookingService.verifyPayment(
+      razorpay_order_id, razorpay_payment_id, razorpay_signature
+    );
+
+    if (verified)
       return sendResponse(res, STATUS_CODES.OK, MESSAGES.PAYMENT_VERIFIED_SUCCESSFULLY, true, verified);
-    }
+
     return sendResponse(res, STATUS_CODES.BAD_REQUEST, MESSAGES.PAYMENT_VERIFICATION_FAILED, false, verified);
   };
 
@@ -113,23 +113,24 @@ export class StudentBookingController implements IStudentBookingController {
     const { page = 1, limit = 5, status } = req.query;
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
-    const history = await this._bookingService.getHistory(studentId, Number(page), Number(limit), status as string);
+    const history = await this._bookingService.getHistory(
+      studentId, Number(page), Number(limit), status as string
+    );
+
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.HISTORY_FETCHED, true, history);
   };
 
   ScheduledCalls = async (req: AuthRequest, res: Response) => {
     const studentId = req.user?.id;
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+
     const schedules = await this._bookingService.getScheduledCalls(studentId);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.CALL_REQUESTS_FETCHED, true, schedules);
   };
-
-
 
   AvailableBookingSlots = async (req: AuthRequest, res: Response) => {
     const { teacherId } = req.params;
     const slots = await this._bookingService.getAvailableSlots(teacherId);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.AVAILABLE_SLOTS_FETCHED, true, slots);
-
   };
 }

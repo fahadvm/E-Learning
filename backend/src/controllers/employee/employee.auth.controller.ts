@@ -103,7 +103,7 @@ export class EmployeeAuthController implements IEmployeeAuthController {
 
     if (!currentPassword || !newPassword) throwError(MESSAGES.EMAIL_PASSWORD_REQUIRED, STATUS_CODES.BAD_REQUEST);
     await this._employeeAuthService.changePassword(req.user!.id, currentPassword, newPassword);
-    return sendResponse(res, STATUS_CODES.OK, "Password updated successfully", true);
+    return sendResponse(res, STATUS_CODES.OK, MESSAGES.PASSWORD_CHANGED_SUCCESS, true);
   };
 
 

@@ -1,4 +1,3 @@
-// src/controllers/shared/shared.controller.ts
 import { Request, Response } from 'express';
 import { injectable } from 'inversify';
 import { ISharedController } from '../../core/interfaces/controllers/shared/ISharedController';
@@ -9,33 +8,26 @@ import { MESSAGES } from '../../utils/ResponseMessages';
 
 @injectable()
 export class SharedController implements ISharedController {
+  constructor() {}
 
-    constructor() { }
+  refreshToken = async (req: Request, res: Response): Promise<void> => {
+    const tokens = refreshAccessToken(req.cookies.refreshToken);
+    if (!tokens) throwError(MESSAGES.TOKEN_INVALID, STATUS_CODES.UNAUTHORIZED);
 
-    refreshToken = async (req: Request, res: Response): Promise<void> => {
-        const tokens = refreshAccessToken(req.cookies.refreshToken);
-        if (!tokens) {
-            throwError(MESSAGES.TOKEN_INVALID, STATUS_CODES.UNAUTHORIZED);
-        }
-        setTokensInCookies(res, tokens.accessToken, tokens.refreshToken);
-        sendResponse(res, STATUS_CODES.OK, MESSAGES.TOKEN_REFRESHED, true);
+    setTokensInCookies(res, tokens.accessToken, tokens.refreshToken);
+    sendResponse(res, STATUS_CODES.OK, MESSAGES.TOKEN_REFRESHED, true);
+  };
 
-    };
+  uploadFile = async (req: Request, res: Response): Promise<void> => {
+    try {
+      if (!req.file) throwError(MESSAGES.FILE_REQUIRED, STATUS_CODES.BAD_REQUEST);
 
-    uploadFile = async (req: Request, res: Response): Promise<void> => {
-        try {
-            if (!req.file) {
-                return throwError(MESSAGES.FILE_REQUIRED, STATUS_CODES.BAD_REQUEST);
-            }
-            // The file is already uploaded to Cloudinary or we have the buffer if using memory storage
-            // If using uploadToCloudinary utility with memory storage:
-            const { uploadToCloudinary } = await import('../../utils/upload');
-            const url = await uploadToCloudinary(req.file.buffer, 'chat-uploads', 'auto');
+      const { uploadToCloudinary } = await import('../../utils/upload');
+      const url = await uploadToCloudinary(req.file.buffer, 'chat-uploads', 'auto');
 
-            sendResponse(res, STATUS_CODES.OK, "File uploaded successfully", true, { url });
-        } catch (error) {
-            console.error("Upload error:", error);
-            throwError(MESSAGES.FILE_UPLOAD_FAILED, STATUS_CODES.INTERNAL_SERVER_ERROR);
-        }
+      sendResponse(res, STATUS_CODES.OK, MESSAGES.FILE_UPLOADED_SUCCESSFULLY, true, { url });
+    } catch (error) {
+      throwError(MESSAGES.FILE_UPLOAD_FAILED, STATUS_CODES.INTERNAL_SERVER_ERROR);
     }
+  };
 }

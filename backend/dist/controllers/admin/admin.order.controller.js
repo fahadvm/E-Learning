@@ -41,7 +41,6 @@ let AdminOrderController = class AdminOrderController {
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COMPANY_ORDERS_FETCHED, true, orders);
         });
     }
-    // ✅ Get all student purchases
     getStudentOrders(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const orders = yield this._orderService.getStudentOrders();

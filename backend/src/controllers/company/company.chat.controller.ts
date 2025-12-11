@@ -16,8 +16,6 @@ export class CompanyChatController {
     getCompanyGroup = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const companyId = req.params.companyId;
-            // In a real app, I should verify if the requester (Company Admin or Employee) belongs to this company.
-            // Assuming middleware handles auth/role check.
             const group = await this._companyChatService.getCompanyGroup(companyId);
             return sendResponse(res, STATUS_CODES.OK, "Company group fetched", true, group);
         } catch (error) {

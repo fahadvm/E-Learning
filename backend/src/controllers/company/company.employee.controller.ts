@@ -76,7 +76,7 @@ export class CompanyEmployeeController implements ICompanyEmployeeController {
     const { reason } = req.body;
 
     if (!employeeId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
-    if (!reason) throwError('Rejection reason is required', STATUS_CODES.BAD_REQUEST);
+    if (!reason) throwError(MESSAGES.REJECTION_REASON_REQUIRED, STATUS_CODES.BAD_REQUEST);
 
     const employee = await this._employeeService.rejectingEmployee(employeeId, reason);
     sendResponse(res, STATUS_CODES.OK, MESSAGES.EMPLOYEE_REQUEST_REJECTED, true, employee);
@@ -87,14 +87,14 @@ export class CompanyEmployeeController implements ICompanyEmployeeController {
     const { email } = req.body;
 
     if (!companyId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
-    if (!email) throwError('Email is required', STATUS_CODES.BAD_REQUEST);
+    if (!email) throwError(MESSAGES.EMAIL_REQUIRED, STATUS_CODES.BAD_REQUEST);
 
     const employee = await this._employeeService.inviteEmployee(companyId, email);
 
     if (employee) {
-      sendResponse(res, STATUS_CODES.OK, 'Invitation sent to employee', true, employee);
+           sendResponse(res, STATUS_CODES.OK, MESSAGES.INVITATION_SENT, true, employee);
     } else {
-      sendResponse(res, STATUS_CODES.OK, 'Employee not found. Invitation link created.', true, { email });
+      sendResponse(res, STATUS_CODES.OK, MESSAGES.INVITE_LINK_CREATED, true, { email });
     }
   }
 

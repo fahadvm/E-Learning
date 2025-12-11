@@ -21,10 +21,10 @@ export class CompanyAnalyticsController {
         const validRanges = ['week', 'month', 'year'];
 
         if (!range || !validRanges.includes(range as string)) {
-            throwError('Invalid range. Must be week, month, or year', STATUS_CODES.BAD_REQUEST);
+            throwError(MESSAGES.INVALID_RANGES, STATUS_CODES.BAD_REQUEST);
         }
 
         const stats = await this._analyticsService.getTrackerStats(decoded.id, range as 'week' | 'month' | 'year');
-        sendResponse(res, STATUS_CODES.OK, 'Tracker stats fetched successfully', true, stats);
+        sendResponse(res, STATUS_CODES.OK,MESSAGES.TRACKER_STATUS_FETCHED, true, stats);
     }
 }

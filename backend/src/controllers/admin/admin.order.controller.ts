@@ -31,7 +31,6 @@ export class AdminOrderController implements IAdminOrderController {
     );
   }
 
-  // ✅ Get all student purchases
   async getStudentOrders(req: Request, res: Response): Promise<void> {
     const orders = await this._orderService.getStudentOrders();
 

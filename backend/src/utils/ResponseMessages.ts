@@ -5,12 +5,57 @@ export enum MESSAGES {
   LEARNING_PATH_UNASSIGNED = "Learning path unassigned",
   COMPANY_FOUND = 'Company found',
   REQUEST_SENT = 'Request sent',
+CONTRIBUTIONS_FETCHED="Contributions fetched successfully",
+AVAILABILITY_SAVED="Availability saved successfully",
+EARNINGS_HISTORY_FETCHED="Earnings history fetched successfully",
+EARNINGS_STATS_FETCHED="Earnings stats fetched successfully",
+
+  COURSE_CERTIFICATE_FETCHED = "Course certificate fetched successfully",
+  RATING_COURSE_REQUIRED="Rating and course ID are required",
+  COURSE_REVIEW_SAVED="Course review saved successfully",
+  COURSE_REVIEWS_FETCHED="Course reviews fetched successfully",
+  COURSE_REVIEW_DELETED="Course review deleted successfully",
+
   REQUEST_CANCELLED = 'Request cancelled',
+  FILE_UPLOADED_SUCCESSFULLY = "File uploaded successfully",
+  LEARNING_PATH_DETAILS_FETCHED = "Learning path details fetched successfully",
+  LEARNING_PATH_PROGRESS_UPDATED = "Learning path progress updated successfully",
+  LEARNING_PATH_STATUS_UPDATED = "Learning path status updated successfully",
+  CURRENT_NEW_PASSWORD_REQUIRED = "Current password and new password are required",
+  PASSWORD_UPDATED_SUCCESS = "Password updated successfully",
+  NEW_EMAIL_REQUIRED = "New email is required",
+  OTP_SENT_NEW_EMAIL = "OTP sent to new email",
+  FEATURE_NOT_ALLOWED = "You don't have access to this feature.",
+  BOOKING_DETAILS_FETCHED = "Booking details fetched successfully",
+
+
+
   LEFT_COMPANY = 'Left company',
+  CERTIFICATE_AND_TAXID_REQUIRED = "Both certificate and tax ID documents are required",
+  INVALID_EMAIL_FORMAT = "Invalid email format",
+  EMAIL_AND_OTP_REQUIRED = "Email and OTP are required",
+  EMAIL_UPDATED_SUCCESS = "Email updated successfully",
+  PASSWORDS_REQUIRED = "Current password and new password are required",
+  PASSWORD_CHANGED_SUCCESS = "Password changed successfully",
+  LESSON_ID_REQUIRED = "Lesson ID is required",
+  LEARNING_TIME_TRACKED = "Learning time tracked successfully",
+  LANGUAGE_AND_CODE_REQUIRED = "Language and code are required",
+  UNSUPPORTED_LANGUAGE = "Unsupported programming language",
+
+
+
+  INVITATION_FETCHED = "Invitation fetched successfully",
+  INVITATION_ACCEPTED = "Invitation accepted successfully",
+  INVITATION_REJECTED = "Invitation rejected successfully",
+
+
   REQUESTED_EMPLOYEES_FETCHED = 'Requested employees fetched successfully',
+  INVALID_RANGES = 'Invalid range. Must be week, month, or year',
+  TRANSACTION_FETCHED = 'Transactions fetched successfully',
   COURSE_CERTIFICATE_LIST_FETCHED = 'COURSE CERTIFICATE LIST FETCHED successfully',
   COURSE_CERTIFICATE_GENERATED = 'COURSE CERTIFICATE GENERATED successfully',
   EMPLOYEE_REQUEST_APPROVED = 'Employee request approved successfully',
+  TRACKER_STATUS_FETCHED = 'Tracker stats fetched successfully',
   EMPLOYEE_REQUEST_REJECTED = 'Employee request rejected',
   GOOGLE_TOKEN_INVALID = 'Invalid Google token',
   GOOGLE_TOKEN_MISSING_FIELDS = 'Google token missing required fields',
@@ -22,9 +67,13 @@ export enum MESSAGES {
   NO_REQUEST_FOUND = 'No request found',
   NOT_PART_OF_COMPANY = 'Not part of any company',
   ORDERS_NOT_FOUND = 'No orders found',
+  LEADERBOARD_FETCHED = "Leaderboard fetched successfully",
+  LEADERBOARD_SEARCH_SUCCESS = "Leaderboard search completed successfully",
+
+  DASHBOARD_STATS_FETCHED = '"Dashboard stats fetched successfully"',
   COMPANY_ORDERS_FETCHED = 'Company orders fetched successfully',
   STUDENT_ORDERS_FETCHED = 'Student orders fetched successfully',
-  VERIFICATION_REQUESTS_FETCHED= 'Verification requests fetched.',
+  VERIFICATION_REQUESTS_FETCHED = 'Verification requests fetched.',
   AVAILABILITY_FETCHED = 'Teacher availability fetched successfully.',
   PURCHASE_HISTORY_FETCHED = 'Purchase history fetched successfully.',
   BOOKING_CREATED = 'Booking created successfully.',
@@ -64,14 +113,14 @@ export enum MESSAGES {
 
 
 
-  REVIEW_ADDED= "Review added successfully",
-  REVIEW_UPDATED= "Review updated successfully",
-  REVIEW_DELETED= "Review deleted successfully",
-  REVIEW_LIST_FETCHED= "Teacher reviews fetched successfully",
-  RATING_STATS_FETCHED= "Teacher rating statistics fetched successfully",
+  REVIEW_ADDED = "Review added successfully",
+  REVIEW_UPDATED = "Review updated successfully",
+  REVIEW_DELETED = "Review deleted successfully",
+  REVIEW_LIST_FETCHED = "Teacher reviews fetched successfully",
+  RATING_STATS_FETCHED = "Teacher rating statistics fetched successfully",
 
-  ALREADY_REVIEWED= "You have already reviewed this teacher",
-  REVIEW_NOT_FOUND= "Review not found",
+  ALREADY_REVIEWED = "You have already reviewed this teacher",
+  REVIEW_NOT_FOUND = "Review not found",
 
 
 
@@ -329,5 +378,24 @@ export enum MESSAGES {
 
   //order
   ORDER_CREATED_SUCCESSFULLY = 'Order created successfully',
+  // Common
 
-}
+  // Employee Fetch
+
+
+  // Invite
+  INVITATION_SENT = "Invitation sent to employee",
+  INVITE_LINK_CREATED = "Employee not found. Invitation link created.",
+
+  // Search
+  SEARCH_QUERY_REQUIRED = "Search query is required",
+  EMPLOYEES_FOUND = "Employees found",
+
+  // Removal
+  EMPLOYEE_REMOVED = "Employee removed from company",
+
+  // Required Fields
+  REJECTION_REASON_REQUIRED = "Rejection reason is required",
+};
+
+

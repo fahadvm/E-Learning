@@ -42,13 +42,7 @@ export class TeacherAuthController implements ITeacherAuthController {
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.LOGOUT_SUCCESS, true);
   };
 
-//   googleAuth = async (req: Request, res: Response) => {
-//     const { email, googleId } = req.body;
-//     if (!email || !googleId) throwError(MESSAGES.GOOGLE_AUTH_REQUIRED, STATUS_CODES.BAD_REQUEST);
-//     const r = await this._teacherAuthService.googleAuth(req.body);
-//     setTokensInCookies(res, r.token, r.refreshToken);
-//     return sendResponse(res, STATUS_CODES.OK, MESSAGES.GOOGLE_AUTH_SUCCESS, true, r.user);
-//   };
+
 
   sendForgotPasswordOtp = async (req: Request, res: Response) => {
     if (!req.body.email) throwError(MESSAGES.EMAIL_REQUIRED, STATUS_CODES.BAD_REQUEST);
