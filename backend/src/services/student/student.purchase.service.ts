@@ -20,7 +20,6 @@ import { ICourseProgress } from '../../models/Student';
 import { IStudentRepository } from '../../core/interfaces/repositories/IStudentRepository';
 import logger from '../../utils/logger';
 import { Transaction } from '../../models/Transaction';
-import { Messages } from 'openai/resources/chat/completions';
 import { ITransactionRepository } from '../../core/interfaces/repositories/ITransactionRepository';
 import { IWalletRepository } from '../../core/interfaces/repositories/IwalletRepository';
 
@@ -231,6 +230,19 @@ export class StudentPurchaseService implements IStudentPurchaseService {
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     const student = await this._studentRepo.findById(studentId);
     if (!student) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    const purchasedCourseIds = await this._orderRepo.getOrderedCourseIds(studentId);
+
+    const hasPurchased = purchasedCourseIds.some(
+      (id) => id.toString() === courseId.toString()
+    );
+
+    if (!hasPurchased) {
+      throwError(
+        MESSAGES.COURSE_NOT_PURCHASED,
+        STATUS_CODES.NOT_FOUND
+      );
+    }
+
     const progress = await this._studentRepo.getOrCreateCourseProgress(studentId, courseId);
     const recommended = await this._courseRepo.findRecommendedCourses(courseId, course.category, course.level, 6)
     return { course, progress, recommended };

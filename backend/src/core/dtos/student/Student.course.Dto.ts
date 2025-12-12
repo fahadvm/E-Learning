@@ -1,4 +1,5 @@
-import { ICourse, ILesson, IModule , } from '../../../models/Course';
+import { ICourse, ILesson, IModule, } from '../../../models/Course';
+import { ITeacher } from '../../../models/Teacher';
 // Request DTO for filtering courses
 
 export interface GetStudentCoursesRequestDTO {
@@ -18,13 +19,20 @@ export interface GetStudentCoursesRequestDTO {
 export interface IStudentLessonDTO {
   title: string;
   content?: string;
-  videoUrl?: string;
+  duration?: number;
 }
 
 export interface IStudentModuleDTO {
   title: string;
   description?: string;
   lessons: IStudentLessonDTO[];
+}
+
+export interface ICourseTeacherDTO {
+  _id: string;
+  name: string;
+  email: string;
+  profilePicture?: string;
 }
 
 export interface IStudentCourseDTO {
@@ -39,26 +47,29 @@ export interface IStudentCourseDTO {
   isVerified: boolean;
   status: 'pending' | 'verified' | 'rejected';
   rejectionReason?: string;
-  teacherId?: string;
+  learningOutcomes: string[];
+  requirements: string[];
+  teacherId?: ICourseTeacherDTO;
   modules: IStudentModuleDTO[];
   language: string;
-  totalDuration:number|undefined;
-  reviewCount :number;
-  averageRating :number;
+  totalDuration: number | undefined;
+  reviewCount: number;
+  averageRating: number;
   createdAt: Date;
   updatedAt: Date;
 }
 export interface PaginatedCourseDTO {
   data: IStudentCourseDTO[];
   total: number;
-  totalPages:number;
+  totalPages: number;
 }
 
 
 export const StudentLessonDTO = (lesson: ILesson): IStudentLessonDTO => ({
   title: lesson.title,
   content: lesson.description,
-  videoUrl: lesson.videoFile,
+  duration: lesson.duration
+
 });
 
 export const StudentModuleDTO = (module: IModule): IStudentModuleDTO => ({
@@ -79,12 +90,21 @@ export const StudentCourseDTO = (course: ICourse): IStudentCourseDTO => ({
   isVerified: course.isVerified,
   status: course.status as 'pending' | 'verified' | 'rejected',
   rejectionReason: course.rejectionReason,
-  teacherId: course.teacherId?.toString(),
+  teacherId: course.teacherId && typeof course.teacherId === "object"
+    ? {
+      _id: (course.teacherId as ITeacher)._id.toString(),
+      name: (course.teacherId as ITeacher).name,
+      email: (course.teacherId as ITeacher).email,
+      profilePicture: (course.teacherId as ITeacher).profilePicture,
+    }
+    : undefined,
   modules: course.modules?.map(StudentModuleDTO) || [],
-  totalDuration: course.totalDuration??undefined,
-    reviewCount :course.reviewCount,
-  averageRating :course.averageRating,
-  language : course.language,
+  learningOutcomes: course.learningOutcomes || [],
+  requirements: course.requirements || [],
+  totalDuration: course.totalDuration ?? undefined,
+  reviewCount: course.reviewCount,
+  averageRating: course.averageRating,
+  language: course.language,
   createdAt: course.createdAt!,
   updatedAt: course.updatedAt!,
 });

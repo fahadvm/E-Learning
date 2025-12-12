@@ -55,7 +55,7 @@ export interface CourseCreateDTO {
   isPublished: boolean;
   isTechnicalCourse: boolean;
   modules: ModuleDTO[];
-  teacherId?: mongoose.Types.ObjectId;
+  teacherId?: mongoose.Types.ObjectId | ITeacher;
 }
 
 export interface IPaginationResponse<T> {

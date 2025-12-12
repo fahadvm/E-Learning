@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 import { ObjectId } from 'mongodb';
+import { ITeacher } from './Teacher';
 
 export interface ILesson {
   _id?: ObjectId
@@ -33,7 +34,7 @@ export interface ICourse extends Document {
   isPublished: boolean;
   status: string;
   rejectionReason?: string;
-  teacherId?: mongoose.Types.ObjectId;
+  teacherId?: mongoose.Types.ObjectId | ITeacher;
   teacherName?: string;
   totalDuration?: number; // total duration in minutes
   reviews?: mongoose.Types.ObjectId[];

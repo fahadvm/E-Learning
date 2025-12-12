@@ -172,5 +172,7 @@ export const TYPES = {
     AdminReportsRepository: Symbol.for('AdminReportsRepository'),
     AdminReportsService: Symbol.for('AdminReportsService'),
     AdminReportsController: Symbol.for('AdminReportsController'),
+    TeacherDashboardService: Symbol.for('TeacherDashboardService'),
+    TeacherDashboardController: Symbol.for('TeacherDashboardController'),
 
 };

@@ -77,4 +77,11 @@ export const TEACHER_ROUTES = {
   enrollments: {
     base: TEACHER_ENROLLMENTS,
   },
+
+  dashboard: {
+    stats: `${TEACHER_BASE}/dashboard/stats`,
+    topCourses: `${TEACHER_BASE}/dashboard/top-courses`,
+    earningsGraph: `${TEACHER_BASE}/dashboard/earnings-graph`,
+    schedule: `${TEACHER_BASE}/dashboard/schedule`,
+  },
 };

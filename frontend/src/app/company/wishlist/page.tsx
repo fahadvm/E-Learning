@@ -96,11 +96,8 @@ const WishlistPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       <Header />
-      <div className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-extrabold text-gray-900 mb-8 text-center">
-          Your Wishlist
-        </h1>
-
+      <div className="container mt-10 mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        
         {courses.length > 0 ? (
           <div className="max-w-3xl mx-auto">
             {courses.map((course) => (

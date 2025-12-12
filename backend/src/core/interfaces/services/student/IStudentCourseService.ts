@@ -5,7 +5,7 @@ import { ICourseProgress } from '../../../../models/Student';
 
 export interface IStudentCourseService {
   getAllCourses(filters: GetStudentCoursesRequestDTO): Promise<PaginatedCourseDTO>;
-  getCourseDetail(courseId: string): Promise<{course:ICourse ,recommendedCourses:ICourse[]}>;
+  getCourseDetail(courseId: string): Promise<{ course: IStudentCourseDTO; recommendedCourses: IStudentCourseDTO[] }>;
   markLessonComplete(studentId: string, courseId: string, lessonId: string): Promise<ICourseProgress>;
   saveNotes(studentId: string, courseId: string, notes: string): Promise<ICourseProgress>
   getResources(courseId: string): Promise<ICourseResource[]>

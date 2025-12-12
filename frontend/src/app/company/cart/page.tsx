@@ -6,6 +6,7 @@ import { Trash2, Check } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
+import Header from "@/components/company/Header";
 
 interface ICartCourse {
   _id: string;
@@ -80,6 +81,8 @@ export default function CompanyCart() {
   if (loading) return <p className="text-center p-10">Loading...</p>;
 
   return (
+    <>
+      <Header/>
     <div className="p-10">
       <h1 className="text-3xl font-bold mb-6">Your Cart</h1>
 
@@ -201,5 +204,6 @@ export default function CompanyCart() {
         </div>
       )}
     </div>
+    </>
   );
 }

@@ -24,7 +24,7 @@ export const teacherProfileApi = {
   createProfile: (data: any) => post(TEACHER_ROUTES.profile.base, data),
   editProfile: (data: any) => patch(TEACHER_ROUTES.profile.base, data),
   sendVerificationRequest: (data: any) => patch(TEACHER_ROUTES.profile.base, data),
-  
+
 };
 
 export const teacherAvailabilityApi = {
@@ -62,8 +62,8 @@ export const teacherCourseApi = {
   getMyCourses: () => get(TEACHER_ROUTES.courses.myCourses),
   getCourseById: (courseId: string) => get(TEACHER_ROUTES.courses.details(courseId)),
   getResources: (courseId: string) => get(TEACHER_ROUTES.courses.fetchResources(courseId)),
-  addResources: (courseId: string,data:any) => post(TEACHER_ROUTES.courses.uploadResource(courseId),data),
-  deleteResources: (resourceId:string) => get(TEACHER_ROUTES.courses.deleteResource(resourceId)),
+  addResources: (courseId: string, data: any) => post(TEACHER_ROUTES.courses.uploadResource(courseId), data),
+  deleteResources: (resourceId: string) => get(TEACHER_ROUTES.courses.deleteResource(resourceId)),
 
   // Note: If you have a separate endpoint for detailed fetching versus basic fetching, use it.
   // Assuming getCourseById or similar is used for editing as well.
@@ -80,4 +80,11 @@ export const teacherEarningsApi = {
 
 export const teacherEnrollmentApi = {
   getEnrollments: () => get(TEACHER_ROUTES.enrollments.base),
+};
+
+export const teacherDashboardApi = {
+  getStats: () => get(TEACHER_ROUTES.dashboard.stats),
+  getTopCourses: () => get(TEACHER_ROUTES.dashboard.topCourses),
+  getEarningsGraph: (timeframe: string = '6months') => get(TEACHER_ROUTES.dashboard.earningsGraph, { timeframe }),
+  getUpcomingSchedule: () => get(TEACHER_ROUTES.dashboard.schedule),
 };

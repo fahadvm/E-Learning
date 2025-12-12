@@ -1,10 +1,69 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "@/components/teacher/header";
 import { Search, Plus, Edit, Users, Bell, Calendar, TrendingUp, Star } from "lucide-react";
+import { teacherDashboardApi } from "@/services/APIservices/teacherApiService";
+import { IDashboardStats, ICoursePerformance, IEarningsData, IScheduleItem } from "@/types/teacher/dashboard";
+import { toast } from "sonner"; // Assuming sonner is used for toasts, or console.error
 
 export default function HeroSection() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const [stats, setStats] = useState<IDashboardStats | null>(null);
+  const [topCourses, setTopCourses] = useState<ICoursePerformance[]>([]);
+  const [earningsGraph, setEarningsGraph] = useState<IEarningsData[]>([]);
+  const [schedule, setSchedule] = useState<IScheduleItem[]>([]);
+  const [earningsTimeframe, setEarningsTimeframe] = useState("6months");
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const [statsRes, topCoursesRes, earningsRes, scheduleRes] = await Promise.all([
+        teacherDashboardApi.getStats(),
+        teacherDashboardApi.getTopCourses(),
+        teacherDashboardApi.getEarningsGraph(earningsTimeframe),
+        teacherDashboardApi.getUpcomingSchedule()
+      ]);
+
+      setStats(statsRes.data.data);
+      setTopCourses(topCoursesRes.data.data);
+      setEarningsGraph(earningsRes.data.data);
+      setSchedule(scheduleRes.data.data);
+    } catch (error) {
+      console.error("Failed to fetch dashboard data", error);
+      // toast.error("Failed to load dashboard data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTimeframeChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const timeframe = e.target.value;
+    setEarningsTimeframe(timeframe);
+    // Fetch only earnings graph
+    try {
+      const res = await teacherDashboardApi.getEarningsGraph(timeframe);
+      setEarningsGraph(res.data.data);
+    } catch (error) {
+      console.error("Failed to update earnings graph", error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <div className="flex items-center justify-center min-h-screen bg-slate-900">
+          <div className="text-white text-xl">Loading Dashboard...</div>
+        </div>
+      </>
+    )
+  }
 
   return (
     <>
@@ -74,16 +133,16 @@ export default function HeroSection() {
               </div>
             </div>
 
-            {/* Right Visual */}
+            {/* Right Visual - Stats from API ?? or Keep static as "Platform Stats" */}
             <div className="hidden lg:block">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-tr from-blue-400/20 to-purple-600/20 blur-3xl rounded-3xl" />
                 <div className="relative bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-8 shadow-2xl">
                   <div className="grid grid-cols-2 gap-6">
                     {[
-                      { icon: TrendingUp, label: "Active Students", value: "2,847" },
-                      { icon: Calendar, label: "Courses", value: "156" },
-                      { icon: Users, label: "Active Companies", value: "89" },
+                      { icon: TrendingUp, label: "Active Students", value: stats?.activeStudents || 0 }, // Dynamic
+                      { icon: Calendar, label: "Total Courses", value: stats?.totalCourses || 0 },   // Dynamic
+                      { icon: Users, label: "Active Companies", value: stats?.activeCompanies || 0 }, // Dynamic
                       { icon: Bell, label: "Daily Updates", value: "24/7" },
                     ].map((stat, i) => (
                       <div key={i} className="text-center space-y-2">
@@ -105,8 +164,8 @@ export default function HeroSection() {
       {/* Premium Dashboard Cards */}
       <section className="container mx-auto px-6 py-16 max-w-7xl">
         <div className="grid lg:grid-cols-3 gap-8 mb-12">
-          {/* company progress */}
-                     <div className="group relative bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 hover:-translate-y-2">
+          {/* company progress - MOCKED / TODO: connect to real data if API supports it (currently API returns activeCompanies count only) */}
+          <div className="group relative bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 hover:-translate-y-2">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-600/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-6">
@@ -117,19 +176,20 @@ export default function HeroSection() {
               </div>
 
               <div className="space-y-6 mb-8">
+                {/* Placeholder for now as API doesn't return detailed company progress list yet */}
                 {[
-                  { name: "John Doe", progress: 75, color: "from-blue-400 to-blue-600" },
-                  { name: "Jane Smith", progress: 90, color: "from-purple-400 to-pink-600" },
-                ].map((student) => (
-                  <div key={student.name} className="space-y-2">
+                  { name: "Tech Corp", progress: 75, color: "from-blue-400 to-blue-600" },
+                  { name: "Innovate Ltd", progress: 90, color: "from-purple-400 to-pink-600" },
+                ].map((company) => (
+                  <div key={company.name} className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="font-medium text-gray-200">{student.name}</span>
-                      <span className="text-gray-400">{student.progress}%</span>
+                      <span className="font-medium text-gray-200">{company.name}</span>
+                      <span className="text-gray-400">{company.progress}%</span>
                     </div>
                     <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden">
                       <div
-                        className={`h-full bg-gradient-to-r ${student.color} rounded-full transition-all duration-1000 ease-out`}
-                        style={{ width: `${student.progress}%` }}
+                        className={`h-full bg-gradient-to-r ${company.color} rounded-full transition-all duration-1000 ease-out`}
+                        style={{ width: `${company.progress}%` }}
                       />
                     </div>
                   </div>
@@ -138,7 +198,7 @@ export default function HeroSection() {
 
               <button className="w-full py-4 bg-gradient-to-r from-purple-500 to-pink-600 text-white font-semibold rounded-2xl hover:shadow-xl hover:shadow-purple-500/30 transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
                 <Users className="w-5 h-5" />
-                View All Company
+                View All Companies
               </button>
             </div>
           </div>
@@ -156,12 +216,14 @@ export default function HeroSection() {
               </div>
 
               <ul className="space-y-4 mb-8">
-                {["Mathematics 101", "Physics for Beginners", "Advanced Calculus"].map((course, i) => (
-                  <li key={course} className="flex items-center justify-between group/item">
-                    <span className="text-gray-200 group-hover/item:text-white transition-colors">{course}</span>
-                
+                {/*  Show top 3 courses or just a generic list if we don't have recent courses list from API (using topCourses for now or placeholder) */}
+                {topCourses.length > 0 ? topCourses.slice(0, 3).map((course, i) => (
+                  <li key={course.courseId} className="flex items-center justify-between group/item">
+                    <span className="text-gray-200 group-hover/item:text-white transition-colors truncate max-w-[200px]">{course.title}</span>
                   </li>
-                ))}
+                )) : (
+                  <li className="text-gray-400">No courses yet</li>
+                )}
               </ul>
 
               <button className="w-full py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-2xl hover:shadow-xl hover:shadow-blue-500/30 transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
@@ -183,6 +245,7 @@ export default function HeroSection() {
               </div>
 
               <div className="space-y-6 mb-8">
+                {/* MOCKED - API doesn't return student progress list yet */}
                 {[
                   { name: "John Doe", progress: 75, color: "from-blue-400 to-blue-600" },
                   { name: "Jane Smith", progress: 90, color: "from-purple-400 to-pink-600" },
@@ -221,23 +284,21 @@ export default function HeroSection() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { day: "Monday", schedule: "Math 101: 10 AM - 12 PM", color: "from-blue-500 to-blue-600" },
-                { day: "Tuesday", schedule: "Physics: 1 PM - 3 PM", color: "from-purple-500 to-purple-600" },
-                { day: "Wednesday", schedule: "Calculus: 9 AM - 11 AM", color: "from-pink-500 to-pink-600" },
-                { day: "Thursday", schedule: "Office Hours: 2 PM - 4 PM", color: "from-amber-500 to-amber-600" },
-              ].map((item) => (
+              {schedule.length > 0 ? schedule.map((item, i) => (
                 <div
-                  key={item.day}
+                  key={item.id}
                   className="group relative p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl hover:border-white/30 transition-all duration-300 hover:scale-105"
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-20 rounded-2xl transition-opacity`} />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${i % 2 === 0 ? "from-blue-500 to-blue-600" : "from-purple-500 to-purple-600"} opacity-0 group-hover:opacity-20 rounded-2xl transition-opacity`} />
                   <div className="relative">
                     <p className="text-lg font-bold text-white mb-1">{item.day}</p>
-                    <p className="text-sm text-gray-300">{item.schedule}</p>
+                    <p className="text-sm text-gray-300">{item.timeRange}</p>
+                    <p className="text-xs text-blue-300 mt-2">{item.title}</p>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <div className="text-gray-400 col-span-4">No upcoming schedule found.</div>
+              )}
             </div>
           </div>
         </div>
@@ -252,9 +313,9 @@ export default function HeroSection() {
             {/* Earnings Overview Cards */}
             <div className="lg:col-span-2 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
-                { label: "Total Earnings", value: "$24,850", change: "+12.5%", color: "from-emerald-500 to-teal-600" },
-                { label: "This Month", value: "$4,920", change: "+8.2%", color: "from-cyan-500 to-blue-600" },
-                { label: "Pending Payout", value: "$1,200", change: "Ready", color: "from-amber-500 to-orange-600" },
+                { label: "Total Earnings", value: `$${stats?.totalEarnings.toLocaleString() || 0}`, change: "Lifetime", color: "from-emerald-500 to-teal-600" },
+                { label: "This Month", value: `$${stats?.monthlyEarnings.toLocaleString() || 0}`, change: "Current Month", color: "from-cyan-500 to-blue-600" },
+                { label: "Pending Payout", value: "$0", change: "Ready", color: "from-amber-500 to-orange-600" }, // Mocked for now
               ].map((stat, i) => (
                 <div
                   key={i}
@@ -264,8 +325,8 @@ export default function HeroSection() {
                   <div className="relative z-10">
                     <p className="text-sm text-gray-400 font-medium">{stat.label}</p>
                     <p className="text-3xl font-bold text-white mt-2">{stat.value}</p>
-                    <p className={`text-sm mt-2 flex items-center gap-1 ${stat.change.includes('+') ? 'text-emerald-400' : 'text-amber-400'}`}>
-                      {stat.change.includes('+') ? <TrendingUp className="w-4 h-4" /> : <Calendar className="w-4 h-4" />}
+                    <p className={`text-sm mt-2 flex items-center gap-1 text-emerald-400`}>
+                      <TrendingUp className="w-4 h-4" />
                       {stat.change}
                     </p>
                   </div>
@@ -273,7 +334,7 @@ export default function HeroSection() {
               ))}
             </div>
 
-            {/* Request Payout Button */}
+            {/* Request Payout Button - Static for now */}
             <div className="flex items-center justify-center">
               <button className="group relative w-full max-w-xs px-8 py-6 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-lg rounded-3xl shadow-2xl hover:shadow-emerald-500/40 transform hover:scale-105 transition-all duration-300 overflow-hidden">
                 <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity" />
@@ -293,38 +354,35 @@ export default function HeroSection() {
             {/* Earnings Chart */}
             <div className="relative bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-white">Revenue Trend (Last 6 Months)</h3>
-                <select className="px-4 py-2 bg-white/10 border border-white/20 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-cyan-400">
-                  <option>Last 6 Months</option>
-                  <option>Last Year</option>
+                <h3 className="text-xl font-bold text-white">Revenue Trend</h3>
+                <select
+                  value={earningsTimeframe}
+                  onChange={handleTimeframeChange}
+                  className="px-4 py-2 bg-white/10 border border-white/20 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-cyan-400">
+                  <option value="6months">Last 6 Months</option>
+                  <option value="year">Last Year</option>
                 </select>
               </div>
 
-              {/* Mock Chart Bars */}
+              {/* Chart Bars */}
               <div className="flex items-end justify-between h-64 gap-3">
-                {[
-                  { month: "Mar", value: 3200, active: false },
-                  { month: "Apr", value: 4100, active: false },
-                  { month: "May", value: 3800, active: false },
-                  { month: "Jun", value: 5200, active: true },
-                  { month: "Jul", value: 4900, active: false },
-                  { month: "Aug", value: 4920, active: true },
-                ].map((data, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                    <div className="relative w-full bg-white/10 rounded-t-full overflow-hidden">
-                      <div
-                        className={`w-full transition-all duration-1000 ease-out rounded-t-full ${data.active ? 'bg-gradient-to-t from-cyan-500 to-cyan-400' : 'bg-gradient-to-t from-gray-600 to-gray-500'
-                          }`}
-                        style={{ height: `${(data.value / 5500) * 100}%` }}
-                      />
-                      {data.active && (
-                        <div className="absolute inset-x-0 top-0 h-1 bg-white/40 blur-md" />
-                      )}
+                {earningsGraph.length > 0 ? earningsGraph.map((data, i) => {
+                  const maxAmount = Math.max(...earningsGraph.map(e => e.amount), 100); // Avoid div by zero
+                  const heightPercent = (data.amount / maxAmount) * 100;
+
+                  return (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-2">
+                      <div className="relative w-full bg-white/10 rounded-t-full overflow-hidden h-full flex items-end">
+                        <div
+                          className={`w-full transition-all duration-1000 ease-out rounded-t-full bg-gradient-to-t from-cyan-500 to-cyan-400`}
+                          style={{ height: `${heightPercent}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-gray-400">{data.month}</p>
+                      <p className="text-xs font-medium text-gray-300">${data.amount.toLocaleString()}</p>
                     </div>
-                    <p className="text-xs text-gray-400">{data.month}</p>
-                    <p className="text-xs font-medium text-gray-300">${data.value.toLocaleString()}</p>
-                  </div>
-                ))}
+                  );
+                }) : <div className="text-gray-400 w-full text-center">No earnings data</div>}
               </div>
             </div>
 
@@ -340,31 +398,22 @@ export default function HeroSection() {
               </div>
 
               <div className="space-y-5">
-                {[
-                  { course: "Advanced Calculus", earnings: 8420, students: 142, badge: "Top Seller" },
-                  { course: "Physics for Beginners", earnings: 6730, students: 98 },
-                  { course: "Mathematics 101", earnings: 5700, students: 89 },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between group">
+                {topCourses.length > 0 ? topCourses.map((item, i) => (
+                  <div key={item.courseId} className="flex items-center justify-between group">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-sm">
                         #{i + 1}
                       </div>
                       <div>
-                        <p className="font-medium text-white group-hover:text-cyan-300 transition-colors">{item.course}</p>
-                        <p className="text-sm text-gray-400">{item.students} students</p>
+                        <p className="font-medium text-white group-hover:text-cyan-300 transition-colors">{item.title}</p>
+                        <p className="text-sm text-gray-400">{item.studentsCount} students</p>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-white">${item.earnings.toLocaleString()}</p>
-                      {item.badge && (
-                        <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-emerald-500/20 text-emerald-300 rounded-full">
-                          {item.badge}
-                        </span>
-                      )}
                     </div>
                   </div>
-                ))}
+                )) : <div className="text-gray-400">No top courses data</div>}
               </div>
 
               <button className="mt-8 w-full py-3 bg-white/10 border border-white/20 text-gray-300 rounded-2xl hover:bg-white/20 hover:border-cyan-400 hover:text-cyan-300 transition-all duration-300 text-sm font-medium">

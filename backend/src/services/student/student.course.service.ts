@@ -54,10 +54,13 @@ export class StudentCourseService implements IStudentCourseService {
   };
 
 
-  async getCourseDetail(courseId: string): Promise<{ course: ICourse, recommendedCourses: ICourse[] }> {
-    if (!courseId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
-    const course = await this._courseRepo.findById(courseId);
+  async getCourseDetail(
+    courseId: string
+  ): Promise<{ course: IStudentCourseDTO; recommendedCourses: IStudentCourseDTO[] }> {
 
+    if (!courseId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
+
+    const course = await this._courseRepo.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
     const recommended = await this._courseRepo.findRecommendedCourses(
@@ -67,7 +70,10 @@ export class StudentCourseService implements IStudentCourseService {
       6
     );
 
-    return { course, recommendedCourses: recommended };
+    return {
+      course: StudentCourseDTO(course),
+      recommendedCourses: recommended.map(StudentCourseDTO)
+    };
   }
 
   async markLessonComplete(

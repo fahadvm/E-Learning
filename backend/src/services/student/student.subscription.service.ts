@@ -33,6 +33,12 @@ export class StudentSubscriptionService implements IStudentSubscriptionService {
       throwError(MESSAGES.INVALID_DATA);
     }
 
+    const existingSubscription = await this.getActiveSubscription(studentId);
+    console.log("existing plan:", existingSubscription)
+    if (existingSubscription && new Date(existingSubscription.endDate) > new Date()) {
+      throwError(MESSAGES.ACTIVE_SUBSCRIPTION_EXISTS || "You already have an active subscription");
+    }
+
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID!,
       key_secret: process.env.RAZORPAY_KEY_SECRET!

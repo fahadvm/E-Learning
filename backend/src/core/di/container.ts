@@ -238,6 +238,9 @@ import { ICompanyCoursePurchaseRepository } from '../interfaces/repositories/ICo
 import { CompanyCoursePurchaseRepository } from '../../repositories/CompanyCoursePurchaseRepository';
 import { ICompanyAnalyticsRepository } from '../interfaces/repositories/ICompanyAnalyticsRepository';
 import { CompanyAnalyticsRepository } from '../../repositories/CompanyAnalyticsRepository';
+import { ITeacherDashboardService } from '../interfaces/services/teacher/ITeacherDashboardService';
+import { TeacherDashboardService } from '../../services/teacher/TeacherDashboardService';
+import { TeacherDashboardController } from '../../controllers/teacher/teacher.dashboard.controller';
 
 
 
@@ -427,6 +430,9 @@ container.bind<AdminReportsController>(TYPES.AdminReportsController).to(AdminRep
 container.bind<StudentTeacherReviewController>(TYPES.StudentTeacherReviewController).to(StudentTeacherReviewController);
 container.bind<IStudentTeacherReviewService>(TYPES.StudentTeacherReviewService).to(StudentTeacherReviewService);
 container.bind<ITeacherReviewRepository>(TYPES.TeacherReviewRepository).to(TeacherReviewRepository);
+
+container.bind<ITeacherDashboardService>(TYPES.TeacherDashboardService).to(TeacherDashboardService);
+container.bind<TeacherDashboardController>(TYPES.TeacherDashboardController).to(TeacherDashboardController);
 
 
 export default container;

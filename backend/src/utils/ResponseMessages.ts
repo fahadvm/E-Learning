@@ -5,16 +5,18 @@ export enum MESSAGES {
   LEARNING_PATH_UNASSIGNED = "Learning path unassigned",
   COMPANY_FOUND = 'Company found',
   REQUEST_SENT = 'Request sent',
-CONTRIBUTIONS_FETCHED="Contributions fetched successfully",
-AVAILABILITY_SAVED="Availability saved successfully",
-EARNINGS_HISTORY_FETCHED="Earnings history fetched successfully",
-EARNINGS_STATS_FETCHED="Earnings stats fetched successfully",
+  CONTRIBUTIONS_FETCHED = "Contributions fetched successfully",
+  AVAILABILITY_SAVED = "Availability saved successfully",
+  EARNINGS_HISTORY_FETCHED = "Earnings history fetched successfully",
+  EARNINGS_STATS_FETCHED = "Earnings stats fetched successfully",
+    COURSE_NOT_PURCHASED= "You have not purchased this course.",
+
 
   COURSE_CERTIFICATE_FETCHED = "Course certificate fetched successfully",
-  RATING_COURSE_REQUIRED="Rating and course ID are required",
-  COURSE_REVIEW_SAVED="Course review saved successfully",
-  COURSE_REVIEWS_FETCHED="Course reviews fetched successfully",
-  COURSE_REVIEW_DELETED="Course review deleted successfully",
+  RATING_COURSE_REQUIRED = "Rating and course ID are required",
+  COURSE_REVIEW_SAVED = "Course review saved successfully",
+  COURSE_REVIEWS_FETCHED = "Course reviews fetched successfully",
+  COURSE_REVIEW_DELETED = "Course review deleted successfully",
 
   REQUEST_CANCELLED = 'Request cancelled',
   FILE_UPLOADED_SUCCESSFULLY = "File uploaded successfully",
@@ -305,6 +307,7 @@ EARNINGS_STATS_FETCHED="Earnings stats fetched successfully",
   PAYMENT_VERIFICATION_FAILED = 'Payment verified failed',
   FREE_PLAN_ACTIVATED = 'Free subscription plan activated successfully',
   ACTIVE_SUBSCRIPTION_FETCHED = 'Active subscription fetched successfully',
+  ACTIVE_SUBSCRIPTION_EXISTS = 'You already have an active subscription',
 
 
   // --------------------Wishlist Messages--------------------

@@ -15,7 +15,6 @@ import employeeRoutes from './routes/employeeRoutes';
 import teacherRoutes from './routes/teacherAuthRoutes';
 import sharedRoutes from './routes/sharedRoutes';
 import { errorHandler } from './middleware/errorHandler';
-import './config/passport';
 import logger from './utils/logger';
 
 dotenv.config();

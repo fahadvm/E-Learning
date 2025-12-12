@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Check } from 'lucide-react';
+import { Check, AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { showErrorToast, showSuccessToast } from '@/utils/Toast';
 import Header from '@/components/student/header';
@@ -23,9 +23,18 @@ interface Plan {
     popular?: boolean;
 }
 
+interface Subscription {
+    _id: string;
+    planId: string | Plan;
+    endDate: string;
+    startDate: string;
+    status: string;
+}
+
 export default function SubscriptionPlansPage() {
     const [plans, setPlans] = useState<Plan[]>([]);
     const [currentPlanId, setCurrentPlanId] = useState<string | null>(null);
+    const [currentSubscription, setCurrentSubscription] = useState<Subscription | null>(null);
     const { student } = useStudent();
     const [loading, setLoading] = useState(true);
     const [processingPlan, setProcessingPlan] = useState<string | null>(null);
@@ -40,8 +49,22 @@ export default function SubscriptionPlansPage() {
 
                 // Fetch current active plan
                 const curr = await studentSubscriptionApi.getMySubscription();
-                console.log("my current plan is ", curr)
-                setCurrentPlanId(curr?.data?.planId || null);
+                console.log("my current plan is are", curr)
+                if (curr?.data) {
+                    const sub = curr.data;
+                    // Check if actually active by date
+                    if (sub.status === 'active') {
+                        console.log("iam active")
+                        setCurrentSubscription(sub);
+                     
+                        const pId = typeof sub.planId === 'object' && sub.planId !== null ? (sub.planId as any)._id : sub.planId;
+                        console.log("pid",pId)
+                        setCurrentPlanId(pId);
+                    }
+                } else {
+                    setCurrentPlanId(null);
+                    setCurrentSubscription(null);
+                }
 
             } catch (error) {
                 console.error('Error fetching subscription data:', error);
@@ -53,6 +76,8 @@ export default function SubscriptionPlansPage() {
 
         fetchData();
     }, []);
+
+    const isSubscriptionActive = currentSubscription && new Date(currentSubscription.endDate) > new Date();
 
     const cardVariants = {
         hidden: { opacity: 0, y: 30, scale: 0.9 },
@@ -71,7 +96,12 @@ export default function SubscriptionPlansPage() {
     const handleCompletePurchase = async (plan: Plan) => {
         if (!plan._id) return;
 
-        // prevent repurchase
+        // prevent repurchase logic
+        if (isSubscriptionActive) {
+            showErrorToast("You already have an active subscription.");
+            return;
+        }
+
         if (currentPlanId === plan._id) {
             showErrorToast("You already have this plan active.");
             return;
@@ -147,7 +177,13 @@ export default function SubscriptionPlansPage() {
                 rzp.open();
             } catch (err) {
                 console.error('Order creation failed:', err);
-                showErrorToast('Failed to create order.');
+                // Extract error message
+                const msg = err instanceof Error ? err.message : 'Failed to create order.';
+                if (msg.includes('active subscription')) {
+                    showErrorToast('You already have an active subscription.');
+                } else {
+                    showErrorToast('Failed to create order.');
+                }
             } finally {
                 document.body.removeChild(script);
                 setProcessingPlan(null);
@@ -161,14 +197,29 @@ export default function SubscriptionPlansPage() {
             <Header />
 
             <div className="px-4 md:px-10 flex-1 overflow-auto">
-                <h1 className="text-4xl font-bold text-center text-gray-800 mb-4">
+                <h1 className="text-4xl font-bold text-center text-gray-800 mb-4 mt-6">
                     Choose Your Plan
                 </h1>
+
+                {isSubscriptionActive && currentSubscription && (
+                    <div className="max-w-3xl mx-auto mb-6">
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-3">
+                            <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                            <div>
+                                <h3 className="font-semibold text-blue-900">Active Subscription</h3>
+                                <p className="text-blue-700 text-sm">
+                                    You already have an active subscription. Expires on: <span className="font-medium">{new Date(currentSubscription.endDate).toLocaleDateString()}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {loading ? (
                     <p className="text-center text-gray-500">Loading plans...</p>
                 ) : (
                     <div
-                        className={`max-w-3xl mx-auto gap-6 ${plans.length === 1
+                        className={`max-w-3xl mx-auto gap-6 pb-10 ${plans.length === 1
                             ? 'flex justify-center'
                             : plans.length === 2
                                 ? 'grid grid-cols-1 md:grid-cols-2'
@@ -176,7 +227,19 @@ export default function SubscriptionPlansPage() {
                             }`}
                     >
                         {plans.map((plan, index) => {
+                            // If active, this plan is current if IDs match
                             const isCurrent = currentPlanId === plan._id;
+
+                            // Button text logic
+                            let buttonText = 'Subscribe Now';
+                            if (isCurrent && isSubscriptionActive) buttonText = 'Current Plan';
+                            else if (String(plan.price).toLowerCase().includes('free') || plan.price === 0) buttonText = 'Get Started';
+
+                            // Disable logic: 
+                            // 1. If processing any plan
+                            // 2. If subscription is active (disable ALL buy buttons)
+                            // 3. Unless subscription is expired (isSubscriptionActive is false) -> then buttons enabled.
+                            const isDisabled = isSubscriptionActive || processingPlan === plan._id;
 
                             return (
                                 <motion.div
@@ -216,20 +279,15 @@ export default function SubscriptionPlansPage() {
                                     </ul>
 
                                     <button
-                                        disabled={isCurrent || processingPlan === plan._id}
+                                        disabled={isDisabled}
                                         onClick={() => handleCompletePurchase(plan)}
                                         className={`w-full py-3 rounded-lg font-semibold transition 
-                                            ${isCurrent
+                                            ${isDisabled
                                                 ? 'bg-gray-400 cursor-not-allowed text-white'
                                                 : 'bg-indigo-600 text-white hover:bg-indigo-700'
                                             }`}
                                     >
-                                        {isCurrent
-                                            ? 'Current Plan'
-                                            : String(plan.price).toLowerCase().includes('free') ||
-                                                plan.price === 0
-                                                ? 'Get Started'
-                                                : 'Subscribe Now'}
+                                        {buttonText}
                                     </button>
                                 </motion.div>
                             );

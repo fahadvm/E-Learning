@@ -37,44 +37,44 @@ export default function Navigation() {
         </div>
 
         <div className="relative flex items-center space-x-4">
-         
+
 
           {/* Dropdown Menu */}
           {open && (
             <div
               ref={dropdownRef}
-              className="absolute right-0 top-10   w-40 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg shadow-lg overflow-hidden z-50"
+              className="absolute right-0 top-12 w-48 p-2
+               bg-black/40 backdrop-blur-xl border border-white/10
+               rounded-xl shadow-2xl shadow-blue-500/10
+               animate-in fade-in zoom-in-95 duration-200
+               origin-top-right z-50"
             >
-              <a
-                href="/student/login"
-                className="block px-4 py-2 text-gray-300 hover:bg-gradient-to-tr from-blue-700 to-cyan-500 hover:text-white transition-colors"
-              >
-                Student
-              </a>
-              <a
-                href="/teacher/login"
-                className="block px-4 py-2 text-gray-300 hover:bg-gradient-to-tr from-blue-700 to-cyan-500 hover:text-white transition-colors"
-              >
-                Teacher
-              </a>
-              <a
-                href="/company/login"
-                className="block px-4 py-2 text-gray-300 hover:bg-gradient-to-tr from-blue-700 to-cyan-500 hover:text-white transition-colors"
-              >
-                Company
-              </a>
-              <a
-                href="/company/login"
-                className="block px-4 py-2 text-gray-300 hover:bg-gradient-to-tr from-blue-700 to-cyan-500 hover:text-white transition-colors"
-              >
-                Employee
-              </a>
+              <div className="flex flex-col space-y-1">
+                {[
+                  { label: "Student", href: "/student/login" },
+                  { label: "Teacher", href: "/teacher/login" },
+                  { label: "Company", href: "/company/login" },
+                  { label: "Employee", href: "/employee/login" },
+                ].map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    className="
+            flex items-center px-4 py-2 rounded-lg text-gray-300
+            hover:text-white hover:bg-gradient-to-r hover:from-blue-600 hover:to-cyan-600
+            transition-all duration-200
+          "
+                  >
+                    <span className="w-2 h-2 rounded-full bg-blue-400 mr-2 group-hover:bg-white" />
+                    {item.label}
+                  </a>
+                ))}
+              </div>
             </div>
           )}
-
           <button
-          onClick={() => setOpen(!open)}
-           className="px-6 py-2 text-sm bg-gradient-to-r from-blue-600 to-cyan-600 rounded-full hover:from-blue-700 hover:to-cyan-700 transition-all transform hover:scale-105 shadow-lg shadow-blue-500/20">
+            onClick={() => setOpen(!open)}
+            className="px-6 py-2 text-sm bg-gradient-to-r from-blue-600 to-cyan-600 rounded-full hover:from-blue-700 hover:to-cyan-700 transition-all transform hover:scale-105 shadow-lg shadow-blue-500/20">
             Get Started
           </button>
         </div>

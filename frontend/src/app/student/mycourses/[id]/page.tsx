@@ -265,6 +265,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
         setCurrentLesson(lastVisitedLesson);
       } else {
         showErrorToast(res.message);
+        // router.push()
       }
     } catch(err){
       showErrorToast("Failed to fetch course");

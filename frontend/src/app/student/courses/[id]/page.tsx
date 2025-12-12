@@ -41,7 +41,7 @@ export default function CourseDetailPage() {
       if (res.ok) {
         showSuccessToast(res.message);
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Add to wishlist failed:", err);
     } finally {
       setLoading(false);
