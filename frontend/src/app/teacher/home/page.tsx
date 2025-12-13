@@ -4,7 +4,7 @@ import Header from "@/components/teacher/header";
 import { Search, Plus, Edit, Users, Bell, Calendar, TrendingUp, Star } from "lucide-react";
 import { teacherDashboardApi } from "@/services/APIservices/teacherApiService";
 import { IDashboardStats, ICoursePerformance, IEarningsData, IScheduleItem } from "@/types/teacher/dashboard";
-import { toast } from "sonner"; // Assuming sonner is used for toasts, or console.error
+
 
 export default function HeroSection() {
   const [searchQuery, setSearchQuery] = useState("");

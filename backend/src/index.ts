@@ -5,8 +5,8 @@ import morgan from 'morgan';
 import session from 'express-session';
 import passport from 'passport';
 import cookieParser from 'cookie-parser';
-import http from 'http'; 
-import { initSocket} from './config/socket';
+import http from 'http';
+import { initSocket } from './config/socket';
 import connectDb from './config/db';
 import companyRoutes from './routes/companyRoutes';
 import adminRoutes from './routes/adminRoutes';
@@ -28,7 +28,7 @@ connectDb();
 
 app.use(
   morgan('tiny', {
-    stream: { write: (message: string) =>  logger.info(message.trim()) },
+    stream: { write: (message: string) => logger.info(message.trim()) },
   })
 );
 
@@ -42,16 +42,22 @@ const allowedOrigins = [
   'https://devnext.online',
   'https://www.devnext.online',
   'https://api.devnext.online',
-  /\.devtunnels\.ms$/,
 ];
-app.use(
-  cors({
-    origin: true, 
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
-);
+
+const corsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    if (!origin || allowedOrigins.includes(origin) || /\.devtunnels\.ms$/.test(origin)) {
+      callback(null, true); 
+    } else {
+      callback(new Error(`Not allowed by CORS: ${origin}`), false);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
 
 app.use(cookieParser());
 app.use(express.json());
@@ -67,5 +73,5 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 8000;
 server.listen(PORT, () => {
-   logger.http(`Server + Socket running on port ${PORT}`);
+  logger.http(`Server + Socket running on port ${PORT}`);
 });
