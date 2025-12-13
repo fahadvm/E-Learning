@@ -16,14 +16,12 @@ export default function StudentSignupPage() {
 
    
 
-  // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setMessage(""); // Clear message on input change
+    setMessage(""); 
   };
 
-  // Form validation
   const validateForm = (): boolean => {
     const { email } = formData;
 
