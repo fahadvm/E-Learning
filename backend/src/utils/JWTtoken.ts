@@ -53,32 +53,45 @@ export const refreshAccessToken = (refreshToken: string) => {
 
   return { accessToken: newAccessToken, refreshToken: newRefreshToken };
 };
-export const setTokensInCookies = (res: Response, accessToken: string, refreshToken: string) => {
+export const setTokensInCookies = (
+  res: Response,
+  accessToken: string,
+  refreshToken: string
+) => {
   res.cookie('token', accessToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax', 
+    secure: true,          
+    sameSite: 'none',       
+    path: '/',
     maxAge: 15 * 60 * 1000,
   });
+
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', 
-    sameSite: 'lax',
-    maxAge: 7 * 24 * 60 * 60 * 1000, 
+    secure: true,           
+    sameSite: 'none',       
+    path: '/',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 };
+
 export const clearTokens = (res: Response) => {
   res.clearCookie('token', {
-    httpOnly: true,  
-    secure: process.env.NODE_ENV === 'production', 
-    sameSite: 'lax', 
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    path: '/',
   });
 
   res.clearCookie('refreshToken', {
-    httpOnly: true,  
-    secure: process.env.NODE_ENV === 'production',  
-    sameSite: 'lax', 
-   
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    path: '/',
   });
-  return res.status(200).json({ ok:true,msg: 'Logged out successfully',req:true });
+
+  return res.status(200).json({
+    ok: true,
+    msg: 'Logged out successfully',
+  });
 };
