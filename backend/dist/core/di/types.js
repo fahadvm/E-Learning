@@ -8,6 +8,7 @@ exports.TYPES = {
     TeacherReviewRepository: Symbol.for('TeacherReviewRepository'),
     StudentTeacherReviewService: Symbol.for('StudentTeacherReviewService'),
     StudentTeacherReviewController: Symbol.for('StudentTeacherReviewController'),
+    CompanyAnalyticsRepository: Symbol.for('CompanyAnalyticsRepository'),
     StudentCourseCertificateService: Symbol.for('StudentCourseCertificateService'),
     CourseCertificateRepository: Symbol.for('CourseCertificateRepository'),
     StudentCourseCertificateController: Symbol.for('StudentCourseCertificateController'),
@@ -149,4 +150,6 @@ exports.TYPES = {
     AdminReportsRepository: Symbol.for('AdminReportsRepository'),
     AdminReportsService: Symbol.for('AdminReportsService'),
     AdminReportsController: Symbol.for('AdminReportsController'),
+    TeacherDashboardService: Symbol.for('TeacherDashboardService'),
+    TeacherDashboardController: Symbol.for('TeacherDashboardController'),
 };

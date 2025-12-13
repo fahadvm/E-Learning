@@ -142,6 +142,9 @@ const student_teacherReview_service_1 = require("../../services/student/student.
 const TeacherReviewRepository_1 = require("../../repositories/TeacherReviewRepository");
 const CompanyCartRepository_1 = require("../../repositories/CompanyCartRepository");
 const CompanyCoursePurchaseRepository_1 = require("../../repositories/CompanyCoursePurchaseRepository");
+const CompanyAnalyticsRepository_1 = require("../../repositories/CompanyAnalyticsRepository");
+const TeacherDashboardService_1 = require("../../services/teacher/TeacherDashboardService");
+const teacher_dashboard_controller_1 = require("../../controllers/teacher/teacher.dashboard.controller");
 const container = new inversify_1.Container();
 // ===== Bind Repositories =====
 container.bind(types_1.TYPES.CourseReviewRepository).to(CourseReview_1.CourseReviewRepository);
@@ -158,6 +161,7 @@ container.bind(types_1.TYPES.SubscriptionPlanRepository).to(SubscriptionPlanRepo
 container.bind(types_1.TYPES.WishlistRepository).to(WishlistRepository_1.WishlistRepository);
 container.bind(types_1.TYPES.CartRepository).to(CartRepository_1.CartRepository);
 container.bind(types_1.TYPES.OrderRepository).to(OrderRepository_1.OrderRepository);
+container.bind(types_1.TYPES.CompanyAnalyticsRepository).to(CompanyAnalyticsRepository_1.CompanyAnalyticsRepository);
 container.bind(types_1.TYPES.CompanyOrderRepository).to(CompanyOrderRepository_1.CompanyOrderRepository);
 container.bind(types_1.TYPES.TeacherAvailabilityRepository).to(TeacherAvailibilityRepository_1.TeacherAvailabilityRepository);
 container.bind(types_1.TYPES.StudentBookingRepository).to(StudentBookingRepository_1.StudentBookingRepository);
@@ -285,4 +289,6 @@ container.bind(types_1.TYPES.AdminReportsController).to(admin_reports_controller
 container.bind(types_1.TYPES.StudentTeacherReviewController).to(student_teacherReview_controller_1.StudentTeacherReviewController);
 container.bind(types_1.TYPES.StudentTeacherReviewService).to(student_teacherReview_service_1.StudentTeacherReviewService);
 container.bind(types_1.TYPES.TeacherReviewRepository).to(TeacherReviewRepository_1.TeacherReviewRepository);
+container.bind(types_1.TYPES.TeacherDashboardService).to(TeacherDashboardService_1.TeacherDashboardService);
+container.bind(types_1.TYPES.TeacherDashboardController).to(teacher_dashboard_controller_1.TeacherDashboardController);
 exports.default = container;

@@ -43,7 +43,7 @@ let EmployeeCourseController = class EmployeeCourseController {
             if (!employeeId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             if (!lessonIndex)
-                (0, ResANDError_1.throwError)('Lesson ID is required', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.LESSON_ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const result = yield this._employeeCourseService.markLessonComplete(employeeId, courseId, lessonIndex);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COMPLETD_LESSON_MARKED, true, result);
         });
@@ -51,39 +51,36 @@ let EmployeeCourseController = class EmployeeCourseController {
             var _a;
             const employeeId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             const { courseId, seconds } = req.body;
-            console.log("consoling req.body ", req.body);
             if (!employeeId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const result = yield this._employeeCourseService.addLearningTime(employeeId, courseId, seconds);
-            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COMPLETD_LESSON_MARKED, true, result);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.LEARNING_TIME_TRACKED, true, result);
         });
         this.codecompiler = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const JUDGE0_URL = process.env.JUDGE0_URL;
             const { language, code } = req.body;
             if (!language || !code)
-                (0, ResANDError_1.throwError)('Language and code are required', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.LANGUAGE_AND_CODE_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const languageMap = {
-                python: 71, // Python 3
-                javascript: 63, // Node.js
-                cpp: 54, // C++
-                java: 62, // Java
-                c: 50, // C
-                csharp: 51, // C#
-                php: 68, // PHP
-                go: 60, // Go
-                ruby: 72, // Ruby
-                sql: 82, // SQL (SQLite)
+                python: 71,
+                javascript: 63,
+                cpp: 54,
+                java: 62,
+                c: 50,
+                csharp: 51,
+                php: 68,
+                go: 60,
+                ruby: 72,
+                sql: 82,
             };
             const languageId = languageMap[language.toLowerCase()];
             if (!languageId)
-                (0, ResANDError_1.throwError)('Unsupported language', HttpStatuscodes_1.STATUS_CODES.CONFLICT);
-            const response = yield axios_1.default.post(JUDGE0_URL, {
-                source_code: code,
-                language_id: languageId,
-            }, {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNSUPPORTED_LANGUAGE, HttpStatuscodes_1.STATUS_CODES.CONFLICT);
+            const response = yield axios_1.default.post(JUDGE0_URL, { source_code: code, language_id: languageId }, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-RapidAPI-Key': process.env.JUDGE0_API_KEY || '0d5115fdbcmsh30c67d2f61ef3e7p142104jsn296e045ea6a4',
+                    'X-RapidAPI-Key': process.env.JUDGE0_API_KEY ||
+                        '0d5115fdbcmsh30c67d2f61ef3e7p142104jsn296e045ea6a4',
                     'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com',
                 },
             });
@@ -120,39 +117,31 @@ let EmployeeCourseController = class EmployeeCourseController {
     myCourseDetails(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
-            console.log("getting course details in controller");
             const employeeId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!employeeId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_ID, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const { courseId } = req.params;
             const course = yield this._employeeCourseService.getMyCourseDetails(employeeId, courseId);
-            console.log("fetching course details", course);
-            console.log("the course details finalyy ", course);
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSES_FETCHED, true, course);
         });
     }
     getLearningRecords(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
-            console.log("getLearningRecords is running");
             const employeeId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!employeeId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const data = yield this._employeeCourseService.getLearningRecords(employeeId);
-            console.log("getLearningRecords:", data);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.LEARNING_RECORD_FETCHED, true, data);
         });
     }
     getCourseProgress(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
-            console.log("getCourseProgress is running");
             const employeeId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!employeeId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
-            console.log("until here everything is fine", employeeId);
             const data = yield this._employeeCourseService.getProgress(employeeId);
-            console.log("getcourseprogress:", data);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.PROGRESS_FETCHED, true, data);
         });
     }

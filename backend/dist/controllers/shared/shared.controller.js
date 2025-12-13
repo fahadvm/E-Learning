@@ -61,25 +61,20 @@ let SharedController = class SharedController {
     constructor() {
         this.refreshToken = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const tokens = (0, JWTtoken_1.refreshAccessToken)(req.cookies.refreshToken);
-            if (!tokens) {
+            if (!tokens)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.TOKEN_INVALID, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
-            }
             (0, JWTtoken_1.setTokensInCookies)(res, tokens.accessToken, tokens.refreshToken);
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.TOKEN_REFRESHED, true);
         });
         this.uploadFile = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                if (!req.file) {
-                    return (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.FILE_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-                }
-                // The file is already uploaded to Cloudinary or we have the buffer if using memory storage
-                // If using uploadToCloudinary utility with memory storage:
+                if (!req.file)
+                    (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.FILE_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
                 const { uploadToCloudinary } = yield Promise.resolve().then(() => __importStar(require('../../utils/upload')));
                 const url = yield uploadToCloudinary(req.file.buffer, 'chat-uploads', 'auto');
-                (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "File uploaded successfully", true, { url });
+                (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.FILE_UPLOADED_SUCCESSFULLY, true, { url });
             }
             catch (error) {
-                console.error("Upload error:", error);
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.FILE_UPLOAD_FAILED, HttpStatuscodes_1.STATUS_CODES.INTERNAL_SERVER_ERROR);
             }
         });

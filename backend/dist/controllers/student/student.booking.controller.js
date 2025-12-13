@@ -44,29 +44,27 @@ let StudentBookingController = class StudentBookingController {
             if (!studentId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const canAccess = yield this._subscriptionService.hasFeature(studentId, "Video Call");
-            if (!canAccess) {
-                return (0, ResANDError_1.throwError)("You don't have access to this feature.", 403);
-            }
+            if (!canAccess)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.FEATURE_NOT_ALLOWED, HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
             const { teacherId, courseId, date, day, startTime, endTime, note } = req.body;
             if (!teacherId || !courseId || !date || !day || !startTime || !endTime)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.REQUIRED_FIELDS_MISSING, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            const locking = yield this._bookingService.lockingSlot(studentId, teacherId, courseId, date, day, startTime, endTime, note);
-            console.log("locking", locking);
-            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.CREATED, ResponseMessages_1.MESSAGES.BOOKING_CREATED, true, locking);
+            const result = yield this._bookingService.lockingSlot(studentId, teacherId, courseId, date, day, startTime, endTime, note);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.CREATED, ResponseMessages_1.MESSAGES.BOOKING_CREATED, true, result);
         });
         this.bookingDetails = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const bookingId = req.params.bookingId;
+            const { bookingId } = req.params;
             if (!bookingId)
-                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.REQUIRED_FIELDS_MISSING, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const booking = yield this._bookingService.getBookingDetails(bookingId);
-            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.CREATED, ResponseMessages_1.MESSAGES.BOOKING_CREATED, true, booking);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.BOOKING_DETAILS_FETCHED, true, booking);
         });
         this.bookingDetailsByPaymentId = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const paymentOrderId = req.params.paymentOrderId;
+            const { paymentOrderId } = req.params;
             if (!paymentOrderId)
-                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.REQUIRED_FIELDS_MISSING, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const booking = yield this._bookingService.getBookingDetailsByPaymentId(paymentOrderId);
-            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.CREATED, ResponseMessages_1.MESSAGES.BOOKING_CREATED, true, booking);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.BOOKING_DETAILS_FETCHED, true, booking);
         });
         this.cancelBooking = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const { bookingId } = req.params;
@@ -97,17 +95,14 @@ let StudentBookingController = class StudentBookingController {
         this.verifyPayment = (req, res) => __awaiter(this, void 0, void 0, function* () {
             var _a;
             const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
-            if (!studentId) {
+            if (!studentId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
-            }
             const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-            if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+            if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.REQUIRED_FIELDS_MISSING, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            }
             const verified = yield this._bookingService.verifyPayment(razorpay_order_id, razorpay_payment_id, razorpay_signature);
-            if (!!verified) {
+            if (verified)
                 return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.PAYMENT_VERIFIED_SUCCESSFULLY, true, verified);
-            }
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST, ResponseMessages_1.MESSAGES.PAYMENT_VERIFICATION_FAILED, false, verified);
         });
         this.getHistory = (req, res) => __awaiter(this, void 0, void 0, function* () {

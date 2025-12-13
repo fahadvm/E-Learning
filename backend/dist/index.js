@@ -20,7 +20,6 @@ const employeeRoutes_1 = __importDefault(require("./routes/employeeRoutes"));
 const teacherAuthRoutes_1 = __importDefault(require("./routes/teacherAuthRoutes"));
 const sharedRoutes_1 = __importDefault(require("./routes/sharedRoutes"));
 const errorHandler_1 = require("./middleware/errorHandler");
-require("./config/passport");
 const logger_1 = __importDefault(require("./utils/logger"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -33,7 +32,7 @@ app.use((0, morgan_1.default)('tiny', {
 app.use((0, express_session_1.default)({ secret: 'your_secret', resave: false, saveUninitialized: false }));
 app.use(passport_1.default.initialize());
 app.use(passport_1.default.session());
-const allowedOrigins = ['http://localhost:3000', /\.devtunnels\.ms$/];
+const allowedOrigins = ['https://devnext.online', /\.devtunnels\.ms$/];
 app.use((0, cors_1.default)({
     origin: (origin, callback) => {
         if (!origin)

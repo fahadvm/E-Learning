@@ -26,17 +26,13 @@ const inversify_1 = require("inversify");
 const types_1 = require("../../core/di/types");
 const ResANDError_1 = require("../../utils/ResANDError");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
+const ResponseMessages_1 = require("../../utils/ResponseMessages");
 let AdminReportsController = class AdminReportsController {
     constructor(_service) {
         this._service = _service;
         this.getDashboardStats = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                const data = yield this._service.getDashboardStats();
-                return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Dashboard stats fetched successfully", true, data);
-            }
-            catch (error) {
-                next(error);
-            }
+            const data = yield this._service.getDashboardStats();
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.DASHBOARD_STATS_FETCHED, true, data);
         });
     }
 };

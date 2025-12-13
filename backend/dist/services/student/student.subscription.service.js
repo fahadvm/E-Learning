@@ -48,6 +48,11 @@ let StudentSubscriptionService = class StudentSubscriptionService {
             if (plan.price <= 0) {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_DATA);
             }
+            const existingSubscription = yield this.getActiveSubscription(studentId);
+            console.log("existing plan:", existingSubscription);
+            if (existingSubscription && new Date(existingSubscription.endDate) > new Date()) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ACTIVE_SUBSCRIPTION_EXISTS || "You already have an active subscription");
+            }
             const razorpay = new razorpay_1.default({
                 key_id: process.env.RAZORPAY_KEY_ID,
                 key_secret: process.env.RAZORPAY_KEY_SECRET

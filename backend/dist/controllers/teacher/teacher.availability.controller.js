@@ -22,7 +22,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TeacherAvailabilityController = void 0;
-// controllers/teacher/TeacherAvailabilityController.ts
 const inversify_1 = require("inversify");
 const types_1 = require("../../core/di/types");
 const ResANDError_1 = require("../../utils/ResANDError");
@@ -40,7 +39,7 @@ let TeacherAvailabilityController = class TeacherAvailabilityController {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const { week } = req.body;
             const saved = yield this._availabilityService.saveAvailability(teacherId, week);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.CREATED, 'Availability saved successfully', true, saved);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.CREATED, ResponseMessages_1.MESSAGES.AVAILABILITY_SAVED, true, saved);
         });
     }
     getMyAvailability(req, res) {
@@ -50,7 +49,7 @@ let TeacherAvailabilityController = class TeacherAvailabilityController {
             if (!teacherId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const availabilities = yield this._availabilityService.getAvailabilityByTeacherId(teacherId);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Availability fetched', true, availabilities);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.AVAILABILITY_FETCHED, true, availabilities);
         });
     }
 };

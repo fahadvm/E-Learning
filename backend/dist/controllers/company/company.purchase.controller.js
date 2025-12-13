@@ -69,7 +69,6 @@ let CompanyPurchaseController = class CompanyPurchaseController {
     downloadReceipt(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { orderId } = req.params;
-            console.log("downloading receipt is working successfully");
             const order = yield CompanyOrder_1.CompanyOrderModel.findById(orderId).populate("purchasedCourses.courseId", "title price");
             if (!order) {
                 return res.status(404).json({ message: "Order not found" });

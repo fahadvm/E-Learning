@@ -37,8 +37,8 @@ let TeacherEarningsController = class TeacherEarningsController {
             const teacherId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!teacherId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
-            const page = parseInt(req.query.page) || 1;
-            const limit = parseInt(req.query.limit) || 10;
+            const page = Number(req.query.page) || 1;
+            const limit = Number(req.query.limit) || 10;
             const type = req.query.type;
             const startDate = req.query.startDate;
             const endDate = req.query.endDate;
@@ -49,7 +49,7 @@ let TeacherEarningsController = class TeacherEarningsController {
                 startDate,
                 endDate
             });
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Earnings history fetched successfully', true, result);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.EARNINGS_HISTORY_FETCHED, true, result);
         });
     }
     getEarningsStats(req, res) {
@@ -59,7 +59,7 @@ let TeacherEarningsController = class TeacherEarningsController {
             if (!teacherId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const stats = yield this._earningsService.getEarningsStats(teacherId);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Earnings stats fetched successfully', true, stats);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.EARNINGS_STATS_FETCHED, true, stats);
         });
     }
 };

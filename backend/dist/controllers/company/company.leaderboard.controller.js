@@ -35,24 +35,21 @@ let CompanyLeaderboardController = class CompanyLeaderboardController {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
-            console.log("getting controller of  leaderboard ");
             if (!companyId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const leaderboard = yield this._leaderboardService.getTop50(companyId);
-            console.log("top 50 leaderboard ", leaderboard);
-            return (0, ResANDError_1.sendResponse)(res, 200, "SUCCESS", true, { leaderboard });
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.LEADERBOARD_FETCHED, true, { leaderboard });
         });
     }
     search(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
-            console.log("search controller of  leaderboard ");
             const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!companyId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const { name } = req.query;
             const result = yield this._leaderboardService.searchEmployee(companyId, name);
-            return (0, ResANDError_1.sendResponse)(res, 200, "SUCCESS", true, result);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.LEADERBOARD_SEARCH_SUCCESS, true, result);
         });
     }
 };

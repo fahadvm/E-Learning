@@ -20,9 +20,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CompanyLearningPathController = void 0;
 // src/controllers/company/company.learningpath.controller.ts
@@ -31,7 +28,6 @@ const types_1 = require("../../core/di/types");
 const ResANDError_1 = require("../../utils/ResANDError");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
-const mongoose_1 = __importDefault(require("mongoose"));
 let CompanyLearningPathController = class CompanyLearningPathController {
     constructor(_service) {
         this._service = _service;
@@ -111,8 +107,6 @@ let CompanyLearningPathController = class CompanyLearningPathController {
     listAssigned(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
-            const id = "690af26db231f92da7c44db4";
-            console.log("checker:::", mongoose_1.default.Types.ObjectId.isValid(id));
             const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!companyId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
@@ -120,7 +114,7 @@ let CompanyLearningPathController = class CompanyLearningPathController {
             if (!employeeId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const items = yield this._service.listAssignedLearningPaths(companyId, employeeId);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.LEARNING_PATHS_FETCHED || "Assigned learning paths fetched", true, items);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.LEARNING_PATHS_FETCHED, true, items);
         });
     }
     // POST /company/learning-paths/assign

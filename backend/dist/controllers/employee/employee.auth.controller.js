@@ -120,7 +120,7 @@ let EmployeeAuthController = class EmployeeAuthController {
             if (!currentPassword || !newPassword)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMAIL_PASSWORD_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             yield this._employeeAuthService.changePassword(req.user.id, currentPassword, newPassword);
-            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Password updated successfully", true);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.PASSWORD_CHANGED_SUCCESS, true);
         });
     }
 };

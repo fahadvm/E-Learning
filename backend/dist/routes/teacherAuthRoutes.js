@@ -12,6 +12,7 @@ const teacher_call_request_route_1 = __importDefault(require("./teacherRoute/tea
 const teacher_chat_route_1 = __importDefault(require("./teacherRoute//teacher.chat.route"));
 const teacher_earnings_route_1 = __importDefault(require("./teacherRoute/teacher.earnings.route"));
 const teacher_enrollment_route_1 = __importDefault(require("./teacherRoute/teacher.enrollment.route"));
+const teacher_dashboard_route_1 = __importDefault(require("./teacherRoute/teacher.dashboard.route"));
 const teacherRouter = (0, express_1.Router)();
 teacherRouter.use('/auth', teacher_auth_route_1.default);
 teacherRouter.use('/profile', teacher_profile_route_1.default);
@@ -21,4 +22,5 @@ teacherRouter.use('/call-request', teacher_call_request_route_1.default);
 teacherRouter.use('/chat', teacher_chat_route_1.default);
 teacherRouter.use('/earnings', teacher_earnings_route_1.default);
 teacherRouter.use('/enrollments', teacher_enrollment_route_1.default);
+teacherRouter.use('/dashboard', teacher_dashboard_route_1.default);
 exports.default = teacherRouter;

@@ -9,12 +9,48 @@ var MESSAGES;
     MESSAGES["LEARNING_PATH_UNASSIGNED"] = "Learning path unassigned";
     MESSAGES["COMPANY_FOUND"] = "Company found";
     MESSAGES["REQUEST_SENT"] = "Request sent";
+    MESSAGES["CONTRIBUTIONS_FETCHED"] = "Contributions fetched successfully";
+    MESSAGES["AVAILABILITY_SAVED"] = "Availability saved successfully";
+    MESSAGES["EARNINGS_HISTORY_FETCHED"] = "Earnings history fetched successfully";
+    MESSAGES["EARNINGS_STATS_FETCHED"] = "Earnings stats fetched successfully";
+    MESSAGES["COURSE_NOT_PURCHASED"] = "You have not purchased this course.";
+    MESSAGES["COURSE_CERTIFICATE_FETCHED"] = "Course certificate fetched successfully";
+    MESSAGES["RATING_COURSE_REQUIRED"] = "Rating and course ID are required";
+    MESSAGES["COURSE_REVIEW_SAVED"] = "Course review saved successfully";
+    MESSAGES["COURSE_REVIEWS_FETCHED"] = "Course reviews fetched successfully";
+    MESSAGES["COURSE_REVIEW_DELETED"] = "Course review deleted successfully";
     MESSAGES["REQUEST_CANCELLED"] = "Request cancelled";
+    MESSAGES["FILE_UPLOADED_SUCCESSFULLY"] = "File uploaded successfully";
+    MESSAGES["LEARNING_PATH_DETAILS_FETCHED"] = "Learning path details fetched successfully";
+    MESSAGES["LEARNING_PATH_PROGRESS_UPDATED"] = "Learning path progress updated successfully";
+    MESSAGES["LEARNING_PATH_STATUS_UPDATED"] = "Learning path status updated successfully";
+    MESSAGES["CURRENT_NEW_PASSWORD_REQUIRED"] = "Current password and new password are required";
+    MESSAGES["PASSWORD_UPDATED_SUCCESS"] = "Password updated successfully";
+    MESSAGES["NEW_EMAIL_REQUIRED"] = "New email is required";
+    MESSAGES["OTP_SENT_NEW_EMAIL"] = "OTP sent to new email";
+    MESSAGES["FEATURE_NOT_ALLOWED"] = "You don't have access to this feature.";
+    MESSAGES["BOOKING_DETAILS_FETCHED"] = "Booking details fetched successfully";
     MESSAGES["LEFT_COMPANY"] = "Left company";
+    MESSAGES["CERTIFICATE_AND_TAXID_REQUIRED"] = "Both certificate and tax ID documents are required";
+    MESSAGES["INVALID_EMAIL_FORMAT"] = "Invalid email format";
+    MESSAGES["EMAIL_AND_OTP_REQUIRED"] = "Email and OTP are required";
+    MESSAGES["EMAIL_UPDATED_SUCCESS"] = "Email updated successfully";
+    MESSAGES["PASSWORDS_REQUIRED"] = "Current password and new password are required";
+    MESSAGES["PASSWORD_CHANGED_SUCCESS"] = "Password changed successfully";
+    MESSAGES["LESSON_ID_REQUIRED"] = "Lesson ID is required";
+    MESSAGES["LEARNING_TIME_TRACKED"] = "Learning time tracked successfully";
+    MESSAGES["LANGUAGE_AND_CODE_REQUIRED"] = "Language and code are required";
+    MESSAGES["UNSUPPORTED_LANGUAGE"] = "Unsupported programming language";
+    MESSAGES["INVITATION_FETCHED"] = "Invitation fetched successfully";
+    MESSAGES["INVITATION_ACCEPTED"] = "Invitation accepted successfully";
+    MESSAGES["INVITATION_REJECTED"] = "Invitation rejected successfully";
     MESSAGES["REQUESTED_EMPLOYEES_FETCHED"] = "Requested employees fetched successfully";
+    MESSAGES["INVALID_RANGES"] = "Invalid range. Must be week, month, or year";
+    MESSAGES["TRANSACTION_FETCHED"] = "Transactions fetched successfully";
     MESSAGES["COURSE_CERTIFICATE_LIST_FETCHED"] = "COURSE CERTIFICATE LIST FETCHED successfully";
     MESSAGES["COURSE_CERTIFICATE_GENERATED"] = "COURSE CERTIFICATE GENERATED successfully";
     MESSAGES["EMPLOYEE_REQUEST_APPROVED"] = "Employee request approved successfully";
+    MESSAGES["TRACKER_STATUS_FETCHED"] = "Tracker stats fetched successfully";
     MESSAGES["EMPLOYEE_REQUEST_REJECTED"] = "Employee request rejected";
     MESSAGES["GOOGLE_TOKEN_INVALID"] = "Invalid Google token";
     MESSAGES["GOOGLE_TOKEN_MISSING_FIELDS"] = "Google token missing required fields";
@@ -26,6 +62,9 @@ var MESSAGES;
     MESSAGES["NO_REQUEST_FOUND"] = "No request found";
     MESSAGES["NOT_PART_OF_COMPANY"] = "Not part of any company";
     MESSAGES["ORDERS_NOT_FOUND"] = "No orders found";
+    MESSAGES["LEADERBOARD_FETCHED"] = "Leaderboard fetched successfully";
+    MESSAGES["LEADERBOARD_SEARCH_SUCCESS"] = "Leaderboard search completed successfully";
+    MESSAGES["DASHBOARD_STATS_FETCHED"] = "\"Dashboard stats fetched successfully\"";
     MESSAGES["COMPANY_ORDERS_FETCHED"] = "Company orders fetched successfully";
     MESSAGES["STUDENT_ORDERS_FETCHED"] = "Student orders fetched successfully";
     MESSAGES["VERIFICATION_REQUESTS_FETCHED"] = "Verification requests fetched.";
@@ -227,6 +266,7 @@ var MESSAGES;
     MESSAGES["PAYMENT_VERIFICATION_FAILED"] = "Payment verified failed";
     MESSAGES["FREE_PLAN_ACTIVATED"] = "Free subscription plan activated successfully";
     MESSAGES["ACTIVE_SUBSCRIPTION_FETCHED"] = "Active subscription fetched successfully";
+    MESSAGES["ACTIVE_SUBSCRIPTION_EXISTS"] = "You already have an active subscription";
     // --------------------Wishlist Messages--------------------
     MESSAGES["WISHLIST_COURSE_ADDED"] = "Course added to wishlist successfully";
     MESSAGES["WISHLIST_FETCHED"] = "Wishlist fetched successfully";
@@ -285,4 +325,17 @@ var MESSAGES;
     MESSAGES["AT_LEAST_ONE_MODULE_REQUIRED"] = "At least one module is required";
     //order
     MESSAGES["ORDER_CREATED_SUCCESSFULLY"] = "Order created successfully";
+    // Common
+    // Employee Fetch
+    // Invite
+    MESSAGES["INVITATION_SENT"] = "Invitation sent to employee";
+    MESSAGES["INVITE_LINK_CREATED"] = "Employee not found. Invitation link created.";
+    // Search
+    MESSAGES["SEARCH_QUERY_REQUIRED"] = "Search query is required";
+    MESSAGES["EMPLOYEES_FOUND"] = "Employees found";
+    // Removal
+    MESSAGES["EMPLOYEE_REMOVED"] = "Employee removed from company";
+    // Required Fields
+    MESSAGES["REJECTION_REASON_REQUIRED"] = "Rejection reason is required";
 })(MESSAGES || (exports.MESSAGES = MESSAGES = {}));
+;

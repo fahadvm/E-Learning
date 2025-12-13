@@ -4,7 +4,7 @@ exports.StudentCourseDTO = exports.StudentModuleDTO = exports.StudentLessonDTO =
 const StudentLessonDTO = (lesson) => ({
     title: lesson.title,
     content: lesson.description,
-    videoUrl: lesson.videoFile,
+    duration: lesson.duration
 });
 exports.StudentLessonDTO = StudentLessonDTO;
 const StudentModuleDTO = (module) => {
@@ -17,7 +17,7 @@ const StudentModuleDTO = (module) => {
 };
 exports.StudentModuleDTO = StudentModuleDTO;
 const StudentCourseDTO = (course) => {
-    var _a, _b, _c;
+    var _a, _b;
     return ({
         _id: course._id.toString(),
         title: course.title,
@@ -30,9 +30,18 @@ const StudentCourseDTO = (course) => {
         isVerified: course.isVerified,
         status: course.status,
         rejectionReason: course.rejectionReason,
-        teacherId: (_a = course.teacherId) === null || _a === void 0 ? void 0 : _a.toString(),
-        modules: ((_b = course.modules) === null || _b === void 0 ? void 0 : _b.map(exports.StudentModuleDTO)) || [],
-        totalDuration: (_c = course.totalDuration) !== null && _c !== void 0 ? _c : undefined,
+        teacherId: course.teacherId && typeof course.teacherId === "object"
+            ? {
+                _id: course.teacherId._id.toString(),
+                name: course.teacherId.name,
+                email: course.teacherId.email,
+                profilePicture: course.teacherId.profilePicture,
+            }
+            : undefined,
+        modules: ((_a = course.modules) === null || _a === void 0 ? void 0 : _a.map(exports.StudentModuleDTO)) || [],
+        learningOutcomes: course.learningOutcomes || [],
+        requirements: course.requirements || [],
+        totalDuration: (_b = course.totalDuration) !== null && _b !== void 0 ? _b : undefined,
         reviewCount: course.reviewCount,
         averageRating: course.averageRating,
         language: course.language,

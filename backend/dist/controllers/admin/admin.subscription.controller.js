@@ -33,7 +33,6 @@ let AdminSubscriptionPlanController = class AdminSubscriptionPlanController {
     }
     createPlan(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("description plan", req.body);
             const plan = yield this._planService.createPlan(req.body);
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.CREATED, ResponseMessages_1.MESSAGES.SUBSCRIPTION_PLAN_CREATED, true, plan);
         });

@@ -72,19 +72,19 @@ let EmployeeCompanyController = class EmployeeCompanyController {
     getInvitation(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield this._employeeCompanyService.getInvitation(req.user.id);
-            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Invitation fetched", true, result);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.INVITATION_FETCHED, true, result);
         });
     }
     acceptInvite(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this._employeeCompanyService.acceptInvite(req.user.id);
-            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Invitation accepted", true);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.INVITATION_ACCEPTED, true);
         });
     }
     rejectInvite(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this._employeeCompanyService.rejectInvite(req.user.id);
-            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Invitation rejected", true);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.INVITATION_REJECTED, true);
         });
     }
 };

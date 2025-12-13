@@ -42,7 +42,6 @@ let StudentAuthController = class StudentAuthController {
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.CREATED, ResponseMessages_1.MESSAGES.OTP_SENT, true);
         });
         this.verifyOtp = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            logger_1.default.info('verifying otp ', req.body);
             const { email, otp } = req.body;
             if (!email || !otp)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMAIL_OTP_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
@@ -60,12 +59,11 @@ let StudentAuthController = class StudentAuthController {
         });
         this.logout = (_req, res) => __awaiter(this, void 0, void 0, function* () {
             (0, JWTtoken_1.clearTokens)(res);
-            logger_1.default.info('logout successfull ');
+            logger_1.default.info('student logout successful');
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.LOGOUT_SUCCESS, true);
         });
         this.googleAuth = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const { tokenId } = req.body;
-            // console.log('tokenId',tokenId);
             if (!tokenId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.GOOGLE_AUTH_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const result = yield this._studentAuthService.googleAuth(tokenId);
@@ -102,16 +100,14 @@ let StudentAuthController = class StudentAuthController {
         this.changePassword = (req, res) => __awaiter(this, void 0, void 0, function* () {
             var _a;
             const { currentPassword, newPassword } = req.body;
-            console.log("new password", req.body);
-            const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id; // from auth middleware
+            const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!studentId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             if (!currentPassword || !newPassword)
-                (0, ResANDError_1.throwError)("Current and new password required", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.CURRENT_NEW_PASSWORD_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             yield this._studentAuthService.changePassword(studentId, currentPassword, newPassword);
-            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Password updated successfully", true);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.PASSWORD_UPDATED_SUCCESS, true);
         });
-        // SEND OTP FOR EMAIL CHANGE
         this.sendEmailChangeOtp = (req, res) => __awaiter(this, void 0, void 0, function* () {
             var _a;
             const { newEmail } = req.body;
@@ -119,11 +115,10 @@ let StudentAuthController = class StudentAuthController {
             if (!studentId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             if (!newEmail)
-                (0, ResANDError_1.throwError)("New email is required", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.NEW_EMAIL_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             yield this._studentAuthService.sendEmailChangeOtp(studentId, newEmail);
-            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "OTP sent to new email", true);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.OTP_SENT_NEW_EMAIL, true);
         });
-        // VERIFY OTP + UPDATE EMAIL
         this.verifyAndUpdateEmail = (req, res) => __awaiter(this, void 0, void 0, function* () {
             var _a;
             const { newEmail, otp } = req.body;
@@ -131,9 +126,9 @@ let StudentAuthController = class StudentAuthController {
             if (!studentId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             if (!newEmail || !otp)
-                (0, ResANDError_1.throwError)("Email and OTP are required", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMAIL_OTP_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const updatedUser = yield this._studentAuthService.verifyEmailChangeOtp(studentId, newEmail, otp);
-            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Email updated successfully", true, updatedUser);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.EMAIL_UPDATED_SUCCESS, true, updatedUser);
         });
     }
 };

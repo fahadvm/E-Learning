@@ -48,26 +48,26 @@ let StudentCourseCertificateController = class StudentCourseCertificateControlle
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const page = Number(req.query.page) || 1;
             const limit = Number(req.query.limit) || 6;
-            const search = req.query.search || "";
+            const search = typeof req.query.search === "string" ? req.query.search : "";
             const result = yield this._certService.getMyCourseCertificates(studentId, page, limit, search);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_CERTIFICATE_LIST_FETCHED, true, {
                 certificates: result.certificates,
                 total: result.total,
                 page,
                 limit,
-                totalPages: Math.ceil(result.total / limit),
+                totalPages: Math.ceil(result.total / limit)
             });
         });
         this.getCourseCertificate = (req, res) => __awaiter(this, void 0, void 0, function* () {
             var _a;
             const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!studentId)
-                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, 401);
-            const courseId = req.params.courseId;
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            const { courseId } = req.params;
             if (!courseId)
-                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_ID, 400);
-            const cert = yield this._certService.getCourseCertificate(studentId, courseId);
-            return (0, ResANDError_1.sendResponse)(res, 200, "Certificate fetched successfully", true, cert);
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_ID, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            const certificate = yield this._certService.getCourseCertificate(studentId, courseId);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_CERTIFICATE_FETCHED, true, certificate);
         });
     }
 };

@@ -26,6 +26,7 @@ const inversify_1 = require("inversify");
 const types_1 = require("../../core/di/types");
 const ResANDError_1 = require("../../utils/ResANDError");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
+const ResponseMessages_1 = require("../../utils/ResponseMessages");
 let EmployeeLearningPathController = class EmployeeLearningPathController {
     constructor(_learningPathService) {
         this._learningPathService = _learningPathService;
@@ -34,8 +35,7 @@ let EmployeeLearningPathController = class EmployeeLearningPathController {
         return __awaiter(this, void 0, void 0, function* () {
             const employeeId = req.user.id;
             const result = yield this._learningPathService.getAssigned(employeeId);
-            console.log("assingned result", result);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Assigned learning paths fetched", true, result);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.LEARNING_PATHS_FETCHED, true, result);
         });
     }
     getLearningPathDetail(req, res) {
@@ -43,7 +43,7 @@ let EmployeeLearningPathController = class EmployeeLearningPathController {
             const employeeId = req.user.id;
             const { learningPathId } = req.params;
             const result = yield this._learningPathService.getLearningPathDetail(employeeId, learningPathId);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Learning path details fetched", true, result);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.LEARNING_PATH_DETAILS_FETCHED, true, result);
         });
     }
     updateProgress(req, res) {
@@ -51,7 +51,7 @@ let EmployeeLearningPathController = class EmployeeLearningPathController {
             const employeeId = req.user.id;
             const { learningPathId, completedCourseIndex, courseId } = req.body;
             const result = yield this._learningPathService.updateProgress(employeeId, learningPathId, completedCourseIndex, courseId);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Progress updated", true, result);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.LEARNING_PATH_PROGRESS_UPDATED, true, result);
         });
     }
     updateStatus(req, res) {
@@ -59,7 +59,7 @@ let EmployeeLearningPathController = class EmployeeLearningPathController {
             const employeeId = req.user.id;
             const { learningPathId, status } = req.body;
             const result = yield this._learningPathService.updateStatus(employeeId, learningPathId, status);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Status updated", true, result);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.LEARNING_PATH_STATUS_UPDATED, true, result);
         });
     }
 };

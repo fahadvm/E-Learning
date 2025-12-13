@@ -41,10 +41,10 @@ let CompanyAnalyticsController = class CompanyAnalyticsController {
             const { range } = req.query;
             const validRanges = ['week', 'month', 'year'];
             if (!range || !validRanges.includes(range)) {
-                (0, ResANDError_1.throwError)('Invalid range. Must be week, month, or year', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_RANGES, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             }
             const stats = yield this._analyticsService.getTrackerStats(decoded.id, range);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Tracker stats fetched successfully', true, stats);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.TRACKER_STATUS_FETCHED, true, stats);
         });
     }
 };

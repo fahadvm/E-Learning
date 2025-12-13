@@ -99,7 +99,7 @@ let CompanyEmployeeController = class CompanyEmployeeController {
             if (!employeeId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             if (!reason)
-                (0, ResANDError_1.throwError)('Rejection reason is required', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.REJECTION_REASON_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const employee = yield this._employeeService.rejectingEmployee(employeeId, reason);
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.EMPLOYEE_REQUEST_REJECTED, true, employee);
         });
@@ -112,13 +112,13 @@ let CompanyEmployeeController = class CompanyEmployeeController {
             if (!companyId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             if (!email)
-                (0, ResANDError_1.throwError)('Email is required', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMAIL_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const employee = yield this._employeeService.inviteEmployee(companyId, email);
             if (employee) {
-                (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Invitation sent to employee', true, employee);
+                (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.INVITATION_SENT, true, employee);
             }
             else {
-                (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Employee not found. Invitation link created.', true, { email });
+                (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.INVITE_LINK_CREATED, true, { email });
             }
         });
     }

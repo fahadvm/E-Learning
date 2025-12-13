@@ -57,13 +57,6 @@ let TeacherAuthController = class TeacherAuthController {
             (0, JWTtoken_1.clearTokens)(res);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.LOGOUT_SUCCESS, true);
         });
-        //   googleAuth = async (req: Request, res: Response) => {
-        //     const { email, googleId } = req.body;
-        //     if (!email || !googleId) throwError(MESSAGES.GOOGLE_AUTH_REQUIRED, STATUS_CODES.BAD_REQUEST);
-        //     const r = await this._teacherAuthService.googleAuth(req.body);
-        //     setTokensInCookies(res, r.token, r.refreshToken);
-        //     return sendResponse(res, STATUS_CODES.OK, MESSAGES.GOOGLE_AUTH_SUCCESS, true, r.user);
-        //   };
         this.sendForgotPasswordOtp = (req, res) => __awaiter(this, void 0, void 0, function* () {
             if (!req.body.email)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMAIL_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);

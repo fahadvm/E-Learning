@@ -194,6 +194,11 @@ let StudentPurchaseService = class StudentPurchaseService {
             const student = yield this._studentRepo.findById(studentId);
             if (!student)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STUDENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            const purchasedCourseIds = yield this._orderRepo.getOrderedCourseIds(studentId);
+            const hasPurchased = purchasedCourseIds.some((id) => id.toString() === courseId.toString());
+            if (!hasPurchased) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_PURCHASED, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            }
             const progress = yield this._studentRepo.getOrCreateCourseProgress(studentId, courseId);
             const recommended = yield this._courseRepo.findRecommendedCourses(courseId, course.category, course.level, 6);
             return { course, progress, recommended };

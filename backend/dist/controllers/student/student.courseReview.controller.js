@@ -27,6 +27,7 @@ const student_courseReview_service_1 = require("../../services/student/student.c
 const types_1 = require("../../core/di/types");
 const ResANDError_1 = require("../../utils/ResANDError");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
+const ResponseMessages_1 = require("../../utils/ResponseMessages");
 let StudentCourseReviewController = class StudentCourseReviewController {
     constructor(_reviewService) {
         this._reviewService = _reviewService;
@@ -34,24 +35,30 @@ let StudentCourseReviewController = class StudentCourseReviewController {
             var _a;
             const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             const { courseId, rating, comment } = req.body;
-            console.log("posting review is working 1", req.body);
-            if (!rating || !courseId)
-                (0, ResANDError_1.throwError)("Rating and Course ID required");
+            if (!studentId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            if (!rating || !courseId || !comment)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.RATING_COURSE_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const review = yield this._reviewService.addOrUpdateReview(studentId, courseId, rating, comment);
-            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Course review saved", true, review);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_REVIEW_SAVED, true, review);
         });
         this.getReviews = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            console.log("trying to geting reviews");
             const { courseId } = req.params;
+            if (!courseId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const reviews = yield this._reviewService.getCourseReviews(courseId);
-            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Course reviews fetched", true, reviews);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_REVIEWS_FETCHED, true, reviews);
         });
         this.deleteReview = (req, res) => __awaiter(this, void 0, void 0, function* () {
             var _a;
             const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             const { reviewId } = req.params;
+            if (!studentId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            if (!reviewId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             yield this._reviewService.deleteReview(studentId, reviewId);
-            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Course review deleted", true);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_REVIEW_DELETED, true);
         });
     }
 };

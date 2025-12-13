@@ -5,10 +5,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.redis = void 0;
 const ioredis_1 = __importDefault(require("ioredis"));
-exports.redis = new ioredis_1.default({
-    host: "127.0.0.1",
-    port: 6379,
+if (!process.env.REDIS_URL) {
+    throw new Error("REDIS_URL is not defined in environment variables");
+}
+exports.redis = new ioredis_1.default(process.env.REDIS_URL, {
+    tls: {}, // REQUIRED for Upstash
     lazyConnect: false,
+    maxRetriesPerRequest: null,
 });
-exports.redis.on("connect", () => console.log(" Redis Connected"));
-exports.redis.on("error", (err) => console.error(" Redis Error:", err));
+exports.redis.on("connect", () => {
+    console.log("✅ Redis connected");
+});
+exports.redis.on("error", (err) => {
+    console.error("❌ Redis error:", err);
+});

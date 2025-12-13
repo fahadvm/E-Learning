@@ -71,7 +71,10 @@ let StudentCourseService = class StudentCourseService {
             if (!course)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             const recommended = yield this._courseRepo.findRecommendedCourses(courseId, course.category, course.level, 6);
-            return { course, recommendedCourses: recommended };
+            return {
+                course: (0, Student_course_Dto_1.StudentCourseDTO)(course),
+                recommendedCourses: recommended.map(Student_course_Dto_1.StudentCourseDTO)
+            };
         });
     }
     markLessonComplete(studentId, courseId, lessonId) {

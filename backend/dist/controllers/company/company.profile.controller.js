@@ -50,7 +50,7 @@ let CompanyProfileController = class CompanyProfileController {
             const certificateFile = (_b = (_a = req.files) === null || _a === void 0 ? void 0 : _a.certificate) === null || _b === void 0 ? void 0 : _b[0];
             const taxIdFile = (_d = (_c = req.files) === null || _c === void 0 ? void 0 : _c.taxId) === null || _d === void 0 ? void 0 : _d[0];
             if (!certificateFile || !taxIdFile) {
-                (0, ResANDError_1.throwError)("Both certificate & taxId are required", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.CERTIFICATE_AND_TAXID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             }
             const verification = yield this._companyService.requestVerification(companyId, name, address, pincode, phone, certificateFile, taxIdFile);
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COMPANY_VERIFICATION_SUBMITTED, true, verification);
@@ -61,13 +61,11 @@ let CompanyProfileController = class CompanyProfileController {
             const decoded = (0, JWTtoken_1.decodeToken)(req.cookies.token);
             if (!(decoded === null || decoded === void 0 ? void 0 : decoded.id))
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
-            const companyId = decoded.id;
-            const updatedData = req.body;
-            const updatedCompany = yield this._companyService.updateProfile(companyId, updatedData);
+            const updatedCompany = yield this._companyService.updateProfile(decoded.id, req.body);
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COMPANY_UPDATED, true, updatedCompany);
         });
     }
-    // Email Change - Send OTP
+    // Send OTP for Email Change
     sendEmailChangeOTP(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const decoded = (0, JWTtoken_1.decodeToken)(req.cookies.token);
@@ -75,27 +73,28 @@ let CompanyProfileController = class CompanyProfileController {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const { newEmail } = req.body;
             if (!newEmail)
-                (0, ResANDError_1.throwError)("New email is required", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            // Basic email validation
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMAIL_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            // Validate Email
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(newEmail)) {
-                (0, ResANDError_1.throwError)("Invalid email format", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_EMAIL_FORMAT, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             }
             yield this._companyService.sendEmailChangeOTP(decoded.id, newEmail);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "OTP sent to new email address", true, null);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.OTP_SENT_NEW_EMAIL, true, null);
         });
     }
-    // Email Change - Verify OTP
+    // Verify OTP for Email Change
     verifyEmailChangeOTP(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const decoded = (0, JWTtoken_1.decodeToken)(req.cookies.token);
             if (!(decoded === null || decoded === void 0 ? void 0 : decoded.id))
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const { newEmail, otp } = req.body;
-            if (!newEmail || !otp)
-                (0, ResANDError_1.throwError)("Email and OTP are required", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            if (!newEmail || !otp) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMAIL_AND_OTP_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            }
             const updated = yield this._companyService.verifyEmailChangeOTP(decoded.id, newEmail, otp);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Email updated successfully", true, updated);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.EMAIL_UPDATED_SUCCESS, true, updated);
         });
     }
     // Change Password
@@ -106,10 +105,10 @@ let CompanyProfileController = class CompanyProfileController {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const { currentPassword, newPassword } = req.body;
             if (!currentPassword || !newPassword) {
-                (0, ResANDError_1.throwError)("Current password and new password are required", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.PASSWORDS_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             }
             yield this._companyService.changePassword(decoded.id, currentPassword, newPassword);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Password changed successfully", true, null);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.PASSWORD_CHANGED_SUCCESS, true, null);
         });
     }
 };

@@ -44,8 +44,8 @@ let StudentCourseController = class StudentCourseController {
                 language: language,
                 sort: sort,
                 order: order,
-                page: parseInt(page, 10),
-                limit: parseInt(limit, 10),
+                page: Number(page),
+                limit: Number(limit)
             });
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSES_FETCHED, true, courses);
         });
@@ -65,7 +65,7 @@ let StudentCourseController = class StudentCourseController {
             if (!studentId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             if (!lessonIndex)
-                (0, ResANDError_1.throwError)('Lesson ID is required', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.LESSON_ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const result = yield this._courseService.markLessonComplete(studentId, courseId, lessonIndex);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COMPLETD_LESSON_MARKED, true, result);
         });
@@ -77,35 +77,31 @@ let StudentCourseController = class StudentCourseController {
             if (!studentId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             if (!language || !code)
-                (0, ResANDError_1.throwError)('Language and code are required', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.LANGUAGE_AND_CODE_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const canAccess = yield this._subscriptionService.hasFeature(studentId, "Compiler");
-            if (!canAccess) {
-                return (0, ResANDError_1.throwError)("You don't have access to this feature.", 403);
-            }
+            if (!canAccess)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.FEATURE_NOT_ALLOWED, HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
             const languageMap = {
-                python: 71, // Python 3
-                javascript: 63, // Node.js
-                cpp: 54, // C++
-                java: 62, // Java
-                c: 50, // C
-                csharp: 51, // C#
-                php: 68, // PHP
-                go: 60, // Go
-                ruby: 72, // Ruby
-                sql: 82, // SQL (SQLite)
+                python: 71,
+                javascript: 63,
+                cpp: 54,
+                java: 62,
+                c: 50,
+                csharp: 51,
+                php: 68,
+                go: 60,
+                ruby: 72,
+                sql: 82
             };
             const languageId = languageMap[language.toLowerCase()];
             if (!languageId)
-                (0, ResANDError_1.throwError)('Unsupported language', HttpStatuscodes_1.STATUS_CODES.CONFLICT);
-            const response = yield axios_1.default.post(JUDGE0_URL, {
-                source_code: code,
-                language_id: languageId,
-            }, {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNSUPPORTED_LANGUAGE, HttpStatuscodes_1.STATUS_CODES.CONFLICT);
+            const response = yield axios_1.default.post(JUDGE0_URL, { source_code: code, language_id: languageId }, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-RapidAPI-Key': process.env.JUDGE0_API_KEY || '0d5115fdbcmsh30c67d2f61ef3e7p142104jsn296e045ea6a4',
-                    'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com',
-                },
+                    'X-RapidAPI-Key': process.env.JUDGE0_API_KEY,
+                    'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com'
+                }
             });
             const output = response.data.stdout || response.data.stderr || 'No output';
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.CODE_RUN_SUCCESSFULLY, true, output);

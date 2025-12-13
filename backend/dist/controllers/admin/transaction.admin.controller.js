@@ -26,13 +26,14 @@ const inversify_1 = require("inversify");
 const types_1 = require("../../core/di/types");
 const ResANDError_1 = require("../../utils/ResANDError");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
+const ResponseMessages_1 = require("../../utils/ResponseMessages");
 let TransactionAdminController = class TransactionAdminController {
     constructor(_service) {
         this._service = _service;
         this.getTransactions = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = yield this._service.getAllTransactions(req.query);
-                return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Transactions fetched successfully", true, data);
+                return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.TRANSACTION_FETCHED, true, data);
             }
             catch (error) {
                 next(error);
