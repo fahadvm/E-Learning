@@ -38,8 +38,12 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-const allowedOrigins = ['https://devnext.online', /\.devtunnels\.ms$/];
-
+const allowedOrigins = [
+  'https://devnext.online',
+  'https://www.devnext.online',
+  'https://api.devnext.online',
+  /\.devtunnels\.ms$/,
+];
 app.use(
   cors({
     origin: (origin, callback) => {
