@@ -16,6 +16,7 @@ function App() {
 
       <div className="relative z-10">
         <Navigation />
+        <Hero />
         <Stats />
         <Features />
         <Roles />
