@@ -270,7 +270,7 @@ export default function EmployeesPage() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => router.push(`/company/employees/${emp._id}`)}
-                                className="border-white/20 text-white hover:bg-white/10"
+                                className="border-white/20 text-white bg-white/10"
                               >
                                 View
                               </Button>
@@ -281,7 +281,7 @@ export default function EmployeesPage() {
                                 size="sm"
                                 onClick={() => toggleBlockEmployee(emp._id, emp.isBlocked || false)}
                                 disabled={actionLoading === emp._id}
-                                className="border-white/20 text-white hover:bg-white/10"
+                                className="border-white/20 text-white bg-white/10"
                               >
                                 {actionLoading === emp._id ? (
                                   <Loader2 className="h-4 w-4 animate-spin" />

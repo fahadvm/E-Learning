@@ -42,6 +42,7 @@ const allowedOrigins = [
   'https://devnext.online',
   'https://www.devnext.online',
   'https://api.devnext.online',
+  'http://localhost:3000',
 ];
 
 const corsOptions = {

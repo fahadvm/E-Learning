@@ -72,7 +72,7 @@ export default function CompanyProfilePage() {
             {/* Profile Card */}
             <div className="bg-white rounded-xl shadow-md p-6 text-center">
               <img
-                src={company.profilePicture || "/gallery/avatar.jpg"}
+                src={company.profilePicture || "/gallery/company-logo.jpg"}
                 alt="Profile"
                 className="w-32 h-32 mx-auto rounded-full object-cover border"
               />

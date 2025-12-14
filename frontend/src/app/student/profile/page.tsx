@@ -197,7 +197,7 @@ export default function StudentProfilePage() {
                 <div className="relative w-32 h-32 mx-auto">
                   <div className="w-full h-full rounded-full bg-indigo-900 p-1">
                     <img
-                      src={student.profilePicture || "/avatar.jpg"}
+                      src={student.profilePicture ?? "/gallery/avatar.jpg" }
                       alt={student.name}
                       className="w-full h-full rounded-full object-cover bg-white"
                     />

@@ -59,11 +59,11 @@ export default function AddEmployeePage() {
             setInviteLoading(true);
             const res = await companyApiMethods.inviteEmployee(inviteEmail);
 
-            if ((res as any)?.ok) {
-                showSuccessToast((res as any)?.message || "Invitation sent successfully");
-                if ((res as any)?.data && (res as any)?.data._id) {
+            if ((res)?.ok) {
+                showSuccessToast((res)?.message || "Invitation sent successfully");
+                if ((res)?.data && (res)?.data._id) {
                     // Employee exists, show profile
-                    setInviteResult((res as any)?.data);
+                    setInviteResult((res)?.data);
                 } else {
                     // Employee doesn't exist, invitation link created
                     setInviteEmail("");
@@ -71,7 +71,7 @@ export default function AddEmployeePage() {
                 }
             } else {
                 // fallback message
-                showErrorToast((res as any)?.message || "Failed to send invitation");
+                showErrorToast((res)?.message || "Failed to send invitation");
             }
         } catch (error: any) {
             showErrorToast(error?.response?.data?.message || "Failed to send invitation");
@@ -90,8 +90,8 @@ export default function AddEmployeePage() {
             setSearchLoading(true);
             const res = await companyApiMethods.searchEmployees(searchQuery);
 
-            if ((res as any)?.ok) {
-                const employees = (res as any)?.data || [];
+            if ((res)?.ok) {
+                const employees = (res)?.data || [];
                 // Filter out employees who already have a company
                 const available = employees.filter((emp: Employee) => !emp.companyId);
                 setSearchResults(available);
@@ -100,7 +100,7 @@ export default function AddEmployeePage() {
                     showErrorToast("No available employees found");
                 }
             } else {
-                showErrorToast((res as any)?.message || "Search failed");
+                showErrorToast((res)?.message || "Search failed");
             }
         } catch (error: any) {
             showErrorToast(error?.response?.data?.message || "Search failed");
@@ -113,13 +113,13 @@ export default function AddEmployeePage() {
         try {
             const res = await companyApiMethods.inviteEmployee(employee.email);
 
-            if ((res as any)?.ok) {
+            if ((res)?.ok) {
                 showSuccessToast("Invitation sent to " + employee.name);
                 setSelectedEmployee(null);
                 setSearchResults([]);
                 setSearchQuery("");
             } else {
-                showErrorToast((res as any)?.message || "Failed to send invitation");
+                showErrorToast((res)?.message || "Failed to send invitation");
             }
         } catch (error: any) {
             showErrorToast(error?.response?.data?.message || "Failed to send invitation");
@@ -185,19 +185,19 @@ export default function AddEmployeePage() {
                     {/* Main Card */}
                     <div className="rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-6">
                         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                            <TabsList className="grid w-full grid-cols-2 bg-transparent p-1 rounded-lg mb-4">
+                            <TabsList className="grid w-full grid-cols-1 bg-transparent p-1 rounded-lg mb-4">
                                 <TabsTrigger value="invite" className="rounded-lg">
                                     <div className="inline-flex items-center gap-2">
                                         <Mail className="h-4 w-4 text-primary" />
                                         <span className="font-semibold">Invite by Email</span>
                                     </div>
                                 </TabsTrigger>
-                                <TabsTrigger value="search" className="rounded-lg">
+                                {/* <TabsTrigger value="search" className="rounded-lg">
                                     <div className="inline-flex items-center gap-2">
                                         <Search className="h-4 w-4 text-primary" />
                                         <span className="font-semibold">Search Employees</span>
                                     </div>
-                                </TabsTrigger>
+                                </TabsTrigger> */}
                             </TabsList>
 
                             {/* Invite Tab */}

@@ -216,7 +216,7 @@ const CurrentCompanyDetails = ({ company }: any) => (
     <div className="p-6 -mt-12 flex items-center gap-4">
       <div className="w-20 h-20 rounded-xl overflow-hidden shadow-lg border border-white bg-white">
         <img
-          src={company.profilePicture || "/gallery/company-logo.png"}
+          src={company.profilePicture ?? "/gallery/company-logo.jpg"}
           alt={company.name}
           className="w-full h-full object-cover"
         />
