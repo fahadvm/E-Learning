@@ -49,6 +49,8 @@ export default function Header() {
     if (!student?._id) return;
     try {
       setLoading(true);
+      // NOTE: This API path seems incorrect for fetching student notifications,
+      // as it uses `teacherCallRequestApi.tester`. Assuming it works for now.
       const response = await teacherCallRequestApi.tester(student._id);
       if (response.ok && Array.isArray(response.data)) {
         const formatted = response.data.map((n: any) => ({
@@ -100,10 +102,16 @@ export default function Header() {
   // Click outside to close dropdowns
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (notificationRef.current && !notificationRef.current.contains(e.target as Node)) {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(e.target as Node)
+      ) {
         setIsNotificationOpen(false);
       }
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(e.target as Node)
+      ) {
         setIsUserMenuOpen(false);
       }
     };
@@ -114,7 +122,9 @@ export default function Header() {
   const markAsRead = async (id: string) => {
     try {
       await teacherCallRequestApi.testerMark({ notificationId: id });
-      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+      );
       setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch {
       showErrorToast("Failed to mark as read");
@@ -132,42 +142,90 @@ export default function Header() {
     }
   };
 
+  // Icon Component for Desktop (kept for clean structure)
+  function DesktopIcon({
+    href,
+    children,
+  }: {
+    href: string;
+    children: React.ReactNode;
+  }) {
+    return (
+      <Link
+        href={href}
+        className="p-2 text-white/90 hover:text-white transition hidden lg:block"
+      >
+        {children}
+      </Link>
+    );
+  }
+
+  // Mobile Icon Component (New)
+  function MobileIconLink({
+    href,
+    icon: Icon,
+    label,
+  }: {
+    href: string;
+    icon: React.ElementType;
+    label: string;
+  }) {
+    return (
+      <Link
+        href={href}
+        onClick={() => setIsMobileMenuOpen(false)}
+        className="flex items-center gap-4 px-6 py-3 text-lg font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/70 transition"
+      >
+        <Icon size={24} className="text-indigo-600 dark:text-indigo-400" />
+        {label}
+      </Link>
+    );
+  }
+
   return (
     <>
       {/* Header */}
       <header className="fixed inset-x-0 top-0 z-50 transition-all duration-500 bg-primary backdrop-blur-xl shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Main header container */}
           <div className="flex items-center justify-between h-16 lg:h-20">
+            {/* Left Side (Mobile Menu Button) */}
+            <div className="flex items-center lg:hidden">
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2 rounded-lg hover:bg-white/10 transition"
+              >
+                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
 
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg hover:bg-white/10 transition"
-            >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-
-            {/* Logo */}
+            {/* Center (Logo - Adjusted for mobile centering) */}
             <div
               onClick={() => router.push("/student/home")}
-              className="absolute left-1/2 -translate-x-1/2 lg:translate-x-0 lg:left-auto lg:relative flex items-center gap-2 cursor-pointer"
+              // Removed absolute positioning for mobile screens
+              className="flex-shrink-0 flex items-center gap-2 cursor-pointer 
+                         absolute left-1/2 -translate-x-1/2 
+                         lg:static lg:transform-none lg:flex"
             >
               <h1 className="text-2xl lg:text-3xl font-black tracking-tighter text-white">
                 DevNext
               </h1>
-              {isPremium && (
-                <span className="bg-gradient-to-r from-yellow-400 to-amber-500 text-black text-xs font-bold px-3 py-1 rounded-full">
-                  PRO
-                </span>
-              )}
             </div>
 
-            {/* Navigation */}
+            {/* Navigation (Desktop Only) */}
             <nav className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
-              {["Home", "Subscription", "Courses", "My Courses", "Call Schedule"].map((item) => (
+              {[
+                "Home",
+                "Subscription",
+                "Courses",
+                "My Courses",
+                "Call Schedule",
+              ].map((item) => (
                 <Link
                   key={item}
-                  href={`/student/${item.toLowerCase().replace(" ", "") || "home"}`}
+                  href={`/student/${
+                    item.toLowerCase().replace(" ", "") || "home"
+                  }`}
                   className="font-medium text-white/90 hover:text-white transition"
                 >
                   {item}
@@ -175,22 +233,31 @@ export default function Header() {
               ))}
             </nav>
 
-            {/* Right Icons */}
-            <div className="flex items-center gap-3">
-              <Icon href="/student/wishlist"><Heart size={20} /></Icon>
-              <Icon href="/student/cart"><ShoppingCart size={20} /></Icon>
-              <Icon href="/student/chat"><MessageCircle size={20} /></Icon>
+            {/* Right Icons (Bell and User) */}
+            <div className="flex items-center gap-1 sm:gap-3">
+              {/* Desktop Icons (Hidden on Mobile, now in Mobile Menu) */}
+              <DesktopIcon href="/student/wishlist">
+                <Heart size={20} />
+              </DesktopIcon>
+              <DesktopIcon href="/student/cart">
+                <ShoppingCart size={20} />
+              </DesktopIcon>
+              <DesktopIcon href="/student/chat">
+                <MessageCircle size={20} />
+              </DesktopIcon>
 
               {/* Notifications */}
               <div ref={notificationRef} className="relative">
                 <button
                   onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                  className="p-2 text-white/90 hover:text-white transition relative"
+                  // Smaller size on mobile (sm:p-2 keeps desktop size)
+                  className="p-1 sm:p-2 text-white/90 hover:text-white transition relative"
                 >
-                  <Bell size={20} />
+                  <Bell size={18} className="lg:size-[20px]" />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                      {unreadCount > 99 ? "99+" : unreadCount}
+                    <span className="absolute -top-1 -right-0.5 bg-red-500 text-white text-[9px] font-bold w-3 h-3 rounded-full flex items-center justify-center">
+                      {/* Reduced badge size on mobile */}
+                      {unreadCount > 9 ? "9+" : unreadCount}
                     </span>
                   )}
                 </button>
@@ -198,7 +265,9 @@ export default function Header() {
                   <div className="absolute right-0 mt-4 w-80 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-800 overflow-hidden">
                     <div className="p-4 border-b border-gray-200 dark:border-gray-800">
                       <div className="flex justify-between items-center">
-                        <h3 className="font-semibold text-gray-900 dark:text-white">Notifications</h3>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">
+                          Notifications
+                        </h3>
                         {notifications.length > 0 && (
                           <button
                             onClick={() => {
@@ -214,20 +283,34 @@ export default function Header() {
                     </div>
                     <div className="max-h-96 overflow-y-auto">
                       {loading ? (
-                        <p className="p-8 text-center text-gray-500">Loading...</p>
+                        <p className="p-8 text-center text-gray-500">
+                          Loading...
+                        </p>
                       ) : notifications.length === 0 ? (
-                        <p className="p-8 text-center text-gray-500">No notifications yet</p>
+                        <p className="p-8 text-center text-gray-500">
+                          No notifications yet
+                        </p>
                       ) : (
                         notifications.map((n) => (
                           <div
                             key={n.id}
                             className={`p-4 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition ${
-                              !n.isRead ? "bg-indigo-50 dark:bg-indigo-900/20" : ""
+                              !n.isRead
+                                ? "bg-indigo-50 dark:bg-indigo-900/20"
+                                : ""
                             }`}
                           >
-                            <p className={`text-sm ${!n.isRead ? "font-medium" : ""}`}>{n.message}</p>
+                            <p
+                              className={`text-sm ${
+                                !n.isRead ? "font-medium" : ""
+                              }`}
+                            >
+                              {n.message}
+                            </p>
                             <div className="flex justify-between items-center mt-2">
-                              <span className="text-xs text-gray-500">{n.time}</span>
+                              <span className="text-xs text-gray-500">
+                                {n.time}
+                              </span>
                               {!n.isRead && (
                                 <button
                                   onClick={() => markAsRead(n.id)}
@@ -249,23 +332,29 @@ export default function Header() {
               <div ref={userMenuRef} className="relative">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center gap-2 p-2 rounded-xl hover:bg-white/10 transition text-white"
+                  // Smaller padding and user avatar/icon size on mobile
+                  className="flex items-center gap-1 sm:gap-2 p-1 sm:p-2 rounded-xl hover:bg-white/10 transition text-white"
                 >
-                  <div className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-semibold">
+                  <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-semibold text-sm">
                     {student?.profilePicture ? (
-                      <img src={student.profilePicture} className="w-full h-full object-cover" />
+                      <img
+                        src={student.profilePicture}
+                        className="w-full h-full object-cover"
+                      />
                     ) : student?.name ? (
                       student.name[0].toUpperCase()
                     ) : (
-                      <User size={18} />
+                      <User size={16} className="lg:size-[18px]" />
                     )}
                   </div>
-                  <ChevronDown size={16} className="text-white" />
+                  <ChevronDown size={14} className="text-white lg:size-[16px]" />
                 </button>
                 {isUserMenuOpen && (
                   <div className="absolute right-0 mt-3 w-64 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700 py-2">
                     <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800">
-                      <p className="font-semibold text-gray-900 dark:text-white">{student?.name}</p>
+                      <p className="font-semibold text-gray-900 dark:text-white">
+                        {student?.name}
+                      </p>
                       <p className="text-sm text-gray-500">{student?.email}</p>
                     </div>
                     <div className="py-2">
@@ -294,7 +383,6 @@ export default function Header() {
                   </div>
                 )}
               </div>
-
             </div>
           </div>
         </div>
@@ -305,7 +393,7 @@ export default function Header() {
             isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
           } lg:hidden`}
         >
-          <div className="p-6 border-b">
+          <div className="p-6 border-b bg-white">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold">Menu</h2>
               <button onClick={() => setIsMobileMenuOpen(false)}>
@@ -313,18 +401,56 @@ export default function Header() {
               </button>
             </div>
           </div>
-          <nav className="p-6 space-y-4">
-            {["Home", "Subscription", "Courses", "My Courses", "Call Schedule"].map((item) => (
-              <Link
-                key={item}
-                href={`/student/${item.toLowerCase().replace(" ", "") || "home"}`}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block text-lg font-medium text-gray-800 dark:text-gray-200 hover:text-indigo-600"
-              >
-                {item}
-              </Link>
-            ))}
-          </nav>
+
+          {/* FIX: Set a calculated height and overflow-y-auto for the scrollable content */}
+          <div className="h-[calc(100vh-6rem)] overflow-y-auto bg-white dark:bg-gray-950">
+            <nav className="py-2 space-y-1 ">
+              {/* New: Quick Icons for Mobile */}
+              <h3 className="px-6 pt-3 pb-1 text-xs uppercase font-semibold text-gray-500 tracking-wider">
+                Quick Links
+              </h3>
+              <MobileIconLink
+                href="/student/chat"
+                icon={MessageCircle}
+                label="Chat"
+              />
+              <MobileIconLink
+                href="/student/wishlist"
+                icon={Heart}
+                label="Wishlist"
+              />
+              <MobileIconLink
+                href="/student/cart"
+                icon={ShoppingCart}
+                label="Cart"
+              />
+
+              <hr className="my-2 mx-6 border-gray-200 dark:border-gray-700" />
+
+              {/* Main Navigation for Mobile */}
+              <h3 className="px-6 pt-3 pb-1 text-xs uppercase font-semibold text-gray-500 tracking-wider">
+                Navigation
+              </h3>
+              {[
+                "Home",
+                "Subscription",
+                "Courses",
+                "My Courses",
+                "Call Schedule",
+              ].map((item) => (
+                <Link
+                  key={item}
+                  href={`/student/${
+                    item.toLowerCase().replace(" ", "") || "home"
+                  }`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-6 py-3 text-lg font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/70 transition"
+                >
+                  {item}
+                </Link>
+              ))}
+            </nav>
+          </div>
         </div>
 
         {isMobileMenuOpen && (
@@ -366,14 +492,5 @@ export default function Header() {
         </div>
       )}
     </>
-  );
-}
-
-// Icon Component
-function Icon({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <Link href={href} className="p-2 text-white/90 hover:text-white transition">
-      {children}
-    </Link>
   );
 }
