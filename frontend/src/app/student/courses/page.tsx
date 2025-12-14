@@ -29,7 +29,7 @@ interface ICourse {
   coverImage?: string
   language?: string
   reviewCount: number
-  averageRating:number
+  averageRating: number
   modules: IModule[]
   createdAt?: string
 }
@@ -112,89 +112,40 @@ export default function CoursesPage() {
       <main className="max-w-7xl mx-auto px-6 md:px-10">
 
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-4 mb-8">
-          {/* Search */}
+        <div className="flex gap-3 overflow-x-auto whitespace-nowrap scrollbar-hide pb-2 mb-6">
+
           <input
             type="text"
-            placeholder="Search courses..."
+            placeholder="Search"
             value={search}
             onChange={(e) => {
-              setPage(1) // reset page on filter change
+              setPage(1)
               setSearch(e.target.value)
             }}
-            className="flex-1 px-5 py-3 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="min-w-[220px] px-4 py-3 border rounded-full"
           />
 
-          {/* Category */}
-          <select
-            value={categoryFilter}
-            onChange={(e) => {
-              setPage(1)
-              setCategoryFilter(e.target.value)
-            }}
-            className="px-5 py-3 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="">All Categories</option>
-            {/* categories now should come from backend */}
-            <option value="Development">Web Development</option>
-            <option value="Database">Database</option>
-            <option value="Programming">Programming</option>
-            <option value="Design">Design</option>
-            <option value="Tools">Tools</option>
+          <select className="min-w-[160px] px-4 py-3 border rounded-full">
+            <option>Category</option>
           </select>
 
-          {/* Level */}
-          <select
-            value={levelFilter}
-            onChange={(e) => {
-              setPage(1)
-              setLevelFilter(e.target.value)
-            }}
-            className="px-5 py-3 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="">All Levels</option>
-            <option value="Beginner">Beginner</option>
-            <option value="Intermediate">Intermediate</option>
-            <option value="Advanced">Advanced</option>
+          <select className="min-w-[160px] px-4 py-3 border rounded-full">
+            <option>Level</option>
           </select>
 
-          {/* Language */}
-          <select
-            value={languageFilter}
-            onChange={(e) => {
-              setPage(1)
-              setLanguageFilter(e.target.value)
-            }}
-            className="px-5 py-3 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="">All Languages</option>
-            <option value="English">English</option>
-            <option value="Hindi">Hindi</option>
-            <option value="Malayalam">Malayalam</option>
+          <select className="min-w-[160px] px-4 py-3 border rounded-full">
+            <option>Language</option>
           </select>
 
-          {/* Sort */}
-          <select
-            value={`${sortField}-${sortOrder}`}
-            onChange={(e) => {
-              setPage(1)
-              const [field, order] = e.target.value.split('-') as ['createdAt' | 'price', 'asc' | 'desc']
-              setSortField(field)
-              setSortOrder(order)
-            }}
-            className="px-5 py-3 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="createdAt-desc">Newest First</option>
-            <option value="createdAt-asc">Oldest First</option>
-            <option value="price-asc">Price: Low to High</option>
-            <option value="price-desc">Price: High to Low</option>
+          <select className="min-w-[180px] px-4 py-3 border rounded-full">
+            <option>Sort</option>
           </select>
 
           <button
             onClick={clearFilters}
-            className="px-5 py-3 bg-red-100 text-red-700 border border-red-300 rounded-full shadow-sm hover:bg-red-200 transition"
+            className="min-w-[140px] px-4 py-3 bg-red-100 text-red-700 border rounded-full"
           >
-            Clear Filters
+            Clear
           </button>
         </div>
 
@@ -251,27 +202,27 @@ export default function CoursesPage() {
                         {course.language}
                       </span>
                     )}
-                  {/* ⭐ Rating Section */}
-                  <div className="mt-3 flex items-center gap-1 text-sm">
-                    <span className="font-medium flex items-center gap-1 text-yellow-500">
-                      {/* Rating number */}
-                      {course.averageRating?.toFixed(1) ?? "0.0"}
+                    {/* ⭐ Rating Section */}
+                    <div className="mt-3 flex items-center gap-1 text-sm">
+                      <span className="font-medium flex items-center gap-1 text-yellow-500">
+                        {/* Rating number */}
+                        {course.averageRating?.toFixed(1) ?? "0.0"}
 
-                      {/* Star icon */}
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-4 h-4 fill-yellow-500"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.287 3.967c.3.921-.755 1.688-1.54 1.118l-3.385-2.46a1 1 0 00-1.175 0l-3.385 2.46c-.784.57-1.838-.197-1.539-1.118l1.287-3.967a1 1 0 00-.364-1.118L2.045 9.394c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.286-3.967z" />
-                      </svg>
-                    </span>
+                        {/* Star icon */}
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="w-4 h-4 fill-yellow-500"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.287 3.967c.3.921-.755 1.688-1.54 1.118l-3.385-2.46a1 1 0 00-1.175 0l-3.385 2.46c-.784.57-1.838-.197-1.539-1.118l1.287-3.967a1 1 0 00-.364-1.118L2.045 9.394c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.286-3.967z" />
+                        </svg>
+                      </span>
 
-                    {/* Review count */}
-                    <span className="text-gray-500">
-                      ({course.reviewCount ?? 0} reviews)
-                    </span>
-                  </div>
+                      {/* Review count */}
+                      <span className="text-gray-500">
+                        ({course.reviewCount ?? 0} reviews)
+                      </span>
+                    </div>
 
                     {course.price && (
                       <span className="ml-auto font-semibold text-indigo-600">

@@ -223,9 +223,8 @@ export default function Header() {
               ].map((item) => (
                 <Link
                   key={item}
-                  href={`/student/${
-                    item.toLowerCase().replace(" ", "") || "home"
-                  }`}
+                  href={`/student/${item.toLowerCase().replace(" ", "") || "home"
+                    }`}
                   className="font-medium text-white/90 hover:text-white transition"
                 >
                   {item}
@@ -262,24 +261,26 @@ export default function Header() {
                   )}
                 </button>
                 {isNotificationOpen && (
-                  <div className="absolute right-0 mt-4 w-80 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-800 overflow-hidden">
-                    <div className="p-4 border-b border-gray-200 dark:border-gray-800">
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-semibold text-gray-900 dark:text-white">
-                          Notifications
-                        </h3>
-                        {notifications.length > 0 && (
-                          <button
-                            onClick={() => {
-                              setNotifications([]);
-                              setUnreadCount(0);
-                            }}
-                            className="text-xs text-indigo-600 hover:underline"
-                          >
-                            Clear all
-                          </button>
-                        )}
-                      </div>
+                  <div className="absolute 
+                      left-1/2 -translate-x-1/2 lg:left-auto lg:translate-x-0
+                      mt-4 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-800 overflow-hidden
+                      ">
+                    <div className="p-4 border-b border-gray-200 dark:border-gray-800">                      <div className="flex justify-between items-center">
+                      <h3 className="font-semibold text-gray-900 dark:text-white">
+                        Notifications
+                      </h3>
+                      {notifications.length > 0 && (
+                        <button
+                          onClick={() => {
+                            setNotifications([]);
+                            setUnreadCount(0);
+                          }}
+                          className="text-xs text-indigo-600 hover:underline"
+                        >
+                          Clear all
+                        </button>
+                      )}
+                    </div>
                     </div>
                     <div className="max-h-96 overflow-y-auto">
                       {loading ? (
@@ -294,16 +295,14 @@ export default function Header() {
                         notifications.map((n) => (
                           <div
                             key={n.id}
-                            className={`p-4 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition ${
-                              !n.isRead
+                            className={`p-4 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition ${!n.isRead
                                 ? "bg-indigo-50 dark:bg-indigo-900/20"
                                 : ""
-                            }`}
+                              }`}
                           >
                             <p
-                              className={`text-sm ${
-                                !n.isRead ? "font-medium" : ""
-                              }`}
+                              className={`text-sm ${!n.isRead ? "font-medium" : ""
+                                }`}
                             >
                               {n.message}
                             </p>
@@ -389,9 +388,8 @@ export default function Header() {
 
         {/* Mobile Menu */}
         <div
-          className={`fixed inset-y-0 left-0 w-80 bg-white dark:bg-gray-950 shadow-2xl transform transition-transform duration-300 z-50 ${
-            isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-          } lg:hidden`}
+          className={`fixed inset-y-0 left-0 w-80 bg-white dark:bg-gray-950 shadow-2xl transform transition-transform duration-300 z-50 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+            } lg:hidden`}
         >
           <div className="p-6 border-b bg-white">
             <div className="flex items-center justify-between">
@@ -440,9 +438,8 @@ export default function Header() {
               ].map((item) => (
                 <Link
                   key={item}
-                  href={`/student/${
-                    item.toLowerCase().replace(" ", "") || "home"
-                  }`}
+                  href={`/student/${item.toLowerCase().replace(" ", "") || "home"
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block px-6 py-3 text-lg font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/70 transition"
                 >
