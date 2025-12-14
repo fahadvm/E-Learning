@@ -148,7 +148,7 @@ export default function Hero() {
                                             DevNext Platform
                                         </div>
                                         <div className="text-muted-foreground">
-                                            Interactive Learning Environment
+                                            E-learning and Corporate Training Platform
                                         </div>
                                     </div>
                                 </div>
