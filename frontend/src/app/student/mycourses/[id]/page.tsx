@@ -469,20 +469,21 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
             </Card>
 
             {/* Tabs */}
-            <Tabs defaultValue="overview" className="w-full">
+<Tabs defaultValue="overview" className="w-full relative">
               {/* Responsive Tabs List */}
-              <TabsList
-                className="
-    flex w-full
-    overflow-x-auto
-    no-scrollbar
-    gap-2
-    sm:grid sm:grid-cols-4
+      <TabsList
+  className="
+    grid
+    grid-cols-2
+    sm:grid-cols-3
     lg:grid-cols-5
-    sm:overflow-visible
+    gap-2
+    w-full
+    h-auto          
+    items-stretch   
   "
-              >
-                <TabsTrigger value="overview" className="text-xs sm:text-sm">
+>
+                <TabsTrigger value="overview" className="text-xs  sm:text-sm">
                   <BookOpen className="w-4 h-4 mr-1" /> Overview
                 </TabsTrigger>
                 <TabsTrigger value="notes" className="text-xs sm:text-sm">
