@@ -264,7 +264,7 @@ export default function Header() {
                   <div className="absolute 
                       left-1/2 -translate-x-1/2 lg:left-auto lg:translate-x-0
                       mt-4 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-800 overflow-hidden
-                      ">
+                      ">
                     <div className="p-4 border-b border-gray-200 dark:border-gray-800">                      <div className="flex justify-between items-center">
                       <h3 className="font-semibold text-gray-900 dark:text-white">
                         Notifications
@@ -296,8 +296,8 @@ export default function Header() {
                           <div
                             key={n.id}
                             className={`p-4 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition ${!n.isRead
-                                ? "bg-indigo-50 dark:bg-indigo-900/20"
-                                : ""
+                              ? "bg-indigo-50 dark:bg-indigo-900/20"
+                              : ""
                               }`}
                           >
                             <p
