@@ -46,9 +46,8 @@ export class ChatRepository implements IChatRepository {
 
   async getStudentMessages(chatId: string, limit: number, before?: Date) {
     const query: any = { chatId: new Types.ObjectId(chatId) };
-    if (before) {
-      query.createdAt = { $lt: before };
-    }
+    console.log(before)
+
     return Message.find(query).populate('receiverId', 'name email profilePicture').sort({ createdAt: 1 });
   }
 
@@ -67,11 +66,37 @@ export class ChatRepository implements IChatRepository {
   }
 
   async getStudentChats(userId: string) {
-    return Chat.find({ studentId: new Types.ObjectId(userId) }).populate('teacherId', 'name email profilePicture');
+    const chats = await Chat.find({ studentId: new Types.ObjectId(userId) })
+      .populate('teacherId', 'name email profilePicture')
+      .lean();
+
+    const chatsWithUnread = await Promise.all(chats.map(async (chat) => {
+      const unread = await Message.countDocuments({
+        chatId: chat._id,
+        receiverId: new Types.ObjectId(userId),
+        isRead: false
+      });
+      return { ...chat, unread };
+    }));
+
+    return chatsWithUnread;
   }
 
   async getTeacherChats(userId: string) {
-    return Chat.find({ teacherId: new Types.ObjectId(userId) }).populate('studentId', 'name email profilePicture');
+    const chats = await Chat.find({ teacherId: new Types.ObjectId(userId) })
+      .populate('studentId', 'name email profilePicture')
+      .lean();
+
+    const chatsWithUnread = await Promise.all(chats.map(async (chat) => {
+      const unread = await Message.countDocuments({
+        chatId: chat._id,
+        receiverId: new Types.ObjectId(userId),
+        isRead: false
+      });
+      return { ...chat, unread };
+    }));
+
+    return chatsWithUnread;
   }
 
   async findOrCreateCompanyGroup(companyId: string, groupName: string) {

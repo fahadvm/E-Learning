@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {  } from "@/components/ui/badge"
+import { } from "@/components/ui/badge"
 
 interface Conversation {
   _id: string
@@ -51,7 +51,7 @@ export function ChatLists({ conversations, selectedChatId }: ChatListProps) {
         return (
           <Link
             key={conversation._id}
-            href={`/teacher/chat/${student._id}?chatId=${conversation._id}`} 
+            href={`/teacher/chat/${student._id}?chatId=${conversation._id}`}
             className={`block hover:bg-muted/50 transition-colors ${isSelected ? "bg-muted/20" : ""}`}
             aria-label={`Chat with ${student.name}`}
           >
@@ -92,11 +92,11 @@ export function ChatLists({ conversations, selectedChatId }: ChatListProps) {
                     {conversation.lastMessage || "No messages yet"}
                   </p>
 
-                  {/* {conversation.unread > 0 && (
-                                )} */}
-                  {/* <Badge className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                    5
-                  </Badge> */}
+                  {conversation.unread > 0 && (
+                    <div className="bg-primary text-primary-foreground text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
+                      {conversation.unread}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

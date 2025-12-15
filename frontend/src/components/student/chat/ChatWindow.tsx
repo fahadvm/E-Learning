@@ -77,8 +77,10 @@ export default function ChatWindow({
         sendMessage({
             senderId: currentUserId,
             receiverId: receiver,
-            message: tempMessage.message,  
-            chatId: selectedChat._id,     
+            message: tempMessage.message,
+            chatId: selectedChat._id,
+            senderType: 'Student',
+            receiverType: 'Teacher'
         })
     }
 

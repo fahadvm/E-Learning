@@ -98,7 +98,7 @@ export default function BookingPurchaseSuccessContent() {
 
         {/* Buttons */}
         <div className="flex flex-col sm:flex-row gap-4">
-          <Link href="/student/call-schedule" className="flex-1">
+          <Link href="/student/callschedule" className="flex-1">
             <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-medium">
               Go to My Bookings
               <ArrowRight className="ml-2 w-5 h-5" />

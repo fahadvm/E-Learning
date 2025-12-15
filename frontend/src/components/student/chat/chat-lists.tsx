@@ -39,8 +39,8 @@ export function formatTimeDifference(updatedAt: string | Date): string {
 export function ChatLists({ conversations, selectedChatId }: ChatListProps) {
   if (conversations.length === 0) {
     return <p className="p-4 text-muted-foreground">No conversations found.</p>
-  }else{
-    console.log("chat list of props ",conversations)
+  } else {
+    console.log("chat list of props ", conversations)
   }
 
   return (
@@ -93,11 +93,11 @@ export function ChatLists({ conversations, selectedChatId }: ChatListProps) {
                     {conversation.lastMessage || "No messages yet"}
                   </p>
 
-                  {/* {conversation.unread > 0 && (
-                                )} */}
-                  {/* <Badge className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                    5
-                  </Badge> */}
+                  {conversation.unread > 0 && (
+                    <div className="bg-primary text-primary-foreground text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
+                      {conversation.unread}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

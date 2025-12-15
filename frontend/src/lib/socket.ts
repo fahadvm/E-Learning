@@ -38,14 +38,20 @@ export const initSocket = (
   socket.on("message_edited", onMessageEdited);
 
   socket.on("receive_notification", (data) => {
-  console.log("🔔 Notification received:", data);
-  showSuccessToast(`🔔 ${data.title}: ${data.message}`);
-});
+    console.log("🔔 Notification received:", data);
+    showSuccessToast(`🔔 ${data.title}: ${data.message}`);
+  });
 
   return socket;
 };
 
-export const sendMessage = (data: { senderId: string; receiverId: string; message: string; chatId: string }) => {
+export const joinChat = (chatId: string) => {
+  if (socket) {
+    socket.emit("join_chat", chatId);
+  }
+};
+
+export const sendMessage = (data: { senderId: string; receiverId: string; message: string; chatId: string; senderType: string; receiverType: string }) => {
   if (socket) {
     socket.emit("send_message", data);
   }
@@ -80,7 +86,7 @@ export const sendEditMessage = (data: { chatId: string; messageId: string; sende
     socket.emit("edit_message", data);
   }
 };
-export const sendNotification = (data: {receiverId: string ; title: string; message: string;}) => {
+export const sendNotification = (data: { receiverId: string; title: string; message: string; }) => {
   if (socket) {
     console.log("emiting send notification here")
     socket.emit("send_notification", data);

@@ -28,7 +28,7 @@ export interface IStudentBookingService {
     status?: string,
     teacher?: string
   ): Promise<IPaginatedResult<IBooking>>; 
-  getAvailableSlots(teacherId: string): Promise<IAvailableSlot[]>;
+  getAvailableSlots(teacherId: string): Promise<IAvailableSlot[]| null>;
   getBookingDetails(bookingId: string): Promise<IBooking>;
   getBookingDetailsByPaymentId(paymentOrderId: string): Promise<IBooking>;
   getScheduledCalls(studentId: string): Promise<IBooking[]>;

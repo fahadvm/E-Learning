@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useStudent } from "@/context/studentContext";
-import { initSocket, sendMessage, sendTyping, sendReadMessage, sendMessageReaction, sendDeleteMessage, sendEditMessage, disconnectSocket } from "@/lib/socket";
+import { initSocket, sendMessage, sendTyping, sendReadMessage, sendMessageReaction, sendDeleteMessage, sendEditMessage, disconnectSocket, joinChat } from "@/lib/socket";
 import { studentChatApi } from "@/services/APIservices/studentApiservice";
 import Link from "next/link";
 
@@ -50,23 +50,23 @@ const ChatHeader = ({ teacherName, teacherAvatar, isOnline }: { teacherName: str
   return (
     <div className="bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-6 py-4 flex items-center justify-between shadow-sm">
       <div className="flex items-center gap-4">
-          <Link
-            href="/student/chat"
-            className="p-2 rounded-md hover:bg-muted transition-colors"
+        <Link
+          href="/student/chat"
+          className="p-2 rounded-md hover:bg-muted transition-colors"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-5 h-5 text-foreground"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-5 h-5 text-foreground"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </Link>
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </Link>
         <div className="relative group">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full blur-md opacity-20 group-hover:opacity-30 transition-opacity"></div>
           <img
@@ -487,6 +487,8 @@ export default function StudentChatContent() {
       setIsOnline(users.includes(teacherId));
     });
 
+    joinChat(chatId);
+
     return () => {
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
       disconnectSocket();
@@ -496,9 +498,8 @@ export default function StudentChatContent() {
   const handleSend = () => {
     if (!input || !studentId || !teacherId || !chatId) return;
 
-    const msg = { senderId: studentId, receiverId: teacherId, message: input, chatId };
+    const msg = { senderId: studentId, receiverId: teacherId, message: input, chatId, senderType: 'Student', receiverType: 'Teacher' };
     sendMessage(msg);
-    setMessages((prev) => [...prev, { ...msg, read: false, createdAt: new Date(), reactions: [] }]);
     setInput("");
   };
 

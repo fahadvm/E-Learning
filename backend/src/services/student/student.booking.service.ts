@@ -14,8 +14,6 @@ import { IBooking } from '../../models/Booking';
 import Razorpay from 'razorpay';
 import { INotificationRepository } from '../../core/interfaces/repositories/INotificationRepository';
 import { IAvailableSlot } from '../../types/filter/fiterTypes';
-
-
 import { ITransactionRepository } from '../../core/interfaces/repositories/ITransactionRepository';
 import { IWalletRepository } from '../../core/interfaces/repositories/IwalletRepository';
 import { Transaction } from '../../models/Transaction';
@@ -213,9 +211,10 @@ export class StudentBookingService implements IStudentBookingService {
     return details;
   }
 
-  async getAvailableSlots(teacherId: string): Promise<IAvailableSlot[]> {
+  async getAvailableSlots(teacherId: string): Promise<IAvailableSlot[] | null> {
+    console.log("getAvailableSlots......")
     const availability = await this._availibilityRepo.getAvailabilityByTeacherId(teacherId);
-    if (!availability) throwError(MESSAGES.TEACHER_AVAILABILITY_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    if (!availability) return [];
 
     const today = dayjs();
     const nextWeek = today.add(7, 'day');

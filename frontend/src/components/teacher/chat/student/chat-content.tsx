@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useTeacher } from "@/context/teacherContext";
-import { initSocket, sendMessage, sendTyping, sendReadMessage, sendMessageReaction, sendDeleteMessage, sendEditMessage, disconnectSocket } from "@/lib/socket";
+import { initSocket, sendMessage, sendTyping, sendReadMessage, sendMessageReaction, sendDeleteMessage, sendEditMessage, disconnectSocket, joinChat } from "@/lib/socket";
 import { teacherChatApi } from "@/services/APIservices/teacherApiService";
 
 // ---------- ConfirmationDialog Component ----------
@@ -174,11 +174,10 @@ const ChatMessages = ({
               ) : (
                 <>
                   <div
-                    className={`px-5 py-3 rounded-2xl shadow-md transition-all duration-200 hover:shadow-lg ${
-                      msg.senderId === teacherId
-                        ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-tr-md"
-                        : "bg-white text-slate-800 rounded-tl-md border border-slate-200"
-                    }`}
+                    className={`px-5 py-3 rounded-2xl shadow-md transition-all duration-200 hover:shadow-lg ${msg.senderId === teacherId
+                      ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-tr-md"
+                      : "bg-white text-slate-800 rounded-tl-md border border-slate-200"
+                      }`}
                   >
                     <p className="text-[15px] leading-relaxed break-words">{msg.message}</p>
                     {msg.edited && (
@@ -293,7 +292,7 @@ const ChatMessages = ({
         title="Delete Message"
         message="Are you sure you want to delete this message? This action cannot be undone."
         onConfirm={() => {
-          console.log("confirmDeleteMessageId",confirmDeleteMessageId)
+          console.log("confirmDeleteMessageId", confirmDeleteMessageId)
           if (confirmDeleteMessageId) handleDelete(confirmDeleteMessageId);
           setShowDeleteDialog(false);
         }}
@@ -304,7 +303,7 @@ const ChatMessages = ({
         title="Edit Message"
         message="Are you sure you want to save changes to this message?"
         onConfirm={() => {
-          console.log("confirmEditMessageId",confirmEditMessageId)
+          console.log("confirmEditMessageId", confirmEditMessageId)
           if (confirmEditMessageId) handleEditSubmit(confirmEditMessageId);
           console.log("heey editing")
           setShowEditDialog(false);
@@ -464,7 +463,8 @@ export default function TeacherChatContent() {
     socket.on("onlineUsers", (users: string[]) => {
       setIsOnline(users.includes(studentId));
     });
-        console.log("connected the socket to init socket")
+
+    joinChat(chatId);
 
     return () => {
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
@@ -475,9 +475,8 @@ export default function TeacherChatContent() {
   const handleSend = () => {
     if (!input || !teacherId || !studentId || !chatId) return;
 
-    const msg = { senderId: teacherId, receiverId: studentId, message: input, chatId };
+    const msg = { senderId: teacherId, receiverId: studentId, message: input, chatId, senderType: 'Teacher', receiverType: 'Student' };
     sendMessage(msg);
-    setMessages((prev) => [...prev, { ...msg, read: false, createdAt: new Date(), reactions: [] }]);
     setInput("");
   };
 
@@ -498,7 +497,7 @@ export default function TeacherChatContent() {
   };
 
   const handleDelete = (messageId: string) => {
-    
+
     console.log("her deleting message working")
     if (!teacherId || !studentId || !chatId) return;
     sendDeleteMessage({
