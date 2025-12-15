@@ -7,7 +7,6 @@ interface RevenueChartProps {
 }
 
 export default function RevenueChart({ data }: RevenueChartProps) {
-    // Format data for chart (expecting _id as month number)
     const formattedData = data.map(item => ({
         month: new Date(0, item._id - 1).toLocaleString('default', { month: 'short' }),
         revenue: item.revenue
