@@ -24,15 +24,28 @@ export class AdminTeacherService implements IAdminTeacherService {
         @inject(TYPES.TransactionRepository) private readonly _transactionRepo: ITransactionRepository,
     ) { }
 
-    async getAllTeachers(page: number, limit: number, search?: string, status?: string): Promise<PaginatedTeacherDTO> {
+    async getAllTeachers(
+        page: number,
+        limit: number,
+        search?: string,
+        status?: string
+    ): Promise<PaginatedTeacherDTO> {
         const skip = (page - 1) * limit;
         const teachers = await this._teacherRepo.findAll({ skip, limit, search, status });
         const total = await this._teacherRepo.count(search, status);
         const totalPages = Math.ceil(total / limit);
-
-        const data = teachers.map(adminTeacherDto);
+        const data = await Promise.all(
+            teachers.map(async (teacher) => {
+                const courses = await this._courseRepo.findByTeacherId(teacher._id.toString());
+                const totalCourses = courses.length;
+                const totalStudents = courses.reduce((sum, c) => sum + (c.totalStudents || 0), 0);
+                const totalEarnings = await this._transactionRepo.teacherEarnings(teacher._id.toString());
+                return adminTeacherDto({ ...teacher, totalCourses, totalStudents, totalEarnings });
+            })
+        );
         return { data, total, totalPages };
     }
+
 
     // get paginated verification requests (pending)
     async getVerificationRequests(page: number, limit: number, search: string): Promise<PaginatedTeacherDTO> {

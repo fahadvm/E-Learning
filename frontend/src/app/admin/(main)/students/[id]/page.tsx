@@ -345,7 +345,7 @@ export default function StudentDetailsPage() {
                     </div>
 
                     <div className="flex justify-between text-xs text-slate-400">
-                      <span>Last accessed: {course.updatedAt.toString()}</span>
+                      {/* <span>Last accessed: {course.updatedAt.toString()}</span> */}
                       <span
                         className={
                           course.percentage === 100
