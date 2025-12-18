@@ -7,7 +7,7 @@ import crypto from 'crypto';
 import { throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { RazorpayOrderResponse, RazorpayVerifyPayload } from '../../types/filter/fiterTypes';
-import { ISubscriptionPlan } from '../../models/subscriptionPlan';
+import { IFeature, ISubscriptionPlan } from '../../models/subscriptionPlan';
 import { IStudentSubscription } from '../../models/StudentSubscription';
 
 @injectable()
@@ -33,11 +33,23 @@ export class StudentSubscriptionService implements IStudentSubscriptionService {
       throwError(MESSAGES.INVALID_DATA);
     }
 
-    const existingSubscription = await this.getActiveSubscription(studentId);
-    console.log("existing plan:", existingSubscription)
-    if (existingSubscription && new Date(existingSubscription.endDate) > new Date()) {
-      throwError(MESSAGES.ACTIVE_SUBSCRIPTION_EXISTS || "You already have an active subscription");
+    const existingSubscriptions = await this._planRepo.findActiveSubscriptions(studentId);
+    if (existingSubscriptions) {
+      const isSamePlanActive = existingSubscriptions.some(
+        (sub) =>
+          sub.planId.toString() === planId.toString() &&
+          new Date(sub.endDate) > new Date()
+      );
+
+      if (isSamePlanActive) {
+        throwError(
+          MESSAGES.ACTIVE_SUBSCRIPTION_EXISTS ||
+          "This plan is already active for the student"
+        );
+      }
     }
+
+
 
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID!,
@@ -88,20 +100,26 @@ export class StudentSubscriptionService implements IStudentSubscriptionService {
     );
   }
 
-  async getActiveSubscription(studentId: string): Promise<IStudentSubscription | null> {
-    return this._planRepo.findActiveSubscription(studentId);
+  async getActiveSubscription(studentId: string): Promise<IStudentSubscription[] | null> {
+    return this._planRepo.findActiveSubscriptions(studentId);
   }
 
 
 
   async hasFeature(studentId: string, featureName: string): Promise<boolean> {
-    const subscription = await this._planRepo.findActiveSubscription(studentId);
-    if (!subscription) return false;
+    const subscriptions = await this._planRepo.findActiveSubscription(studentId);
+    if (!subscriptions?.length) return false;
 
-    const plan = await this._planRepo.getById(subscription.planId);
-    if (!plan) return false;
+    const plans = await Promise.all(
+      subscriptions.map((sub: IStudentSubscription) => this._planRepo.getById(sub.planId.toString()))
+    );
 
-    return plan.features.some(feature => feature.name === featureName);
+    return plans.some(
+      plan =>
+        plan &&
+        plan.features.some((feature: IFeature) => feature.name === featureName)
+    );
   }
+
 
 }

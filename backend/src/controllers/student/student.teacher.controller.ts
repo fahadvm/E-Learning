@@ -32,4 +32,14 @@ export class StudentTeacherController implements IStudentTeacherController {
     const availability = await this._teacherService.getAvailability(teacherId);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.TEACHER_AVAILABILITY_FETCHED, true, availability);
   };
+    getTopTeacher = async (_req: Request, res: Response) => {
+    const teachers = await this._teacherService.getTopTeachers();
+    return sendResponse(
+      res,
+      STATUS_CODES.OK,
+      MESSAGES.TOP_TEACHERS_FETCHED,
+      true,
+      teachers
+    );
+  };
 }

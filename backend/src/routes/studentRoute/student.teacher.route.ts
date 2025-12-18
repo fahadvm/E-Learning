@@ -10,6 +10,7 @@ const router = Router();
 const studentTeachercntrl = container.get<StudentTeacherController>(TYPES.StudentTeacherController);
 const studentTeacherReviewCtrl = container.get<StudentTeacherReviewController>(TYPES.StudentTeacherReviewController);
 
+router.get('/', authMiddleware('student'), asyncHandler(studentTeachercntrl.getTopTeacher.bind(studentTeachercntrl)));
 router.get('/:teacherId', authMiddleware('student'), asyncHandler(studentTeachercntrl.getProfile.bind(studentTeachercntrl)));
 router.get('/availability/:teacherId', authMiddleware('student'), asyncHandler(studentTeachercntrl.getAvailability.bind(studentTeachercntrl)));
 

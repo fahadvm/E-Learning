@@ -50,7 +50,7 @@ export const studentProfileApi = {
 };
 
 export const studentTeacherApi = {
-  getAllTeachers: () => get(STUDENT_ROUTES.teacher.base),
+  getTopTeachers: () => get(STUDENT_ROUTES.teacher.base),
   getTeacherDetails: (teacherId: string) => get(STUDENT_ROUTES.teacher.getById(teacherId)),
   getTeacherAvailability: (teacherId: string) => get(STUDENT_ROUTES.teacher.availability(teacherId)),
   getTeacherReviews:(teacherId:string) => get(STUDENT_ROUTES.teacher.getReviews(teacherId)),

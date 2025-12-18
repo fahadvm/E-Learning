@@ -93,4 +93,7 @@ export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
   async findActiveSubscription(studentId: string): Promise<any | null> {
     return await StudentSubscription.findOne({ studentId, status: 'active' }).populate("planId");
   }
+  async findActiveSubscriptions(studentId: string): Promise<IStudentSubscription[] | null> {
+    return await StudentSubscription.find({ studentId, status: 'active' }).populate("planId");
+  }
 }

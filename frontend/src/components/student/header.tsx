@@ -28,7 +28,7 @@ interface Notification {
   isRead: boolean;
 }
 
-export default function Header() {
+export default function   Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);

@@ -25,4 +25,5 @@ export interface ISubscriptionPlanRepository {
     paymentId?: string
   ): Promise<IStudentSubscription | null>;
   findActiveSubscription(studentId: string): Promise<any | null>;
+  findActiveSubscriptions(studentId: string): Promise<IStudentSubscription[] | null>;
 }

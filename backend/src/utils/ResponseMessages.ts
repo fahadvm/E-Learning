@@ -29,6 +29,7 @@ export enum MESSAGES {
   OTP_SENT_NEW_EMAIL = "OTP sent to new email",
   FEATURE_NOT_ALLOWED = "You don't have access to this feature.",
   BOOKING_DETAILS_FETCHED = "Booking details fetched successfully",
+  TOP_TEACHERS_FETCHED = "Top teachers fetched successfully",
 
 
 

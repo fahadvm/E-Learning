@@ -139,13 +139,13 @@ export class TeacherRepository implements ITeacherRepository {
     return requiredFields.every((f) => f && f !== '' && f !== 0);
   }
 
-    sendVerificationRequest(id: string, status: VerificationStatus ,resumeUrl:string): Promise<ITeacher | null>{
-    return Teacher.findByIdAndUpdate(id, { verificationStatus: status ,resumeUrl  }, { new: true });
+  sendVerificationRequest(id: string, status: VerificationStatus, resumeUrl: string): Promise<ITeacher | null> {
+    return Teacher.findByIdAndUpdate(id, { verificationStatus: status, resumeUrl }, { new: true });
   }
 
 
 
-   async findPendingRequests(params?: { skip?: number; limit?: number; search?: string }): Promise<ITeacher[]> {
+  async findPendingRequests(params?: { skip?: number; limit?: number; search?: string }): Promise<ITeacher[]> {
     const query: FilterQuery<ITeacher> = { verificationStatus: VerificationStatus.PENDING };
     if (params?.search) {
       query.$or = [
@@ -170,5 +170,12 @@ export class TeacherRepository implements ITeacherRepository {
     return Teacher.countDocuments(query).exec();
   }
 
-  
+  async findTopTeachers(): Promise<ITeacher[]> {
+    return Teacher.find({ isBlocked: false })
+      .sort({ averageRating: -1, reviewCount: -1 })
+      .limit(10)
+      .select('-password');
+  }
+
+
 }

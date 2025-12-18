@@ -23,4 +23,8 @@ export class StudentTeacherService implements IStudentTeacherService {
   async getAvailability(teacherId: string): Promise<ITeacherAvailability | null> {
     return this._availabilityRepo.getAvailabilityByTeacherId(teacherId);
   }
+
+    async getTopTeachers(): Promise<ITeacher[]> {
+    return this._teacherRepo.findTopTeachers();
+  }
 }

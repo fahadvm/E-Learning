@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react";
+import React, { useEffect } from "react";
 import Header from "@/components/student/header";
 import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -10,9 +10,9 @@ import 'swiper/css/navigation';
 
 
 
-import {  useState } from "react";
+import { useState } from "react";
 
-import {  studentTeacherApi } from "@/services/APIservices/studentApiservice";
+import { studentCourseApi, studentTeacherApi } from "@/services/APIservices/studentApiservice";
 
 
 
@@ -31,41 +31,61 @@ export default function HeroSection() {
     interface ITeacher {
         _id: string
         name: string
-        email: string
-        ProfileImage?: string
+        about: string
+        profilePicture?: string
     }
 
     const [recommendedCourses, setRecommendedCourses] = useState<ICourse[]>([]);
     const [teachers, setTeachers] = useState<ITeacher[]>([])
 
-    // const fetchCourses = async () => {
-    //     try {
-    //         const res = await studentCourseApi.getRecommendedCourses();
-    //         console.log("Recommended courses response:", res.data);
-    //         console.log("res?.data.data:", res)
-    //         setRecommendedCourses(res?.data.data)
-    //     } catch (error) {
-    //         console.error('Failed to fetch courses', error)
-    //     }
-    // }
+    const getTeachersForSlider = (list: ITeacher[]) => {
+        if (!list || list.length === 0) return [];
 
-    const fetchTeachers = async () => {
+        if (list.length >= 4) return list;
+
+        const duplicated = [...list];
+        let i = 0;
+
+        while (duplicated.length < 4) {
+            duplicated.push(list[i % list.length]);
+            i++;
+        }
+
+        return duplicated;
+    };
+
+
+
+    const fetchCourses = async () => {
         try {
-
-            const res = await studentTeacherApi.getAllTeachers()
-            setTeachers(res.data.data)
+            const res = await studentCourseApi.getRecommendedCourses();
+            console.log("Recommended courses response:", res.data);
+            console.log("res?.data.data:", res)
+            setRecommendedCourses(res?.data.data)
         } catch (error) {
             console.error('Failed to fetch courses', error)
         }
     }
 
-    // useEffect(() => {
-    //     if (student) {
-    //         fetchCourses()
-    //     }
-    // }, []);
+    const fetchTeachers = async () => {
+        try {
+
+            const res = await studentTeacherApi.getTopTeachers()
+            setTeachers(res.data)
+            console.log("teachers res", res)
+        } catch (error) {
+            console.error('Failed to fetch courses', error)
+        }
+    }
+
+    useEffect(() => {
+        fetchCourses()
+        fetchTeachers()
+
+    }, []);
 
 
+    const sliderTeachers = getTeachersForSlider(teachers);
 
     const subjects = [
         { img: '/hero/h1_hero.png', title: 'Programing' },
@@ -78,13 +98,7 @@ export default function HeroSection() {
         { img: '/gallery/topic8.png', title: 'Hosting' },
     ];
 
-    const experts = [
-        { img: '/gallery/team1.png', name: 'Mr. Urela', description: 'The automated process all your website tasks.' },
-        { img: '/gallery/team2.png', name: 'Mr. Uttom', description: 'The automated process all your website tasks.' },
-        { img: '/gallery/team3.png', name: 'Mr. Shakil', description: 'The automated process all your website tasks.' },
-        { img: '/gallery/team4.png', name: 'Mr. Arafat', description: 'The automated process all your website tasks.' },
-        { img: '/gallery/team3.png', name: 'Mr. Saiful', description: 'The automated process all your website tasks.' },
-    ];
+
 
 
 
@@ -186,33 +200,52 @@ export default function HeroSection() {
                         {/* Grid of 8 Courses */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             {recommendedCourses?.slice(0, 8).map((course, index) => (
-                                <div key={index} className="bg-white shadow-md rounded-lg overflow-hidden flex flex-col h-full">
-                                    <div className="relative">
-                                        <img src={course.coverImage}
-                                            alt={course.title} className="w-full h-48 object-cover" />
-                                    </div>
+                                <div
+                                    key={index}
+                                    className="bg-white shadow-md rounded-lg overflow-hidden flex flex-col h-[420px]"
+                                >
+                                    {/* Image */}
+                                    <img
+                                        src={course.coverImage}
+                                        alt={course.title}
+                                        className="w-full h-48 object-cover"
+                                    />
 
-                                    <div className="p-6 flex flex-col flex-grow">
+                                    {/* Content */}
+                                    <div className="p-6 flex flex-col flex-1">
                                         <p className="text-sm text-gray-600">{course.category}</p>
-                                        <h3 className="text-xl font-semibold mb-2">
-                                            <Link href="#" className="hover:text-blue-600">{course.title.toUpperCase()}</Link>
-                                        </h3>
-                                        <p className="text-gray-600 mb-4 flex-grow">{course.description}</p>
 
-                                        <div className="flex justify-between items-center mt-auto">
+                                        {/* Title – fixed height */}
+                                        <h3 className="text-xl font-semibold mb-2 line-clamp-2">
+                                            <Link href="#" className="hover:text-blue-600">
+                                                {course.title.toUpperCase()}
+                                            </Link>
+                                        </h3>
+
+                                        {/* Description – fixed height */}
+                                        <p className="text-gray-600 mb-4 line-clamp-3">
+                                            {course.description}
+                                        </p>
+
+                                        {/* Footer – ALWAYS at bottom */}
+                                        <div className="mt-auto flex justify-between items-center">
                                             <Link
                                                 href={`/student/courses/${course._id}`}
                                                 className="inline-block px-4 py-2 border bg-indigo-200 border-gray-300 rounded hover:bg-indigo-400 text-sm"
                                             >
                                                 Find out more
                                             </Link>
-                                            <div className="text-xl font-bold">₹{course.price}</div>
+
+                                            <div className="text-xl font-bold">
+                                                ₹{course.price}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-
                             ))}
                         </div>
+
+
 
                         {/* Centered View More Button */}
                         <div className="text-center mt-10">
@@ -298,7 +331,7 @@ export default function HeroSection() {
                             ))}
                         </div>
                         <div className="text-center mt-8">
-                            <Link href="/courses" className="inline-block px-6 py-3 border border-gray-300 rounded hover:bg-gray-100">
+                            <Link href="/student/courses" className="inline-block px-6 py-3 border border-gray-300 rounded hover:bg-gray-100">
                                 View More...
                             </Link>
                         </div>
@@ -328,14 +361,13 @@ export default function HeroSection() {
                 </section>
 
                 {/* Team Area */}
-                <section className="py-16 bg-gray-100">
-                    <div className="container mx-auto px-4">
+                <section className="py-16 bg-gray-50">
+                    <div className="container bg-gray-50 mx-auto px-4">
                         <div className="text-center mb-12">
                             <h2 className="text-4xl font-bold">Expert instructors</h2>
                         </div>
                         <Swiper
                             spaceBetween={30}
-                            slidesPerView={3}
                             loop={true}
                             autoplay={{
                                 delay: 2500,
@@ -343,20 +375,39 @@ export default function HeroSection() {
                             }}
                             navigation={true}
                             modules={[Autoplay, Navigation]}
+                            breakpoints={{
+                                // Mobile: < 768px → 1 slide
+                                0: {
+                                    slidesPerView: 1,
+                                    spaceBetween: 20,
+                                },
+                                // Tablet: ≥ 768px → 2 slides
+                                768: {
+                                    slidesPerView: 2,
+                                    spaceBetween: 30,
+                                },
+                                // Desktop: ≥ 1024px → 3 slides
+                                1024: {
+                                    slidesPerView: 3,
+                                    spaceBetween: 30,
+                                },
+                            }}
                             className="px-4"
                         >
-                            {experts.map((expert, index) => (
+                            {sliderTeachers.map((expert, index) => (
                                 <SwiperSlide key={index}>
                                     <div className="text-center px-4">
                                         <img
-                                            src={expert.img}
+                                            src={expert.profilePicture || "/gallery/avatar.jpg"}
                                             alt={expert.name}
-                                            className="w-48 h-48 object-cover rounded-full mx-auto mb-4 shadow-md"
+                                            className="w-32 h-32 object-cover rounded-full mx-auto mb-4 shadow-md"
                                         />
                                         <h5 className="text-lg font-semibold">
                                             <Link href="/services">{expert.name}</Link>
                                         </h5>
-                                        <p className="text-gray-600 text-sm">{expert.description}</p>
+                                        <p className="text-gray-600 text-sm line-clamp-2">
+                                            {expert.about || 'Experienced instructor with industry knowledge.'}
+                                        </p>
                                     </div>
                                 </SwiperSlide>
                             ))}
