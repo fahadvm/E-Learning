@@ -463,7 +463,7 @@ export default function TeacherChatContent() {
     socket.on("onlineUsers", (users: string[]) => {
       setIsOnline(users.includes(studentId));
     });
-
+    if (!chatId) return
     joinChat(chatId);
 
     return () => {

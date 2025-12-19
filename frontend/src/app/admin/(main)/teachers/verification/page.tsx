@@ -19,15 +19,14 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
 import { Loader2, FileText, CheckCircle, XCircle } from "lucide-react";
+import { showSuccessToast } from "@/utils/Toast";
 
 export default function GenericVerificationPage() {
   const [teachers, setTeachers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
-  const { toast } = useToast();
 
   const fetchRequests = async () => {
     try {
@@ -37,7 +36,6 @@ export default function GenericVerificationPage() {
       setTeachers(res.data.data.data || res.data.data || []);
     } catch (error) {
       console.error(error);
-      toast({ title: "Error", description: "Failed to fetch verification requests", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -50,10 +48,10 @@ export default function GenericVerificationPage() {
   const handleApprove = async (id: string) => {
     try {
       await adminApiMethods.verifyTeacher(id);
-      toast({ title: "Success", description: "Teacher verified successfully" });
+      showSuccessToast("Teacher verified successfully")
       fetchRequests();
     } catch (error) {
-      toast({ title: "Error", description: "Failed to verify teacher", variant: "destructive" });
+      console.log(error)
     }
   };
 
@@ -61,12 +59,12 @@ export default function GenericVerificationPage() {
     if (!rejectingId || !rejectReason.trim()) return;
     try {
       await adminApiMethods.rejectTeacher(rejectingId, rejectReason);
-      toast({ title: "Success", description: "Teacher rejected successfully" });
+      showSuccessToast("Teacher rejected successfully")
       setRejectingId(null);
       setRejectReason("");
       fetchRequests();
     } catch (error) {
-      toast({ title: "Error", description: "Failed to reject teacher", variant: "destructive" });
+      console.log(error)
     }
   };
 

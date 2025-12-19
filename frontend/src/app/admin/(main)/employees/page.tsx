@@ -116,7 +116,7 @@ export default function EmployeeList() {
                         <div className="flex items-center gap-3">
                             <div className="border border-slate-200 bg-slate-50 rounded-lg p-1 flex gap-1">
                                 <Button
-                                    variant={status === "all" ? "white" : "ghost"}
+                                    variant={status === "all" ? "default" : "ghost"}
                                     size="sm"
                                     className={status === "all" ? "bg-white shadow-sm" : "text-slate-600"}
                                     onClick={() => setStatus("all")}
@@ -124,7 +124,7 @@ export default function EmployeeList() {
                                     All
                                 </Button>
                                 <Button
-                                    variant={status === "active" ? "white" : "ghost"}
+                                    variant={status === "active" ? "default" : "ghost"}
                                     size="sm"
                                     className={status === "active" ? "bg-white shadow-sm" : "text-slate-600"}
                                     onClick={() => setStatus("active")}
@@ -132,7 +132,7 @@ export default function EmployeeList() {
                                     Active
                                 </Button>
                                 <Button
-                                    variant={status === "blocked" ? "white" : "ghost"}
+                                    variant={status === "blocked" ? "default" : "ghost"}
                                     size="sm"
                                     className={status === "blocked" ? "bg-white shadow-sm" : "text-slate-600"}
                                     onClick={() => setStatus("blocked")}
