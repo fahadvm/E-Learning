@@ -14,12 +14,14 @@ export interface ICompanyCourseService {
     order?: 'asc' | 'desc';
     page?: number;
     limit?: number;
+    isBlocked?: boolean;
+    isPublished?: boolean;
   }): Promise<{ data: ICourse[]; totalPages: number; totalCount: number }>;
   getCourseDetail(courseId: string): Promise<ICourse | null>;
   getMycoursesById(companyId: string): Promise<ICompanyCoursePurchase[] | null>;
   getMycourseDetailsById(companyId: string, courseId: string): Promise<ICourse | null>
-  assignCourseToEmployee(courseId: string, employeeId: string):Promise<void>
-   getResources(courseId: string): Promise<ICourseResource[]> 
-  
+  assignCourseToEmployee(courseId: string, employeeId: string): Promise<void>
+  getResources(courseId: string): Promise<ICourseResource[]>
+
 
 }

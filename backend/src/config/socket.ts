@@ -31,6 +31,12 @@ export const emitToUser = (userId: string, event: string, data: any) => {
   }
 };
 
+export const broadcastEvent = (event: string, data: any) => {
+  if (ioInstance) {
+    ioInstance.emit(event, data);
+  }
+};
+
 export function initSocket(server: HTTPServer) {
   const io = new Server(server, {
     cors: {

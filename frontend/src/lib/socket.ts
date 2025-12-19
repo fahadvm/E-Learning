@@ -42,6 +42,50 @@ export const initSocket = (
     showSuccessToast(`🔔 ${data.title}: ${data.message}`);
   });
 
+  socket.on("accountBlocked", (data) => {
+    console.log("🚫 Account blocked event received:", data);
+    alert("Your account has been blocked by the admin. You will be logged out shortly.");
+
+    // Cleanup
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // Cross-role redirection logic
+    const currentPath = window.location.pathname;
+    if (currentPath.startsWith('/student')) {
+      window.location.href = "/student/login";
+    } else if (currentPath.startsWith('/teacher')) {
+      window.location.href = "/teacher/login";
+    } else if (currentPath.startsWith('/company')) {
+      window.location.href = "/company/login";
+    } else if (currentPath.startsWith('/employee')) {
+      window.location.href = "/employee/login";
+    } else {
+      window.location.href = "/";
+    }
+  });
+
+  socket.on("courseBlocked", (data: { courseId: string; reason: string; message: string }) => {
+    console.log("🚫 Course blocked event received:", data);
+
+    const currentPath = window.location.pathname;
+    // Check if user is on this course's detail/learning page
+    // Patterns: /student/courses/[id], /employee/courses/[id], /teacher/courses/[id], /company/courses/[id]
+    if (currentPath.includes(data.courseId)) {
+      alert(`⚠️ This course has been blocked by the admin. Redirecting you to the course list.\nReason: ${data.reason}`);
+
+      if (currentPath.startsWith('/student')) window.location.href = "/student/courses";
+      else if (currentPath.startsWith('/teacher')) window.location.href = "/teacher/courses";
+      else if (currentPath.startsWith('/employee')) window.location.href = "/employee/my-courses";
+      else if (currentPath.startsWith('/company')) window.location.href = "/company/courses";
+      else window.location.href = "/";
+    }
+  });
+
+  socket.on("courseUnblocked", (data: { courseId: string }) => {
+    console.log("✅ Course unblocked event received:", data);
+  });
+
   return socket;
 };
 

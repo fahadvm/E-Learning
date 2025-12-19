@@ -7,9 +7,9 @@ export interface IEmployeeRepository {
   updateByEmail(email: string, updateData: Partial<IEmployee>): Promise<IEmployee | null>;
   findAll(): Promise<IEmployee[]>;
   findById(employeeId: string): Promise<IEmployee | null>;
-  findByCompanyId(companyId: string, skip: number, limit: number, search: string, sortField?: string, sortOrder?: string): Promise<IEmployee[]>;
+  findByCompanyId(companyId: string, skip: number, limit: number, search: string, sortField?: string, sortOrder?: string, department?: string, position?: string): Promise<IEmployee[]>;
   getEmployeesByCompany(companyId: string, skip: number, limit: number, search: string): Promise<IEmployee[]>;
-  countEmployeesByCompany(companyId: string, search: string): Promise<number>;
+  countEmployeesByCompany(companyId: string, search: string, department?: string, position?: string): Promise<number>;
   updateById(employeeId: string, data: Partial<IEmployee>): Promise<IEmployee | null>;
   updateCancelRequestById(employeeId: string): Promise<IEmployee | null>;
   blockEmployee(employeeId: string, status: boolean): Promise<IEmployee | null>;
@@ -31,4 +31,6 @@ export interface IEmployeeRepository {
   updateLoginStreak(employeeId: string): Promise<any>
   searchByEmailOrName(query: string): Promise<IEmployee[]>
   findInactiveEmployees(days: number): Promise<IEmployee[]>
+  findAllPaginated(skip: number, limit: number, search: string, status?: string): Promise<IEmployee[]>;
+  countAll(search: string, status?: string): Promise<number>;
 }

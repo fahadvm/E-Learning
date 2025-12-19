@@ -7,6 +7,7 @@ import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { validatePagination } from '../../utils/validatePagination';
 import { IAdminCompanyController } from '../../core/interfaces/controllers/admin/IAdminCompanyController';
+import { emitToUser } from '../../config/socket';
 
 @injectable()
 export class AdminCompanyController implements IAdminCompanyController {
@@ -74,6 +75,12 @@ export class AdminCompanyController implements IAdminCompanyController {
     async blockCompany(req: Request, res: Response): Promise<void> {
         const { companyId } = req.params;
         const updatedCompany = await this._companyService.blockCompany(companyId);
+
+        // Real-time logout trigger
+        emitToUser(companyId, 'accountBlocked', {
+            message: 'Your company account has been blocked by the admin. You will be logged out shortly.'
+        });
+
         sendResponse(res, STATUS_CODES.OK, MESSAGES.COMPANY_BLOCKED, true, updatedCompany);
     }
 

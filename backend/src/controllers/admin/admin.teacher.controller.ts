@@ -8,13 +8,14 @@ import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { validatePagination } from '../../utils/validatePagination';
 import { IAdminTeacherController } from '../../core/interfaces/controllers/admin/IAdminTeacherController';
+import { emitToUser } from '../../config/socket';
 
 @injectable()
 export class AdminTeacherController implements IAdminTeacherController {
   constructor(
     @inject(TYPES.AdminTeacherService)
     private readonly _teacherService: IAdminTeacherService
-  ) {}
+  ) { }
 
   async getAllTeachers(req: Request, res: Response): Promise<void> {
     const { page = '1', limit = '10', search = '', status = '' } = req.query;
@@ -58,6 +59,12 @@ export class AdminTeacherController implements IAdminTeacherController {
   async blockTeacher(req: Request, res: Response): Promise<void> {
     const { teacherId } = req.params;
     const updated = await this._teacherService.blockTeacher(teacherId);
+
+    // Real-time logout trigger
+    emitToUser(teacherId, 'accountBlocked', {
+      message: 'Your account has been blocked by the admin. You will be logged out shortly.'
+    });
+
     sendResponse(res, STATUS_CODES.OK, MESSAGES.TEACHER_BLOCKED, true, updated);
   }
 

@@ -29,7 +29,7 @@ export class EmployeeRepository implements IEmployeeRepository {
     }
 
     async findById(employeeId: string): Promise<IEmployee | null> {
-        return await Employee.findById(employeeId).lean().exec();
+        return await Employee.findById(employeeId).populate('companyId', 'name').lean().exec();
     }
 
     async getAssignedCourses(employeeId: string): Promise<IEmployee | null> {
@@ -56,7 +56,9 @@ export class EmployeeRepository implements IEmployeeRepository {
         limit: number,
         search: string,
         sortField: string = 'createdAt',
-        sortOrder: 'asc' | 'desc' = 'desc'
+        sortOrder: 'asc' | 'desc' = 'desc',
+        department?: string,
+        position?: string
     ): Promise<IEmployee[]> {
         const query: Record<string, unknown> = {
             companyId,
@@ -65,6 +67,13 @@ export class EmployeeRepository implements IEmployeeRepository {
                 { email: { $regex: search, $options: 'i' } }
             ]
         };
+
+        if (department) {
+            query.department = department;
+        }
+        if (position) {
+            query.position = position;
+        }
 
         const sort: Record<string, 1 | -1> = {};
         sort[sortField] = sortOrder === 'asc' ? 1 : -1;
@@ -89,13 +98,19 @@ export class EmployeeRepository implements IEmployeeRepository {
         return await Employee.find(query).skip(skip).limit(limit).lean().exec();
     }
 
-    async countEmployeesByCompany(companyId: string, search: string): Promise<number> {
+    async countEmployeesByCompany(companyId: string, search: string, department?: string, position?: string): Promise<number> {
         const query: Record<string, unknown> = { companyId };
         if (search) {
             query.$or = [
                 { name: { $regex: search, $options: 'i' } },
                 { email: { $regex: search, $options: 'i' } }
             ];
+        }
+        if (department) {
+            query.department = department;
+        }
+        if (position) {
+            query.position = position;
         }
         return await Employee.countDocuments(query);
     }
@@ -358,6 +373,40 @@ export class EmployeeRepository implements IEmployeeRepository {
                 { lastLoginDate: { $exists: false }, createdAt: { $lt: thresholdDate } }
             ]
         }).lean().exec();
+    }
+
+    async findAllPaginated(skip: number, limit: number, search: string, status?: string): Promise<IEmployee[]> {
+        const query: any = {};
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } }
+            ];
+        }
+        if (status === 'blocked') {
+            query.isBlocked = true;
+        } else if (status === 'active') {
+            query.isBlocked = false;
+        }
+
+        return await Employee.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }).populate('companyId', 'name').lean().exec();
+    }
+
+    async countAll(search: string, status?: string): Promise<number> {
+        const query: any = {};
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } }
+            ];
+        }
+        if (status === 'blocked') {
+            query.isBlocked = true;
+        } else if (status === 'active') {
+            query.isBlocked = false;
+        }
+
+        return await Employee.countDocuments(query);
     }
 }
 

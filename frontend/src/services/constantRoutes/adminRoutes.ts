@@ -11,6 +11,7 @@ const ADMIN_SUBSCRIPTIONS = `${ADMIN_BASE}/subscriptions`;
 const ADMIN_ORDERS = `${ADMIN_BASE}/orders`;
 const ADMIN_PROFILE = `${ADMIN_BASE}/profile`;
 const ADMIN_TRANSACTIONS = `${ADMIN_BASE}/transactions`;
+const ADMIN_EMPLOYEES = `${ADMIN_BASE}/employees`;
 
 
 export const ADMIN_ROUTES = {
@@ -74,6 +75,12 @@ export const ADMIN_ROUTES = {
   },
   transactions: {
     base: ADMIN_TRANSACTIONS,
+  },
+  employees: {
+    base: ADMIN_EMPLOYEES,
+    getById: (id: string) => `${ADMIN_EMPLOYEES}/${id}`,
+    block: (id: string) => `${ADMIN_EMPLOYEES}/${id}/block`,
+    unblock: (id: string) => `${ADMIN_EMPLOYEES}/${id}/unblock`,
   },
   reports: {
     dashboard: `${ADMIN_BASE}/reports/dashboard`,

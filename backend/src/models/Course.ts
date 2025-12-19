@@ -30,6 +30,7 @@ export interface ICourse extends Document {
   price?: number;
   coverImage?: string;
   isBlocked: boolean;
+  blockReason?: string;
   isVerified: boolean;
   isPublished: boolean;
   status: string;
@@ -78,17 +79,18 @@ const CourseSchema = new Schema<ICourse>(
     category: { type: String, required: true },
     language: { type: String, required: true },
     coverImage: { type: String },
-    price: { type: Number, required: true ,default:0},
+    price: { type: Number, required: true, default: 0 },
 
     isBlocked: { type: Boolean, default: false },
+    blockReason: { type: String },
     isVerified: { type: Boolean, default: false },
     isTechnicalCourse: { type: Boolean, default: false },
     isPublished: { type: Boolean, default: false },
     status: { type: String, default: 'published' },
     rejectionReason: { type: String },
     teacherName: { type: String },
-    averageRating: { type: Number ,default: 0},
-    reviewCount: { type: Number ,default: 0},
+    averageRating: { type: Number, default: 0 },
+    reviewCount: { type: Number, default: 0 },
 
     teacherId: {
       type: Schema.Types.ObjectId,

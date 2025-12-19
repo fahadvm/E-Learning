@@ -40,7 +40,7 @@ export const companyApiMethods = {
 
   // Employees
   addEmployee: (data: any) => post(COMPANY_ROUTES.employees.base, data),
-  getAllEmployees: (params?: { page?: number; limit?: number; search?: string }) =>
+  getAllEmployees: (params?: { page?: number; limit?: number; search?: string; department?: string; position?: string }) =>
     get(COMPANY_ROUTES.employees.base, params),
   getRequestedEmployees: () => get(COMPANY_ROUTES.employees.requests),
   getEmployeeById: (employeeId: string) => get(COMPANY_ROUTES.employees.get(employeeId)),

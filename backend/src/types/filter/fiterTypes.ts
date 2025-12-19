@@ -14,6 +14,8 @@ export interface CourseQuery {
   category?: string;
   level?: string;
   language?: string;
+  isBlocked?: boolean;
+  isPublished?: boolean;
 }
 
 export interface EmployeeSummary {
@@ -34,7 +36,7 @@ export interface OtpQuery {
 export type RazorpayOrderResponse = {
   id: string;
   entity: string;
-  amount: number  | string;
+  amount: number | string;
   amount_paid: number;
   amount_due: number;
   currency: string;
@@ -85,9 +87,9 @@ export interface ITeacherSlot {
   status: "available" | "pending" | "booked" | "cancelled" | "rescheduled" | "failed";
   student?: any;
   course?: any;
-  callId:string | undefined
+  callId: string | undefined
 }
- export interface TemporaryCompanyData {
+export interface TemporaryCompanyData {
   name: string;
   password: string;
   createdAt: number;

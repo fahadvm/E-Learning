@@ -15,6 +15,8 @@ export interface ICourseRepository {
       order?: 'asc' | 'desc';
       page?: number;
       limit?: number;
+      isBlocked?: boolean;
+      isPublished?: boolean;
     }
   ): Promise<{ data: ICourse[]; totalPages: number; totalCount: number }>;
   findByIdAndTeacherId(courseId: string, teacherId: string): Promise<ICourse | null>;

@@ -35,8 +35,10 @@ export class CompanyCourseService implements ICompanyCourseService {
     order?: 'asc' | 'desc';
     page?: number;
     limit?: number;
+    isBlocked?: boolean;
+    isPublished?: boolean;
   }): Promise<{ data: ICourse[]; totalPages: number; totalCount: number }> {
-    const courses = await this._courseRepository.getFilteredCourses(filters);
+    const courses = await this._courseRepository.getFilteredCourses({ ...filters, isBlocked: false });
     return courses;
   }
 
@@ -55,6 +57,9 @@ export class CompanyCourseService implements ICompanyCourseService {
     const course = await this._courseRepository.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND);
 
+    if (course.isBlocked) {
+      throwError('This course is blocked by admin and cannot be assigned to employees.', STATUS_CODES.FORBIDDEN);
+    }
 
     return await this._employeeRepo.assignCourseToEmployee(courseId, employeeId)
 
@@ -76,10 +81,18 @@ export class CompanyCourseService implements ICompanyCourseService {
 
     const course = await this._courseRepository.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    if (course.isBlocked) {
+      throwError('Access to this course has been disabled by admin. Reason: ' + (course.blockReason || 'No reason provided'), STATUS_CODES.FORBIDDEN);
+    }
     return course;
   }
 
   async getResources(courseId: string): Promise<ICourseResource[]> {
+    const course = await this._courseRepository.findById(courseId);
+    if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    if (course.isBlocked) {
+      throwError('Course resources are unavailable as the course is blocked by admin.', STATUS_CODES.FORBIDDEN);
+    }
     return this._resourceRepository.getResourcesByCourse(courseId);
   }
 

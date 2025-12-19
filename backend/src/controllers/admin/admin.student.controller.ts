@@ -6,13 +6,14 @@ import { sendResponse } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { validatePagination } from '../../utils/validatePagination';
+import { emitToUser } from '../../config/socket';
 
 @injectable()
 export class AdminStudentController {
   constructor(
     @inject(TYPES.AdminStudentService)
     private readonly _studentService: IAdminStudentService
-  ) {}
+  ) { }
 
   async getAllStudents(req: Request, res: Response): Promise<void> {
     const { page = '1', limit = '10', search = '', status = 'all' } = req.query;
@@ -39,6 +40,12 @@ export class AdminStudentController {
   async blockStudent(req: Request, res: Response): Promise<void> {
     const { studentId } = req.params;
     const student = await this._studentService.blockStudent(studentId);
+
+    // Real-time logout trigger
+    emitToUser(studentId, 'accountBlocked', {
+      message: 'Your account has been blocked by the admin. You will be logged out shortly.'
+    });
+
     sendResponse(res, STATUS_CODES.OK, MESSAGES.STUDENT_BLOCKED, true, student);
   }
 

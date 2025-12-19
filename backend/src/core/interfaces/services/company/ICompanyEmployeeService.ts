@@ -8,7 +8,9 @@ export interface ICompanyEmployeeService {
     limit: number,
     search: string,
     sortBy: string,
-    sortOrder: string
+    sortOrder: string,
+    department?: string,
+    position?: string
   ): Promise<PaginatedEmployeeDTO>;
 
   getEmployeeById(employeeId: string): Promise<IEmployee | null>;

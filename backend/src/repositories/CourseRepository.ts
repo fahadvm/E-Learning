@@ -29,9 +29,14 @@ export class CourseRepository implements ICourseRepository {
       order = 'desc',
       page = 1,
       limit = 8,
+      isBlocked,
+      isPublished,
     } = filters;
 
     const query: FilterQuery<ICourse> = {};
+
+    if (isBlocked !== undefined) query.isBlocked = isBlocked;
+    if (isPublished !== undefined) query.isPublished = isPublished;
 
     if (search) {
       query.title = { $regex: search, $options: 'i' };
@@ -133,7 +138,8 @@ export class CourseRepository implements ICourseRepository {
         { category },
         { level }
       ],
-      isPublished: true
+      isPublished: true,
+      isBlocked: false
     })
       .sort({ totalStudents: -1 })
       .limit(limit)

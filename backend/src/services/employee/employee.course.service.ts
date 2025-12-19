@@ -53,6 +53,10 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     const course = await this._courseRepo.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
+    if (course.isBlocked) {
+      throwError('Course access disabled by admin. Reason: ' + (course.blockReason || 'No reason provided'), STATUS_CODES.FORBIDDEN);
+    }
+
     const progress = await this._employeeRepo.getOrCreateCourseProgress(employeeId, courseId);
     return { course, progress };
   }
@@ -65,6 +69,10 @@ export class EmployeeCourseService implements IEmployeeCourseService {
 
     const course = await this._courseRepo.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
+    if (course.isBlocked) {
+      throwError('Cannot complete lessons for a blocked course.', STATUS_CODES.FORBIDDEN);
+    }
 
     // Fetch old progress to compare
     const oldProgress = await this._employeeRepo.getOrCreateCourseProgress(employeeId, courseId);
@@ -80,7 +88,7 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     if (newCompletedModulesCount > oldCompletedModulesCount) {
       // Find the next module
       const nextModule = course.modules[newCompletedModulesCount];
-     
+
     }
 
     // Notify on Course Completion
@@ -139,6 +147,10 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     const course = await this._courseRepo.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
+    if (course.isBlocked) {
+      throwError('Learning time cannot be recorded for a blocked course.', STATUS_CODES.FORBIDDEN);
+    }
+
     const today = new Date();
     const date = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const minutes = seconds / 60;
@@ -168,6 +180,11 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     return saving;
   }
   async getResources(courseId: string): Promise<ICourseResource[]> {
+    const course = await this._courseRepo.findById(courseId);
+    if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    if (course.isBlocked) {
+      throwError('Course resources are unavailable as the course is blocked by admin.', STATUS_CODES.FORBIDDEN);
+    }
     return this._resourceRepository.getResourcesByCourse(courseId);
   }
   async getProgress(employeeId: string): Promise<ICourseProgress[] | null> {

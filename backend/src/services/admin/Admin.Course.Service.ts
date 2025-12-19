@@ -2,13 +2,14 @@ import { inject, injectable } from 'inversify';
 import { IAdminCourseService } from '../../core/interfaces/services/admin/IAdminCourseService';
 import { ICourseRepository } from '../../core/interfaces/repositories/ICourseRepository';
 import { TYPES } from '../../core/di/types';
-import { IAdminCourseDTO,AdminCourseDTO, PaginatedCourseDTO } from '../../core/dtos/admin/Admin.course.Dto';
+import { IAdminCourseDTO, AdminCourseDTO, PaginatedCourseDTO } from '../../core/dtos/admin/Admin.course.Dto';
+import { broadcastEvent } from '../../config/socket';
 
 @injectable()
 export class AdminCourseService implements IAdminCourseService {
   constructor(
     @inject(TYPES.CourseRepository) private readonly _courseRepo: ICourseRepository
-  ) {}
+  ) { }
 
   async getAllCourses(page: number, limit: number, search?: string): Promise<PaginatedCourseDTO> {
     const skip = (page - 1) * limit;
@@ -17,7 +18,7 @@ export class AdminCourseService implements IAdminCourseService {
       this._courseRepo.count(search),
     ]);
     const totalPages = Math.ceil(total / limit);
-    return { data: data.map(AdminCourseDTO), total ,totalPages };
+    return { data: data.map(AdminCourseDTO), total, totalPages };
   }
 
   async getUnverifiedCourses(): Promise<IAdminCourseDTO[]> {
@@ -40,13 +41,27 @@ export class AdminCourseService implements IAdminCourseService {
     return course ? AdminCourseDTO(course) : null;
   }
 
-  async blockCourse(courseId: string): Promise<IAdminCourseDTO | null> {
-    const course = await this._courseRepo.updateStatus(courseId, { isBlocked: true });
+  async blockCourse(courseId: string, reason: string): Promise<IAdminCourseDTO | null> {
+    const course = await this._courseRepo.updateStatus(courseId, { isBlocked: true, blockReason: reason });
+
+    if (course) {
+      broadcastEvent('courseBlocked', {
+        courseId,
+        reason,
+        message: 'This course has been blocked by admin.'
+      });
+    }
+
     return course ? AdminCourseDTO(course) : null;
   }
 
   async unblockCourse(courseId: string): Promise<IAdminCourseDTO | null> {
-    const course = await this._courseRepo.updateStatus(courseId, { isBlocked: false });
+    const course = await this._courseRepo.updateStatus(courseId, { isBlocked: false, blockReason: '' });
+
+    if (course) {
+      broadcastEvent('courseUnblocked', { courseId });
+    }
+
     return course ? AdminCourseDTO(course) : null;
   }
 }

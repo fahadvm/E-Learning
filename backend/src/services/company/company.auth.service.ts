@@ -13,7 +13,7 @@ import { TYPES } from '../../core/di/types';
 import { customAlphabet } from 'nanoid';
 
 
-  const nanoid = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 8);
+const nanoid = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 8);
 
 @injectable()
 export class CompanyAuthService implements ICompanyAuthService {
@@ -68,7 +68,7 @@ export class CompanyAuthService implements ICompanyAuthService {
       email: tempData.email,
       name: tempData.tempUserData?.name ?? '',
       password: tempData.tempUserData?.password ?? '',
-      companyCode, 
+      companyCode,
     });
 
     await this._otpRepository.deleteByEmail(email);
@@ -83,6 +83,10 @@ export class CompanyAuthService implements ICompanyAuthService {
 
     const isMatch = await bcrypt.compare(password, company.password);
     if (!isMatch) throwError(MESSAGES.INVALID_CREDENTIALS, STATUS_CODES.UNAUTHORIZED);
+
+    if (company.isBlocked) {
+      throwError(MESSAGES.ACCOUNT_BLOCKED, STATUS_CODES.FORBIDDEN);
+    }
     const companyId = company.id.toString();
 
     const token = generateAccessToken(companyId, 'company');

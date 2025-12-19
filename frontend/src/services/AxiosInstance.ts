@@ -7,7 +7,7 @@ export const baseURL = `${process.env.NEXT_PUBLIC_API_URL}`
 const axiosInstance = axios.create({
   baseURL,
   withCredentials: true
-  
+
 })
 
 let activeRequests = 0
@@ -52,11 +52,19 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 403) {
 
       const msg = error.response.data?.message || "";
-      if (msg.includes("blocked")) {
+      if (msg.toLowerCase().includes("blocked")) {
+        // Cleanup all auth data
         localStorage.clear();
         sessionStorage.clear();
+
+        // Specific redirection for each app section
         if (typeof window !== "undefined") {
-          window.location.href = "/admin/demo";
+          const path = window.location.pathname;
+          if (path.startsWith('/student')) window.location.href = "/student/login";
+          else if (path.startsWith('/teacher')) window.location.href = "/teacher/login";
+          else if (path.startsWith('/company')) window.location.href = "/company/login";
+          else if (path.startsWith('/employee')) window.location.href = "/employee/login";
+          else window.location.href = "/";
         }
       }
       return Promise.reject(error);

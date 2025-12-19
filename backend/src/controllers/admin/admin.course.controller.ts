@@ -9,7 +9,7 @@ import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { IAdminCourseController } from '../../core/interfaces/controllers/admin/IAdminCourseController';
 
 @injectable()
-export class AdminCourseController implements IAdminCourseController{
+export class AdminCourseController implements IAdminCourseController {
   constructor(
     @inject(TYPES.AdminCourseService) private readonly _adminCourseService: IAdminCourseService
   ) { }
@@ -43,8 +43,9 @@ export class AdminCourseController implements IAdminCourseController{
   }
 
   async blockCourse(req: Request, res: Response) {
-    const course = await this._adminCourseService.blockCourse(req.params.courseId);
-    sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, course);
+    const { reason } = req.body;
+    const course = await this._adminCourseService.blockCourse(req.params.courseId, reason || 'No reason provided');
+    sendResponse(res, STATUS_CODES.OK, MESSAGES.SUCCESS, true, course);
   }
 
   async unblockCourse(req: Request, res: Response) {

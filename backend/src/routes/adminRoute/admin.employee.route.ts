@@ -7,7 +7,7 @@ import { TYPES } from '../../core/di/types';
 const employeeRouter = Router();
 const adminEmployeeCtrl = container.get<AdminEmployeeController>(TYPES.AdminEmployeeController);
 
-employeeRouter.get('/', asyncHandler(adminEmployeeCtrl.getEmployeesByCompany.bind(adminEmployeeCtrl)));
+employeeRouter.get('/', asyncHandler(adminEmployeeCtrl.getAllEmployees.bind(adminEmployeeCtrl)));
 employeeRouter.get('/:employeeId', asyncHandler(adminEmployeeCtrl.getEmployeeById.bind(adminEmployeeCtrl)));
 employeeRouter.patch('/:employeeId/block', asyncHandler(adminEmployeeCtrl.blockEmployee.bind(adminEmployeeCtrl)));
 employeeRouter.patch('/:employeeId/unblock', asyncHandler(adminEmployeeCtrl.unblockEmployee.bind(adminEmployeeCtrl)));

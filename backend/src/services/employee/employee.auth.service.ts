@@ -133,6 +133,10 @@ export class EmployeeAuthService implements IEmployeeAuthService {
       throwError(MESSAGES.USER_NOT_LINKED_GOOGLE, STATUS_CODES.BAD_REQUEST);
     }
 
+    if (user.isBlocked) {
+      throwError(MESSAGES.ACCOUNT_BLOCKED, STATUS_CODES.FORBIDDEN);
+    }
+
     const token = generateAccessToken(user._id.toString(), user.role);
     const refreshToken = generateRefreshToken(user._id.toString(), user.role);
     let streak = await this._employeeRepo.updateLoginStreak(user._id.toString());
@@ -189,7 +193,7 @@ export class EmployeeAuthService implements IEmployeeAuthService {
   }
 
   async changePassword(employeeID: string, oldPassword: string, newPassword: string) {
-    console.log("change pass word id in service with ",employeeID, oldPassword, newPassword)
+    console.log("change pass word id in service with ", employeeID, oldPassword, newPassword)
     const employee = await this._employeeRepo.findById(employeeID);
     if (!employee) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     if (!employee.password) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);

@@ -28,7 +28,10 @@ export class StudentCourseService implements IStudentCourseService {
   async getAllCourses(filters: GetStudentCoursesRequestDTO): Promise<PaginatedCourseDTO> {
     const { search, category, level, language, sort, order, page, limit } = filters;
 
-    const query: CourseQuery = {};
+    const query: CourseQuery = {
+      isBlocked: false,
+      isPublished: true
+    };
     if (search) query.title = { $regex: search, $options: 'i' };
     if (category) query.category = category;
     if (level) query.level = level;
@@ -63,6 +66,10 @@ export class StudentCourseService implements IStudentCourseService {
     const course = await this._courseRepo.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
+    if (course.isBlocked) {
+      throwError(course.blockReason || 'This course has been blocked by admin.', STATUS_CODES.FORBIDDEN);
+    }
+
     const recommended = await this._courseRepo.findRecommendedCourses(
       courseId,
       course.category,
@@ -84,6 +91,11 @@ export class StudentCourseService implements IStudentCourseService {
 
     const course = await this._courseRepo.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
+    if (course.isBlocked) {
+      throwError('Cannot update progress for a blocked course.', STATUS_CODES.FORBIDDEN);
+    }
+
     const progress = await this._studentRepo.updateStudentProgress(studentId, courseId, lessonId);
     if (progress.percentage === 100) {
       await this._courseCertificateService.generateCourseCertificate(studentId, courseId);
@@ -96,10 +108,20 @@ export class StudentCourseService implements IStudentCourseService {
     if (!courseId) throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.NOT_FOUND);
     const course = await this._courseRepo.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
+    if (course.isBlocked) {
+      throwError('Cannot save notes for a blocked course.', STATUS_CODES.FORBIDDEN);
+    }
+
     const saving = await this._studentRepo.saveNotes(studentId, courseId, notes);
     return saving;
   }
   async getResources(courseId: string): Promise<ICourseResource[]> {
+    const course = await this._courseRepo.findById(courseId);
+    if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    if (course.isBlocked) {
+      throwError('Course resources are unavailable as the course is blocked by admin.', STATUS_CODES.FORBIDDEN);
+    }
     return this._resourceRepository.getResourcesByCourse(courseId);
   }
 

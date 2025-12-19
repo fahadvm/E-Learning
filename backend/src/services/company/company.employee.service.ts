@@ -32,10 +32,19 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
     ) { } // Injected CompanyRepository
 
 
-    async getAllEmployees(companyId: string, page: number, limit: number, search: string, sortBy: string, sortOrder: string): Promise<PaginatedEmployeeDTO> {
-        const total = await this._employeeRepo.countEmployeesByCompany(companyId, search);
+    async getAllEmployees(
+        companyId: string,
+        page: number,
+        limit: number,
+        search: string,
+        sortBy: string,
+        sortOrder: string,
+        department?: string,
+        position?: string
+    ): Promise<PaginatedEmployeeDTO> {
+        const total = await this._employeeRepo.countEmployeesByCompany(companyId, search, department, position);
         const skip = (page - 1) * limit;
-        const employees = await this._employeeRepo.findByCompanyId(companyId, skip, limit, search, sortBy, sortOrder);
+        const employees = await this._employeeRepo.findByCompanyId(companyId, skip, limit, search, sortBy, sortOrder, department, position);
         const totalPages = Math.ceil(total / limit);
         return {
             employees: employees.map(companyEmployeeDto),

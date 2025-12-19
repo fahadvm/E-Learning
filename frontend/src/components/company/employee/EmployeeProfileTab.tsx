@@ -1,11 +1,20 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Mail, User, Briefcase, Calendar, Phone, MapPin, ShieldCheck, ShieldAlert } from "lucide-react";
+import { Mail, User, Briefcase, Calendar, Phone, MapPin, ShieldCheck, ShieldAlert, Edit, Ban, CheckCircle, Trash, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import EditEmployeeModal from "./EditEmployeeModal";
+import ConfirmationDialog from "@/reusable/ConfirmationDialog";
+import { companyApiMethods } from "@/services/APIservices/companyApiService";
+import { showSuccessToast, showErrorToast } from "@/utils/Toast";
+
+import { useRouter } from "next/navigation";
 
 interface EmployeeProfileTabProps {
     employee: {
+        _id: string;
         name: string;
         email: string;
         employeeID?: string;
@@ -18,17 +27,52 @@ interface EmployeeProfileTabProps {
         location?: string;
         profilePicture?: string;
     };
+    onUpdate: () => void;
 }
 
-export default function EmployeeProfileTab({ employee }: EmployeeProfileTabProps) {
+export default function EmployeeProfileTab({ employee, onUpdate }: EmployeeProfileTabProps) {
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [actionLoading, setActionLoading] = useState(false);
+    const router = useRouter();
+
     const getAvatar = (name: string) =>
         name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+
+    const toggleBlockEmployee = async () => {
+        setActionLoading(true);
+        try {
+            const res = await companyApiMethods.blockEmployee(employee._id, { status: !employee.isBlocked });
+            if ((res as any)?.ok) {
+                showSuccessToast(`Employee ${!employee.isBlocked ? "blocked" : "unblocked"} successfully`);
+                onUpdate();
+            }
+        } catch (err) {
+            showErrorToast("Failed to update employee status");
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleRemoveEmployee = async () => {
+        setActionLoading(true);
+        try {
+            const res = await companyApiMethods.removeEmployee(employee._id);
+            if ((res as any)?.ok) {
+                showSuccessToast("Employee removed from company");
+                router.push("/company/employees");
+            }
+        } catch (err) {
+            showErrorToast("Failed to remove employee");
+        } finally {
+            setActionLoading(false);
+        }
+    };
 
     return (
         <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Profile Card */}
-                <Card className="md:col-span-1 bg-white/5 border-white/10 text-white">
+                <Card className="md:col-span-1 bg-white/5 border-white/10 text-white overflow-hidden">
                     <CardHeader className="flex flex-col items-center">
                         {employee.profilePicture ? (
                             <img
@@ -55,6 +99,49 @@ export default function EmployeeProfileTab({ employee }: EmployeeProfileTabProps
                             )}
                         </div>
                     </CardHeader>
+                    <CardFooter className="flex flex-col gap-2 p-6 bg-white/5 border-t border-white/10">
+                        <Button
+                            className="w-full flex items-center gap-2"
+                            onClick={() => setIsEditModalOpen(true)}
+                        >
+                            <Edit className="w-4 h-4" /> Edit Profile
+                        </Button>
+                        <div className="grid grid-cols-2 gap-2 w-full">
+                            <Button
+                                variant="outline"
+                                className="border-white/10 hover:bg-white/5 text-white"
+                                onClick={toggleBlockEmployee}
+                                disabled={actionLoading}
+                            >
+                                {actionLoading ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : employee.isBlocked ? (
+                                    <>
+                                        <CheckCircle className="w-4 h-4 mr-2 text-green-400" /> Unblock
+                                    </>
+                                ) : (
+                                    <>
+                                        <Ban className="w-4 h-4 mr-2 text-red-400" /> Block
+                                    </>
+                                )}
+                            </Button>
+                            <ConfirmationDialog
+                                title="Remove Employee"
+                                description="Are you sure you want to remove this employee? This action cannot be undone."
+                                confirmText="Remove"
+                                onConfirm={handleRemoveEmployee}
+                                triggerButton={
+                                    <Button
+                                        variant="outline"
+                                        className="w-full border-red-500/20 hover:bg-red-500/10 text-red-400"
+                                        disabled={actionLoading}
+                                    >
+                                        <Trash className="w-4 h-4 mr-2" /> Remove
+                                    </Button>
+                                }
+                            />
+                        </div>
+                    </CardFooter>
                 </Card>
 
                 {/* Details Card */}
@@ -104,6 +191,13 @@ export default function EmployeeProfileTab({ employee }: EmployeeProfileTabProps
                     </CardContent>
                 </Card>
             </div>
+
+            <EditEmployeeModal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                employee={employee}
+                onSuccess={onUpdate}
+            />
         </div>
     );
 }

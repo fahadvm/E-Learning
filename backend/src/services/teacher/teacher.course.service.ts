@@ -149,6 +149,12 @@ export class TeacherCourseService implements ITeacherCourseService {
   async uploadResource(courseId: string, title: string, file: Express.Multer.File): Promise<ICourseResource> {
     if (!file) throwError(MESSAGES.FILE_REQUIRED, STATUS_CODES.BAD_REQUEST);
 
+    const course = await this._courseRepository.findById(courseId);
+    if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    if (course.isBlocked) {
+      throwError('Cannot upload resources to a blocked course.', STATUS_CODES.FORBIDDEN);
+    }
+
     const fileType = file.originalname.split('.').pop() ?? 'unknown';
     const resourceType: 'raw' | 'auto' = fileType === 'pdf' ? 'raw' : 'auto';
     const uploadedUrl = await this.uploadToCloudinary(file, 'course_resources', resourceType);
@@ -174,6 +180,10 @@ export class TeacherCourseService implements ITeacherCourseService {
     const existingCourse = await this._courseRepository.findByIdAndTeacherId(courseId, teacherId);
     if (!existingCourse) {
       throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    }
+
+    if (existingCourse.isBlocked) {
+      throwError('This course is blocked by admin and cannot be edited. Reason: ' + (existingCourse.blockReason || 'No reason provided'), STATUS_CODES.FORBIDDEN);
     }
 
     // 2. Handle files similar to create

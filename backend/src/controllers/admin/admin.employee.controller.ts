@@ -7,13 +7,14 @@ import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { validatePagination } from '../../utils/validatePagination';
 import { IAdminEmployeeController } from '../../core/interfaces/controllers/admin/IAdminEmployeeController';
+import { emitToUser } from '../../config/socket';
 
 @injectable()
-export class AdminEmployeeController implements IAdminEmployeeController{
+export class AdminEmployeeController implements IAdminEmployeeController {
     constructor(
         @inject(TYPES.AdminEmployeeService)
         private readonly _employeeService: IAdminEmployeeService
-    ) {}
+    ) { }
 
     async getEmployeesByCompany(req: Request, res: Response): Promise<void> {
         const { companyId } = req.params;
@@ -34,6 +35,24 @@ export class AdminEmployeeController implements IAdminEmployeeController{
         sendResponse(res, STATUS_CODES.OK, MESSAGES.EMPLOYEES_FETCHED, true, result);
     }
 
+    async getAllEmployees(req: Request, res: Response): Promise<void> {
+        const { page = '1', limit = '10', search = '', status } = req.query;
+
+        const { pageNum, limitNum, error } = validatePagination(String(page), String(limit));
+        if (error || pageNum === null || limitNum === null) {
+            return sendResponse(res, STATUS_CODES.BAD_REQUEST, error, false);
+        }
+
+        const result = await this._employeeService.getAllEmployees(
+            pageNum,
+            limitNum,
+            String(search || ''),
+            status ? String(status) : undefined
+        );
+
+        sendResponse(res, STATUS_CODES.OK, MESSAGES.EMPLOYEES_FETCHED, true, result);
+    }
+
     async getEmployeeById(req: Request, res: Response): Promise<void> {
         const { employeeId } = req.params;
         const employee = await this._employeeService.getEmployeeById(employeeId);
@@ -43,6 +62,12 @@ export class AdminEmployeeController implements IAdminEmployeeController{
     async blockEmployee(req: Request, res: Response): Promise<void> {
         const { employeeId } = req.params;
         const updatedEmployee = await this._employeeService.blockEmployee(employeeId);
+
+        // Real-time logout trigger
+        emitToUser(employeeId, 'accountBlocked', {
+            message: 'Your employee account has been blocked by the admin. You will be logged out shortly.'
+        });
+
         sendResponse(res, STATUS_CODES.OK, MESSAGES.EMPLOYEE_BLOCKED, true, updatedEmployee);
     }
 

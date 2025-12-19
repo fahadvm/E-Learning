@@ -241,6 +241,9 @@ import { CompanyAnalyticsRepository } from '../../repositories/CompanyAnalyticsR
 import { ITeacherDashboardService } from '../interfaces/services/teacher/ITeacherDashboardService';
 import { TeacherDashboardService } from '../../services/teacher/TeacherDashboardService';
 import { TeacherDashboardController } from '../../controllers/teacher/teacher.dashboard.controller';
+import { AdminEmployeeController } from '../../controllers/admin/admin.employee.controller';
+import { IAdminEmployeeService } from '../interfaces/services/admin/IAdminEmployeeService';
+import { AdminEmployeeService } from '../../services/admin/Admin.Employee.Service';
 
 
 
@@ -334,6 +337,8 @@ container.bind<IEmployeeProfileService>(TYPES.EmployeeProfileService).to(Employe
 container.bind<IEmployeeCompanyService>(TYPES.EmployeeCompanyService).to(EmployeeCompanyService);
 container.bind<IEmployeeCourseService>(TYPES.EmployeeCourseService).to(EmployeeCourseService);
 container.bind<IEmployeeCommentService>(TYPES.EmployeeCommentService).to(EmployeeCommentService);
+container.bind<IAdminEmployeeService>(TYPES.AdminEmployeeService).to(AdminEmployeeService);
+container.bind<AdminEmployeeController>(TYPES.AdminEmployeeController).to(AdminEmployeeController);
 
 
 

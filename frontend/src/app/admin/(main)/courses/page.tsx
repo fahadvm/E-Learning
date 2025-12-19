@@ -45,7 +45,7 @@ export default function MyCoursesPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-100 overflow-x-hidden relative">
-     
+
 
       {/* Main Content */}
       <main className="flex-1 p-4 sm:p-6 md:p-8 lg:p-10 overflow-auto">
@@ -111,11 +111,10 @@ export default function MyCoursesPage() {
                         <p>
                           <strong>Status:</strong>{' '}
                           <span
-                            className={`${
-                              course.status === 'published' ? 'text-green-600' : 'text-red-600'
-                            } font-medium`}
+                            className={`${course.isBlocked ? 'text-red-700 font-bold' : (course.status === 'published' ? 'text-green-600' : 'text-red-600')
+                              } font-medium`}
                           >
-                            {course.status}
+                            {course.isBlocked ? 'Blocked' : course.status}
                           </span>
                         </p>
                         <p>

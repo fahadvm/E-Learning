@@ -31,6 +31,7 @@ interface ICourse {
   modules: IModule[]
   createdAt?: string
   isBlocked?: boolean
+  blockReason?: string
 }
 
 export default function CourseDetailPage() {
@@ -73,11 +74,12 @@ export default function CourseDetailPage() {
   }
 
   const blockCourse = async () => {
+    const reason = window.prompt('Please enter a reason for blocking this course:');
+    if (reason === null) return;
+
     try {
-      const res = await adminApiMethods.blockCourse(id as string)
-
+      const res = await adminApiMethods.blockCourse(id as string, reason || 'No reason provided')
       setCourse(res.data)
-
     } catch (err) {
       console.error('Failed to block course', err)
     }
@@ -134,6 +136,13 @@ export default function CourseDetailPage() {
                 alt={course.title}
                 className="w-full h-80 object-cover rounded-xl shadow-md mb-6"
               />
+            )}
+
+            {course.isBlocked && course.blockReason && (
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                <p className="text-red-700 font-medium">Block Reason:</p>
+                <p className="text-red-600">{course.blockReason}</p>
+              </div>
             )}
 
             <p className="text-gray-600 leading-relaxed mb-8">{course.description}</p>
@@ -195,7 +204,7 @@ export default function CourseDetailPage() {
                   className="w-full flex justify-between items-center p-4 bg-blue-50 hover:bg-blue-100 transition-colors"
                 >
                   <h3 className="text-lg font-semibold text-blue-700">
-                     {mod.title}
+                    {mod.title}
                   </h3>
                   <svg
                     className={`w-5 h-5 text-blue-700 transform transition-transform ${openModules[i] ? 'rotate-180' : ''}`}

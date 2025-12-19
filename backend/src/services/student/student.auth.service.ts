@@ -106,7 +106,11 @@ export class StudentAuthService implements IStudentAuthService {
         role: 'student',
       });
     } else if (!user.googleId) {
-      throw new Error('User is not linked to Google');
+      throwError(MESSAGES.USER_NOT_LINKED_GOOGLE, STATUS_CODES.BAD_REQUEST);
+    }
+
+    if (user.isBlocked) {
+      throwError(MESSAGES.ACCOUNT_BLOCKED, STATUS_CODES.FORBIDDEN);
     }
 
     const token = generateAccessToken(user._id.toString(), user.role);
@@ -168,7 +172,7 @@ export class StudentAuthService implements IStudentAuthService {
     });
     await sendOtpEmail(newEmail, otp);
   }
-  async verifyEmailChangeOtp(studentId: string, newEmail: string, otp: string):Promise<IStudent> {
+  async verifyEmailChangeOtp(studentId: string, newEmail: string, otp: string): Promise<IStudent> {
     const record = await this._otpRepo.findByEmail(newEmail);
     if (!record || record.purpose !== "change-email")
       throwError("Invalid OTP request", STATUS_CODES.BAD_REQUEST);

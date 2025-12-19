@@ -51,6 +51,15 @@ export class StudentPurchaseService implements IStudentPurchaseService {
   ): Promise<Partial<IOrder>> {
     logger.debug(`amount is  ${amount}`);
 
+    // Verify if any course is blocked
+    for (const courseId of courses) {
+      const course = await this._courseRepo.findById(courseId);
+      if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+      if (course.isBlocked) {
+        throwError(`The course "${course.title}" is currently unavailable as it has been blocked by admin.`, STATUS_CODES.FORBIDDEN);
+      }
+    }
+
     const options = {
       amount: amount * 100,
       currency,

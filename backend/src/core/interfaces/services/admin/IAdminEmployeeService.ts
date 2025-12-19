@@ -1,8 +1,9 @@
-import { IAdminEmployeeDTO, PaginatedEmployeeDTO,  } from '../../../../core/dtos/admin/Admin.employee.Dto';
+import { IAdminEmployeeDTO, PaginatedEmployeeDTO, } from '../../../../core/dtos/admin/Admin.employee.Dto';
 
 
 export interface IAdminEmployeeService {
-    getEmployeesByCompany(companyId: string, page: number, limit: number, search: string):Promise<PaginatedEmployeeDTO>;
+    getEmployeesByCompany(companyId: string, page: number, limit: number, search: string): Promise<PaginatedEmployeeDTO>;
+    getAllEmployees(page: number, limit: number, search: string, status?: string): Promise<PaginatedEmployeeDTO>;
     getEmployeeById(employeeId: string): Promise<IAdminEmployeeDTO | null>;
     blockEmployee(employeeId: string): Promise<IAdminEmployeeDTO | null>;
     unblockEmployee(employeeId: string): Promise<IAdminEmployeeDTO | null>;

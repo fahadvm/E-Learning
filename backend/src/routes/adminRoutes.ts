@@ -9,7 +9,7 @@ import companyRoutes from './adminRoute/admin.company.route';
 import subscriptionRoutes from './adminRoute/admin.subscription.route';
 import orderRoutes from './adminRoute/admin.order.route';
 import profileRoutes from './adminRoute/admin.profile.route';
-// import employeeRoutes from './adminRoute/admin.employee.route';
+import employeeRoutes from './adminRoute/admin.employee.route';
 
 const adminRouter = Router();
 
@@ -21,7 +21,7 @@ adminRouter.use('/companies', companyRoutes);
 adminRouter.use('/subscriptions', subscriptionRoutes);
 adminRouter.use('/orders', orderRoutes);
 adminRouter.use('/profile', profileRoutes);
-// adminRouter.use('/employees', employeeRoutes);
+adminRouter.use('/employees', employeeRoutes);
 import transactionRoutes from './adminRoute/admin.transaction.route';
 adminRouter.use('/transactions', transactionRoutes);
 

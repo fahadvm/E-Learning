@@ -27,6 +27,7 @@ export interface IAdminCourseDTO {
   price?: number;
   coverImage?: string;
   isBlocked: boolean;
+  blockReason?: string;
   isVerified: boolean;
   isPublished: boolean;
   status: string; // can restrict later if needed
@@ -73,11 +74,12 @@ export const AdminCourseDTO = (course: ICourse): IAdminCourseDTO => ({
   price: course.price || 0,
   coverImage: course.coverImage,
   isBlocked: course.isBlocked,
+  blockReason: course.blockReason,
   isVerified: course.isVerified,
   isPublished: course.isPublished,
   status: course.status,
   rejectionReason: course.rejectionReason,
-  teacherId: course.teacherId as mongoose.Types.ObjectId | ITeacher, 
+  teacherId: course.teacherId as mongoose.Types.ObjectId | ITeacher,
   totalDuration: course.totalDuration,
   requirements: course.requirements || [],
   learningOutcomes: course.learningOutcomes || [],

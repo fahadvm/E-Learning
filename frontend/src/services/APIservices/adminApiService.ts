@@ -38,7 +38,7 @@ export const adminApiMethods = {
   getCourseById: (id: string) => get(ADMIN_ROUTES.courses.getById(id)),
   verifyCourse: (id: string) => patch(ADMIN_ROUTES.courses.verify(id), {}),
   rejectCourse: (id: string, rejectReason: string) => patch(ADMIN_ROUTES.courses.reject(id), { rejectReason }),
-  blockCourse: (id: string) => patch(ADMIN_ROUTES.courses.block(id), {}),
+  blockCourse: (id: string, reason?: string) => patch(ADMIN_ROUTES.courses.block(id), { reason }),
   unblockCourse: (id: string) => patch(ADMIN_ROUTES.courses.unblock(id), {}),
 
   // Teachers
@@ -64,6 +64,12 @@ export const adminApiMethods = {
 
   // Transactions
   getTransactions: (params?: any) => get(ADMIN_ROUTES.transactions.base, params),
+
+  // Employees
+  getEmployees: (params?: { page?: number; limit?: number; search?: string; status?: string }) => get(ADMIN_ROUTES.employees.base, params),
+  getEmployeeFullById: (id: string) => get(ADMIN_ROUTES.employees.getById(id)),
+  blockAdminEmployee: (id: string) => patch(ADMIN_ROUTES.employees.block(id), {}),
+  unblockAdminEmployee: (id: string) => patch(ADMIN_ROUTES.employees.unblock(id), {}),
 
   // Reports
   getDashboardStats: () => get(ADMIN_ROUTES.reports.dashboard),

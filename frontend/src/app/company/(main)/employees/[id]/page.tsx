@@ -118,7 +118,7 @@ export default function EmployeeDetailsPage() {
                         </TabsList>
 
                         <TabsContent value="profile">
-                            <EmployeeProfileTab employee={employee} />
+                            <EmployeeProfileTab employee={employee} onUpdate={fetchData} />
                         </TabsContent>
 
                         <TabsContent value="learning-paths">

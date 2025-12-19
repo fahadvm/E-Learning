@@ -16,12 +16,12 @@ export class CompanyEmployeeController implements ICompanyEmployeeController {
   ) { }
 
   async getAllEmployees(req: AuthRequest, res: Response): Promise<void> {
-    const { page = '1', limit = '10', search = '', sortBy = 'name', sortOrder = 'desc' } = req.query;
+    const { page = '1', limit = '10', search = '', sortBy = 'name', sortOrder = 'desc', department, position } = req.query;
     const companyId = req.user?.id;
     if (!companyId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
 
     const employees = await this._employeeService.getAllEmployees(
-      companyId, Number(page), Number(limit), String(search), String(sortBy), String(sortOrder)
+      companyId, Number(page), Number(limit), String(search), String(sortBy), String(sortOrder), department ? String(department) : undefined, position ? String(position) : undefined
     );
     sendResponse(res, STATUS_CODES.OK, MESSAGES.EMPLOYEES_FETCHED, true, employees);
   }

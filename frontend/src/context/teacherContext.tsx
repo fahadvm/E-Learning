@@ -8,8 +8,9 @@ import {
   useState,
   useCallback,
 } from 'react';
-import { useRouter,usePathname } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { TeacherApiMethods } from '@/services/APImethods';
+import { initSocket, disconnectSocket } from '@/lib/socket';
 
 export interface Education {
   degree: string;
@@ -97,6 +98,15 @@ export const TeacherContextProvider = ({ children }: { children: ReactNode }) =>
       getTeacherDetails();
     }
   }, [getTeacherDetails, isPublicPage]);
+
+  useEffect(() => {
+    if (teacher?._id) {
+      initSocket(teacher._id);
+    }
+    return () => {
+      disconnectSocket();
+    };
+  }, [teacher?._id]);
 
   return (
     <TeacherContext.Provider value={{ teacher, setTeacher }}>
