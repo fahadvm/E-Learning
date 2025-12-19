@@ -22,6 +22,8 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
   const [unreadCount, setUnreadCount] = useState(0);
   const { teacher } = useTeacher();
   const router = useRouter();
@@ -35,7 +37,7 @@ export default function Header() {
 
     try {
       const response = await teacherCallRequestApi.tester(teacher._id);
-      
+
       if (response.ok && Array.isArray(response.data)) {
         setNotifications(response.data);
         setUnreadCount(response.data.filter((n: Notification) => !n.isRead).length);
@@ -53,7 +55,7 @@ export default function Header() {
 
     fetchNotifications();
 
-    let socket :string | null = ""
+    let socket: string | null = ""
 
     return () => {
       socket = null;
@@ -107,7 +109,7 @@ export default function Header() {
         <Link href="/teacher/enrollments" className="text-gray-300 hover:text-white font-medium transition">
           Enrollments
         </Link>
-     
+
         <Link href="/teacher/slots" className="text-gray-300 hover:text-white font-medium transition">
           Slots
         </Link>
@@ -132,7 +134,7 @@ export default function Header() {
         <Link href="/teacher/profile" title="Profile" className="hover:text-blue-400 transition">
           <Settings size={20} />
         </Link>
-        
+
         <div className="relative">
           <button
             title="Notifications"
@@ -154,9 +156,8 @@ export default function Header() {
                 notifications.map((notification) => (
                   <div
                     key={notification._id}
-                    className={`p-4 border-b border-gray-700 hover:bg-gray-700 transition ${
-                      notification.isRead ? "opacity-80" : ""
-                    }`}
+                    className={`p-4 border-b border-gray-700 hover:bg-gray-700 transition ${notification.isRead ? "opacity-80" : ""
+                      }`}
                     onClick={() => !notification.isRead && markAsRead(notification._id)}
                   >
                     <h4 className="text-sm font-semibold">{notification.title}</h4>
@@ -181,9 +182,10 @@ export default function Header() {
             </div>
           )}
         </div>
-        <button onClick={handleLogout} title="Logout" className="hover:text-blue-400 transition">
+        <button onClick={() => setShowLogoutModal(true)} title="Logout" className="hover:text-blue-400 transition">
           <LogOut size={20} />
         </button>
+
         <button
           className="md:hidden ml-2"
           onClick={() => setIsMobileMenuOpen((prev) => !prev)}
@@ -226,6 +228,34 @@ export default function Header() {
           </Link>
         </div>
       )}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-6 w-80 animate-scaleIn border border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+              Logout Confirmation
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
+              Are you sure you want to logout?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="px-4 py-2 rounded-lg text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 rounded-lg text-sm bg-red-600 text-white hover:bg-red-700"
+              >
+                Yes, Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
+
+
   );
 }
