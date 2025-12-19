@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 import {
   LayoutDashboard,
@@ -24,7 +24,6 @@ import {
 import { cn } from "@/lib/utils";
 import { adminApiMethods } from "@/services/APIservices/adminApiService";
 import { showErrorToast, showSuccessToast } from "@/utils/Toast";
-import { useRouter } from "next/router";
 
 
 const navItems = [
