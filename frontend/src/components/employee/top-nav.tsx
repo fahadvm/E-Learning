@@ -93,14 +93,12 @@ export function TopNav() {
             </Button>
           </Link> */}
 
-          <Link href="/employee/streak">
             <Button variant="ghost" size="icon" className="relative">
               <Flame className="h-5 w-5" />
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-semibold rounded-full h-4 w-4 flex items-center justify-center">
                 {employee?.streakCount ?? 0}
               </span>
             </Button>
-          </Link>
 
           {/* USER DROPDOWN */}
           <DropdownMenu>

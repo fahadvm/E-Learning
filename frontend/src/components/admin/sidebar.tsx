@@ -4,14 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { 
-  LayoutDashboard, 
-  Users, 
-  Building2, 
-  GraduationCap, 
-  BookOpen, 
-  CreditCard, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Users,
+  Building2,
+  GraduationCap,
+  BookOpen,
+  CreditCard,
+  Settings,
   LogOut,
   Menu,
   X,
@@ -22,6 +22,10 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { adminApiMethods } from "@/services/APIservices/adminApiService";
+import { showErrorToast, showSuccessToast } from "@/utils/Toast";
+import { useRouter } from "next/router";
+
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin/dashboard" },
@@ -39,7 +43,21 @@ const navItems = [
 
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
-  const pathname = usePathname(); 
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+
+
+  const handleLogoutConfirm = async () => {
+    try {
+      await adminApiMethods.logout();
+      localStorage.clear();
+      router.push("/admin/login");
+      showSuccessToast("Logged out successfully");
+    } catch {
+      showErrorToast("Logout failed");
+    }
+  };
   return (
     <>
       {/* Mobile Menu Button */}
@@ -58,7 +76,7 @@ export function Sidebar() {
         )}
       >
         <div className="flex h-full flex-col">
-          
+
           {/* Logo */}
           <div className="flex h-16 items-center border-b border-slate-100 px-6">
             <div className="flex items-center gap-2">
@@ -98,13 +116,17 @@ export function Sidebar() {
 
           {/* User / Logout */}
           <div className="border-t border-slate-100 p-4">
-            <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors">
+            <button onClick={() => setShowLogoutModal(true)}
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors">
               <LogOut className="h-5 w-5" />
               Sign Out
+
             </button>
           </div>
         </div>
       </aside>
+
+
 
       {/* Overlay for mobile */}
       {isOpen && (
@@ -112,6 +134,32 @@ export function Sidebar() {
           className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm md:hidden"
           onClick={() => setIsOpen(false)}
         />
+      )}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-6 w-80 animate-scaleIn border border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+              Logout Confirmation
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
+              Are you sure you want to logout?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="px-4 py-2 rounded-lg text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLogoutConfirm}
+                className="px-4 py-2 rounded-lg text-sm bg-red-600 text-white hover:bg-red-700"
+              >
+                Yes, Logout
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
