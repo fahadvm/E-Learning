@@ -34,11 +34,11 @@ let CompanyEmployeeController = class CompanyEmployeeController {
     getAllEmployees(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
-            const { page = '1', limit = '10', search = '', sortBy = 'name', sortOrder = 'desc' } = req.query;
+            const { page = '1', limit = '10', search = '', sortBy = 'name', sortOrder = 'desc', department, position } = req.query;
             const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!companyId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            const employees = yield this._employeeService.getAllEmployees(companyId, Number(page), Number(limit), String(search), String(sortBy), String(sortOrder));
+            const employees = yield this._employeeService.getAllEmployees(companyId, Number(page), Number(limit), String(search), String(sortBy), String(sortOrder), department ? String(department) : undefined, position ? String(position) : undefined);
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.EMPLOYEES_FETCHED, true, employees);
         });
     }
@@ -142,6 +142,15 @@ let CompanyEmployeeController = class CompanyEmployeeController {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             yield this._employeeService.removeEmployee(companyId, employeeId);
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Employee removed from company', true, null);
+        });
+    }
+    getEmployeeProgress(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { employeeId } = req.params;
+            if (!employeeId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            const progress = yield this._employeeService.getEmployeeProgress(employeeId);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Employee progress fetched', true, progress);
         });
     }
 };

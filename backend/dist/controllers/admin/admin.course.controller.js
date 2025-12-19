@@ -60,14 +60,16 @@ let AdminCourseController = class AdminCourseController {
     }
     rejectCourse(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const course = yield this._adminCourseService.rejectCourse(req.params.courseId);
+            const { remarks } = req.body;
+            const course = yield this._adminCourseService.rejectCourse(req.params.courseId, remarks || 'No remarks provided');
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSES_FETCHED, true, course);
         });
     }
     blockCourse(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const course = yield this._adminCourseService.blockCourse(req.params.courseId);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSES_FETCHED, true, course);
+            const { reason } = req.body;
+            const course = yield this._adminCourseService.blockCourse(req.params.courseId, reason || 'No reason provided');
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.SUCCESS, true, course);
         });
     }
     unblockCourse(req, res) {

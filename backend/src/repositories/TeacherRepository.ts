@@ -103,7 +103,12 @@ export class TeacherRepository implements ITeacherRepository {
   async verifyTeacherById(id: string): Promise<ITeacher | null> {
     return Teacher.findByIdAndUpdate(
       id,
-      { verificationStatus: VerificationStatus.VERIFIED, isRejected: false, verificationReason: '' },
+      {
+        verificationStatus: VerificationStatus.VERIFIED,
+        isVerified: true,
+        isRejected: false,
+        verificationReason: ''
+      },
       { new: true }
     ).lean();
   }

@@ -29,12 +29,13 @@ const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const leaderboard_1 = require("../../utils/redis/leaderboard");
 let EmployeeCourseService = class EmployeeCourseService {
-    constructor(_employeeRepo, _companyOrderRepo, _courseRepo, _resourceRepository, _LearnigPathRepo) {
+    constructor(_employeeRepo, _companyOrderRepo, _courseRepo, _resourceRepository, _LearnigPathRepo, _notificationService) {
         this._employeeRepo = _employeeRepo;
         this._companyOrderRepo = _companyOrderRepo;
         this._courseRepo = _courseRepo;
         this._resourceRepository = _resourceRepository;
         this._LearnigPathRepo = _LearnigPathRepo;
+        this._notificationService = _notificationService;
     }
     getMyCourses(employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -65,17 +66,52 @@ let EmployeeCourseService = class EmployeeCourseService {
             const course = yield this._courseRepo.findById(courseId);
             if (!course)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            if (course.isBlocked) {
+                (0, ResANDError_1.throwError)('Course access disabled by admin. Reason: ' + (course.blockReason || 'No reason provided'), HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
+            }
             const progress = yield this._employeeRepo.getOrCreateCourseProgress(employeeId, courseId);
             return { course, progress };
         });
     }
     markLessonComplete(employeeId, courseId, lessonId) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             const course = yield this._courseRepo.findById(courseId);
             if (!course)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            if (course.isBlocked) {
+                (0, ResANDError_1.throwError)('Cannot complete lessons for a blocked course.', HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
+            }
+            // Fetch old progress to compare
+            const oldProgress = yield this._employeeRepo.getOrCreateCourseProgress(employeeId, courseId);
+            const oldCompletedModulesCount = ((_a = oldProgress.completedModules) === null || _a === void 0 ? void 0 : _a.length) || 0;
             const progress = yield this._employeeRepo.updateEmployeeProgress(employeeId, courseId, lessonId);
-            const learningPath = yield this._LearnigPathRepo.updateLearningPathProgress(employeeId, courseId, progress.percentage);
+            const learningPathProgress = yield this._LearnigPathRepo.updateLearningPathProgress(employeeId, courseId, progress.percentage);
+            const employee = yield this._employeeRepo.findById(employeeId);
+            // Check if a new module was unlocked
+            const newCompletedModulesCount = ((_b = progress.completedModules) === null || _b === void 0 ? void 0 : _b.length) || 0;
+            if (newCompletedModulesCount > oldCompletedModulesCount) {
+                // Find the next module
+                const nextModule = course.modules[newCompletedModulesCount];
+            }
+            // Notify on Course Completion
+            if (progress.percentage === 100) {
+                // Notify Employee
+                yield this._notificationService.createNotification(employeeId, 'Course Completed!', `Congratulations! You have completed the course: ${course.title}.`, 'course-complete', 'employee');
+                // Notify Company
+                if (employee === null || employee === void 0 ? void 0 : employee.companyId) {
+                    yield this._notificationService.createNotification(employee.companyId.toString(), 'Employee Completed Course', `${employee.name} has completed the course: ${course.title}.`, 'course-complete', 'company', `/company/employees/${employeeId}`);
+                }
+            }
+            // Notify on Learning Path Completion
+            if (learningPathProgress.status === 'completed') {
+                // Notify Employee
+                yield this._notificationService.createNotification(employeeId, 'Learning Path Finished!', `Amazing work! You have finished the entire learning path.`, 'learning-path-complete', 'employee');
+                // Notify Company
+                if (employee === null || employee === void 0 ? void 0 : employee.companyId) {
+                    yield this._notificationService.createNotification(employee.companyId.toString(), 'Learning Path Completed', `${employee.name} has finished an assigned learning path.`, 'learning-path-complete', 'company', `/company/employees/${employeeId}`);
+                }
+            }
             return progress;
         });
     }
@@ -85,6 +121,9 @@ let EmployeeCourseService = class EmployeeCourseService {
             const course = yield this._courseRepo.findById(courseId);
             if (!course)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            if (course.isBlocked) {
+                (0, ResANDError_1.throwError)('Learning time cannot be recorded for a blocked course.', HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
+            }
             const today = new Date();
             const date = new Date(today.getFullYear(), today.getMonth(), today.getDate());
             const minutes = seconds / 60;
@@ -117,6 +156,12 @@ let EmployeeCourseService = class EmployeeCourseService {
     }
     getResources(courseId) {
         return __awaiter(this, void 0, void 0, function* () {
+            const course = yield this._courseRepo.findById(courseId);
+            if (!course)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            if (course.isBlocked) {
+                (0, ResANDError_1.throwError)('Course resources are unavailable as the course is blocked by admin.', HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
+            }
             return this._resourceRepository.getResourcesByCourse(courseId);
         });
     }
@@ -139,5 +184,6 @@ exports.EmployeeCourseService = EmployeeCourseService = __decorate([
     __param(2, (0, inversify_1.inject)(types_1.TYPES.CourseRepository)),
     __param(3, (0, inversify_1.inject)(types_1.TYPES.CourseResourceRepository)),
     __param(4, (0, inversify_1.inject)(types_1.TYPES.EmployeeLearningPathProgressRepository)),
-    __metadata("design:paramtypes", [Object, Object, Object, Object, Object])
+    __param(5, (0, inversify_1.inject)(types_1.TYPES.NotificationService)),
+    __metadata("design:paramtypes", [Object, Object, Object, Object, Object, Object])
 ], EmployeeCourseService);

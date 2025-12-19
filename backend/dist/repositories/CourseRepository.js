@@ -26,8 +26,12 @@ let CourseRepository = class CourseRepository {
     }
     getFilteredCourses(filters) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { search, category, level, language, sort = 'createdAt', order = 'desc', page = 1, limit = 8, } = filters;
+            const { search, category, level, language, sort = 'createdAt', order = 'desc', page = 1, limit = 8, isBlocked, isPublished, } = filters;
             const query = {};
+            if (isBlocked !== undefined)
+                query.isBlocked = isBlocked;
+            if (isPublished !== undefined)
+                query.isPublished = isPublished;
             if (search) {
                 query.title = { $regex: search, $options: 'i' };
             }
@@ -125,7 +129,8 @@ let CourseRepository = class CourseRepository {
                     { category },
                     { level }
                 ],
-                isPublished: true
+                isPublished: true,
+                isBlocked: false
             })
                 .sort({ totalStudents: -1 })
                 .limit(limit)
@@ -135,6 +140,11 @@ let CourseRepository = class CourseRepository {
     editCourse(courseId, updates) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield Course_1.Course.findByIdAndUpdate(courseId, { $set: updates }, { new: true });
+        });
+    }
+    unpublishByTeacherId(teacherId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield Course_1.Course.updateMany({ teacherId }, { $set: { isPublished: false } });
         });
     }
 };

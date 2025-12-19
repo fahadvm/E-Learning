@@ -36,6 +36,7 @@ let AdminReportsService = class AdminReportsService {
             const topCourses = yield this._reportsRepo.getTopCourses(5);
             const companyRevenue = yield this._reportsRepo.getCompanyRevenue();
             const activeTeachers = yield this._reportsRepo.getMostActiveTeachers(5);
+            const recentActivity = yield this._reportsRepo.getRecentActivity(10);
             const dailyTrend = yield this._reportsRepo.getDailyTrend(7);
             return {
                 stats,
@@ -44,7 +45,8 @@ let AdminReportsService = class AdminReportsService {
                 topCourses,
                 companyRevenue,
                 activeTeachers,
-                dailyTrend
+                dailyTrend,
+                recentActivity
             };
         });
     }

@@ -11,6 +11,7 @@ const types_1 = require("../../core/di/types");
 const router = (0, express_1.Router)();
 const studentTeachercntrl = container_1.default.get(types_1.TYPES.StudentTeacherController);
 const studentTeacherReviewCtrl = container_1.default.get(types_1.TYPES.StudentTeacherReviewController);
+router.get('/', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentTeachercntrl.getTopTeacher.bind(studentTeachercntrl)));
 router.get('/:teacherId', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentTeachercntrl.getProfile.bind(studentTeachercntrl)));
 router.get('/availability/:teacherId', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentTeachercntrl.getAvailability.bind(studentTeachercntrl)));
 router.post("/review/add", (0, authMiddleware_1.authMiddleware)("student"), (0, asyncHandler_1.asyncHandler)(studentTeacherReviewCtrl.addReview.bind(studentTeacherReviewCtrl)));

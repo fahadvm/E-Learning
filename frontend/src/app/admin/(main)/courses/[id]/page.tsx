@@ -5,6 +5,15 @@ import { useParams } from 'next/navigation'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { adminApiMethods } from '@/services/APIservices/adminApiService'
 import ConfirmationDialog from '@/reusable/ConfirmationDialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
 
 
 interface ILesson {
@@ -32,6 +41,9 @@ interface ICourse {
   createdAt?: string
   isBlocked?: boolean
   blockReason?: string
+  isVerified?: boolean
+  status?: string
+  adminRemarks?: string
 }
 
 export default function CourseDetailPage() {
@@ -40,6 +52,11 @@ export default function CourseDetailPage() {
   const [loading, setLoading] = useState(true)
   const [openModules, setOpenModules] = useState<boolean[]>([])
   const [playingVideos, setPlayingVideos] = useState<{ [key: string]: boolean }>({})
+
+  // Verification states
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
+  const [rejectRemarks, setRejectRemarks] = useState("")
+
   const fetchCourse = async () => {
     try {
       const res = await adminApiMethods.getCourseById(id as string)
@@ -71,6 +88,27 @@ export default function CourseDetailPage() {
       ...prev,
       [videoKey]: !prev[videoKey]
     }))
+  }
+
+  const handleVerify = async () => {
+    try {
+      await adminApiMethods.verifyCourse(id as string);
+      fetchCourse(); // Refresh
+    } catch (err) {
+      console.error("Verification failed", err);
+    }
+  }
+
+  const handleReject = async () => {
+    if (!rejectRemarks.trim()) return;
+    try {
+      await adminApiMethods.rejectCourse(id as string, rejectRemarks);
+      setRejectDialogOpen(false);
+      setRejectRemarks("");
+      fetchCourse();
+    } catch (err) {
+      console.error("Rejection failed", err);
+    }
   }
 
   const blockCourse = async () => {
@@ -145,14 +183,40 @@ export default function CourseDetailPage() {
               </div>
             )}
 
+            {/* Rejection Remarks display */}
+            {course.status === 'rejected' && course.adminRemarks && (
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                <p className="text-red-700 font-medium">Rejection Remarks:</p>
+                <p className="text-red-600">{course.adminRemarks}</p>
+              </div>
+            )}
+
             <p className="text-gray-600 leading-relaxed mb-8">{course.description}</p>
-            <div className="flex gap-4">
+            <div className="flex gap-4 flex-wrap">
+              {/* Verification Actions */}
+              {!course.isVerified && course.status !== 'rejected' && (
+                <>
+                  <button
+                    onClick={handleVerify}
+                    className="px-4 py-2 rounded-md text-white bg-green-600 hover:bg-green-700 shadow-sm"
+                  >
+                    Verify & Publish
+                  </button>
+                  <button
+                    onClick={() => setRejectDialogOpen(true)}
+                    className="px-4 py-2 rounded-md text-white bg-red-600 hover:bg-red-700 shadow-sm"
+                  >
+                    Reject Course
+                  </button>
+                </>
+              )}
+
               <ConfirmationDialog
                 title={course.isBlocked ? 'Unblock Course' : 'Block Course'}
                 description={
                   course.isBlocked
                     ? 'Are you sure you want to unblock this course?'
-                    : 'Are you sure you want to block this course?'
+                    : 'Are you sure you want to block this course? This will unpublish it.'
                 }
                 confirmText={course.isBlocked ? 'Unblock' : 'Block'}
                 onConfirm={course.isBlocked ? unblockCourse : blockCourse}
@@ -282,6 +346,27 @@ export default function CourseDetailPage() {
           </div>
         </div>
       </div>
+      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject Course</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <label className="text-sm font-medium mb-2 block">Remarks</label>
+            <Textarea
+              placeholder="Why is this course rejected? (e.g. content issues, policy violation)"
+              value={rejectRemarks}
+              onChange={(e) => setRejectRemarks(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleReject} disabled={!rejectRemarks.trim()}>
+              Confirm Rejection
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

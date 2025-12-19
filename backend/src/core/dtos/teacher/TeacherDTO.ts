@@ -1,5 +1,6 @@
 // src/core/dto/teacher/teacherProfileDto.ts
 import { ITeacher } from '../../../models/Teacher';
+import { CourseStatus } from '../../../models/Course';
 import mongoose from 'mongoose';
 
 export const teacherProfileDto = (teacher: ITeacher) => ({
@@ -30,8 +31,8 @@ export interface LessonDTO {
   title: string;
   description?: string;
   duration?: number;
-  videoFile?: string | undefined;   
-  thumbnail?: string | undefined;   
+  videoFile?: string | undefined;
+  thumbnail?: string | undefined;
 }
 
 export interface ModuleDTO {
@@ -46,7 +47,7 @@ export interface CourseCreateDTO {
   description: string;
   category: string;
   level: string;
-  totalDuration?:number | undefined;
+  totalDuration?: number | undefined;
   coverImage?: string;
   language: string;
   price?: number;
@@ -54,6 +55,7 @@ export interface CourseCreateDTO {
   requirements?: string[];
   isPublished: boolean;
   isTechnicalCourse: boolean;
+  status?: CourseStatus;
   modules: ModuleDTO[];
   teacherId?: mongoose.Types.ObjectId | ITeacher;
 }

@@ -42,4 +42,5 @@ export interface ICourseRepository {
   getPremiumCourses(): Promise<ICourse[]>;
   incrementStudentCount(courseId: string): Promise<void>;
   editCourse(courseId: string, updates: Partial<ICourse>): Promise<ICourse | null>;
+  unpublishByTeacherId(teacherId: string): Promise<void>;
 }

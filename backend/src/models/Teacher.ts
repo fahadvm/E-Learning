@@ -39,6 +39,7 @@ export interface ITeacher extends Document {
   password?: string;
   verificationStatus: VerificationStatus;
   verificationReason?: string;
+  isVerified: boolean;
   isRejected: boolean;
   isBlocked: boolean;
   otp?: string;
@@ -112,6 +113,7 @@ const TeacherSchema = new Schema<ITeacher>(
     role: { type: String, default: 'Teacher' },
     verificationStatus: { type: String, enum: Object.values(VerificationStatus), default: VerificationStatus.UNVERIFIED },
     verificationReason: { type: String, default: '' },
+    isVerified: { type: Boolean, default: false },
     isRejected: { type: Boolean, default: false },
     isBlocked: { type: Boolean, default: false },
     googleUser: { type: Boolean, default: false },

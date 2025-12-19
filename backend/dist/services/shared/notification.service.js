@@ -28,9 +28,11 @@ const types_1 = require("../../core/di/types");
 const ResANDError_1 = require("../../utils/ResANDError");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
+const socket_1 = require("../../config/socket");
 let NotificationService = class NotificationService {
-    constructor(_notificationRepository) {
+    constructor(_notificationRepository, _employeeRepository) {
         this._notificationRepository = _notificationRepository;
+        this._employeeRepository = _employeeRepository;
     }
     getUserNotifications(userId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -51,10 +53,47 @@ let NotificationService = class NotificationService {
             return updatedNotification;
         });
     }
+    createNotification(userId, title, message, type, userRole, link) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this._notificationRepository.createNotification(userId, title, message, type, userRole, link);
+            // Emit notification via Socket
+            (0, socket_1.emitToUser)(userId, 'receive_notification', {
+                title,
+                message,
+                type,
+                link,
+                userRole,
+                createdAt: new Date()
+            });
+        });
+    }
+    checkInactivityNotifications(days) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const inactiveEmployees = yield this._employeeRepository.findInactiveEmployees(days);
+            // Group by company
+            const groupedByCompany = {};
+            inactiveEmployees.forEach(emp => {
+                if (emp.companyId) {
+                    const cid = emp.companyId.toString();
+                    if (!groupedByCompany[cid])
+                        groupedByCompany[cid] = [];
+                    groupedByCompany[cid].push(emp);
+                }
+            });
+            for (const [companyId, employees] of Object.entries(groupedByCompany)) {
+                const names = employees.map(e => e.name || e.email).join(', ');
+                const message = employees.length > 3
+                    ? `${employees.length} employees have been inactive for over ${days} days.`
+                    : `The following employees have been inactive for over ${days} days: ${names}.`;
+                yield this.createNotification(companyId, 'Employee Inactivity Alert', message, 'inactivity', 'company', '/company/employees');
+            }
+        });
+    }
 };
 exports.NotificationService = NotificationService;
 exports.NotificationService = NotificationService = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(types_1.TYPES.NotificationRepository)),
-    __metadata("design:paramtypes", [Object])
+    __param(1, (0, inversify_1.inject)(types_1.TYPES.EmployeeRepository)),
+    __metadata("design:paramtypes", [Object, Object])
 ], NotificationService);

@@ -125,7 +125,12 @@ let TeacherRepository = class TeacherRepository {
     }
     verifyTeacherById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return Teacher_1.Teacher.findByIdAndUpdate(id, { verificationStatus: Teacher_1.VerificationStatus.VERIFIED, isRejected: false, verificationReason: '' }, { new: true }).lean();
+            return Teacher_1.Teacher.findByIdAndUpdate(id, {
+                verificationStatus: Teacher_1.VerificationStatus.VERIFIED,
+                isVerified: true,
+                isRejected: false,
+                verificationReason: ''
+            }, { new: true }).lean();
         });
     }
     rejectTeacherById(id, reason) {
@@ -189,6 +194,14 @@ let TeacherRepository = class TeacherRepository {
                 ];
             }
             return Teacher_1.Teacher.countDocuments(query).exec();
+        });
+    }
+    findTopTeachers() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return Teacher_1.Teacher.find({ isBlocked: false })
+                .sort({ averageRating: -1, reviewCount: -1 })
+                .limit(10)
+                .select('-password');
         });
     }
 };

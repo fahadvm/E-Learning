@@ -29,6 +29,7 @@ const ResANDError_1 = require("../../utils/ResANDError");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const validatePagination_1 = require("../../utils/validatePagination");
+const socket_1 = require("../../config/socket");
 let AdminTeacherController = class AdminTeacherController {
     constructor(_teacherService) {
         this._teacherService = _teacherService;
@@ -79,6 +80,10 @@ let AdminTeacherController = class AdminTeacherController {
         return __awaiter(this, void 0, void 0, function* () {
             const { teacherId } = req.params;
             const updated = yield this._teacherService.blockTeacher(teacherId);
+            // Real-time logout trigger
+            (0, socket_1.emitToUser)(teacherId, 'accountBlocked', {
+                message: 'Your account has been blocked by the admin. You will be logged out shortly.'
+            });
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.TEACHER_BLOCKED, true, updated);
         });
     }

@@ -15,6 +15,7 @@ import {
 } from '../../core/dtos/admin/Admin.teacher.Dto';
 import { Transaction } from '../../models/Transaction';
 import { ITransactionRepository } from '../../core/interfaces/repositories/ITransactionRepository';
+import { INotificationService } from '../../core/interfaces/services/shared/INotificationService';
 
 @injectable()
 export class AdminTeacherService implements IAdminTeacherService {
@@ -22,14 +23,19 @@ export class AdminTeacherService implements IAdminTeacherService {
         @inject(TYPES.TeacherRepository) private readonly _teacherRepo: ITeacherRepository,
         @inject(TYPES.CourseRepository) private readonly _courseRepo: ICourseRepository,
         @inject(TYPES.TransactionRepository) private readonly _transactionRepo: ITransactionRepository,
+        @inject(TYPES.NotificationService) private readonly _notificationService: INotificationService,
     ) { }
 
+    // ... (getAllTeachers, getVerificationRequests, getTeacherById, etc - skipped) 
+
+    // Skipping unchanged methods...
     async getAllTeachers(
         page: number,
         limit: number,
         search?: string,
         status?: string
     ): Promise<PaginatedTeacherDTO> {
+        // ... (implementation same as before)
         const skip = (page - 1) * limit;
         const teachers = await this._teacherRepo.findAll({ skip, limit, search, status });
         const total = await this._teacherRepo.count(search, status);
@@ -47,7 +53,6 @@ export class AdminTeacherService implements IAdminTeacherService {
     }
 
 
-    // get paginated verification requests (pending)
     async getVerificationRequests(page: number, limit: number, search: string): Promise<PaginatedTeacherDTO> {
         const skip = (page - 1) * limit;
         const teachers = await this._teacherRepo.findPendingRequests({ skip, limit, search });
@@ -58,7 +63,6 @@ export class AdminTeacherService implements IAdminTeacherService {
         return { data, total, totalPages };
     }
 
-    // get teacher by id plus courses
     async getTeacherById(teacherId: string): Promise<any> {
         const teacher = await this._teacherRepo.findById(teacherId);
         if (!teacher) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
@@ -75,7 +79,6 @@ export class AdminTeacherService implements IAdminTeacherService {
         return adminTeacherDetailsDto({ teacher: teacherWithStats, courses });
     }
 
-
     async getUnverifiedTeachers(): Promise<IAdminTeacherDTO[]> {
         const teachers = await this._teacherRepo.findUnverified();
         if (!teachers) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
@@ -85,18 +88,42 @@ export class AdminTeacherService implements IAdminTeacherService {
     async verifyTeacher(teacherId: string): Promise<IAdminTeacherDTO> {
         const updated = await this._teacherRepo.verifyTeacherById(teacherId);
         if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
+        await this._notificationService.createNotification(
+            teacherId,
+            'Profile Verified',
+            'Your teacher profile has been verified. You can now start creating courses.',
+            'profile',
+            'teacher',
+            '/teacher/profile'
+        );
+
         return adminTeacherDto(updated);
     }
 
     async rejectTeacher(teacherId: string, reason: string): Promise<IAdminTeacherDTO> {
         const updated = await this._teacherRepo.rejectTeacherById(teacherId, reason);
         if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
+        await this._notificationService.createNotification(
+            teacherId,
+            'Profile Verification Rejected',
+            `Your profile verification was rejected by admin. Reason: ${reason}`,
+            'profile',
+            'teacher',
+            '/teacher/profile'
+        );
+
         return adminTeacherDto(updated);
     }
 
     async blockTeacher(teacherId: string): Promise<IAdminTeacherDTO> {
         const updated = await this._teacherRepo.updateStatus(teacherId, { isBlocked: true });
         if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
+        // If teacher is blocked, all their courses should be auto-unpublished
+        await this._courseRepo.unpublishByTeacherId(teacherId);
+
         return adminTeacherDto(updated);
     }
 

@@ -44,6 +44,10 @@ let StudentTeacherController = class StudentTeacherController {
             const availability = yield this._teacherService.getAvailability(teacherId);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.TEACHER_AVAILABILITY_FETCHED, true, availability);
         });
+        this.getTopTeacher = (_req, res) => __awaiter(this, void 0, void 0, function* () {
+            const teachers = yield this._teacherService.getTopTeachers();
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.TOP_TEACHERS_FETCHED, true, teachers);
+        });
     }
 };
 exports.StudentTeacherController = StudentTeacherController;

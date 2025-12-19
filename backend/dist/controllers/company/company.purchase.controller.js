@@ -39,6 +39,7 @@ let CompanyPurchaseController = class CompanyPurchaseController {
     createCheckoutSession(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
+            console;
             const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!companyId) {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);

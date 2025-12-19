@@ -31,7 +31,7 @@ export interface IAdminCourseDTO {
   isVerified: boolean;
   isPublished: boolean;
   status: string; // can restrict later if needed
-  rejectionReason?: string;
+  adminRemarks?: string;
   teacherId?: mongoose.Types.ObjectId | ITeacher; // <-- STRICT union type
   totalDuration?: number;
   requirements?: string[];
@@ -78,7 +78,7 @@ export const AdminCourseDTO = (course: ICourse): IAdminCourseDTO => ({
   isVerified: course.isVerified,
   isPublished: course.isPublished,
   status: course.status,
-  rejectionReason: course.rejectionReason,
+  adminRemarks: course.adminRemarks,
   teacherId: course.teacherId as mongoose.Types.ObjectId | ITeacher,
   totalDuration: course.totalDuration,
   requirements: course.requirements || [],

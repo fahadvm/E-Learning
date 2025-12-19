@@ -95,6 +95,9 @@ let CompanyAuthService = class CompanyAuthService {
             const isMatch = yield bcryptjs_1.default.compare(password, company.password);
             if (!isMatch)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_CREDENTIALS, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            if (company.isBlocked) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ACCOUNT_BLOCKED, HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
+            }
             const companyId = company.id.toString();
             const token = (0, JWTtoken_1.generateAccessToken)(companyId, 'company');
             const refreshToken = (0, JWTtoken_1.generateRefreshToken)(companyId, 'company');

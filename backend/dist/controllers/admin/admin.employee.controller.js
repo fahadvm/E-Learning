@@ -28,6 +28,7 @@ const ResANDError_1 = require("../../utils/ResANDError");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const validatePagination_1 = require("../../utils/validatePagination");
+const socket_1 = require("../../config/socket");
 let AdminEmployeeController = class AdminEmployeeController {
     constructor(_employeeService) {
         this._employeeService = _employeeService;
@@ -44,6 +45,17 @@ let AdminEmployeeController = class AdminEmployeeController {
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.EMPLOYEES_FETCHED, true, result);
         });
     }
+    getAllEmployees(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { page = '1', limit = '10', search = '', status } = req.query;
+            const { pageNum, limitNum, error } = (0, validatePagination_1.validatePagination)(String(page), String(limit));
+            if (error || pageNum === null || limitNum === null) {
+                return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST, error, false);
+            }
+            const result = yield this._employeeService.getAllEmployees(pageNum, limitNum, String(search || ''), status ? String(status) : undefined);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.EMPLOYEES_FETCHED, true, result);
+        });
+    }
     getEmployeeById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { employeeId } = req.params;
@@ -55,6 +67,10 @@ let AdminEmployeeController = class AdminEmployeeController {
         return __awaiter(this, void 0, void 0, function* () {
             const { employeeId } = req.params;
             const updatedEmployee = yield this._employeeService.blockEmployee(employeeId);
+            // Real-time logout trigger
+            (0, socket_1.emitToUser)(employeeId, 'accountBlocked', {
+                message: 'Your employee account has been blocked by the admin. You will be logged out shortly.'
+            });
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.EMPLOYEE_BLOCKED, true, updatedEmployee);
         });
     }

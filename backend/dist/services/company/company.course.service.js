@@ -41,7 +41,7 @@ let CompanyCourseService = class CompanyCourseService {
     }
     getAllCourses(filters) {
         return __awaiter(this, void 0, void 0, function* () {
-            const courses = yield this._courseRepository.getFilteredCourses(filters);
+            const courses = yield this._courseRepository.getFilteredCourses(Object.assign(Object.assign({}, filters), { isBlocked: false }));
             return courses;
         });
     }
@@ -61,6 +61,9 @@ let CompanyCourseService = class CompanyCourseService {
             const course = yield this._courseRepository.findById(courseId);
             if (!course)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND);
+            if (course.isBlocked) {
+                (0, ResANDError_1.throwError)('This course is blocked by admin and cannot be assigned to employees.', HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
+            }
             return yield this._employeeRepo.assignCourseToEmployee(courseId, employeeId);
         });
     }
@@ -84,11 +87,20 @@ let CompanyCourseService = class CompanyCourseService {
             const course = yield this._courseRepository.findById(courseId);
             if (!course)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            if (course.isBlocked) {
+                (0, ResANDError_1.throwError)('Access to this course has been disabled by admin. Reason: ' + (course.blockReason || 'No reason provided'), HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
+            }
             return course;
         });
     }
     getResources(courseId) {
         return __awaiter(this, void 0, void 0, function* () {
+            const course = yield this._courseRepository.findById(courseId);
+            if (!course)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            if (course.isBlocked) {
+                (0, ResANDError_1.throwError)('Course resources are unavailable as the course is blocked by admin.', HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
+            }
             return this._resourceRepository.getResourcesByCourse(courseId);
         });
     }

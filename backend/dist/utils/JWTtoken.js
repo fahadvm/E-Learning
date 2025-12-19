@@ -62,14 +62,16 @@ exports.refreshAccessToken = refreshAccessToken;
 const setTokensInCookies = (res, accessToken, refreshToken) => {
     res.cookie('token', accessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        secure: true,
+        sameSite: 'none',
+        path: '/',
         maxAge: 15 * 60 * 1000,
     });
     res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        secure: true,
+        sameSite: 'none',
+        path: '/',
         maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 };
@@ -77,14 +79,19 @@ exports.setTokensInCookies = setTokensInCookies;
 const clearTokens = (res) => {
     res.clearCookie('token', {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        secure: true,
+        sameSite: 'none',
+        path: '/',
     });
     res.clearCookie('refreshToken', {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        secure: true,
+        sameSite: 'none',
+        path: '/',
     });
-    return res.status(200).json({ ok: true, msg: 'Logged out successfully', req: true });
+    return res.status(200).json({
+        ok: true,
+        msg: 'Logged out successfully',
+    });
 };
 exports.clearTokens = clearTokens;

@@ -51,6 +51,15 @@ let StudentPurchaseService = class StudentPurchaseService {
     createOrder(studentId_1, courses_1, amount_1) {
         return __awaiter(this, arguments, void 0, function* (studentId, courses, amount, currency = 'INR') {
             logger_1.default.debug(`amount is  ${amount}`);
+            // Verify if any course is blocked
+            for (const courseId of courses) {
+                const course = yield this._courseRepo.findById(courseId);
+                if (!course)
+                    (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+                if (course.isBlocked) {
+                    (0, ResANDError_1.throwError)(`The course "${course.title}" is currently unavailable as it has been blocked by admin.`, HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
+                }
+            }
             const options = {
                 amount: amount * 100,
                 currency,

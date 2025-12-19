@@ -104,6 +104,11 @@ let SubscriptionPlanRepository = class SubscriptionPlanRepository {
             return yield StudentSubscription_1.StudentSubscription.findOne({ studentId, status: 'active' }).populate("planId");
         });
     }
+    findActiveSubscriptions(studentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield StudentSubscription_1.StudentSubscription.find({ studentId, status: 'active' }).populate("planId");
+        });
+    }
 };
 exports.SubscriptionPlanRepository = SubscriptionPlanRepository;
 exports.SubscriptionPlanRepository = SubscriptionPlanRepository = __decorate([

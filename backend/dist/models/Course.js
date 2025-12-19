@@ -33,8 +33,15 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Course = void 0;
+exports.Course = exports.CourseStatus = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
+var CourseStatus;
+(function (CourseStatus) {
+    CourseStatus["DRAFT"] = "draft";
+    CourseStatus["PENDING"] = "pending";
+    CourseStatus["APPROVED"] = "approved";
+    CourseStatus["REJECTED"] = "rejected";
+})(CourseStatus || (exports.CourseStatus = CourseStatus = {}));
 const LessonSchema = new mongoose_1.Schema({
     title: { type: String, required: true },
     description: { type: String },
@@ -57,11 +64,12 @@ const CourseSchema = new mongoose_1.Schema({
     coverImage: { type: String },
     price: { type: Number, required: true, default: 0 },
     isBlocked: { type: Boolean, default: false },
+    blockReason: { type: String },
     isVerified: { type: Boolean, default: false },
     isTechnicalCourse: { type: Boolean, default: false },
     isPublished: { type: Boolean, default: false },
-    status: { type: String, default: 'published' },
-    rejectionReason: { type: String },
+    status: { type: String, enum: Object.values(CourseStatus), default: CourseStatus.DRAFT },
+    adminRemarks: { type: String, default: '' },
     teacherName: { type: String },
     averageRating: { type: Number, default: 0 },
     reviewCount: { type: Number, default: 0 },

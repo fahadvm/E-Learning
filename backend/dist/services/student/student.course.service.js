@@ -39,7 +39,10 @@ let StudentCourseService = class StudentCourseService {
     getAllCourses(filters) {
         return __awaiter(this, void 0, void 0, function* () {
             const { search, category, level, language, sort, order, page, limit } = filters;
-            const query = {};
+            const query = {
+                isBlocked: false,
+                isPublished: true
+            };
             if (search)
                 query.title = { $regex: search, $options: 'i' };
             if (category)
@@ -70,6 +73,9 @@ let StudentCourseService = class StudentCourseService {
             const course = yield this._courseRepo.findById(courseId);
             if (!course)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            if (course.isBlocked) {
+                (0, ResANDError_1.throwError)(course.blockReason || 'This course has been blocked by admin.', HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
+            }
             const recommended = yield this._courseRepo.findRecommendedCourses(courseId, course.category, course.level, 6);
             return {
                 course: (0, Student_course_Dto_1.StudentCourseDTO)(course),
@@ -82,6 +88,9 @@ let StudentCourseService = class StudentCourseService {
             const course = yield this._courseRepo.findById(courseId);
             if (!course)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            if (course.isBlocked) {
+                (0, ResANDError_1.throwError)('Cannot update progress for a blocked course.', HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
+            }
             const progress = yield this._studentRepo.updateStudentProgress(studentId, courseId, lessonId);
             if (progress.percentage === 100) {
                 yield this._courseCertificateService.generateCourseCertificate(studentId, courseId);
@@ -98,12 +107,21 @@ let StudentCourseService = class StudentCourseService {
             const course = yield this._courseRepo.findById(courseId);
             if (!course)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            if (course.isBlocked) {
+                (0, ResANDError_1.throwError)('Cannot save notes for a blocked course.', HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
+            }
             const saving = yield this._studentRepo.saveNotes(studentId, courseId, notes);
             return saving;
         });
     }
     getResources(courseId) {
         return __awaiter(this, void 0, void 0, function* () {
+            const course = yield this._courseRepo.findById(courseId);
+            if (!course)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            if (course.isBlocked) {
+                (0, ResANDError_1.throwError)('Course resources are unavailable as the course is blocked by admin.', HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
+            }
             return this._resourceRepository.getResourcesByCourse(courseId);
         });
     }

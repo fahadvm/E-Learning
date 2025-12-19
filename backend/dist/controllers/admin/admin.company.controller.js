@@ -28,6 +28,7 @@ const ResANDError_1 = require("../../utils/ResANDError");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const validatePagination_1 = require("../../utils/validatePagination");
+const socket_1 = require("../../config/socket");
 let AdminCompanyController = class AdminCompanyController {
     constructor(_companyService) {
         this._companyService = _companyService;
@@ -87,6 +88,10 @@ let AdminCompanyController = class AdminCompanyController {
         return __awaiter(this, void 0, void 0, function* () {
             const { companyId } = req.params;
             const updatedCompany = yield this._companyService.blockCompany(companyId);
+            // Real-time logout trigger
+            (0, socket_1.emitToUser)(companyId, 'accountBlocked', {
+                message: 'Your company account has been blocked by the admin. You will be logged out shortly.'
+            });
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COMPANY_BLOCKED, true, updatedCompany);
         });
     }

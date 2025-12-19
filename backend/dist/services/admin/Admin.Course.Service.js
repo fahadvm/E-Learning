@@ -25,9 +25,13 @@ exports.AdminCourseService = void 0;
 const inversify_1 = require("inversify");
 const types_1 = require("../../core/di/types");
 const Admin_course_Dto_1 = require("../../core/dtos/admin/Admin.course.Dto");
+const socket_1 = require("../../config/socket");
+const Course_1 = require("../../models/Course");
 let AdminCourseService = class AdminCourseService {
-    constructor(_courseRepo) {
+    constructor(_courseRepo, _notificationService, _companyRepository) {
         this._courseRepo = _courseRepo;
+        this._notificationService = _notificationService;
+        this._companyRepository = _companyRepository;
     }
     getAllCourses(page, limit, search) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -54,25 +58,58 @@ let AdminCourseService = class AdminCourseService {
     }
     verifyCourse(courseId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const course = yield this._courseRepo.updateStatus(courseId, { status: 'verified' });
+            const course = yield this._courseRepo.updateStatus(courseId, {
+                status: Course_1.CourseStatus.APPROVED,
+                isVerified: true,
+                isPublished: true
+            });
+            if (course) {
+                // Notify Teacher
+                if (course.teacherId) {
+                    yield this._notificationService.createNotification(typeof course.teacherId === 'string' ? course.teacherId : course.teacherId._id.toString(), 'Course Approved', `Your course "${course.title}" has been approved and published.`, 'course', 'teacher', '/teacher/courses');
+                }
+                // Notify Companies
+                const companies = yield this._companyRepository.findAll();
+                for (const company of companies) {
+                    yield this._notificationService.createNotification(company._id.toString(), 'New Course Available', `A new course "${course.title}" has been published.`, 'course', 'company', '/company/courses');
+                }
+            }
             return course ? (0, Admin_course_Dto_1.AdminCourseDTO)(course) : null;
         });
     }
-    rejectCourse(courseId) {
+    rejectCourse(courseId, remarks) {
         return __awaiter(this, void 0, void 0, function* () {
-            const course = yield this._courseRepo.updateStatus(courseId, { status: 'rejected' });
+            const course = yield this._courseRepo.updateStatus(courseId, {
+                status: Course_1.CourseStatus.REJECTED,
+                isVerified: false,
+                isPublished: false,
+                adminRemarks: remarks
+            });
+            if (course && course.teacherId) {
+                yield this._notificationService.createNotification(typeof course.teacherId === 'string' ? course.teacherId : course.teacherId._id.toString(), 'Course Rejected', `Your course "${course.title}" has been rejected. Remarks: ${remarks}`, 'course', 'teacher', '/teacher/courses');
+            }
             return course ? (0, Admin_course_Dto_1.AdminCourseDTO)(course) : null;
         });
     }
-    blockCourse(courseId) {
+    blockCourse(courseId, reason) {
         return __awaiter(this, void 0, void 0, function* () {
-            const course = yield this._courseRepo.updateStatus(courseId, { isBlocked: true });
+            const course = yield this._courseRepo.updateStatus(courseId, { isBlocked: true, blockReason: reason });
+            if (course) {
+                (0, socket_1.broadcastEvent)('courseBlocked', {
+                    courseId,
+                    reason,
+                    message: 'This course has been blocked by admin.'
+                });
+            }
             return course ? (0, Admin_course_Dto_1.AdminCourseDTO)(course) : null;
         });
     }
     unblockCourse(courseId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const course = yield this._courseRepo.updateStatus(courseId, { isBlocked: false });
+            const course = yield this._courseRepo.updateStatus(courseId, { isBlocked: false, blockReason: '' });
+            if (course) {
+                (0, socket_1.broadcastEvent)('courseUnblocked', { courseId });
+            }
             return course ? (0, Admin_course_Dto_1.AdminCourseDTO)(course) : null;
         });
     }
@@ -81,5 +118,7 @@ exports.AdminCourseService = AdminCourseService;
 exports.AdminCourseService = AdminCourseService = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(types_1.TYPES.CourseRepository)),
-    __metadata("design:paramtypes", [Object])
+    __param(1, (0, inversify_1.inject)(types_1.TYPES.NotificationService)),
+    __param(2, (0, inversify_1.inject)(types_1.TYPES.CompanyRepository)),
+    __metadata("design:paramtypes", [Object, Object, Object])
 ], AdminCourseService);

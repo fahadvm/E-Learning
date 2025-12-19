@@ -31,8 +31,21 @@ let AdminEmployeeService = class AdminEmployeeService {
     }
     getEmployeesByCompany(companyId, page, limit, search) {
         return __awaiter(this, void 0, void 0, function* () {
-            const employees = yield this._employeeRepo.getEmployeesByCompany(companyId, page, limit, search);
+            const employees = yield this._employeeRepo.getEmployeesByCompany(companyId, (page - 1) * limit, limit, search);
             const total = yield this._employeeRepo.countEmployeesByCompany(companyId, search);
+            const totalPages = Math.ceil(total / limit);
+            return {
+                data: employees.map(Admin_employee_Dto_1.adminEmployeeDto),
+                total,
+                totalPages
+            };
+        });
+    }
+    getAllEmployees(page, limit, search, status) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const skip = (page - 1) * limit;
+            const employees = yield this._employeeRepo.findAllPaginated(skip, limit, search, status);
+            const total = yield this._employeeRepo.countAll(search, status);
             const totalPages = Math.ceil(total / limit);
             return {
                 data: employees.map(Admin_employee_Dto_1.adminEmployeeDto),

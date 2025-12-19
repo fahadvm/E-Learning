@@ -30,7 +30,7 @@ class CompanyCoursePurchaseRepository {
             });
         });
     }
-    /* 🔵 Increase Seat Usage (Assign Learning Path to Employee) */
+    /*  Increase Seat Usage (Assign Learning Path to Employee) */
     increaseSeatUsage(companyId, courseId) {
         return __awaiter(this, void 0, void 0, function* () {
             const record = yield CompanyCoursePurchase_1.default.findOne({ companyId, courseId });
@@ -64,6 +64,11 @@ class CompanyCoursePurchaseRepository {
     getAllPurchasesByCompany(companyId) {
         return __awaiter(this, void 0, void 0, function* () {
             return CompanyCoursePurchase_1.default.find({ companyId }).populate("courseId");
+        });
+    }
+    getPaidPurchasesByCompany(companyId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return CompanyCoursePurchase_1.default.find({ companyId, status: 'paid' }).populate("courseId");
         });
     }
 }

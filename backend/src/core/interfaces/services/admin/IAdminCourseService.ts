@@ -6,7 +6,7 @@ export interface IAdminCourseService {
   getUnverifiedCourses(): Promise<IAdminCourseDTO[]>;
   getCourseById(courseId: string): Promise<IAdminCourseDTO | null>;
   verifyCourse(courseId: string): Promise<IAdminCourseDTO | null>;
-  rejectCourse(courseId: string): Promise<IAdminCourseDTO | null>;
+  rejectCourse(courseId: string, remarks: string): Promise<IAdminCourseDTO | null>;
   blockCourse(courseId: string, reason: string): Promise<IAdminCourseDTO | null>;
   unblockCourse(courseId: string): Promise<IAdminCourseDTO | null>;
 }

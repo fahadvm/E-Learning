@@ -22,6 +22,7 @@ const Student_1 = require("../models/Student");
 const Teacher_1 = require("../models/Teacher");
 const Company_1 = require("../models/Company");
 const Employee_1 = require("../models/Employee");
+const Course_1 = require("../models/Course");
 let AdminReportsRepository = class AdminReportsRepository {
     getDashboardStats() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -34,7 +35,64 @@ let AdminReportsRepository = class AdminReportsRepository {
             const totalStudents = yield Student_1.Student.countDocuments();
             const totalTeachers = yield Teacher_1.Teacher.countDocuments();
             const totalCompanies = yield Company_1.Company.countDocuments();
-            return { totalRevenue, totalStudents, totalTeachers, totalCompanies };
+            const totalCourses = yield Course_1.Course.countDocuments({ isPublished: true });
+            return { totalRevenue, totalStudents, totalTeachers, totalCompanies, totalCourses };
+        });
+    }
+    getRecentActivity(limit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Fetch recent purchases
+            const recentPurchases = yield Transaction_1.Transaction.find({ type: 'COURSE_PURCHASE', paymentStatus: 'SUCCESS' })
+                .sort({ createdAt: -1 })
+                .limit(limit)
+                .populate('userId', 'name')
+                .populate('courseId', 'title')
+                .lean();
+            // Fetch recent course uploads
+            const recentCourses = yield Course_1.Course.find({ isPublished: true })
+                .sort({ createdAt: -1 })
+                .limit(limit)
+                .populate('teacherId', 'name')
+                .lean();
+            // Fetch recent student signups
+            const recentStudents = yield Student_1.Student.find()
+                .sort({ createdAt: -1 })
+                .limit(limit)
+                .lean();
+            const activities = [];
+            recentPurchases.forEach((tx) => {
+                var _a, _b;
+                activities.push({
+                    type: 'purchase',
+                    user: ((_a = tx.userId) === null || _a === void 0 ? void 0 : _a.name) || 'Someone',
+                    action: 'enrolled in',
+                    target: ((_b = tx.courseId) === null || _b === void 0 ? void 0 : _b.title) || 'a course',
+                    time: tx.createdAt,
+                });
+            });
+            recentCourses.forEach((course) => {
+                var _a;
+                activities.push({
+                    type: 'upload',
+                    user: ((_a = course.teacherId) === null || _a === void 0 ? void 0 : _a.name) || 'A teacher',
+                    action: 'published',
+                    target: course.title,
+                    time: course.createdAt,
+                });
+            });
+            recentStudents.forEach((student) => {
+                activities.push({
+                    type: 'signup',
+                    user: student.name,
+                    action: 'joined',
+                    target: 'as a student',
+                    time: student.createdAt,
+                });
+            });
+            // Sort by time and limit
+            return activities
+                .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+                .slice(0, limit);
         });
     }
     getMonthlyRevenue(year) {

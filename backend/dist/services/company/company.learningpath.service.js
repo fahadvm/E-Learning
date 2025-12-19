@@ -66,10 +66,12 @@ const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResANDError_1 = require("../../utils/ResANDError");
 let CompanyLearningPathService = class CompanyLearningPathService {
-    constructor(_repo, _assignRepo, _purchaseRepo) {
+    constructor(_repo, _assignRepo, _purchaseRepo, _notificationService, _companyRepo) {
         this._repo = _repo;
         this._assignRepo = _assignRepo;
         this._purchaseRepo = _purchaseRepo;
+        this._notificationService = _notificationService;
+        this._companyRepo = _companyRepo;
     }
     create(companyId, data) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -110,9 +112,9 @@ let CompanyLearningPathService = class CompanyLearningPathService {
             const lp = yield this._repo.findOneForCompany(companyId, id);
             if (!lp)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
-            // 1️⃣ Find all employees assigned to this learning path
+            // Find all employees assigned to this learning path
             const assignments = yield this._assignRepo.findAllAssignedEmployees(companyId, id);
-            // 2️⃣ Decrease seat usage for each employee
+            //  Decrease seat usage for each employee
             for (const a of assignments) {
                 for (const course of lp.courses) {
                     yield this._purchaseRepo.decreaseSeatUsage(new mongoose_1.default.Types.ObjectId(companyId), new mongoose_1.default.Types.ObjectId(course.courseId.toString()));
@@ -137,9 +139,7 @@ let CompanyLearningPathService = class CompanyLearningPathService {
     listAssignedLearningPaths(companyId, employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
             const assigned = yield this._assignRepo.findAssigned(companyId, employeeId);
-            return assigned
-                .map((p) => p.learningPathId)
-                .filter(Boolean);
+            return assigned;
         });
     }
     assignLearningPath(companyId, employeeId, learningPathId) {
@@ -153,6 +153,7 @@ let CompanyLearningPathService = class CompanyLearningPathService {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.LEARNING_PATH_ALREADY_ASSIGNED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             // Check seat availability for all courses in the learning path
             const seatCheckResults = yield this.checkLearningPathSeats(companyId, lp);
+            console.log("seatCheckResults", seatCheckResults);
             // If any course has insufficient seats, throw error with details
             const insufficientSeats = seatCheckResults.filter(result => result.remaining <= 0);
             if (insufficientSeats.length > 0) {
@@ -161,9 +162,20 @@ let CompanyLearningPathService = class CompanyLearningPathService {
             }
             // Create progress with sequential rule (Option B): first course index = 0; UI locks others based on index
             const progress = yield this._assignRepo.create(companyId, employeeId, learningPathId);
+            const company = yield this._companyRepo.findById(companyId);
+            // Notify Employee
+            yield this._notificationService.createNotification(employeeId, 'New Learning Path Assigned', `You have been assigned to the learning path: ${lp.title}.`, 'learning-path', 'employee', `/employee/learning-paths`);
             for (const course of lp.courses) {
                 yield this._purchaseRepo.increaseSeatUsage(new mongoose_1.default.Types.ObjectId(companyId), new mongoose_1.default.Types.ObjectId(course.courseId.toString()));
+                // Check if seat limit reached for this course
+                const results = yield this.checkLearningPathSeats(companyId, lp);
+                const thisCourseResult = results.find(r => r.courseId.toString() === course.courseId.toString());
+                if (thisCourseResult && thisCourseResult.remaining <= 0) {
+                    yield this._notificationService.createNotification(companyId, 'Seat Limit Reached', `Course "${course.title}" has reached its seat limit. Please buy more seats.`, 'seat-limit', 'company', '/company/courses');
+                }
             }
+            // Notify Company
+            yield this._notificationService.createNotification(companyId, 'Learning Path Assigned', `${lp.title} has been assigned to an employee.`, 'learning-path', 'company', `/company/employees/${employeeId}`);
             return progress;
         });
     }
@@ -182,6 +194,7 @@ let CompanyLearningPathService = class CompanyLearningPathService {
                     const purchasedCourse = order.purchasedCourses.find(pc => pc.courseId.toString() === course.courseId.toString());
                     return sum + ((purchasedCourse === null || purchasedCourse === void 0 ? void 0 : purchasedCourse.seats) || 0);
                 }, 0);
+                console.log("totalSeats:", totalSeats);
                 // Get assigned seats - count unique employees who have this course in any learning path
                 const assignedSeats = yield this._assignRepo.countAssignedSeats(companyId, course.courseId.toString());
                 results.push({
@@ -205,6 +218,10 @@ let CompanyLearningPathService = class CompanyLearningPathService {
             const lp = yield this._repo.findOneForCompany(companyId, learningPathId);
             if (!lp)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.LEARNING_PATH_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            // Notify Employee
+            yield this._notificationService.createNotification(employeeId, 'Learning Path Removed', `The learning path "${lp.title}" has been unassigned from your account.`, 'learning-path', 'employee');
+            // Notify Company
+            yield this._notificationService.createNotification(companyId, 'Learning Path Unassigned', `Learning path "${lp.title}" has been unassigned from an employee.`, 'learning-path', 'company');
             for (const course of lp.courses) {
                 yield this._purchaseRepo.decreaseSeatUsage(new mongoose_1.default.Types.ObjectId(companyId), new mongoose_1.default.Types.ObjectId(course.courseId.toString()));
             }
@@ -217,5 +234,7 @@ exports.CompanyLearningPathService = CompanyLearningPathService = __decorate([
     __param(0, (0, inversify_1.inject)(types_1.TYPES.EmployeeLearningPathRepository)),
     __param(1, (0, inversify_1.inject)(types_1.TYPES.EmployeeLearningPathProgressRepository)),
     __param(2, (0, inversify_1.inject)(types_1.TYPES.CompanyCoursePurchaseRepository)),
-    __metadata("design:paramtypes", [Object, Object, Object])
+    __param(3, (0, inversify_1.inject)(types_1.TYPES.NotificationService)),
+    __param(4, (0, inversify_1.inject)(types_1.TYPES.CompanyRepository)),
+    __metadata("design:paramtypes", [Object, Object, Object, Object, Object])
 ], CompanyLearningPathService);

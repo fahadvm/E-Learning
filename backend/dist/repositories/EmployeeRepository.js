@@ -82,7 +82,7 @@ let EmployeeRepository = class EmployeeRepository {
     }
     findById(employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield Employee_1.Employee.findById(employeeId).lean().exec();
+            return yield Employee_1.Employee.findById(employeeId).populate('companyId', 'name').lean().exec();
         });
     }
     getAssignedCourses(employeeId) {
@@ -103,7 +103,7 @@ let EmployeeRepository = class EmployeeRepository {
         });
     }
     findByCompanyId(companyId_1, skip_1, limit_1, search_1) {
-        return __awaiter(this, arguments, void 0, function* (companyId, skip, limit, search, sortField = 'createdAt', sortOrder = 'desc') {
+        return __awaiter(this, arguments, void 0, function* (companyId, skip, limit, search, sortField = 'createdAt', sortOrder = 'desc', department, position) {
             const query = {
                 companyId,
                 $or: [
@@ -111,6 +111,12 @@ let EmployeeRepository = class EmployeeRepository {
                     { email: { $regex: search, $options: 'i' } }
                 ]
             };
+            if (department) {
+                query.department = department;
+            }
+            if (position) {
+                query.position = position;
+            }
             const sort = {};
             sort[sortField] = sortOrder === 'asc' ? 1 : -1;
             return yield Employee_1.Employee.find(query).sort(sort).skip(skip).limit(limit).lean().exec();
@@ -128,7 +134,7 @@ let EmployeeRepository = class EmployeeRepository {
             return yield Employee_1.Employee.find(query).skip(skip).limit(limit).lean().exec();
         });
     }
-    countEmployeesByCompany(companyId, search) {
+    countEmployeesByCompany(companyId, search, department, position) {
         return __awaiter(this, void 0, void 0, function* () {
             const query = { companyId };
             if (search) {
@@ -136,6 +142,12 @@ let EmployeeRepository = class EmployeeRepository {
                     { name: { $regex: search, $options: 'i' } },
                     { email: { $regex: search, $options: 'i' } }
                 ];
+            }
+            if (department) {
+                query.department = department;
+            }
+            if (position) {
+                query.position = position;
             }
             return yield Employee_1.Employee.countDocuments(query);
         });
@@ -376,6 +388,55 @@ let EmployeeRepository = class EmployeeRepository {
                     { email: { $regex: query, $options: 'i' } }
                 ]
             }).lean().exec();
+        });
+    }
+    findInactiveEmployees(days) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const thresholdDate = new Date();
+            thresholdDate.setDate(thresholdDate.getDate() - days);
+            return yield Employee_1.Employee.find({
+                companyId: { $ne: null },
+                $or: [
+                    { lastLoginDate: { $lt: thresholdDate } },
+                    { lastLoginDate: { $exists: false }, createdAt: { $lt: thresholdDate } }
+                ]
+            }).lean().exec();
+        });
+    }
+    findAllPaginated(skip, limit, search, status) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const query = {};
+            if (search) {
+                query.$or = [
+                    { name: { $regex: search, $options: 'i' } },
+                    { email: { $regex: search, $options: 'i' } }
+                ];
+            }
+            if (status === 'blocked') {
+                query.isBlocked = true;
+            }
+            else if (status === 'active') {
+                query.isBlocked = false;
+            }
+            return yield Employee_1.Employee.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }).populate('companyId', 'name').lean().exec();
+        });
+    }
+    countAll(search, status) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const query = {};
+            if (search) {
+                query.$or = [
+                    { name: { $regex: search, $options: 'i' } },
+                    { email: { $regex: search, $options: 'i' } }
+                ];
+            }
+            if (status === 'blocked') {
+                query.isBlocked = true;
+            }
+            else if (status === 'active') {
+                query.isBlocked = false;
+            }
+            return yield Employee_1.Employee.countDocuments(query);
         });
     }
 };

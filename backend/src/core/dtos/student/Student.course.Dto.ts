@@ -45,8 +45,8 @@ export interface IStudentCourseDTO {
   coverImage?: string;
   isBlocked: boolean;
   isVerified: boolean;
-  status: 'pending' | 'verified' | 'rejected';
-  rejectionReason?: string;
+  status: string;
+  adminRemarks?: string;
   learningOutcomes: string[];
   requirements: string[];
   teacherId?: ICourseTeacherDTO;
@@ -88,8 +88,8 @@ export const StudentCourseDTO = (course: ICourse): IStudentCourseDTO => ({
   coverImage: course.coverImage,
   isBlocked: course.isBlocked,
   isVerified: course.isVerified,
-  status: course.status as 'pending' | 'verified' | 'rejected',
-  rejectionReason: course.rejectionReason,
+  status: course.status,
+  adminRemarks: course.adminRemarks,
   teacherId: course.teacherId && typeof course.teacherId === "object"
     ? {
       _id: (course.teacherId as ITeacher)._id.toString(),

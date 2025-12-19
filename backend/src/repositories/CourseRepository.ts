@@ -19,6 +19,8 @@ export class CourseRepository implements ICourseRepository {
       order?: 'asc' | 'desc';
       page?: number;
       limit?: number;
+      isBlocked?: boolean;
+      isPublished?: boolean;
     }): Promise<{ data: ICourse[]; totalPages: number; totalCount: number }> {
     const {
       search,
@@ -148,5 +150,12 @@ export class CourseRepository implements ICourseRepository {
 
   async editCourse(courseId: string, updates: Partial<ICourse>): Promise<ICourse | null> {
     return await Course.findByIdAndUpdate(courseId, { $set: updates }, { new: true });
+  }
+
+  async unpublishByTeacherId(teacherId: string): Promise<void> {
+    await Course.updateMany(
+      { teacherId },
+      { $set: { isPublished: false } }
+    );
   }
 }

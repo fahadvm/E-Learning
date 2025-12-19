@@ -137,7 +137,10 @@ let StudentAuthService = class StudentAuthService {
                 });
             }
             else if (!user.googleId) {
-                throw new Error('User is not linked to Google');
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.USER_NOT_LINKED_GOOGLE, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            }
+            if (user.isBlocked) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ACCOUNT_BLOCKED, HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
             }
             const token = (0, JWTtoken_1.generateAccessToken)(user._id.toString(), user.role);
             const refreshToken = (0, JWTtoken_1.generateRefreshToken)(user._id.toString(), user.role);

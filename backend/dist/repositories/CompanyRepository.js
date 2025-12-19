@@ -45,7 +45,7 @@ let CompanyRepository = class CompanyRepository {
             return Company_1.Company.findById(id)
                 .populate({
                 path: 'employees',
-                select: 'name email position isblocked _id',
+                select: 'name email position isBlocked _id ',
             })
                 .exec();
         });

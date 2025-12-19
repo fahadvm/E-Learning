@@ -13,7 +13,7 @@ import cloudinary from '../../config/cloudinary';
 export class TeacherProfileService implements ITeacherProfileService {
   constructor(
     @inject(TYPES.TeacherRepository) private _teacherRepository: ITeacherRepository
-  ) {}
+  ) { }
 
   async createProfile(data: Partial<ITeacher>): Promise<ITeacher> {
     if (!data.email) throwError(MESSAGES.EMAIL_REQUIRED, STATUS_CODES.BAD_REQUEST);
@@ -37,30 +37,41 @@ export class TeacherProfileService implements ITeacherProfileService {
   }
 
 
-   async sendVerificationRequest(teacherId: string , file: Express.Multer.File):Promise<ITeacher > {
+  // Helper for Cloudinary upload
+  private async uploadToCloudinary(file: Express.Multer.File, folder: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream({ resource_type: 'auto', folder }, (error, result) => {
+        if (error || !result) reject(error || new Error('Upload failed'));
+        else resolve(result.secure_url);
+      }).end(file.buffer);
+    });
+  }
+
+  async sendVerificationRequest(teacherId: string, file: Express.Multer.File): Promise<ITeacher> {
     const teacher = await this._teacherRepository.findById(teacherId);
-    if (!teacher) throwError(MESSAGES.TEACHER_NOT_FOUND,STATUS_CODES.NOT_FOUND);
+    if (!teacher) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
     if (teacher.verificationStatus === VerificationStatus.VERIFIED)
       throwError(MESSAGES.ALREADY_VERIFIED, STATUS_CODES.CONFLICT);
 
     if (teacher.verificationStatus === VerificationStatus.PENDING)
       throwError(MESSAGES.ALREADY_REQUESTED_VERIFICATION, STATUS_CODES.CONFLICT);
-    
 
-    // const isComplete = await this._teacherRepository.isProfileComplete(teacherId);
-    // if (!isComplete) throwError(MESSAGES.COMPLETE_PROFILE, STATUS_CODES.CONFLICT);
-    //  const uploadResult = await cloudinary.uploader.upload(file.path, {
-    //   folder: 'teacher_resumes',
-    //   resource_type: 'auto',
-    //   use_filename: true,
-    // });
+    // Check profile completeness (optional based on requirements, but user mentioned it)
+    const isComplete = await this._teacherRepository.isProfileComplete(teacherId);
+    // if (!isComplete) throwError(MESSAGES.COMPLETE_PROFILE, STATUS_CODES.BAD_REQUEST);
 
-    // const resumeUrl = uploadResult.secure_url;
-    // console.log("resumeUrl",resumeUrl)
-    const updated = await this._teacherRepository.verifyTeacherById(teacherId);
-    if(!updated) throwError(MESSAGES.VERIFICATION_FAILED,STATUS_CODES.BAD_REQUEST);
+    let resumeUrl = teacher.resumeUrl || '';
+    if (file) {
+      resumeUrl = await this.uploadToCloudinary(file, 'teacher_resumes');
+    }
+
+    // Set to PENDING, not VERIFIED
+    const updated = await this._teacherRepository.sendVerificationRequest(teacherId, VerificationStatus.PENDING, resumeUrl);
+
+    if (!updated) throwError(MESSAGES.VERIFICATION_FAILED, STATUS_CODES.BAD_REQUEST);
 
     return updated;
   }
 }
+

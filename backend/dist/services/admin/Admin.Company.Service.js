@@ -47,6 +47,7 @@ let AdminCompanyService = class AdminCompanyService {
             if (!company)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COMPANY_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             const employees = company.employees || [];
+            // const courses = await this._).findById(companyId);
             return {
                 company: (0, Admin_company_Dto_1.adminCompanyDto)(company),
                 employees

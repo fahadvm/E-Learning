@@ -35,6 +35,7 @@ let ChatController = class ChatController {
             const { chatId } = req.params;
             const limit = parseInt(req.query.limit) || 20;
             const before = req.query.before;
+            console.log(chatId, limit, before);
             const messages = yield this._chatService.getMessages(chatId, limit, before);
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_DETAILS_FETCHED, true, messages);
         });

@@ -14,9 +14,9 @@ import { ICourse } from '../../models/Course';
 import { CreateCourseRequest } from '../../types/filter/fiterTypes';
 import { INotificationService } from '../../core/interfaces/services/shared/INotificationService';
 import { ICompanyRepository } from '../../core/interfaces/repositories/ICompanyRepository';
+import { ITeacherRepository } from '../../core/interfaces/repositories/ITeacherRepository';
 import { IEmployeeRepository } from '../../core/interfaces/repositories/IEmployeeRepository';
-
-
+import { CourseStatus } from '../../models/Course';
 
 @injectable()
 export class TeacherCourseService implements ITeacherCourseService {
@@ -26,6 +26,7 @@ export class TeacherCourseService implements ITeacherCourseService {
     @inject(TYPES.NotificationService) private readonly _notificationService: INotificationService,
     @inject(TYPES.CompanyRepository) private readonly _companyRepository: ICompanyRepository,
     @inject(TYPES.EmployeeRepository) private readonly _employeeRepository: IEmployeeRepository,
+    @inject(TYPES.TeacherRepository) private readonly _teacherRepository: ITeacherRepository,
   ) { }
 
   // Helper for Cloudinary upload
@@ -41,6 +42,20 @@ export class TeacherCourseService implements ITeacherCourseService {
   async createCourse(req: CreateCourseRequest): Promise<CourseCreateDTO> {
     const teacherId = req.user?.id;
     if (!teacherId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+
+    // Dependency Rule: If teacher is not verified → course submission blocked
+    const teacher = await this._teacherRepository.findById(teacherId);
+    if (!teacher) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
+    // Allow creating drafts, but protect submission?
+    // "If teacher is not verified → course submission blocked"
+    // Assuming this means they can't even create a course? Or just can't submit?
+    // "Teacher clicks 'Submit for Review'" - implies creation might typically be a draft first.
+    // However, if the teacher isn't verified, they shouldn't be engaging in course creation flows usually.
+    // Let's enforce strict: Must be verified to create any course (Draft or otherwise) logic from requirement "Only verified teachers can create courses".
+    if (!teacher.isVerified) {
+      throwError('You must be a verified teacher to create courses.', STATUS_CODES.FORBIDDEN);
+    }
 
     // Map files by fieldname
     const filesMap: { [key: string]: Express.Multer.File } = {};
@@ -91,6 +106,9 @@ export class TeacherCourseService implements ITeacherCourseService {
 
     // Construct course DTO
     const price = typeof req.body.price === 'string' ? parseFloat(req.body.price) : req.body.price ?? 0;
+
+    const isSubmitted = req.body.isPublished === 'true';
+
     const courseData: CourseCreateDTO = {
       title: req.body.title,
       subtitle: req.body.subtitle || '',
@@ -103,7 +121,9 @@ export class TeacherCourseService implements ITeacherCourseService {
       coverImage: coverImageUrl,
       learningOutcomes: JSON.parse(req.body.learningOutcomes || '[]'),
       requirements: JSON.parse(req.body.requirements || '[]'),
-      isPublished: req.body.isPublished === 'true',
+      // If submitting, set pending and keep unpublished. If draft, set draft and unpublished.
+      isPublished: false,
+      status: isSubmitted ? CourseStatus.PENDING : CourseStatus.DRAFT,
       totalDuration: req.body.totalDuration ? Number(req.body.totalDuration) : undefined,
       modules,
       teacherId: new Types.ObjectId(teacherId),
@@ -119,19 +139,7 @@ export class TeacherCourseService implements ITeacherCourseService {
 
     const newCourse = await this._courseRepository.create(courseData);
 
-    if (newCourse.isPublished) {
-      const companies = await this._companyRepository.findAll();
-      for (const company of companies) {
-        await this._notificationService.createNotification(
-          company._id.toString(),
-          'New Course Available',
-          `A new course "${newCourse.title}" has been published.`,
-          'course',
-          'company',
-          '/company/courses'
-        );
-      }
-    }
+    // If submitted, maybe notify admin? (Implementation detail, skipping for now unless explicit)
 
     return newCourse;
   }

@@ -37,7 +37,7 @@ export const adminApiMethods = {
   getUnverifiedCourses: (params?: { page?: number; limit?: number; search?: string }) => get(ADMIN_ROUTES.courses.unverified, params),
   getCourseById: (id: string) => get(ADMIN_ROUTES.courses.getById(id)),
   verifyCourse: (id: string) => patch(ADMIN_ROUTES.courses.verify(id), {}),
-  rejectCourse: (id: string, rejectReason: string) => patch(ADMIN_ROUTES.courses.reject(id), { rejectReason }),
+  rejectCourse: (id: string, remarks: string) => patch(ADMIN_ROUTES.courses.reject(id), { remarks }),
   blockCourse: (id: string, reason?: string) => patch(ADMIN_ROUTES.courses.block(id), { reason }),
   unblockCourse: (id: string) => patch(ADMIN_ROUTES.courses.unblock(id), {}),
 
@@ -46,7 +46,7 @@ export const adminApiMethods = {
   getUnverifiedTeachers: (params?: { page?: number; limit?: number; search?: string; status: string }) => get(ADMIN_ROUTES.teachers.unverified, params),
   getTeacherById: (id: string) => get(ADMIN_ROUTES.teachers.getById(id)),
   verifyTeacher: (id: string) => patch(ADMIN_ROUTES.teachers.verify(id), {}),
-  rejectTeacher: (id: string, rejectReason: string) => patch(ADMIN_ROUTES.teachers.reject(id), { rejectReason }),
+  rejectTeacher: (id: string, reason: string) => patch(ADMIN_ROUTES.teachers.reject(id), { reason }),
   blockTeacher: (id: string) => patch(ADMIN_ROUTES.teachers.block(id), {}),
   unblockTeacher: (id: string) => patch(ADMIN_ROUTES.teachers.unblock(id), {}),
   getTeacherCourses: (teacherId: string) => get(ADMIN_ROUTES.teachers.coursesByTeacher(teacherId)),

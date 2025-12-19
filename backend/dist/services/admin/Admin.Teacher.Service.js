@@ -30,22 +30,31 @@ const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const Admin_teacher_Dto_1 = require("../../core/dtos/admin/Admin.teacher.Dto");
 let AdminTeacherService = class AdminTeacherService {
-    constructor(_teacherRepo, _courseRepo, _transactionRepo) {
+    constructor(_teacherRepo, _courseRepo, _transactionRepo, _notificationService) {
         this._teacherRepo = _teacherRepo;
         this._courseRepo = _courseRepo;
         this._transactionRepo = _transactionRepo;
+        this._notificationService = _notificationService;
     }
+    // ... (getAllTeachers, getVerificationRequests, getTeacherById, etc - skipped) 
+    // Skipping unchanged methods...
     getAllTeachers(page, limit, search, status) {
         return __awaiter(this, void 0, void 0, function* () {
+            // ... (implementation same as before)
             const skip = (page - 1) * limit;
             const teachers = yield this._teacherRepo.findAll({ skip, limit, search, status });
             const total = yield this._teacherRepo.count(search, status);
             const totalPages = Math.ceil(total / limit);
-            const data = teachers.map(Admin_teacher_Dto_1.adminTeacherDto);
+            const data = yield Promise.all(teachers.map((teacher) => __awaiter(this, void 0, void 0, function* () {
+                const courses = yield this._courseRepo.findByTeacherId(teacher._id.toString());
+                const totalCourses = courses.length;
+                const totalStudents = courses.reduce((sum, c) => sum + (c.totalStudents || 0), 0);
+                const totalEarnings = yield this._transactionRepo.teacherEarnings(teacher._id.toString());
+                return (0, Admin_teacher_Dto_1.adminTeacherDto)(Object.assign(Object.assign({}, teacher), { totalCourses, totalStudents, totalEarnings }));
+            })));
             return { data, total, totalPages };
         });
     }
-    // get paginated verification requests (pending)
     getVerificationRequests(page, limit, search) {
         return __awaiter(this, void 0, void 0, function* () {
             const skip = (page - 1) * limit;
@@ -56,7 +65,6 @@ let AdminTeacherService = class AdminTeacherService {
             return { data, total, totalPages };
         });
     }
-    // get teacher by id plus courses
     getTeacherById(teacherId) {
         return __awaiter(this, void 0, void 0, function* () {
             const teacher = yield this._teacherRepo.findById(teacherId);
@@ -83,6 +91,7 @@ let AdminTeacherService = class AdminTeacherService {
             const updated = yield this._teacherRepo.verifyTeacherById(teacherId);
             if (!updated)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.TEACHER_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            yield this._notificationService.createNotification(teacherId, 'Profile Verified', 'Your teacher profile has been verified. You can now start creating courses.', 'profile', 'teacher', '/teacher/profile');
             return (0, Admin_teacher_Dto_1.adminTeacherDto)(updated);
         });
     }
@@ -91,6 +100,7 @@ let AdminTeacherService = class AdminTeacherService {
             const updated = yield this._teacherRepo.rejectTeacherById(teacherId, reason);
             if (!updated)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.TEACHER_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            yield this._notificationService.createNotification(teacherId, 'Profile Verification Rejected', `Your profile verification was rejected by admin. Reason: ${reason}`, 'profile', 'teacher', '/teacher/profile');
             return (0, Admin_teacher_Dto_1.adminTeacherDto)(updated);
         });
     }
@@ -99,6 +109,8 @@ let AdminTeacherService = class AdminTeacherService {
             const updated = yield this._teacherRepo.updateStatus(teacherId, { isBlocked: true });
             if (!updated)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.TEACHER_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            // If teacher is blocked, all their courses should be auto-unpublished
+            yield this._courseRepo.unpublishByTeacherId(teacherId);
             return (0, Admin_teacher_Dto_1.adminTeacherDto)(updated);
         });
     }
@@ -117,5 +129,6 @@ exports.AdminTeacherService = AdminTeacherService = __decorate([
     __param(0, (0, inversify_1.inject)(types_1.TYPES.TeacherRepository)),
     __param(1, (0, inversify_1.inject)(types_1.TYPES.CourseRepository)),
     __param(2, (0, inversify_1.inject)(types_1.TYPES.TransactionRepository)),
-    __metadata("design:paramtypes", [Object, Object, Object])
+    __param(3, (0, inversify_1.inject)(types_1.TYPES.NotificationService)),
+    __metadata("design:paramtypes", [Object, Object, Object, Object])
 ], AdminTeacherService);

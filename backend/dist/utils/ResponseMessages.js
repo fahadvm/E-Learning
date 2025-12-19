@@ -30,6 +30,7 @@ var MESSAGES;
     MESSAGES["OTP_SENT_NEW_EMAIL"] = "OTP sent to new email";
     MESSAGES["FEATURE_NOT_ALLOWED"] = "You don't have access to this feature.";
     MESSAGES["BOOKING_DETAILS_FETCHED"] = "Booking details fetched successfully";
+    MESSAGES["TOP_TEACHERS_FETCHED"] = "Top teachers fetched successfully";
     MESSAGES["LEFT_COMPANY"] = "Left company";
     MESSAGES["CERTIFICATE_AND_TAXID_REQUIRED"] = "Both certificate and tax ID documents are required";
     MESSAGES["INVALID_EMAIL_FORMAT"] = "Invalid email format";

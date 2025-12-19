@@ -39,6 +39,11 @@ let StudentTeacherService = class StudentTeacherService {
             return this._availabilityRepo.getAvailabilityByTeacherId(teacherId);
         });
     }
+    getTopTeachers() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this._teacherRepo.findTopTeachers();
+        });
+    }
 };
 exports.StudentTeacherService = StudentTeacherService;
 exports.StudentTeacherService = StudentTeacherService = __decorate([

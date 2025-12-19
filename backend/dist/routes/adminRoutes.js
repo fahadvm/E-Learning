@@ -13,7 +13,7 @@ const admin_company_route_1 = __importDefault(require("./adminRoute/admin.compan
 const admin_subscription_route_1 = __importDefault(require("./adminRoute/admin.subscription.route"));
 const admin_order_route_1 = __importDefault(require("./adminRoute/admin.order.route"));
 const admin_profile_route_1 = __importDefault(require("./adminRoute/admin.profile.route"));
-// import employeeRoutes from './adminRoute/admin.employee.route';
+const admin_employee_route_1 = __importDefault(require("./adminRoute/admin.employee.route"));
 const adminRouter = (0, express_1.Router)();
 adminRouter.use('/auth', admin_auth_route_1.default);
 adminRouter.use('/courses', admin_course_route_1.default);
@@ -23,7 +23,7 @@ adminRouter.use('/companies', admin_company_route_1.default);
 adminRouter.use('/subscriptions', admin_subscription_route_1.default);
 adminRouter.use('/orders', admin_order_route_1.default);
 adminRouter.use('/profile', admin_profile_route_1.default);
-// adminRouter.use('/employees', employeeRoutes);
+adminRouter.use('/employees', admin_employee_route_1.default);
 const admin_transaction_route_1 = __importDefault(require("./adminRoute/admin.transaction.route"));
 adminRouter.use('/transactions', admin_transaction_route_1.default);
 const admin_reports_route_1 = __importDefault(require("./adminRoute/admin.reports.route"));

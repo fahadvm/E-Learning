@@ -29,7 +29,7 @@ const StudentCourseDTO = (course) => {
         isBlocked: course.isBlocked,
         isVerified: course.isVerified,
         status: course.status,
-        rejectionReason: course.rejectionReason,
+        adminRemarks: course.adminRemarks,
         teacherId: course.teacherId && typeof course.teacherId === "object"
             ? {
                 _id: course.teacherId._id.toString(),

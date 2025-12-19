@@ -48,10 +48,14 @@ let StudentSubscriptionService = class StudentSubscriptionService {
             if (plan.price <= 0) {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_DATA);
             }
-            const existingSubscription = yield this.getActiveSubscription(studentId);
-            console.log("existing plan:", existingSubscription);
-            if (existingSubscription && new Date(existingSubscription.endDate) > new Date()) {
-                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ACTIVE_SUBSCRIPTION_EXISTS || "You already have an active subscription");
+            const existingSubscriptions = yield this._planRepo.findActiveSubscriptions(studentId);
+            if (existingSubscriptions) {
+                const isSamePlanActive = existingSubscriptions.some((sub) => sub.planId.toString() === planId.toString() &&
+                    new Date(sub.endDate) > new Date());
+                if (isSamePlanActive) {
+                    (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ACTIVE_SUBSCRIPTION_EXISTS ||
+                        "This plan is already active for the student");
+                }
             }
             const razorpay = new razorpay_1.default({
                 key_id: process.env.RAZORPAY_KEY_ID,
@@ -91,18 +95,17 @@ let StudentSubscriptionService = class StudentSubscriptionService {
     }
     getActiveSubscription(studentId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this._planRepo.findActiveSubscription(studentId);
+            return this._planRepo.findActiveSubscriptions(studentId);
         });
     }
     hasFeature(studentId, featureName) {
         return __awaiter(this, void 0, void 0, function* () {
-            const subscription = yield this._planRepo.findActiveSubscription(studentId);
-            if (!subscription)
+            const subscriptions = yield this._planRepo.findActiveSubscription(studentId);
+            if (!(subscriptions === null || subscriptions === void 0 ? void 0 : subscriptions.length))
                 return false;
-            const plan = yield this._planRepo.getById(subscription.planId);
-            if (!plan)
-                return false;
-            return plan.features.some(feature => feature.name === featureName);
+            const plans = yield Promise.all(subscriptions.map((sub) => this._planRepo.getById(sub.planId.toString())));
+            return plans.some(plan => plan &&
+                plan.features.some((feature) => feature.name === featureName));
         });
     }
 };

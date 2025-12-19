@@ -2,6 +2,13 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 import { ObjectId } from 'mongodb';
 import { ITeacher } from './Teacher';
 
+export enum CourseStatus {
+  DRAFT = 'draft',
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+}
+
 export interface ILesson {
   _id?: ObjectId
   title: string;
@@ -33,8 +40,8 @@ export interface ICourse extends Document {
   blockReason?: string;
   isVerified: boolean;
   isPublished: boolean;
-  status: string;
-  rejectionReason?: string;
+  status: CourseStatus;
+  adminRemarks?: string;
   teacherId?: mongoose.Types.ObjectId | ITeacher;
   teacherName?: string;
   totalDuration?: number; // total duration in minutes
@@ -86,8 +93,8 @@ const CourseSchema = new Schema<ICourse>(
     isVerified: { type: Boolean, default: false },
     isTechnicalCourse: { type: Boolean, default: false },
     isPublished: { type: Boolean, default: false },
-    status: { type: String, default: 'published' },
-    rejectionReason: { type: String },
+    status: { type: String, enum: Object.values(CourseStatus), default: CourseStatus.DRAFT },
+    adminRemarks: { type: String, default: '' },
     teacherName: { type: String },
     averageRating: { type: Number, default: 0 },
     reviewCount: { type: Number, default: 0 },

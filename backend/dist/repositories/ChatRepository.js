@@ -62,9 +62,7 @@ let ChatRepository = class ChatRepository {
     getStudentMessages(chatId, limit, before) {
         return __awaiter(this, void 0, void 0, function* () {
             const query = { chatId: new mongoose_1.Types.ObjectId(chatId) };
-            if (before) {
-                query.createdAt = { $lt: before };
-            }
+            console.log(before);
             return message_1.Message.find(query).populate('receiverId', 'name email profilePicture').sort({ createdAt: 1 });
         });
     }
@@ -86,12 +84,34 @@ let ChatRepository = class ChatRepository {
     }
     getStudentChats(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return chat_1.Chat.find({ studentId: new mongoose_1.Types.ObjectId(userId) }).populate('teacherId', 'name email profilePicture');
+            const chats = yield chat_1.Chat.find({ studentId: new mongoose_1.Types.ObjectId(userId) })
+                .populate('teacherId', 'name email profilePicture')
+                .lean();
+            const chatsWithUnread = yield Promise.all(chats.map((chat) => __awaiter(this, void 0, void 0, function* () {
+                const unread = yield message_1.Message.countDocuments({
+                    chatId: chat._id,
+                    receiverId: new mongoose_1.Types.ObjectId(userId),
+                    isRead: false
+                });
+                return Object.assign(Object.assign({}, chat), { unread });
+            })));
+            return chatsWithUnread;
         });
     }
     getTeacherChats(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return chat_1.Chat.find({ teacherId: new mongoose_1.Types.ObjectId(userId) }).populate('studentId', 'name email profilePicture');
+            const chats = yield chat_1.Chat.find({ teacherId: new mongoose_1.Types.ObjectId(userId) })
+                .populate('studentId', 'name email profilePicture')
+                .lean();
+            const chatsWithUnread = yield Promise.all(chats.map((chat) => __awaiter(this, void 0, void 0, function* () {
+                const unread = yield message_1.Message.countDocuments({
+                    chatId: chat._id,
+                    receiverId: new mongoose_1.Types.ObjectId(userId),
+                    isRead: false
+                });
+                return Object.assign(Object.assign({}, chat), { unread });
+            })));
+            return chatsWithUnread;
         });
     }
     findOrCreateCompanyGroup(companyId, groupName) {

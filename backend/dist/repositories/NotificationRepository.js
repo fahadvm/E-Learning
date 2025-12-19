@@ -12,9 +12,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationRepository = void 0;
 const Notification_1 = require("../models/Notification");
 class NotificationRepository {
-    createNotification(userId, title, message, type, userRole) {
+    createNotification(userId, title, message, type, userRole, link) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield Notification_1.Notification.create({ userId, title, message, type, userRole });
+            yield Notification_1.Notification.create({ userId, title, message, type, userRole, link });
         });
     }
     findByUserId(userId) {

@@ -38,7 +38,8 @@ export class AdminCourseController implements IAdminCourseController {
   }
 
   async rejectCourse(req: Request, res: Response) {
-    const course = await this._adminCourseService.rejectCourse(req.params.courseId);
+    const { remarks } = req.body;
+    const course = await this._adminCourseService.rejectCourse(req.params.courseId, remarks || 'No remarks provided');
     sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, course);
   }
 

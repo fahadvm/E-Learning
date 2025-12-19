@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.broadcastEvent = exports.emitToUser = exports.getIO = void 0;
 exports.initSocket = initSocket;
 const socket_io_1 = require("socket.io");
 const container_1 = __importDefault(require("../core/di/container"));
@@ -21,6 +22,25 @@ const logger_1 = __importDefault(require("../utils/logger"));
 dotenv_1.default.config();
 const chatService = container_1.default.get(types_1.TYPES.ChatService);
 const notificationService = container_1.default.get(types_1.TYPES.StudentNotificationService);
+let ioInstance;
+const getIO = () => ioInstance;
+exports.getIO = getIO;
+const onlineUsers = new Map(); // userId -> socketId
+const emitToUser = (userId, event, data) => {
+    if (ioInstance) {
+        const socketId = onlineUsers.get(userId);
+        if (socketId) {
+            ioInstance.to(socketId).emit(event, data);
+        }
+    }
+};
+exports.emitToUser = emitToUser;
+const broadcastEvent = (event, data) => {
+    if (ioInstance) {
+        ioInstance.emit(event, data);
+    }
+};
+exports.broadcastEvent = broadcastEvent;
 function initSocket(server) {
     const io = new socket_io_1.Server(server, {
         cors: {
@@ -29,8 +49,7 @@ function initSocket(server) {
             credentials: true,
         },
     });
-    // Chat: online users
-    const onlineUsers = new Map(); // userId -> socketId
+    ioInstance = io;
     const broadcastOnlineUsers = () => {
         const users = Array.from(onlineUsers.keys());
         io.emit("onlineUsers", users);
@@ -47,25 +66,18 @@ function initSocket(server) {
             console.log(`User ${socket.id} joined chat ${chatId}`);
         });
         socket.on("send_message", (data) => __awaiter(this, void 0, void 0, function* () {
-            const messageData = Object.assign(Object.assign({}, data), { read: false, createdAt: new Date(), reactions: [] });
             // Save to DB
-            yield chatService.sendMessage(data.senderId, data.message, data.chatId, data.senderType, data.receiverId, data.receiverType);
+            const savedMessage = yield chatService.sendMessage(data.senderId, data.message, data.chatId, data.senderType, data.receiverId, data.receiverType);
             // Group Chat Broadcast (Room based)
-            io.to(data.chatId).emit("receive_message", messageData);
+            io.to(data.chatId).emit("receive_message", savedMessage);
             // Direct Message Fallback (for online users not in room - mostly for retro-compatibility or notifications)
             if (data.receiverId) {
                 const receiverSocketId = onlineUsers.get(data.receiverId);
-                // If receiver is NOT in the room (checked via socket.rooms?), send direct.
-                // But determining if they are in room is complex here without fetching sockets.
-                // Simply emitting to socketId is fine, but might duplicate if they are also in room.
-                // However, for Student-Teacher, they likely ARE NOT in room yet (unless I update frontend).
-                // So this preserves existing behavior.
                 if (receiverSocketId) {
-                    // Check if already in room to avoid double emit?
-                    // let receiverSocket = io.sockets.sockets.get(receiverSocketId);
-                    // if (!receiverSocket?.rooms.has(data.chatId)) {
-                    io.to(receiverSocketId).emit("receive_message", messageData);
-                    // }
+                    const receiverSocket = io.sockets.sockets.get(receiverSocketId);
+                    if (!(receiverSocket === null || receiverSocket === void 0 ? void 0 : receiverSocket.rooms.has(data.chatId))) {
+                        io.to(receiverSocketId).emit("receive_message", savedMessage);
+                    }
                 }
             }
         }));
@@ -79,7 +91,7 @@ function initSocket(server) {
                 yield chatService.markMessageAsRead(data.chatId, data.messageId);
                 const senderSocketId = onlineUsers.get(data.senderId);
                 if (senderSocketId)
-                    io.to(senderSocketId).emit("message_read", { messageId: data.messageId, chatId: data.chatId });
+                    io.to(data.chatId).emit("message_read", { messageId: data.messageId, chatId: data.chatId });
             }
             catch (err) {
                 logger_1.default.error("Error marking message as read:", err);
@@ -88,9 +100,7 @@ function initSocket(server) {
         socket.on("react_message", (data) => __awaiter(this, void 0, void 0, function* () {
             try {
                 yield chatService.addReaction(data.chatId, data.messageId, data.userId, data.reaction);
-                const receiverSocketId = onlineUsers.get(data.receiverId);
-                if (receiverSocketId)
-                    io.to(receiverSocketId).emit("message_reaction", data);
+                io.to(data.chatId).emit("message_reaction", data);
             }
             catch (err) {
                 logger_1.default.error("Error adding reaction:", err);
@@ -99,9 +109,7 @@ function initSocket(server) {
         socket.on("delete_message", (data) => __awaiter(this, void 0, void 0, function* () {
             try {
                 yield chatService.deleteMessage(data.chatId, data.messageId, data.senderId);
-                const receiverSocketId = onlineUsers.get(data.receiverId);
-                if (receiverSocketId)
-                    io.to(receiverSocketId).emit("message_deleted", { messageId: data.messageId, chatId: data.chatId });
+                io.to(data.chatId).emit("message_deleted", { messageId: data.messageId, chatId: data.chatId });
             }
             catch (err) {
                 logger_1.default.error("Error deleting message:", err);
@@ -110,9 +118,7 @@ function initSocket(server) {
         socket.on("edit_message", (data) => __awaiter(this, void 0, void 0, function* () {
             try {
                 yield chatService.editMessage(data.chatId, data.messageId, data.senderId, data.newMessage);
-                const receiverSocketId = onlineUsers.get(data.receiverId);
-                if (receiverSocketId)
-                    io.to(receiverSocketId).emit("message_edited", { messageId: data.messageId, chatId: data.chatId, newMessage: data.newMessage });
+                io.to(data.chatId).emit("message_edited", { messageId: data.messageId, chatId: data.chatId, newMessage: data.newMessage });
             }
             catch (err) {
                 logger_1.default.error("Error editing message:", err);

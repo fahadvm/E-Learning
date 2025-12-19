@@ -4,11 +4,17 @@ import { ICourseRepository } from '../../core/interfaces/repositories/ICourseRep
 import { TYPES } from '../../core/di/types';
 import { IAdminCourseDTO, AdminCourseDTO, PaginatedCourseDTO } from '../../core/dtos/admin/Admin.course.Dto';
 import { broadcastEvent } from '../../config/socket';
+import { CourseStatus } from '../../models/Course';
+
+import { INotificationService } from '../../core/interfaces/services/shared/INotificationService';
+import { ICompanyRepository } from '../../core/interfaces/repositories/ICompanyRepository';
 
 @injectable()
 export class AdminCourseService implements IAdminCourseService {
   constructor(
-    @inject(TYPES.CourseRepository) private readonly _courseRepo: ICourseRepository
+    @inject(TYPES.CourseRepository) private readonly _courseRepo: ICourseRepository,
+    @inject(TYPES.NotificationService) private readonly _notificationService: INotificationService,
+    @inject(TYPES.CompanyRepository) private readonly _companyRepository: ICompanyRepository,
   ) { }
 
   async getAllCourses(page: number, limit: number, search?: string): Promise<PaginatedCourseDTO> {
@@ -32,12 +38,61 @@ export class AdminCourseService implements IAdminCourseService {
   }
 
   async verifyCourse(courseId: string): Promise<IAdminCourseDTO | null> {
-    const course = await this._courseRepo.updateStatus(courseId, { status: 'verified' });
+    const course = await this._courseRepo.updateStatus(courseId, {
+      status: CourseStatus.APPROVED,
+      isVerified: true,
+      isPublished: true
+    });
+
+    if (course) {
+      // Notify Teacher
+      if (course.teacherId) {
+        await this._notificationService.createNotification(
+          typeof course.teacherId === 'string' ? course.teacherId : course.teacherId._id.toString(),
+          'Course Approved',
+          `Your course "${course.title}" has been approved and published.`,
+          'course',
+          'teacher',
+          '/teacher/courses'
+        );
+      }
+
+      // Notify Companies
+      const companies = await this._companyRepository.findAll();
+      for (const company of companies) {
+        await this._notificationService.createNotification(
+          company._id.toString(),
+          'New Course Available',
+          `A new course "${course.title}" has been published.`,
+          'course',
+          'company',
+          '/company/courses'
+        );
+      }
+    }
+
     return course ? AdminCourseDTO(course) : null;
   }
 
-  async rejectCourse(courseId: string): Promise<IAdminCourseDTO | null> {
-    const course = await this._courseRepo.updateStatus(courseId, { status: 'rejected' });
+  async rejectCourse(courseId: string, remarks: string): Promise<IAdminCourseDTO | null> {
+    const course = await this._courseRepo.updateStatus(courseId, {
+      status: CourseStatus.REJECTED,
+      isVerified: false,
+      isPublished: false,
+      adminRemarks: remarks
+    });
+
+    if (course && course.teacherId) {
+      await this._notificationService.createNotification(
+        typeof course.teacherId === 'string' ? course.teacherId : course.teacherId._id.toString(),
+        'Course Rejected',
+        `Your course "${course.title}" has been rejected. Remarks: ${remarks}`,
+        'course',
+        'teacher',
+        '/teacher/courses'
+      );
+    }
+
     return course ? AdminCourseDTO(course) : null;
   }
 

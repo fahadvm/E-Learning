@@ -145,6 +145,8 @@ const CompanyCoursePurchaseRepository_1 = require("../../repositories/CompanyCou
 const CompanyAnalyticsRepository_1 = require("../../repositories/CompanyAnalyticsRepository");
 const TeacherDashboardService_1 = require("../../services/teacher/TeacherDashboardService");
 const teacher_dashboard_controller_1 = require("../../controllers/teacher/teacher.dashboard.controller");
+const admin_employee_controller_1 = require("../../controllers/admin/admin.employee.controller");
+const Admin_Employee_Service_1 = require("../../services/admin/Admin.Employee.Service");
 const container = new inversify_1.Container();
 // ===== Bind Repositories =====
 container.bind(types_1.TYPES.CourseReviewRepository).to(CourseReview_1.CourseReviewRepository);
@@ -212,6 +214,8 @@ container.bind(types_1.TYPES.EmployeeProfileService).to(employee_profile_service
 container.bind(types_1.TYPES.EmployeeCompanyService).to(employee_company_service_1.EmployeeCompanyService);
 container.bind(types_1.TYPES.EmployeeCourseService).to(employee_course_service_1.EmployeeCourseService);
 container.bind(types_1.TYPES.EmployeeCommentService).to(employee_comment_service_1.EmployeeCommentService);
+container.bind(types_1.TYPES.AdminEmployeeService).to(Admin_Employee_Service_1.AdminEmployeeService);
+container.bind(types_1.TYPES.AdminEmployeeController).to(admin_employee_controller_1.AdminEmployeeController);
 // ===== Bind Controllers =====
 container.bind(types_1.TYPES.StudentAuthController).to(student_auth_controller_1.StudentAuthController);
 container.bind(types_1.TYPES.StudentProfileController).to(student_profile_controller_1.StudentProfileController);

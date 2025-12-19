@@ -251,9 +251,10 @@ let StudentBookingService = class StudentBookingService {
     }
     getAvailableSlots(teacherId) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("getAvailableSlots......");
             const availability = yield this._availibilityRepo.getAvailabilityByTeacherId(teacherId);
             if (!availability)
-                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.TEACHER_AVAILABILITY_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+                return [];
             const today = (0, dayjs_1.default)();
             const nextWeek = today.add(7, 'day');
             const slotsForWeek = [];

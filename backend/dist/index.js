@@ -32,20 +32,26 @@ app.use((0, morgan_1.default)('tiny', {
 app.use((0, express_session_1.default)({ secret: 'your_secret', resave: false, saveUninitialized: false }));
 app.use(passport_1.default.initialize());
 app.use(passport_1.default.session());
-const allowedOrigins = ['https://devnext.online', /\.devtunnels\.ms$/];
-app.use((0, cors_1.default)({
+const allowedOrigins = [
+    'https://devnext.online',
+    'https://www.devnext.online',
+    'https://api.devnext.online',
+    'http://localhost:3000',
+];
+const corsOptions = {
     origin: (origin, callback) => {
-        if (!origin)
-            return callback(null, true);
-        if (allowedOrigins.some((o) => typeof o === 'string' ? o === origin : o.test(origin))) {
+        if (!origin || allowedOrigins.includes(origin) || /\.devtunnels\.ms$/.test(origin)) {
             callback(null, true);
         }
         else {
-            callback(new Error('Not allowed by CORS'));
+            callback(new Error(`Not allowed by CORS: ${origin}`), false);
         }
     },
     credentials: true,
-}));
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+};
+app.use((0, cors_1.default)(corsOptions));
 app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json());
 app.use('/api/company', companyRoutes_1.default);
