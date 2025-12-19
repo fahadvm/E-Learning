@@ -29,10 +29,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import CompanyNotificationModal from "./CompanyNotificationModal";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdown, setUserDropdown] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+
   const router = useRouter();
 
   const navLinks = [
@@ -84,9 +87,14 @@ export default function Header() {
           <Link href="/company/cart" className="relative">
             <ShoppingCart size={22} className="text-gray-300 hover:text-white transition" />
           </Link>
-          <Link href="/company/notification" className="relative">
+          <button
+            onClick={() => setShowNotifications(true)}
+            className="relative"
+          >
             <Bell size={22} className="text-gray-300 hover:text-white transition" />
-          </Link>
+            <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full" />
+          </button>
+
 
           {/* User Dropdown */}
           <div className="relative">
@@ -104,7 +112,7 @@ export default function Header() {
                 <Link href="/company/profile" className="block px-4 py-2 text-gray-200 hover:bg-white/10 rounded-lg transition">
                   Profile
                 </Link>
-               
+
                 <Link href="/company/mycourses" className="block px-4 py-2 text-gray-200 hover:bg-white/10 rounded-lg transition">
                   My Courses
                 </Link>
@@ -118,7 +126,7 @@ export default function Header() {
 
                 <hr className="border-white/10 my-2" />
 
-                
+
 
 
                 {/* Logout */}
@@ -185,7 +193,7 @@ export default function Header() {
             Profile
           </Link>
 
-          <Link href="/notifications" className="block text-gray-300 hover:text-white transition">
+          <Link href="/company/notifications" className="block text-gray-300 hover:text-white transition">
             Notifications
           </Link>
 
@@ -244,6 +252,10 @@ export default function Header() {
           </AlertDialog>
         </div>
       )}
+      {showNotifications && (
+        <CompanyNotificationModal onClose={() => setShowNotifications(false)} />
+      )}
     </header>
+
   );
 }

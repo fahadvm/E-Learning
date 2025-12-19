@@ -30,4 +30,5 @@ export interface IEmployeeRepository {
   getLearningRecords(employeeId: string): Promise<IEmployeeLearningRecord[]>
   updateLoginStreak(employeeId: string): Promise<any>
   searchByEmailOrName(query: string): Promise<IEmployee[]>
+  findInactiveEmployees(days: number): Promise<IEmployee[]>
 }

@@ -10,4 +10,8 @@ export interface ICompanyEmployeeController {
     getRequestedEmployees(req: AuthRequest, res: Response): Promise<void>
     approveEmployee(req: AuthRequest, res: Response): Promise<void>
     rejectEmployee(req: AuthRequest, res: Response): Promise<void>
+    getEmployeeProgress(req: AuthRequest, res: Response): Promise<void>
+    inviteEmployee(req: AuthRequest, res: Response): Promise<void>
+    searchEmployees(req: AuthRequest, res: Response): Promise<void>
+    removeEmployee(req: AuthRequest, res: Response): Promise<void>
 }

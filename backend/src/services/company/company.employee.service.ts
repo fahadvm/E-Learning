@@ -15,6 +15,7 @@ import { ICompanyCoursePurchaseRepository } from '../../core/interfaces/reposito
 import { IEmployeeLearningPathRepository } from '../../core/interfaces/repositories/IEmployeeLearningPathRepository';
 import { IEmployeeLearningPathProgressRepository } from '../../core/interfaces/repositories/IEmployeeLearningPathProgressRepository';
 import { ICompanyChatService } from '../../core/interfaces/services/company/ICompanyChatService';
+import { INotificationService } from '../../core/interfaces/services/shared/INotificationService';
 
 
 @injectable()
@@ -26,6 +27,7 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
         @inject(TYPES.CompanyCoursePurchaseRepository) private _purchaseRepo: ICompanyCoursePurchaseRepository,
         @inject(TYPES.EmployeeLearningPathProgressRepository) private _learningPathAssignRepo: IEmployeeLearningPathProgressRepository,
         @inject(TYPES.CompanyChatService) private _companyChatService: ICompanyChatService,
+        @inject(TYPES.NotificationService) private _notificationService: INotificationService
 
     ) { } // Injected CompanyRepository
 
@@ -47,9 +49,35 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
     }
 
     async blockEmployee(id: string, status: boolean): Promise<void> {
-        const employee = await this._employeeRepo.blockEmployee(id, status);
+        const employee = await this._employeeRepo.findById(id);
         if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
         await this._employeeRepo.blockEmployee(id, status);
+
+        const action = status ? 'blocked' : 'unblocked';
+        const companyId = employee.companyId?.toString();
+        const company = companyId ? await this._companyRepo.findById(companyId) : null;
+
+        // Notify Company
+        if (companyId) {
+            await this._notificationService.createNotification(
+                companyId,
+                `Employee ${action}`,
+                `Employee ${employee.name} has been ${action}.`,
+                'employee',
+                'company',
+                `/company/employees/${id}`
+            );
+        }
+
+        // Notify Employee
+        await this._notificationService.createNotification(
+            id,
+            `Account ${action}`,
+            `Your account has been ${action} by ${company?.name || 'the company'}.`,
+            'system',
+            'employee'
+        );
     }
 
 
@@ -72,6 +100,26 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
             if (company) {
                 await this._companyChatService.createCompanyGroup(companyId, company.name); // Ensure group exists
                 await this._companyChatService.addEmployeeToGroup(companyId, employeeId);
+
+                // Notify Company
+                await this._notificationService.createNotification(
+                    companyId,
+                    'New Employee Joined',
+                    `${employee.name} has joined the company.`,
+                    'employee',
+                    'company',
+                    `/company/employees/${employeeId}`
+                );
+
+                // Notify Employee
+                await this._notificationService.createNotification(
+                    employeeId,
+                    'Application Approved',
+                    `Your request to join ${company.name} has been approved.`,
+                    'system',
+                    'employee',
+                    '/employee/dashboard'
+                );
             }
         }
         return employee;
@@ -87,6 +135,16 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
             rejectedAt: new Date(),
             requestedCompanyId: null
         });
+
+        // Notify Employee
+        await this._notificationService.createNotification(
+            employeeId,
+            'Application Rejected',
+            `Your request to join the company has been rejected. Reason: ${reason}`,
+            'system',
+            'employee'
+        );
+
         return updated;
     }
 
@@ -110,6 +168,21 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
                 invitedBy: new mongoose.Types.ObjectId(companyId),
                 invitedAt: new Date()
             });
+
+            const company = await this._companyRepo.findById(companyId);
+
+            // Notify Employee
+            if (company) {
+                await this._notificationService.createNotification(
+                    employee._id.toString(),
+                    'New Invitation',
+                    `You have been invited to join ${company.name}.`,
+                    'invitation',
+                    'employee',
+                    '/employee/requests'
+                );
+            }
+
             return updated;
         }
 
@@ -131,14 +204,10 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
 
         /* 1 Find assigned learning paths */
         const assignedPaths = await this._learningPathAssignRepo.findAssigned(companyId, employeeId);
-        console.log('checkpoint 1')
-        /* 2 For each learning path → decrease seat usage */
-        console.log("assignedPaths", assignedPaths)
-        for (const path of assignedPaths) {
-            console.log('checkpoint 1.5', companyId, path.learningPathId._id.toString())
-            const lp = await this._learningPathRepo.findOneForCompany(companyId, path.learningPathId._id.toString());
-            console.log('checkpoint 1')
 
+        /* 2 For each learning path → decrease seat usage */
+        for (const path of assignedPaths) {
+            const lp = await this._learningPathRepo.findOneForCompany(companyId, path.learningPathId._id.toString());
             if (lp) {
                 for (const course of lp.courses) {
                     await this._purchaseRepo.decreaseSeatUsage(
@@ -147,12 +216,10 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
                     );
                 }
             }
-            console.log('checkpoint 1')
 
             /* 3️ Remove assigned progress */
             await this._learningPathAssignRepo.delete(companyId, employeeId, path.learningPathId._id.toString());
         }
-        console.log('checkpoint 1')
 
         /* 4️ Remove employee from company */
         await this._employeeRepo.updateById(employeeId, {
@@ -164,6 +231,30 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
 
         // Remove from Company Group Chat
         await this._companyChatService.removeEmployeeFromGroup(companyId, employeeId);
+
+        const company = await this._companyRepo.findById(companyId);
+
+        // Notify Company
+        await this._notificationService.createNotification(
+            companyId,
+            'Employee Removed',
+            `${employee.name} has been removed from the company.`,
+            'employee',
+            'company'
+        );
+
+        // Notify Employee
+        await this._notificationService.createNotification(
+            employeeId,
+            'Removed from Company',
+            `You have been removed from ${company?.name || 'the company'}.`,
+            'system',
+            'employee'
+        );
+    }
+
+    async getEmployeeProgress(employeeId: string): Promise<any> {
+        return await this._employeeRepo.getProgress(employeeId);
     }
 
 

@@ -65,6 +65,9 @@ export const EMPLOYEE_ROUTES = {
     allTime: `${EMPLOYEE_LEADERBOARD}/all-time`,
     weekly: `${EMPLOYEE_LEADERBOARD}/weekly`,
     monthly: `${EMPLOYEE_LEADERBOARD}/monthly`,
-  }
-
+  },
+  notifications: {
+    base: '/shared/notification',
+    markRead: '/shared/notification/mark-read',
+  },
 };

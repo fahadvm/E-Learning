@@ -347,4 +347,17 @@ export class EmployeeRepository implements IEmployeeRepository {
             ]
         }).lean().exec();
     }
+    async findInactiveEmployees(days: number): Promise<IEmployee[]> {
+        const thresholdDate = new Date();
+        thresholdDate.setDate(thresholdDate.getDate() - days);
+
+        return await Employee.find({
+            companyId: { $ne: null },
+            $or: [
+                { lastLoginDate: { $lt: thresholdDate } },
+                { lastLoginDate: { $exists: false }, createdAt: { $lt: thresholdDate } }
+            ]
+        }).lean().exec();
+    }
 }
+

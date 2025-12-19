@@ -16,6 +16,7 @@ import { IEmployeeLearningRecord } from '../../models/EmployeeLearningRecord';
 import { IEmployeeLearningPathRepository } from '../../core/interfaces/repositories/IEmployeeLearningPathRepository';
 import { IEmployeeLearningPathProgressRepository } from '../../core/interfaces/repositories/IEmployeeLearningPathProgressRepository';
 import { updateCompanyLeaderboard } from '../../utils/redis/leaderboard';
+import { INotificationService } from '../../core/interfaces/services/shared/INotificationService';
 
 @injectable()
 export class EmployeeCourseService implements IEmployeeCourseService {
@@ -25,6 +26,7 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     @inject(TYPES.CourseRepository) private _courseRepo: ICourseRepository,
     @inject(TYPES.CourseResourceRepository) private readonly _resourceRepository: ICourseResourceRepository,
     @inject(TYPES.EmployeeLearningPathProgressRepository) private readonly _LearnigPathRepo: IEmployeeLearningPathProgressRepository,
+    @inject(TYPES.NotificationService) private readonly _notificationService: INotificationService,
   ) { }
 
   async getMyCourses(employeeId: string): Promise<IEmployee | null> {
@@ -50,8 +52,8 @@ export class EmployeeCourseService implements IEmployeeCourseService {
 
     const course = await this._courseRepo.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-        
-        const progress = await this._employeeRepo.getOrCreateCourseProgress(employeeId, courseId);
+
+    const progress = await this._employeeRepo.getOrCreateCourseProgress(employeeId, courseId);
     return { course, progress };
   }
 
@@ -63,8 +65,72 @@ export class EmployeeCourseService implements IEmployeeCourseService {
 
     const course = await this._courseRepo.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
+    // Fetch old progress to compare
+    const oldProgress = await this._employeeRepo.getOrCreateCourseProgress(employeeId, courseId);
+    const oldCompletedModulesCount = oldProgress.completedModules?.length || 0;
+
     const progress = await this._employeeRepo.updateEmployeeProgress(employeeId, courseId, lessonId);
-    const learningPath = await this._LearnigPathRepo.updateLearningPathProgress(employeeId, courseId, progress.percentage);
+    const learningPathProgress = await this._LearnigPathRepo.updateLearningPathProgress(employeeId, courseId, progress.percentage);
+
+    const employee = await this._employeeRepo.findById(employeeId);
+
+    // Check if a new module was unlocked
+    const newCompletedModulesCount = progress.completedModules?.length || 0;
+    if (newCompletedModulesCount > oldCompletedModulesCount) {
+      // Find the next module
+      const nextModule = course.modules[newCompletedModulesCount];
+     
+    }
+
+    // Notify on Course Completion
+    if (progress.percentage === 100) {
+      // Notify Employee
+      await this._notificationService.createNotification(
+        employeeId,
+        'Course Completed!',
+        `Congratulations! You have completed the course: ${course.title}.`,
+        'course-complete',
+        'employee'
+      );
+
+      // Notify Company
+      if (employee?.companyId) {
+        await this._notificationService.createNotification(
+          employee.companyId.toString(),
+          'Employee Completed Course',
+          `${employee.name} has completed the course: ${course.title}.`,
+          'course-complete',
+          'company',
+          `/company/employees/${employeeId}`
+        );
+      }
+    }
+
+    // Notify on Learning Path Completion
+    if (learningPathProgress.status === 'completed') {
+      // Notify Employee
+      await this._notificationService.createNotification(
+        employeeId,
+        'Learning Path Finished!',
+        `Amazing work! You have finished the entire learning path.`,
+        'learning-path-complete',
+        'employee'
+      );
+
+      // Notify Company
+      if (employee?.companyId) {
+        await this._notificationService.createNotification(
+          employee.companyId.toString(),
+          'Learning Path Completed',
+          `${employee.name} has finished an assigned learning path.`,
+          'learning-path-complete',
+          'company',
+          `/company/employees/${employeeId}`
+        );
+      }
+    }
+
     return progress;
   }
 
@@ -80,7 +146,7 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     const record = await this._employeeRepo.updateLearningTime(employeeId, courseId, date, minutes);
 
     const employee = await this._employeeRepo.findById(employeeId);
-    if(!employee)throwError(MESSAGES.EMPLOYEE_NOT_FOUND,STATUS_CODES.NOT_FOUND)
+    if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND, STATUS_CODES.NOT_FOUND)
     const companyId = employee?.companyId?.toString();
     if (companyId) {
       const completedCourses = employee.coursesProgress?.filter(c => c.percentage === 100).length || 0;

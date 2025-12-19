@@ -33,9 +33,8 @@ export class AdminCompanyService implements IAdminCompanyService {
   async getCompanyById(companyId: string): Promise<any> {
     const company = await this._companyRepo.findById(companyId);
     if (!company) throwError(MESSAGES.COMPANY_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-
     const employees = company.employees || [];
-
+    // const courses = await this._).findById(companyId);
     return {
       company: adminCompanyDto(company),
       employees

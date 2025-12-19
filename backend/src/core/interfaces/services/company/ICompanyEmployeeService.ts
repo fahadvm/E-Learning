@@ -37,4 +37,6 @@ export interface ICompanyEmployeeService {
   searchEmployees(query: string): Promise<IEmployee[]>;
 
   removeEmployee(companyId: string, employeeId: string): Promise<void>;
+
+  getEmployeeProgress(employeeId: string): Promise<any>;
 }

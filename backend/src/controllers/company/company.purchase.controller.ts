@@ -18,6 +18,7 @@ export class CompanyPurchaseController implements ICompanyPurchaseController {
     ) { }
 
     async createCheckoutSession(req: AuthRequest, res: Response) {
+        console
         const companyId = req.user?.id;
 
         if (!companyId) {

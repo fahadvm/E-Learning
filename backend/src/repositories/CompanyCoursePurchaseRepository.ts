@@ -25,7 +25,7 @@ export class CompanyCoursePurchaseRepository
     });
   }
 
-  /* 🔵 Increase Seat Usage (Assign Learning Path to Employee) */
+  /*  Increase Seat Usage (Assign Learning Path to Employee) */
   async increaseSeatUsage(
     companyId: mongoose.Types.ObjectId,
     courseId: mongoose.Types.ObjectId
@@ -66,5 +66,10 @@ export class CompanyCoursePurchaseRepository
     companyId: mongoose.Types.ObjectId
   ): Promise<ICompanyCoursePurchase[]> {
     return CompanyCoursePurchase.find({ companyId }).populate("courseId");
+  }
+  async getPaidPurchasesByCompany(
+    companyId: mongoose.Types.ObjectId
+  ): Promise<ICompanyCoursePurchase[]> {
+    return CompanyCoursePurchase.find({ companyId,status: 'paid' }).populate("courseId");
   }
 }

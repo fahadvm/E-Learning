@@ -15,6 +15,9 @@ import {
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
 import { showErrorToast, showSuccessToast } from "@/utils/Toast";
 import { useRouter } from "next/navigation";
+import EmployeeNotificationModal from "@/components/employee/EmployeeNotificationModal";
+
+
 
 export function TopNav() {
   const router = useRouter();
@@ -22,6 +25,8 @@ export function TopNav() {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+
 
   const navLinks = [
     { href: "/employee/home", label: "Home" },
@@ -71,12 +76,16 @@ export function TopNav() {
         {/* Right */}
         <div className="flex items-center gap-4">
 
-          <Link href="/employee/notifications">
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" />
-            </Button>
-          </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative"
+            onClick={() => setShowNotifications(true)}
+          >
+            <Bell className="h-5 w-5" />
+            <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" />
+          </Button>
+
 
           {/* <Link href="/employee/chat">
             <Button variant="ghost" size="icon" className="relative">
@@ -180,7 +189,15 @@ export function TopNav() {
             </div>
           </div>
         </div>
-      )}
+
+)}
+{showNotifications && employee?._id && (
+  <EmployeeNotificationModal
+    employeeId={employee._id}
+    onClose={() => setShowNotifications(false)}
+  />
+)}
     </header>
+
   );
 }

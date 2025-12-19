@@ -26,4 +26,7 @@ export interface ICompanyCoursePurchaseRepository {
   getAllPurchasesByCompany(
     companyId: mongoose.Types.ObjectId
   ): Promise<ICompanyCoursePurchase[]>;
+  getPaidPurchasesByCompany(
+    companyId: mongoose.Types.ObjectId
+  ): Promise<ICompanyCoursePurchase[]>;
 }

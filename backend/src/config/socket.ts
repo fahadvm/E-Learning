@@ -16,6 +16,21 @@ export interface TokenPayload {
   role: string;
 }
 
+let ioInstance: Server;
+
+export const getIO = () => ioInstance;
+
+const onlineUsers = new Map<string, string>(); // userId -> socketId
+
+export const emitToUser = (userId: string, event: string, data: any) => {
+  if (ioInstance) {
+    const socketId = onlineUsers.get(userId);
+    if (socketId) {
+      ioInstance.to(socketId).emit(event, data);
+    }
+  }
+};
+
 export function initSocket(server: HTTPServer) {
   const io = new Server(server, {
     cors: {
@@ -25,8 +40,7 @@ export function initSocket(server: HTTPServer) {
     },
   });
 
-  // Chat: online users
-  const onlineUsers = new Map<string, string>(); // userId -> socketId
+  ioInstance = io;
   const broadcastOnlineUsers = () => {
     const users = Array.from(onlineUsers.keys());
     io.emit("onlineUsers", users);

@@ -296,6 +296,22 @@ interface CreateOrEditViewProps {
   onSaved: () => void;
 }
 
+interface CompanyCourseOrder {
+  _id: string;
+  companyId: string;
+  courseId: {
+    _id: string;
+    title: string;
+    subtitle?: string;
+    description: string;
+    totalDuration: number;
+    level?: string;
+  };
+  seatsPurchased: number;
+  seatsUsed: number;
+}
+
+
 function CreateOrEditView({ isEdit, existing, onBack, onSaved }: CreateOrEditViewProps) {
   const [form, setForm] = useState({
     title: existing?.title || "",
@@ -322,28 +338,19 @@ function CreateOrEditView({ isEdit, existing, onBack, onSaved }: CreateOrEditVie
       const res = await companyApiMethods.getmycourses();
       console.log("My courses response:", res.data);
 
-      // Extract courses from orders
-      const allCourses: CourseOption[] = [];
+      const allCourses: CourseOption[] = res.data.map(
+        (order: CompanyCourseOrder) => ({
+          _id: order.courseId._id,
+          courseId: order.courseId._id,
+          title: order.courseId.title,
+          description:
+            order.courseId.subtitle || order.courseId.description,
+          totalDuration: order.courseId.totalDuration,
+          difficulty: (order.courseId.level || "Beginner") as Difficulty,
+          icon: "📚",
+        })
+      );
 
-      if (res.data && Array.isArray(res.data)) {
-       (res.data as CompanyOrder[]).forEach((order) => {
-          if (order.purchasedCourses && Array.isArray(order.purchasedCourses)) {
-            order.purchasedCourses.forEach((pc) => {
-              if (pc.courseId) {
-                allCourses.push({
-                  _id: pc.courseId._id,
-                  courseId: pc.courseId._id,
-                  title: pc.courseId.title,
-                  description: pc.courseId.subtitle || pc.courseId.description,
-                  totalDuration: pc.courseId.totalDuration,
-                  difficulty: (pc.courseId.difficulty || "Beginner") as Difficulty,
-                  icon: "📚",
-                });
-              }
-            });
-          }
-        });
-      }
 
       // Filter out already selected courses
       const uniqueCourses = uniqueByCourseId(allCourses);
@@ -352,7 +359,7 @@ function CreateOrEditView({ isEdit, existing, onBack, onSaved }: CreateOrEditVie
       const filtered = uniqueCourses.filter(
         (course) => !selectedCourses.some((c) => c.courseId === course._id)
       );
-
+      console.log("filtered:", filtered)
 
       setCompanyCourses(filtered);
     } catch (error) {

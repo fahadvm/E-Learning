@@ -11,13 +11,17 @@ import { throwError } from '../../utils/ResANDError';
 import { IEmployeeLearningPathProgressRepository } from '../../core/interfaces/repositories/IEmployeeLearningPathProgressRepository';
 import { IEmployeeLearningPathProgress } from '../../models/EmployeeLearningPathProgress';
 import { ICompanyCoursePurchaseRepository } from '../../core/interfaces/repositories/ICompanyCoursePurchaseRepository';
+import { INotificationService } from '../../core/interfaces/services/shared/INotificationService';
+import { ICompanyRepository } from '../../core/interfaces/repositories/ICompanyRepository';
 
 @injectable()
 export class CompanyLearningPathService implements ICompanyLearningPathService {
     constructor(
         @inject(TYPES.EmployeeLearningPathRepository) private readonly _repo: IEmployeeLearningPathRepository,
         @inject(TYPES.EmployeeLearningPathProgressRepository) private readonly _assignRepo: IEmployeeLearningPathProgressRepository,
-        @inject(TYPES.CompanyCoursePurchaseRepository) private readonly _purchaseRepo: ICompanyCoursePurchaseRepository
+        @inject(TYPES.CompanyCoursePurchaseRepository) private readonly _purchaseRepo: ICompanyCoursePurchaseRepository,
+        @inject(TYPES.NotificationService) private readonly _notificationService: INotificationService,
+        @inject(TYPES.CompanyRepository) private readonly _companyRepo: ICompanyRepository
 
     ) { }
 
@@ -68,10 +72,10 @@ export class CompanyLearningPathService implements ICompanyLearningPathService {
         const lp = await this._repo.findOneForCompany(companyId, id);
         if (!lp) throwError(MESSAGES.NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
-        // 1️⃣ Find all employees assigned to this learning path
+        // Find all employees assigned to this learning path
         const assignments = await this._assignRepo.findAllAssignedEmployees(companyId, id);
 
-        // 2️⃣ Decrease seat usage for each employee
+        //  Decrease seat usage for each employee
         for (const a of assignments) {
             for (const course of lp.courses) {
                 await this._purchaseRepo.decreaseSeatUsage(
@@ -101,11 +105,9 @@ export class CompanyLearningPathService implements ICompanyLearningPathService {
         return { items, total, totalPages: Math.max(1, Math.ceil(total / limit)) };
     }
 
-    async listAssignedLearningPaths(companyId: string, employeeId: string): Promise<IEmployeeLearningPath[]> {
+    async listAssignedLearningPaths(companyId: string, employeeId: string): Promise<any[]> {
         const assigned = await this._assignRepo.findAssigned(companyId, employeeId);
-        return assigned
-            .map((p: any) => p.learningPathId)
-            .filter(Boolean);
+        return assigned;
     }
 
     async assignLearningPath(companyId: string, employeeId: string, learningPathId: string): Promise<IEmployeeLearningPathProgress> {
@@ -118,6 +120,7 @@ export class CompanyLearningPathService implements ICompanyLearningPathService {
 
         // Check seat availability for all courses in the learning path
         const seatCheckResults = await this.checkLearningPathSeats(companyId, lp);
+        console.log("seatCheckResults", seatCheckResults)
 
         // If any course has insufficient seats, throw error with details
         const insufficientSeats = seatCheckResults.filter(result => result.remaining <= 0);
@@ -132,12 +135,49 @@ export class CompanyLearningPathService implements ICompanyLearningPathService {
         // Create progress with sequential rule (Option B): first course index = 0; UI locks others based on index
         const progress = await this._assignRepo.create(companyId, employeeId, learningPathId);
 
+        const company = await this._companyRepo.findById(companyId);
+
+        // Notify Employee
+        await this._notificationService.createNotification(
+            employeeId,
+            'New Learning Path Assigned',
+            `You have been assigned to the learning path: ${lp.title}.`,
+            'learning-path',
+            'employee',
+            `/employee/learning-paths`
+        );
+
         for (const course of lp.courses) {
             await this._purchaseRepo.increaseSeatUsage(
                 new mongoose.Types.ObjectId(companyId),
                 new mongoose.Types.ObjectId(course.courseId.toString())
             );
+
+            // Check if seat limit reached for this course
+            const results = await this.checkLearningPathSeats(companyId, lp);
+            const thisCourseResult = results.find(r => r.courseId.toString() === course.courseId.toString());
+
+            if (thisCourseResult && thisCourseResult.remaining <= 0) {
+                await this._notificationService.createNotification(
+                    companyId,
+                    'Seat Limit Reached',
+                    `Course "${course.title}" has reached its seat limit. Please buy more seats.`,
+                    'seat-limit',
+                    'company',
+                    '/company/courses'
+                );
+            }
         }
+
+        // Notify Company
+        await this._notificationService.createNotification(
+            companyId,
+            'Learning Path Assigned',
+            `${lp.title} has been assigned to an employee.`,
+            'learning-path',
+            'company',
+            `/company/employees/${employeeId}`
+        );
 
         return progress;
     }
@@ -160,6 +200,7 @@ export class CompanyLearningPathService implements ICompanyLearningPathService {
                 );
                 return sum + (purchasedCourse?.seats || 0);
             }, 0);
+            console.log("totalSeats:", totalSeats)
 
             // Get assigned seats - count unique employees who have this course in any learning path
             const assignedSeats = await this._assignRepo.countAssignedSeats(companyId, course.courseId.toString());
@@ -184,6 +225,24 @@ export class CompanyLearningPathService implements ICompanyLearningPathService {
         await this._assignRepo.delete(companyId, employeeId, learningPathId);
         const lp = await this._repo.findOneForCompany(companyId, learningPathId);
         if (!lp) throwError(MESSAGES.LEARNING_PATH_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
+        // Notify Employee
+        await this._notificationService.createNotification(
+            employeeId,
+            'Learning Path Removed',
+            `The learning path "${lp.title}" has been unassigned from your account.`,
+            'learning-path',
+            'employee'
+        );
+
+        // Notify Company
+        await this._notificationService.createNotification(
+            companyId,
+            'Learning Path Unassigned',
+            `Learning path "${lp.title}" has been unassigned from an employee.`,
+            'learning-path',
+            'company'
+        );
 
         for (const course of lp.courses) {
             await this._purchaseRepo.decreaseSeatUsage(

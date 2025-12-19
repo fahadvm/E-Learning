@@ -59,4 +59,7 @@ export const employeeApiMethods = {
   getWeeklyLeaderBoard: (params: { companyId: string }) => get(EMPLOYEE_ROUTES.leaderboard.weekly, params),
   getMonthlyLeaderBoard: (params: { companyId: string }) => get(EMPLOYEE_ROUTES.leaderboard.monthly, params),
 
+  // Notifications
+  getNotifications: (userId: string) => get(`${EMPLOYEE_ROUTES.notifications.base}/${userId}`),
+  markNotificationRead: (notificationId: string) => post(EMPLOYEE_ROUTES.notifications.markRead, { notificationId }),
 };

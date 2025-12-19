@@ -12,6 +12,9 @@ import {
   Ban,
   Unlock,
   Building2,
+  CreditCard,
+  BookOpen,
+  Users,
 
 } from "lucide-react";
 
@@ -262,6 +265,51 @@ export default function CompanyDetailsPage() {
 
         {/* RIGHT COLUMN — EMPLOYEES */}
         <div className="space-y-6 lg:col-span-2">
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Card>
+              <CardContent className="p-6 flex items-center gap-4">
+                <div className="p-3 bg-blue-50 text-blue-600 rounded-lg">
+                  <BookOpen className="h-6 w-6" />
+                </div>
+
+                <div>
+                  <p className="text-sm text-slate-500">Enrolled Courses</p>
+                  <h3 className="text-2xl font-bold">
+                    0
+                  </h3>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6 flex items-center gap-4">
+                <div className="p-3 bg-emerald-50 text-emerald-600 rounded-lg">
+                  <Users className="h-6 w-6" />
+                </div>
+
+                <div>
+                  <p className="text-sm text-slate-500">Total Employees</p>
+                  <h3 className="text-2xl font-bold">
+                    {employees.length}
+                  </h3>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6 flex items-center gap-4">
+                <div className="p-3 bg-emerald-50 text-emerald-600 rounded-lg">
+                  <CreditCard className="h-6 w-6" />
+                </div>
+
+                <div>
+                  <p className="text-sm text-slate-500">Total Spent</p>
+                  <h3 className="text-2xl font-bold">
+                    ₹{0}
+                  </h3>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
           <Card>
             <CardHeader className="flex items-center justify-between">
               <CardTitle>Employees</CardTitle>
@@ -275,8 +323,6 @@ export default function CompanyDetailsPage() {
                       <th className="px-4 h-10">Name</th>
                       <th className="px-4 h-10">Status</th>
                       <th className="px-4 h-10">Courses</th>
-                      <th className="px-4 h-10">Credits Used</th>
-                      <th className="px-4 h-10">Last Active</th>
                     </tr>
                   </thead>
 
@@ -303,21 +349,15 @@ export default function CompanyDetailsPage() {
                         <td className="p-4">
                           <Badge
                             variant={
-                              emp.status === "active" ? "success" : "destructive"
+                              emp.isBlocked ?  "destructive":"success" 
                             }
                           >
-                            {emp.status}
+                            {emp.isBlocked?"Blocked":"Active"}
                           </Badge>
                         </td>
 
                         <td className="p-4">
                           {emp.coursesCompleted} / {emp.coursesAssigned}
-                        </td>
-
-                        <td className="p-4">{emp.creditsUsed}</td>
-
-                        <td className="p-4 text-xs text-slate-500">
-                          {emp.lastActive}
                         </td>
                       </tr>
                     ))}
@@ -338,7 +378,7 @@ export default function CompanyDetailsPage() {
             </CardContent>
           </Card>
           {/* PURCHASE HISTORY */}
-     
+
         </div>
       </div>
     </div>

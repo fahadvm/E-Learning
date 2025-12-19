@@ -54,6 +54,7 @@ export const companyApiMethods = {
     patch(COMPANY_ROUTES.employees.reject(employeeId), { reason }),
   inviteEmployee: (email: string) => post(COMPANY_ROUTES.employees.invite, { email }),
   searchEmployees: (query: string) => get(COMPANY_ROUTES.employees.search, { query }),
+  getEmployeeProgress: (employeeId: string) => get(COMPANY_ROUTES.employees.progress(employeeId)),
   removeEmployee: (employeeId: string) => del(COMPANY_ROUTES.employees.remove(employeeId)),
 
   // Profile
@@ -111,4 +112,7 @@ export const companyApiMethods = {
   // Analytics
   getTrackerStats: (range: 'week' | 'month' | 'year') => get(COMPANY_ROUTES.analytics.tracker, { range }),
 
+  // Notifications
+  getNotifications: (userId: string) => get(`${COMPANY_ROUTES.notifications.base}/${userId}`),
+  markNotificationRead: (notificationId: string) => post(COMPANY_ROUTES.notifications.markRead, { notificationId }),
 };

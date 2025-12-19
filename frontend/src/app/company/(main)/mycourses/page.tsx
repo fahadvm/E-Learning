@@ -45,7 +45,7 @@ const MyCoursesPage = () => {
       console.log("API Response My Courses:", res.data);
 
       const mappedCourses = res?.data?.map((item: any) => ({
-        ...item.courseId,                // Spread actual course details
+        ...item.courseId,                
         seatsPurchased: item.seatsPurchased,
         seatsUsed: item.seatsUsed,
         remainingSeats: item.seatsPurchased - item.seatsUsed

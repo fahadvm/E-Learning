@@ -17,6 +17,7 @@ router.patch('/approve/:employeeId', authMiddleware('company'), asyncHandler(emp
 router.patch('/reject/:employeeId', authMiddleware('company'), asyncHandler(employeeController.rejectEmployee.bind(employeeController)));
 router.post('/invite', authMiddleware('company'), asyncHandler(employeeController.inviteEmployee.bind(employeeController)));
 router.get('/search', authMiddleware('company'), asyncHandler(employeeController.searchEmployees.bind(employeeController)));
+router.get('/:employeeId/progress', authMiddleware('company'), asyncHandler(employeeController.getEmployeeProgress.bind(employeeController)));
 router.delete('/:employeeId', authMiddleware('company'), asyncHandler(employeeController.removeEmployee.bind(employeeController)));
 
 

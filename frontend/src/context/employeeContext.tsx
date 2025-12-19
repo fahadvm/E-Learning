@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { employeeApiMethods } from '@/services/APIservices/employeeApiService';
+import { initSocket, disconnectSocket } from '@/lib/socket';
 
 // ---------------------- Interfaces ----------------------
 
@@ -54,7 +55,7 @@ export interface IEmployee {
   coursesProgress: ICourseProgress[];
   createdAt?: Date;
   updatedAt?: Date;
-  streakCount:  number;
+  streakCount: number;
   lastLoginDate: Date;
   longestStreak: number;
 }
@@ -108,6 +109,15 @@ export const EmployeeContextProvider = ({ children }: { children: ReactNode }) =
       getEmployeeDetails();
     }
   }, [getEmployeeDetails, isPublicPage]);
+
+  useEffect(() => {
+    if (employee?._id) {
+      initSocket(employee._id);
+    }
+    return () => {
+      disconnectSocket();
+    };
+  }, [employee?._id]);
 
   return (
     <EmployeeContext.Provider value={{ employee, setEmployee }}>

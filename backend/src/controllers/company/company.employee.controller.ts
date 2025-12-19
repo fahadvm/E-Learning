@@ -92,7 +92,7 @@ export class CompanyEmployeeController implements ICompanyEmployeeController {
     const employee = await this._employeeService.inviteEmployee(companyId, email);
 
     if (employee) {
-           sendResponse(res, STATUS_CODES.OK, MESSAGES.INVITATION_SENT, true, employee);
+      sendResponse(res, STATUS_CODES.OK, MESSAGES.INVITATION_SENT, true, employee);
     } else {
       sendResponse(res, STATUS_CODES.OK, MESSAGES.INVITE_LINK_CREATED, true, { email });
     }
@@ -118,5 +118,12 @@ export class CompanyEmployeeController implements ICompanyEmployeeController {
     sendResponse(res, STATUS_CODES.OK, 'Employee removed from company', true, null);
   }
 
+  async getEmployeeProgress(req: AuthRequest, res: Response): Promise<void> {
+    const { employeeId } = req.params;
+    if (!employeeId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
+
+    const progress = await this._employeeService.getEmployeeProgress(employeeId);
+    sendResponse(res, STATUS_CODES.OK, 'Employee progress fetched', true, progress);
+  }
 
 }

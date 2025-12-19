@@ -73,7 +73,9 @@ export default function CheckoutPage() {
 
     try {
       startPayment();
+      console.log("starting...")
       const response = await companyApiMethods.createCheckoutSession();
+      console.log("response in payment",response)
 
       const { url } = response.data;
       console.log("Checkout URL:", url)

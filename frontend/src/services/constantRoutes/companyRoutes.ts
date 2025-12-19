@@ -44,6 +44,7 @@ export const COMPANY_ROUTES = {
     reject: (id: string) => `${COMPANY_EMPLOYEES}/reject/${id}`,
     invite: `${COMPANY_EMPLOYEES}/invite`,
     search: `${COMPANY_EMPLOYEES}/search`,
+    progress: (id: string) => `${COMPANY_EMPLOYEES}/${id}/progress`,
     remove: (id: string) => `${COMPANY_EMPLOYEES}/${id}`,
   },
 
@@ -100,5 +101,9 @@ export const COMPANY_ROUTES = {
 
   analytics: {
     tracker: `${COMPANY_BASE}/analytics/tracker`,
+  },
+  notifications: {
+    base: '/shared/notification',
+    markRead: '/shared/notification/mark-read',
   },
 };

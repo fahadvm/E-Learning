@@ -5,12 +5,12 @@ let socket: Socket | null = null;
 
 export const initSocket = (
   userId: string,
-  onMessageReceived: (data: any) => void,
-  onTypingReceived: (data: { senderId: string }) => void,
-  onMessageRead: (data: { messageId: string; chatId: string }) => void,
-  onMessageReaction: (data: { messageId: string; chatId: string; userId: string; reaction: string }) => void,
-  onMessageDeleted: (data: { messageId: string; chatId: string }) => void,
-  onMessageEdited: (data: { messageId: string; chatId: string; newMessage: string }) => void
+  onMessageReceived: (data: any) => void = () => { },
+  onTypingReceived: (data: { senderId: string }) => void = () => { },
+  onMessageRead: (data: { messageId: string; chatId: string }) => void = () => { },
+  onMessageReaction: (data: { messageId: string; chatId: string; userId: string; reaction: string }) => void = () => { },
+  onMessageDeleted: (data: { messageId: string; chatId: string }) => void = () => { },
+  onMessageEdited: (data: { messageId: string; chatId: string; newMessage: string }) => void = () => { }
 ) => {
   if (!socket) {
     socket = io("http://localhost:8000"); // backend URL

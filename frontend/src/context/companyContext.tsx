@@ -8,8 +8,9 @@ import {
     useState,
     useCallback,
 } from 'react';
-import { useRouter ,usePathname} from 'next/navigation';
-import { CompanyApiMethods } from '@/services/APImethods'; 
+import { useRouter, usePathname } from 'next/navigation';
+import { CompanyApiMethods } from '@/services/APImethods';
+import { initSocket, disconnectSocket } from '@/lib/socket';
 
 // Types
 export interface SocialLinks {
@@ -35,15 +36,15 @@ export interface ICompany {
     about: string;
     profilePicture: string;
     address: string;
-    pincode:string
-    companyCode:string;
+    pincode: string
+    companyCode: string;
     phone: string;
     website: string;
     social_links: SocialLinks;
     name: string;
     email: string;
     password: string;
-    courses:string
+    courses: string
     employees: IEmployee[];
     isPremium: boolean;
     createdAt: Date;
@@ -62,10 +63,10 @@ const CompanyContext = createContext<CompanyContextType | null>(null);
 export const CompanyContextProvider = ({ children }: { children: ReactNode }) => {
     const [company, setCompany] = useState<ICompany | null>(null);
     const router = useRouter();
-  const pathname = usePathname();
+    const pathname = usePathname();
 
-  const publicPaths = ['/company/login', '/company/signup', '/company/forgetpassword' , '/company/resetpassword', '/company/verify-forget-otp' , '/company/verify-otp'];
-  const isPublicPage = publicPaths.includes(pathname);
+    const publicPaths = ['/company/login', '/company/signup', '/company/forgetpassword', '/company/resetpassword', '/company/verify-forget-otp', '/company/verify-otp'];
+    const isPublicPage = publicPaths.includes(pathname);
 
 
 
@@ -85,11 +86,20 @@ export const CompanyContextProvider = ({ children }: { children: ReactNode }) =>
         }
     }, [router]);
 
-     useEffect(() => {
-    if (!isPublicPage) {
-      getCompanyDetails();
-    }
-  }, [getCompanyDetails, isPublicPage]);
+    useEffect(() => {
+        if (!isPublicPage) {
+            getCompanyDetails();
+        }
+    }, [getCompanyDetails, isPublicPage]);
+
+    useEffect(() => {
+        if (company?._id) {
+            initSocket(company._id);
+        }
+        return () => {
+            disconnectSocket();
+        };
+    }, [company?._id]);
 
     return (
         <CompanyContext.Provider value={{ company, setCompany }}>

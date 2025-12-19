@@ -12,6 +12,9 @@ import cloudinary from '../../config/cloudinary';
 import { Types } from 'mongoose';
 import { ICourse } from '../../models/Course';
 import { CreateCourseRequest } from '../../types/filter/fiterTypes';
+import { INotificationService } from '../../core/interfaces/services/shared/INotificationService';
+import { ICompanyRepository } from '../../core/interfaces/repositories/ICompanyRepository';
+import { IEmployeeRepository } from '../../core/interfaces/repositories/IEmployeeRepository';
 
 
 
@@ -20,6 +23,9 @@ export class TeacherCourseService implements ITeacherCourseService {
   constructor(
     @inject(TYPES.CourseRepository) private readonly _courseRepository: ICourseRepository,
     @inject(TYPES.CourseResourceRepository) private readonly _resourceRepository: ICourseResourceRepository,
+    @inject(TYPES.NotificationService) private readonly _notificationService: INotificationService,
+    @inject(TYPES.CompanyRepository) private readonly _companyRepository: ICompanyRepository,
+    @inject(TYPES.EmployeeRepository) private readonly _employeeRepository: IEmployeeRepository,
   ) { }
 
   // Helper for Cloudinary upload
@@ -111,7 +117,23 @@ export class TeacherCourseService implements ITeacherCourseService {
       throw new Error(MESSAGES.AT_LEAST_ONE_MODULE_REQUIRED);
     }
 
-    return this._courseRepository.create(courseData);
+    const newCourse = await this._courseRepository.create(courseData);
+
+    if (newCourse.isPublished) {
+      const companies = await this._companyRepository.findAll();
+      for (const company of companies) {
+        await this._notificationService.createNotification(
+          company._id.toString(),
+          'New Course Available',
+          `A new course "${newCourse.title}" has been published.`,
+          'course',
+          'company',
+          '/company/courses'
+        );
+      }
+    }
+
+    return newCourse;
   }
 
   async getCoursesByTeacherId(teacherId: string): Promise<ICourse[]> {
@@ -234,6 +256,41 @@ export class TeacherCourseService implements ITeacherCourseService {
       modules: modules as any, // casting to any to match ICourse module structure if strict typing complains
     };
 
-    return this._courseRepository.editCourse(courseId, updates);
+    const updatedCourse = await this._courseRepository.editCourse(courseId, updates);
+
+    if (updatedCourse) {
+      // Notify Companies (those who have bought seats)
+      // For simplicity, let's notify all companies for now as per requirement "trigger on Company"
+      const companies = await this._companyRepository.findAll();
+      for (const company of companies) {
+        await this._notificationService.createNotification(
+          company._id.toString(),
+          'Course Updated',
+          `The course "${updatedCourse.title}" has been updated by the teacher.`,
+          'course',
+          'company',
+          '/company/courses'
+        );
+      }
+
+      // Notify Employees who are enrolled in this course
+      // Find all employees who have this course assigned
+      // (This is a bit more complex, I'll do a simple query)
+      const enrolledEmployees = await this._employeeRepository.findAll(); // Optimization: should find by courseId
+      const affectedEmployees = enrolledEmployees.filter(emp => emp.coursesAssigned?.some(id => id.toString() === courseId));
+
+      for (const emp of affectedEmployees) {
+        await this._notificationService.createNotification(
+          emp._id.toString(),
+          'Course Updated',
+          `Content for "${updatedCourse.title}" has been updated.`,
+          'course',
+          'employee',
+          '/employee/my-courses'
+        );
+      }
+    }
+
+    return updatedCourse;
   }
 }

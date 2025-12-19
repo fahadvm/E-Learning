@@ -45,7 +45,7 @@ export interface ICompanyEmployee {
     name: string;
     email: string;
     avatar?: string;
-    status: "active" | "blocked";
+    isBlocked: boolean
 
     coursesCompleted: number;
     coursesAssigned: number;
