@@ -17,6 +17,7 @@ export class AdminReportsService implements IAdminReportsService {
         const topCourses = await this._reportsRepo.getTopCourses(5);
         const companyRevenue = await this._reportsRepo.getCompanyRevenue();
         const activeTeachers = await this._reportsRepo.getMostActiveTeachers(5);
+        const recentActivity = await this._reportsRepo.getRecentActivity(10);
         const dailyTrend = await this._reportsRepo.getDailyTrend(7);
 
         return {
@@ -26,7 +27,8 @@ export class AdminReportsService implements IAdminReportsService {
             topCourses,
             companyRevenue,
             activeTeachers,
-            dailyTrend
+            dailyTrend,
+            recentActivity
         };
     }
 

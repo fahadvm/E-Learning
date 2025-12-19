@@ -24,90 +24,13 @@ import {
   TrendingUp,
   CheckCircle,
   Video,
-  UserPlus
+  UserPlus,
+  ArrowUpRight,
+  Clock
 } from "lucide-react";
-
-/* -------------------- Dummy Metrics Data -------------------- */
-const dashboardMetrics = [
-  {
-    title: "Total Users",
-    value: "12,450",
-    change: "+12%",
-    trend: "up",
-    icon: Users,
-    color: "text-blue-600",
-    bg: "bg-blue-100",
-  },
-  {
-    title: "Courses",
-    value: "86",
-    change: "+4%",
-    trend: "up",
-    icon: BookOpen,
-    color: "text-purple-600",
-    bg: "bg-purple-100",
-  },
-  {
-    title: "Revenue",
-    value: "$24,800",
-    change: "+8%",
-    trend: "up",
-    icon: DollarSign,
-    color: "text-green-600",
-    bg: "bg-green-100",
-  },
-  {
-    title: "Active Students",
-    value: "3,120",
-    change: "±0%",
-    trend: "neutral",
-    icon: TrendingUp,
-    color: "text-orange-600",
-    bg: "bg-orange-100",
-  },
-];
-
-/* -------------------- Dummy Revenue Chart Data -------------------- */
-const revenueData = [
-  { name: "Jan", revenue: 1200 },
-  { name: "Feb", revenue: 2100 },
-  { name: "Mar", revenue: 1600 },
-  { name: "Apr", revenue: 2400 },
-  { name: "May", revenue: 3100 },
-  { name: "Jun", revenue: 2800 },
-  { name: "Jul", revenue: 3500 },
-];
-
-/* -------------------- Dummy Recent Activity Data -------------------- */
-const recentActivity = [
-  {
-    id: 1,
-    user: "John Carter",
-    action: "completed",
-    target: "React Basics Course",
-    time: "2h ago",
-    color: "text-green-600 bg-green-100",
-    icon: CheckCircle,
-  },
-  {
-    id: 2,
-    user: "Alice Morgan",
-    action: "enrolled in",
-    target: "Next.js Mastery",
-    time: "5h ago",
-    color: "text-blue-600 bg-blue-100",
-    icon: UserPlus,
-  },
-  {
-    id: 3,
-    user: "David Kim",
-    action: "uploaded",
-    target: "New Tutorial Video",
-    time: "1d ago",
-    color: "text-purple-600 bg-purple-100",
-    icon: Video,
-  },
-];
+import { adminApiMethods } from '@/services/APIservices/adminApiService';
+import { formatDistanceToNow } from 'date-fns';
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 /* -------------------- Animations -------------------- */
 const container = {
@@ -123,7 +46,13 @@ const item = {
 /* -------------------- Component -------------------- */
 export default function WelcomePage() {
   const [displayText, setDisplayText] = useState('');
+  const [metrics, setMetrics] = useState<any[]>([]);
+  const [revenueChartData, setRevenueChartData] = useState<any[]>([]);
+  const [activities, setActivities] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const fullText = 'Your ultimate e-learning platform';
+
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   useEffect(() => {
     let index = 0;
@@ -133,6 +62,107 @@ export default function WelcomePage() {
       if (index === fullText.length) clearInterval(interval);
     }, 100);
 
+    const fetchDashboardData = async () => {
+      try {
+        const res = await adminApiMethods.getDashboardStats();
+        // The API response structure is { success, message, data: { stats, monthlyRevenue, recentActivity } }
+        // res.data is the Axios response body.
+        const dashboardData = res.data.data || res.data;
+        const { stats, monthlyRevenue, recentActivity } = dashboardData;
+
+        if (!stats) {
+          console.error("Stats missing from dashboard data", dashboardData);
+          return;
+        }
+
+        // Map metrics
+        const m = [
+          {
+            title: "Total Revenue",
+            value: `₹${(stats.totalRevenue || 0).toLocaleString()}`,
+            change: "Overall",
+            trend: "up",
+            icon: DollarSign,
+            color: "text-green-600",
+            bg: "bg-green-100",
+          },
+          {
+            title: "Students",
+            value: (stats.totalStudents || 0).toLocaleString(),
+            change: "Enrolled",
+            trend: "up",
+            icon: Users,
+            color: "text-blue-600",
+            bg: "bg-blue-100",
+          },
+          {
+            title: "Teachers",
+            value: (stats.totalTeachers || 0).toLocaleString(),
+            change: "Active",
+            trend: "up",
+            icon: BookOpen,
+            color: "text-purple-600",
+            bg: "bg-purple-100",
+          },
+          {
+            title: "Courses",
+            value: (stats.totalCourses || 0).toLocaleString(),
+            change: "Published",
+            trend: "up",
+            icon: BookOpen,
+            color: "text-orange-600",
+            bg: "bg-orange-100",
+          },
+        ];
+        setMetrics(m);
+
+        // Map chart data
+        if (monthlyRevenue) {
+          const chartData = monthlyRevenue.map((item: any) => ({
+            name: monthNames[item._id - 1],
+            revenue: item.revenue
+          }));
+          setRevenueChartData(chartData);
+        }
+
+        // Map activities
+        if (recentActivity) {
+          const mappedActivities = recentActivity.map((act: any, idx: number) => {
+            let icon = CheckCircle;
+            let color = "text-green-600 bg-green-100";
+
+            if (act.type === 'purchase') {
+              icon = UserPlus;
+              color = "text-blue-600 bg-blue-100";
+            } else if (act.type === 'upload') {
+              icon = Video;
+              color = "text-purple-600 bg-purple-100";
+            } else if (act.type === 'signup') {
+              icon = Users;
+              color = "text-orange-600 bg-orange-100";
+            }
+
+            return {
+              id: idx,
+              user: act.user,
+              action: act.action,
+              target: act.target,
+              time: act.time ? formatDistanceToNow(new Date(act.time), { addSuffix: true }) : 'Recently',
+              color,
+              icon
+            };
+          });
+          setActivities(mappedActivities);
+        }
+
+      } catch (err) {
+        console.error("Error fetching dashboard data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
     return () => clearInterval(interval);
   }, []);
 
@@ -167,47 +197,49 @@ export default function WelcomePage() {
             <h1 className="text-2xl font-bold tracking-tight text-slate-900">
               Dashboard
             </h1>
-            <span className="text-sm text-slate-500">
-              Last updated: Today, 10:42 AM
+            <span className="text-sm text-slate-500 flex items-center gap-1">
+              <Clock className="w-4 h-4" />
+              Real-time Insights
             </span>
           </div>
 
           {/* METRICS GRID */}
-          <motion.div
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
-          >
-            {dashboardMetrics.map((metric, index) => (
-              <motion.div key={index} variants={item}>
-                <Card className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-slate-500">{metric.title}</p>
-                      <div className={cn("p-2 rounded-lg", metric.bg)}>
-                        <metric.icon className={cn("h-4 w-4", metric.color)} />
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {loading ? (
+              [1, 2, 3, 4].map((i) => (
+                <Card key={i} className="animate-pulse bg-slate-50 h-32 border-none" />
+              ))
+            ) : (
+              metrics.map((metric: any, index: number) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Card className="hover:shadow-md transition-shadow border-none shadow-sm bg-white overflow-hidden group">
+                    <CardContent className="p-6 relative">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <p className="text-sm font-medium text-slate-500 mb-1">{metric.title}</p>
+                          <h3 className="text-3xl font-bold text-slate-900 tracking-tight">
+                            {metric.value}
+                          </h3>
+                        </div>
+                        <div className={cn("p-3 rounded-2xl transition-transform group-hover:scale-110 duration-300", metric.bg)}>
+                          <metric.icon className={cn("h-6 w-6", metric.color)} />
+                        </div>
                       </div>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-3">
-                      <div className="text-2xl font-bold text-slate-900">
-                        {metric.value}
+                      <div className="flex items-center gap-1 text-xs font-semibold text-slate-400">
+                        <ArrowUpRight className="w-3 h-3 text-green-500" />
+                        <span>{metric.change}</span>
                       </div>
-                      <span className={cn(
-                        "text-xs font-medium px-2 py-1 rounded-full",
-                        metric.trend === "up"
-                          ? "bg-green-50 text-green-700"
-                          : "bg-slate-100 text-slate-600"
-                      )}>
-                        {metric.change}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))
+            )}
+          </div>
 
           {/* GRID WITH CHART + ACTIVITY */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
@@ -219,36 +251,53 @@ export default function WelcomePage() {
               transition={{ delay: 0.4 }}
               className="col-span-4"
             >
-              <Card>
+              <Card className="border-none shadow-sm h-full">
                 <CardHeader>
-                  <CardTitle>Revenue Overview</CardTitle>
+                  <CardTitle className="text-xl font-bold flex items-center justify-between">
+                    Revenue Overview
+                    <div className="flex gap-2">
+                      <span className="flex items-center gap-1 text-xs font-normal text-slate-500">
+                        <div className="w-2 h-2 rounded-full bg-blue-500" />
+                        Monthly Sales
+                      </span>
+                    </div>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-[300px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={revenueData}>
-                        <defs>
-                          <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                          </linearGradient>
-                        </defs>
+                  <div className="h-[350px] w-full pt-4">
+                    {loading ? (
+                      <div className="w-full h-full bg-slate-50 animate-pulse rounded-lg" />
+                    ) : (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={revenueChartData}>
+                          <defs>
+                            <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.15} />
+                              <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
 
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                        <XAxis dataKey="name" stroke="#64748b" />
-                        <YAxis stroke="#64748b" tickFormatter={(v) => `$${v}`} />
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                          <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                          <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `₹${v}`} />
 
-                        <Tooltip />
+                          <Tooltip
+                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                            formatter={(value: any) => [`₹${value.toLocaleString()}`, "Revenue"]}
+                          />
 
-                        <Area
-                          type="monotone"
-                          dataKey="revenue"
-                          stroke="#3b82f6"
-                          fill="url(#colorRevenue)"
-                          strokeWidth={2}
-                        />
-                      </AreaChart>
-                    </ResponsiveContainer>
+                          <Area
+                            type="monotone"
+                            dataKey="revenue"
+                            stroke="#3b82f6"
+                            fill="url(#colorRevenue)"
+                            strokeWidth={3}
+                            dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }}
+                            activeDot={{ r: 6, strokeWidth: 0 }}
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -261,34 +310,53 @@ export default function WelcomePage() {
               transition={{ delay: 0.5 }}
               className="col-span-3"
             >
-              <Card>
+              <Card className="border-none shadow-sm h-full">
                 <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
+                  <CardTitle className="text-xl font-bold">Recent Activity</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
-                    {recentActivity.map((activity) => (
-                      <div key={activity.id} className="flex items-center">
-                        <div
-                          className={cn(
-                            "flex h-9 w-9 items-center justify-center rounded-full border",
-                            activity.color.replace("text-", "border-")
-                          )}
-                        >
-                          <activity.icon className={cn("h-4 w-4", activity.color.split(" ")[0])} />
+                    {loading ? (
+                      [1, 2, 3, 4, 5].map(i => (
+                        <div key={i} className="flex gap-4 animate-pulse">
+                          <div className="w-10 h-10 rounded-full bg-slate-50" />
+                          <div className="flex-1 space-y-2">
+                            <div className="h-4 bg-slate-50 w-1/3 rounded" />
+                            <div className="h-3 bg-slate-50 w-2/3 rounded" />
+                          </div>
                         </div>
+                      ))
+                    ) : activities.length === 0 ? (
+                      <div className="text-center py-10 text-slate-400">No recent activity</div>
+                    ) : (
+                      activities.map((activity: any, idx: number) => (
+                        <div key={idx} className="flex items-start group">
+                          <div
+                            className={cn(
+                              "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-colors",
+                              activity.color.replace("bg-", "border-").replace("text-", "bg-opacity-10 ")
+                            )}
+                          >
+                            <activity.icon className={cn("h-5 w-5", activity.color.split(" ")[0])} />
+                          </div>
 
-                        <div className="ml-4">
-                          <p className="text-sm font-medium">{activity.user}</p>
-                          <p className="text-sm text-slate-500">
-                            {activity.action}{" "}
-                            <span className="font-medium">{activity.target}</span>
-                          </p>
+                          <div className="ml-4 flex-1">
+                            <p className="text-sm font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
+                              {activity.user}
+                            </p>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                              {activity.action}{" "}
+                              <span className="font-medium text-slate-700">{activity.target}</span>
+                            </p>
+                            <div className="mt-1 text-[10px] text-slate-400 font-medium tracking-wider uppercase">
+                              {activity.time}
+                            </div>
+                          </div>
+
+                          <div className="h-2 w-2 rounded-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity self-center" />
                         </div>
-
-                        <div className="ml-auto text-xs text-slate-400">{activity.time}</div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </CardContent>
               </Card>

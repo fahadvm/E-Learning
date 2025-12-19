@@ -7,11 +7,12 @@ import { Student } from "../models/Student";
 import { Teacher } from "../models/Teacher";
 import { Company } from "../models/Company";
 import { Employee } from "../models/Employee";
+import { Course } from "../models/Course";
 
 @injectable()
 export class AdminReportsRepository implements IAdminReportsRepository {
 
-    async getDashboardStats(): Promise<{ totalRevenue: number; totalStudents: number; totalTeachers: number; totalCompanies: number; }> {
+    async getDashboardStats(): Promise<{ totalRevenue: number; totalStudents: number; totalTeachers: number; totalCompanies: number; totalCourses: number; }> {
         const revenueAgg = await Transaction.aggregate([
             { $match: { paymentStatus: 'SUCCESS' } },
             { $group: { _id: null, total: { $sum: "$amount" } } }
@@ -21,8 +22,69 @@ export class AdminReportsRepository implements IAdminReportsRepository {
         const totalStudents = await Student.countDocuments();
         const totalTeachers = await Teacher.countDocuments();
         const totalCompanies = await Company.countDocuments();
+        const totalCourses = await Course.countDocuments({ isPublished: true });
 
-        return { totalRevenue, totalStudents, totalTeachers, totalCompanies };
+        return { totalRevenue, totalStudents, totalTeachers, totalCompanies, totalCourses };
+    }
+
+    async getRecentActivity(limit: number): Promise<any[]> {
+        // Fetch recent purchases
+        const recentPurchases = await Transaction.find({ type: 'COURSE_PURCHASE', paymentStatus: 'SUCCESS' })
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .populate('userId', 'name')
+            .populate('courseId', 'title')
+            .lean();
+
+        // Fetch recent course uploads
+        const recentCourses = await Course.find({ isPublished: true })
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .populate('teacherId', 'name')
+            .lean();
+
+        // Fetch recent student signups
+        const recentStudents = await Student.find()
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .lean();
+
+        const activities: any[] = [];
+
+        recentPurchases.forEach((tx: any) => {
+            activities.push({
+                type: 'purchase',
+                user: tx.userId?.name || 'Someone',
+                action: 'enrolled in',
+                target: tx.courseId?.title || 'a course',
+                time: tx.createdAt,
+            });
+        });
+
+        recentCourses.forEach((course: any) => {
+            activities.push({
+                type: 'upload',
+                user: course.teacherId?.name || 'A teacher',
+                action: 'published',
+                target: course.title,
+                time: course.createdAt,
+            });
+        });
+
+        recentStudents.forEach((student: any) => {
+            activities.push({
+                type: 'signup',
+                user: student.name,
+                action: 'joined',
+                target: 'as a student',
+                time: student.createdAt,
+            });
+        });
+
+        // Sort by time and limit
+        return activities
+            .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+            .slice(0, limit);
     }
 
     async getMonthlyRevenue(year: number): Promise<any[]> {

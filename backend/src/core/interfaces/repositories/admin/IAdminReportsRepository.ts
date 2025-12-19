@@ -5,6 +5,7 @@ export interface IAdminReportsRepository {
         totalStudents: number;
         totalTeachers: number;
         totalCompanies: number;
+        totalCourses: number;
     }>;
     getMonthlyRevenue(year: number): Promise<any[]>;
     getUserDistribution(): Promise<any[]>;
@@ -12,4 +13,5 @@ export interface IAdminReportsRepository {
     getCompanyRevenue(): Promise<any[]>;
     getMostActiveTeachers(limit: number): Promise<any[]>;
     getDailyTrend(days: number): Promise<any[]>;
+    getRecentActivity(limit: number): Promise<any[]>;
 }
