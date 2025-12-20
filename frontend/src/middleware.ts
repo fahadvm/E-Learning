@@ -6,6 +6,7 @@ import type { NextRequest } from "next/server";
 export async function middleware(req: NextRequest) {
     const token = req.cookies.get("token")?.value || req.cookies.get("refreshToken")?.value;
     const path = req.nextUrl.pathname;
+    console.log(" token cheking:",token)
     
     const publicRoutes = [
         "/student/login",
