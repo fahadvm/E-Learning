@@ -6,9 +6,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/80 px-6 backdrop-blur-md">
       <div className="flex items-center gap-4 md:ml-0 ml-12">
-        
       </div>
-
       <div className="flex items-center gap-4">
         <button className="relative rounded-full p-2 text-slate-500 hover:bg-slate-100 transition-colors">
           <Bell className="h-5 w-5" />
