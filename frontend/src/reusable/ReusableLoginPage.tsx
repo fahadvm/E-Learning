@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { showInfoToast, showSuccessToast } from "@/utils/Toast";
 import { GoogleLoginButton } from "@/components/student/googleLogin";
@@ -35,6 +35,23 @@ export default function ReusableLoginPage({
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
+  // Check if user is already authenticated
+  useEffect(() => {
+    const checkAuth = () => {
+      // Check for auth tokens in cookies
+      const hasToken = document.cookie.split(';').some(cookie =>
+        cookie.trim().startsWith('token=') || cookie.trim().startsWith('refreshToken=')
+      );
+
+      if (hasToken) {
+        console.log(`[${role}] User already authenticated, redirecting to ${redirectPath}`);
+        router.push(redirectPath);
+      }
+    };
+
+    checkAuth();
+  }, [role, redirectPath, router]);
+
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordRegex =
     role === "company"
@@ -68,7 +85,7 @@ export default function ReusableLoginPage({
     return validateField("email", email) && validateField("password", password);
   };
 
-  const handleGoogleSuccess = ( ) => {
+  const handleGoogleSuccess = () => {
     showSuccessToast("Google signup successful!");
     router.push(redirectPath);
   };
@@ -89,7 +106,11 @@ export default function ReusableLoginPage({
     try {
       const res = await apiEndpoint({ email, password });
       showSuccessToast(res?.message);
-      router.push(redirectPath);
+
+      // Small delay to ensure cookies are set before redirect
+      setTimeout(() => {
+        router.push(redirectPath);
+      }, 100);
     } catch (err: any) {
       const msg = err?.response?.data?.message || "Login failed.";
       setMessage(msg);
@@ -112,7 +133,7 @@ export default function ReusableLoginPage({
             <GoogleLoginButton
               onLoginSuccess={handleGoogleSuccess}
               onLoginError={handleGoogleError}
-              apiRouter={googleSignup} 
+              apiRouter={googleSignup}
             />
           </div>
         )}
