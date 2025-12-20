@@ -12,7 +12,11 @@ export const adminApiMethods = {
   login: (data: any) => post(ADMIN_ROUTES.auth.login, data),
   logout: () => post(ADMIN_ROUTES.auth.logout, {}),
   getProfile: () => get(ADMIN_ROUTES.profile.base),
-  updateProfile: (data: any) => get(ADMIN_ROUTES.profile.base, data),
+  updateProfile: (data: any) => put(ADMIN_ROUTES.profile.base, data),
+  changePassword: (data: { currentPassword: string; newPassword: string; confirmPassword: string }) => post(ADMIN_ROUTES.profile.changePassword, data),
+  requestEmailChange: (data: { newEmail: string }) => post(ADMIN_ROUTES.profile.requestEmailChange, data),
+  verifyEmailChange: (data: { newEmail: string; otp: string }) => post(ADMIN_ROUTES.profile.verifyEmailChange, data),
+  addNewAdmin: (data: { email: string; password: string; name?: string }) => post(ADMIN_ROUTES.profile.addAdmin, data),
 
   // Students
   getStudents: (params?: { page?: number; limit?: number; search?: string; status: string }) => get(ADMIN_ROUTES.students.base, params),

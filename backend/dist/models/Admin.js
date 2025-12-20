@@ -36,8 +36,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Admin = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const AdminSchema = new mongoose_1.Schema({
+    name: { type: String },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: { type: String, enum: ['admin'], default: 'admin' }
+    phone: { type: String },
+    bio: { type: String },
+    role: { type: String, enum: ['admin'], default: 'admin' },
+    isSuperAdmin: { type: Boolean, default: false }
 }, { timestamps: true });
 exports.Admin = mongoose_1.default.model('Admin', AdminSchema);

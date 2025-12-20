@@ -37,6 +37,17 @@ let AdminRepository = class AdminRepository extends BaseRepository_1.BaseReposit
             yield Admin_1.Admin.findByIdAndUpdate(id, { password: hashedPassword }).exec();
         });
     }
+    create(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const admin = yield Admin_1.Admin.create(data);
+            return admin.toObject();
+        });
+    }
+    updateEmail(id, newEmail) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield Admin_1.Admin.findByIdAndUpdate(id, { email: newEmail }).exec();
+        });
+    }
 };
 exports.AdminRepository = AdminRepository;
 exports.AdminRepository = AdminRepository = __decorate([

@@ -147,6 +147,11 @@ const TeacherDashboardService_1 = require("../../services/teacher/TeacherDashboa
 const teacher_dashboard_controller_1 = require("../../controllers/teacher/teacher.dashboard.controller");
 const admin_employee_controller_1 = require("../../controllers/admin/admin.employee.controller");
 const Admin_Employee_Service_1 = require("../../services/admin/Admin.Employee.Service");
+const PayoutRepository_1 = require("../../repositories/PayoutRepository");
+const Admin_Payout_Service_1 = require("../../services/admin/Admin.Payout.Service");
+const admin_payout_controller_1 = require("../../controllers/admin/admin.payout.controller");
+const teacher_payout_service_1 = require("../../services/teacher/teacher.payout.service");
+const teacher_payout_controller_1 = require("../../controllers/teacher/teacher.payout.controller");
 const container = new inversify_1.Container();
 // ===== Bind Repositories =====
 container.bind(types_1.TYPES.CourseReviewRepository).to(CourseReview_1.CourseReviewRepository);
@@ -216,6 +221,10 @@ container.bind(types_1.TYPES.EmployeeCourseService).to(employee_course_service_1
 container.bind(types_1.TYPES.EmployeeCommentService).to(employee_comment_service_1.EmployeeCommentService);
 container.bind(types_1.TYPES.AdminEmployeeService).to(Admin_Employee_Service_1.AdminEmployeeService);
 container.bind(types_1.TYPES.AdminEmployeeController).to(admin_employee_controller_1.AdminEmployeeController);
+container.bind(types_1.TYPES.AdminPayoutService).to(Admin_Payout_Service_1.AdminPayoutService);
+container.bind(types_1.TYPES.AdminPayoutController).to(admin_payout_controller_1.AdminPayoutController);
+container.bind(types_1.TYPES.TeacherPayoutService).to(teacher_payout_service_1.TeacherPayoutService);
+container.bind(types_1.TYPES.TeacherPayoutController).to(teacher_payout_controller_1.TeacherPayoutController);
 // ===== Bind Controllers =====
 container.bind(types_1.TYPES.StudentAuthController).to(student_auth_controller_1.StudentAuthController);
 container.bind(types_1.TYPES.StudentProfileController).to(student_profile_controller_1.StudentProfileController);
@@ -295,6 +304,6 @@ container.bind(types_1.TYPES.StudentTeacherReviewService).to(student_teacherRevi
 container.bind(types_1.TYPES.TeacherReviewRepository).to(TeacherReviewRepository_1.TeacherReviewRepository);
 container.bind(types_1.TYPES.TeacherDashboardService).to(TeacherDashboardService_1.TeacherDashboardService);
 container.bind(types_1.TYPES.TeacherDashboardController).to(teacher_dashboard_controller_1.TeacherDashboardController);
-const PayoutRepository_1 = require("../../repositories/PayoutRepository");
+// Payouts
 container.bind(types_1.TYPES.PayoutRepository).to(PayoutRepository_1.PayoutRepository);
 exports.default = container;

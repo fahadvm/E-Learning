@@ -5,6 +5,8 @@ export interface IAdminRepository {
   findById(id: string): Promise<IAdmin | null>;
   update(id: string, updates: Partial<IAdmin>): Promise<IAdmin | null>;
   updatePassword(id: string, hashedPassword: string): Promise<void>;
+  create(data: Partial<IAdmin>): Promise<IAdmin>;
+  updateEmail(id: string, newEmail: string): Promise<void>;
 }
 
 

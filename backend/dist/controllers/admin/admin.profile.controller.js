@@ -52,11 +52,54 @@ let AdminProfileController = class AdminProfileController {
             const adminId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!adminId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
-            const { currentPassword, newPassword } = req.body;
-            if (!currentPassword || !newPassword)
+            const { currentPassword, newPassword, confirmPassword } = req.body;
+            if (!currentPassword || !newPassword || !confirmPassword) {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_DATA, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            }
+            if (newPassword !== confirmPassword) {
+                (0, ResANDError_1.throwError)('Passwords do not match', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            }
             yield this._profileService.changePassword(adminId, currentPassword, newPassword);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.PASSWORD_CHANGED, true);
+        });
+        this.requestEmailChange = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const adminId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!adminId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            const { newEmail } = req.body;
+            if (!newEmail)
+                (0, ResANDError_1.throwError)('New email is required', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(newEmail)) {
+                (0, ResANDError_1.throwError)('Invalid email format', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            }
+            yield this._profileService.requestEmailChange(adminId, newEmail);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'OTP sent to new email address', true);
+        });
+        this.verifyEmailChangeOtp = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const adminId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!adminId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            const { newEmail, otp } = req.body;
+            if (!newEmail || !otp)
+                (0, ResANDError_1.throwError)('Email and OTP are required', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            yield this._profileService.verifyEmailChangeOtp(adminId, newEmail, otp);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Email updated successfully', true);
+        });
+        this.addNewAdmin = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const adminId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!adminId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            const { email, password, name } = req.body;
+            if (!email || !password) {
+                (0, ResANDError_1.throwError)('Email and password are required', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            }
+            const newAdmin = yield this._profileService.addNewAdmin(adminId, email, password, name);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.CREATED, 'Admin created successfully', true, newAdmin);
         });
     }
 };

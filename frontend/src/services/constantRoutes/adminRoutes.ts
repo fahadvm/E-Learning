@@ -72,6 +72,10 @@ export const ADMIN_ROUTES = {
   },
   profile: {
     base: ADMIN_PROFILE,
+    changePassword: `${ADMIN_PROFILE}/change-password`,
+    requestEmailChange: `${ADMIN_PROFILE}/request-email-change`,
+    verifyEmailChange: `${ADMIN_PROFILE}/verify-email-change`,
+    addAdmin: `${ADMIN_PROFILE}/add-admin`,
   },
   transactions: {
     base: ADMIN_TRANSACTIONS,

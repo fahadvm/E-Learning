@@ -39,9 +39,9 @@ let TeacherEarningsService = class TeacherEarningsService {
             const skip = (page - 1) * limit;
             const query = {
                 teacherId: new mongoose_1.default.Types.ObjectId(teacherId),
-                type: 'TEACHER_EARNING', // Only earnings
-                txnNature: 'CREDIT',
                 paymentStatus: 'SUCCESS',
+                txnNature: { $in: ['CREDIT', 'DEBIT'] },
+                type: { $in: ['TEACHER_EARNING', 'TEACHER_WITHDRAWAL'] }
             };
             // Filter by source: Course or Call
             if (type === 'COURSE') {
@@ -67,6 +67,7 @@ let TeacherEarningsService = class TeacherEarningsService {
                 this._transactionRepo.find(query, { skip, limit, sort }),
                 this._transactionRepo.count(query),
             ]);
+            console.log("getting earnings", data);
             return {
                 data,
                 total,

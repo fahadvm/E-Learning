@@ -18,4 +18,13 @@ export class AdminRepository extends BaseRepository<IAdmin> implements IAdminRep
     async updatePassword(id: string, hashedPassword: string): Promise<void> {
         await Admin.findByIdAndUpdate(id, { password: hashedPassword }).exec();
     }
+
+    async create(data: Partial<IAdmin>): Promise<IAdmin> {
+        const admin = await Admin.create(data);
+        return admin.toObject();
+    }
+
+    async updateEmail(id: string, newEmail: string): Promise<void> {
+        await Admin.findByIdAndUpdate(id, { email: newEmail }).exec();
+    }
 }
