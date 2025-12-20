@@ -28,4 +28,7 @@ adminRouter.use('/transactions', transactionRoutes);
 import reportsRoutes from './adminRoute/admin.reports.route';
 adminRouter.use('/reports', reportsRoutes);
 
+import payoutRoutes from './adminRoute/admin.payout.route';
+adminRouter.use('/payouts', payoutRoutes);
+
 export default adminRouter;

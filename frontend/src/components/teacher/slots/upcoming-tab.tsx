@@ -223,7 +223,7 @@ export default function UpcomingTab({
                 </CardTitle>
               </div>
               {s.status === "booked" && (
-                <Badge className="bg-blue-500 text-white text-xs font-semibold">
+                <Badge className="bg-green-500 text-white text-xs font-semibold">
                   Booked
                 </Badge>
               )}

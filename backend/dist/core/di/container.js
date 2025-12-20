@@ -295,4 +295,6 @@ container.bind(types_1.TYPES.StudentTeacherReviewService).to(student_teacherRevi
 container.bind(types_1.TYPES.TeacherReviewRepository).to(TeacherReviewRepository_1.TeacherReviewRepository);
 container.bind(types_1.TYPES.TeacherDashboardService).to(TeacherDashboardService_1.TeacherDashboardService);
 container.bind(types_1.TYPES.TeacherDashboardController).to(teacher_dashboard_controller_1.TeacherDashboardController);
+const PayoutRepository_1 = require("../../repositories/PayoutRepository");
+container.bind(types_1.TYPES.PayoutRepository).to(PayoutRepository_1.PayoutRepository);
 exports.default = container;

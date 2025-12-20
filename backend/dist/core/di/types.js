@@ -152,4 +152,10 @@ exports.TYPES = {
     AdminReportsController: Symbol.for('AdminReportsController'),
     TeacherDashboardService: Symbol.for('TeacherDashboardService'),
     TeacherDashboardController: Symbol.for('TeacherDashboardController'),
+    // Payouts
+    PayoutRepository: Symbol.for('PayoutRepository'),
+    TeacherPayoutService: Symbol.for('TeacherPayoutService'),
+    TeacherPayoutController: Symbol.for('TeacherPayoutController'),
+    AdminPayoutService: Symbol.for('AdminPayoutService'),
+    AdminPayoutController: Symbol.for('AdminPayoutController'),
 };

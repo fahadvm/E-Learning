@@ -28,4 +28,6 @@ const admin_transaction_route_1 = __importDefault(require("./adminRoute/admin.tr
 adminRouter.use('/transactions', admin_transaction_route_1.default);
 const admin_reports_route_1 = __importDefault(require("./adminRoute/admin.reports.route"));
 adminRouter.use('/reports', admin_reports_route_1.default);
+const admin_payout_route_1 = __importDefault(require("./adminRoute/admin.payout.route"));
+adminRouter.use('/payouts', admin_payout_route_1.default);
 exports.default = adminRouter;

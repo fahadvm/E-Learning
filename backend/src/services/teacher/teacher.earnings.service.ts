@@ -22,7 +22,7 @@ export class TeacherEarningsService implements ITeacherEarningsService {
         filters: {
             page: number;
             limit: number;
-            type?: 'COURSE' | 'CALL'; 
+            type?: 'COURSE' | 'CALL';
             startDate?: string;
             endDate?: string;
         }
@@ -32,10 +32,11 @@ export class TeacherEarningsService implements ITeacherEarningsService {
 
         const query: any = {
             teacherId: new mongoose.Types.ObjectId(teacherId),
-            type: 'TEACHER_EARNING', // Only earnings
-            txnNature: 'CREDIT',
             paymentStatus: 'SUCCESS',
+            txnNature: { $in: ['CREDIT', 'DEBIT'] },
+            type: { $in: ['TEACHER_EARNING', 'TEACHER_WITHDRAWAL'] }
         };
+
 
         // Filter by source: Course or Call
         if (type === 'COURSE') {
@@ -63,6 +64,8 @@ export class TeacherEarningsService implements ITeacherEarningsService {
             this._transactionRepo.find(query, { skip, limit, sort }),
             this._transactionRepo.count(query),
         ]);
+
+        console.log("getting earnings",data)
 
         return {
             data,

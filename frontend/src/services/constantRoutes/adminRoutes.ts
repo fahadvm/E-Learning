@@ -85,4 +85,9 @@ export const ADMIN_ROUTES = {
   reports: {
     dashboard: `${ADMIN_BASE}/reports/dashboard`,
   },
+  payouts: {
+    base: `${ADMIN_BASE}/payouts`,
+    approve: (id: string) => `${ADMIN_BASE}/payouts/approve/${id}`,
+    reject: (id: string) => `${ADMIN_BASE}/payouts/reject/${id}`,
+  },
 };

@@ -41,7 +41,6 @@ class WalletRepository {
             return updated;
         });
     }
-    // debit wallet (ensure sufficient balance first)
     debitTeacherWallet(params) {
         return __awaiter(this, void 0, void 0, function* () {
             const { teacherId, amount } = params;
@@ -56,6 +55,42 @@ class WalletRepository {
             const updated = yield TeacherWallet_1.TeacherWallet.findOneAndUpdate({ teacherId }, {
                 $inc: { balance: -amount, totalWithdrawn: amount },
             }, { new: true }).exec();
+            return updated;
+        });
+    }
+    deductBalance(teacherId, amount) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (amount <= 0)
+                throw new Error("Invalid amount");
+            // Atomic check and update
+            const updated = yield TeacherWallet_1.TeacherWallet.findOneAndUpdate({ teacherId, balance: { $gte: amount } }, { $inc: { balance: -amount } }, { new: true }).exec();
+            if (!updated) {
+                // Check if it was existence or balance issue
+                const exists = yield TeacherWallet_1.TeacherWallet.exists({ teacherId });
+                if (!exists)
+                    throw new Error("Wallet not found");
+                throw new Error("Insufficient funds");
+            }
+            return updated;
+        });
+    }
+    refundBalance(teacherId, amount) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (amount <= 0)
+                throw new Error("Invalid amount");
+            const updated = yield TeacherWallet_1.TeacherWallet.findOneAndUpdate({ teacherId }, { $inc: { balance: amount } }, { new: true }).exec();
+            if (!updated)
+                throw new Error("Wallet not found");
+            return updated;
+        });
+    }
+    recordSuccessfulWithdrawal(teacherId, amount) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (amount <= 0)
+                throw new Error("Invalid amount");
+            const updated = yield TeacherWallet_1.TeacherWallet.findOneAndUpdate({ teacherId }, { $inc: { totalWithdrawn: amount } }, { new: true }).exec();
+            if (!updated)
+                throw new Error("Wallet not found");
             return updated;
         });
     }

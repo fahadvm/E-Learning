@@ -84,4 +84,9 @@ export const TEACHER_ROUTES = {
     earningsGraph: `${TEACHER_BASE}/dashboard/earnings-graph`,
     schedule: `${TEACHER_BASE}/dashboard/schedule`,
   },
+  payouts: {
+    stats: `${TEACHER_BASE}/payouts/stats`,
+    history: `${TEACHER_BASE}/payouts/history`,
+    withdraw: `${TEACHER_BASE}/payouts/withdraw`,
+  },
 };

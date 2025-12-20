@@ -1,23 +1,36 @@
-import { convertTo12Hour, formatDateToDDMMYYYY } from "@/utils/timeConverter";
+"use client";
+
 import { useState } from "react";
-import { Calendar, Clock, User, CreditCard, FileText, XCircle, Filter, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  User,
+  CreditCard,
+  FileText,
+  XCircle,
+  Filter,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+
+import { convertTo12Hour, formatDateToDDMMYYYY } from "@/utils/timeConverter";
 
 interface HistoryRecord {
   _id: string;
   date: string;
   day: string;
-  slot: {
-    start: string;
-    end: string;
-  };
+  slot: { start: string; end: string };
   status: string;
   note?: string;
   paymentOrderId?: string;
   cancellationReason?: string;
   createdAt: string;
-  updatedAt: string;
-  courseId?: { _id: string; title: string };
-  studentId?: { _id: string; name: string; email: string };
+  courseId?: { title: string };
+  studentId?: { name: string; email: string };
 }
 
 export default function HistoryTab({
@@ -33,7 +46,7 @@ export default function HistoryTab({
   currentPage: number;
   totalPages: number;
 }) {
-  const [selected, setSelected] = useState<string>("");
+  const [selected, setSelected] = useState("");
 
   const handleFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value || undefined;
@@ -42,28 +55,29 @@ export default function HistoryTab({
     onPageChange(1);
   };
 
-  const getStatusStyles = (status: string) => {
+  const statusVariant = (status: string) => {
     switch (status) {
       case "paid":
-        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+        return "bg-emerald-500 text-white";
       case "cancelled":
-        return "bg-rose-50 text-rose-700 border-rose-200";
+        return "bg-red-500 text-white";
       case "booked":
-        return "bg-amber-50 text-amber-700 border-amber-200";
+        return "bg-green-500 text-white";
       default:
-        return "bg-slate-50 text-slate-700 border-slate-200";
+        return "bg-gray-500 text-white";
     }
   };
 
   return (
     <div className="space-y-6">
+      {/* Filter */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Filter className="w-5 h-5 text-slate-600" />
+          <Filter className="w-4 h-4 text-gray-500" />
           <select
             value={selected}
             onChange={handleFilter}
-            className="px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 bg-white hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer"
+            className="border rounded-md px-3 py-2 text-sm"
           >
             <option value="">All Status</option>
             <option value="paid">Paid</option>
@@ -73,143 +87,130 @@ export default function HistoryTab({
         </div>
 
         {slots.length > 0 && (
-          <p className="text-sm text-slate-500">
-            Showing <span className="font-semibold text-slate-700">{slots.length}</span> records
+          <p className="text-sm text-gray-500">
+            Showing <span className="font-semibold">{slots.length}</span> records
           </p>
         )}
       </div>
 
+      {/* Empty State */}
       {!slots.length ? (
-        <div className="flex flex-col items-center justify-center py-16 px-4">
-          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-            <FileText className="w-8 h-8 text-slate-400" />
-          </div>
-          <h3 className="text-lg font-semibold text-slate-900 mb-1">No records found</h3>
-          <p className="text-sm text-slate-500">Try adjusting your filters to see more results</p>
-        </div>
+        <Card>
+          <CardContent className="p-10 text-center text-gray-500">
+            <FileText className="mx-auto mb-3 h-10 w-10 opacity-50" />
+            No history found
+          </CardContent>
+        </Card>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Grid */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {slots.map((slot) => (
-              <div
+              <Card
                 key={slot._id}
-                className="group bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-lg hover:border-slate-300 transition-all duration-200 overflow-hidden"
+                className="hover:shadow-md transition-shadow"
               >
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-slate-900 line-clamp-2 flex-1 pr-2">
+                <CardHeader className="pb-2 flex flex-row justify-between items-start">
+                  <div>
+                    <CardTitle className="text-base font-bold text-gray-900">
                       {slot.courseId?.title || "Untitled Course"}
-                    </h3>
-                    <span
-                      className={`px-3 py-1 text-xs font-semibold rounded-full border ${getStatusStyles(
-                        slot.status
-                      )} whitespace-nowrap`}
-                    >
-                      {slot.status.toUpperCase()}
-                    </span>
+                    </CardTitle>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {formatDateToDDMMYYYY(slot.date)} • {slot.day}
+                    </p>
                   </div>
 
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
-                      <Calendar className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                      <span>
-                        {formatDateToDDMMYYYY(slot.date)}{" "}
-                        <span className="text-slate-400">•</span>{" "}
-                        <span className="font-medium">{slot.day}</span>
-                      </span>
-                    </div>
+                  <Badge className={`${statusVariant(slot.status)} text-xs`}>
+                    {slot.status.toUpperCase()}
+                  </Badge>
+                </CardHeader>
 
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
-                      <Clock className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                      <span>
-                        {convertTo12Hour(slot.slot.start)} - {convertTo12Hour(slot.slot.end)}
-                      </span>
-                    </div>
-
-                    {slot.studentId && (
-                      <div className="flex items-start gap-2 text-sm text-slate-600">
-                        <User className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-slate-700 truncate">{slot.studentId.name}</p>
-                          <p className="text-xs text-slate-500 truncate">{slot.studentId.email}</p>
-                        </div>
-                      </div>
-                    )}
-
-                    {slot.paymentOrderId && (
-                      <div className="flex items-start gap-2 text-sm text-slate-600">
-                        <CreditCard className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs text-slate-500">Payment ID</p>
-                          <p className="font-mono text-xs text-slate-700 truncate">
-                            {slot.paymentOrderId}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
-                    {slot.note && (
-                      <div className="mt-3 pt-3 border-t border-slate-100">
-                        <p className="text-xs font-medium text-slate-500 mb-1">Note</p>
-                        <p className="text-sm text-slate-600 italic line-clamp-2">{slot.note}</p>
-                      </div>
-                    )}
-
-                    {slot.status === "cancelled" && slot.cancellationReason && (
-                      <div className="flex items-start gap-2 p-3 bg-rose-50 rounded-lg border border-rose-100">
-                        <XCircle className="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-rose-700 mb-0.5">Cancellation Reason</p>
-                          <p className="text-sm text-rose-600 line-clamp-2">
-                            {slot.cancellationReason}
-                          </p>
-                        </div>
-                      </div>
-                    )}
+                <CardContent className="space-y-3 border-t pt-4 text-sm">
+                  {/* Time */}
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Clock className="h-4 w-4" />
+                    {convertTo12Hour(slot.slot.start)} –{" "}
+                    {convertTo12Hour(slot.slot.end)}
                   </div>
-                </div>
 
-                <div className="px-6 py-3 bg-slate-50 border-t border-slate-100">
-                  <p className="text-xs text-slate-500">
-                    Created {new Date(slot.createdAt).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </p>
+                  {/* Student */}
+                  {slot.studentId && (
+                    <div className="flex items-start gap-2">
+                      <User className="h-4 w-4 text-gray-500 mt-0.5" />
+                      <div>
+                        <p className="font-medium text-gray-800">
+                          {slot.studentId.name}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {slot.studentId.email}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Payment */}
+                  {slot.paymentOrderId && (
+                    <div className="flex items-start gap-2">
+                      <CreditCard className="h-4 w-4 text-gray-500 mt-0.5" />
+                      <p className="text-xs font-mono truncate">
+                        {slot.paymentOrderId}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Note */}
+                  {slot.note && (
+                    <div className="border-t pt-2 text-xs text-gray-600 italic">
+                      {slot.note}
+                    </div>
+                  )}
+
+                  {/* Cancel reason */}
+                  {slot.status === "cancelled" &&
+                    slot.cancellationReason && (
+                      <div className="flex items-start gap-2 p-2 rounded-md bg-red-50 border border-red-200">
+                        <XCircle className="h-4 w-4 text-red-500 mt-0.5" />
+                        <p className="text-xs text-red-600">
+                          {slot.cancellationReason}
+                        </p>
+                      </div>
+                    )}
+                </CardContent>
+
+                <div className="px-4 py-2 text-xs text-gray-500 border-t">
+                  Created on{" "}
+                  {new Date(slot.createdAt).toLocaleString("en-US")}
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
 
+          {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-3 pt-4">
-              <button
-                disabled={currentPage <= 1}
+            <div className="flex justify-center items-center gap-4 pt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={currentPage === 1}
                 onClick={() => onPageChange(currentPage - 1)}
-                className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white transition-all"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="h-4 w-4 mr-1" />
                 Previous
-              </button>
+              </Button>
 
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-600">
-                  Page <span className="font-semibold text-slate-900">{currentPage}</span> of{" "}
-                  <span className="font-semibold text-slate-900">{totalPages}</span>
-                </span>
-              </div>
+              <span className="text-sm text-gray-500">
+                Page {currentPage} of {totalPages}
+              </span>
 
-              <button
-                disabled={currentPage >= totalPages}
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={currentPage === totalPages}
                 onClick={() => onPageChange(currentPage + 1)}
-                className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white transition-all"
               >
                 Next
-                <ChevronRight className="w-4 h-4" />
-              </button>
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
             </div>
           )}
         </>

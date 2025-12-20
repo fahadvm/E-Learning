@@ -245,6 +245,16 @@ import { AdminEmployeeController } from '../../controllers/admin/admin.employee.
 import { IAdminEmployeeService } from '../interfaces/services/admin/IAdminEmployeeService';
 import { AdminEmployeeService } from '../../services/admin/Admin.Employee.Service';
 
+// Payouts
+import { IPayoutRepository } from '../interfaces/repositories/IPayoutRepository';
+import { PayoutRepository } from '../../repositories/PayoutRepository';
+import { IAdminPayoutService } from '../interfaces/services/admin/IAdminPayoutService';
+import { AdminPayoutService } from '../../services/admin/Admin.Payout.Service';
+import { AdminPayoutController } from '../../controllers/admin/admin.payout.controller';
+import { ITeacherPayoutService } from '../interfaces/services/teacher/ITeacherPayoutService';
+import { TeacherPayoutService } from '../../services/teacher/teacher.payout.service';
+import { TeacherPayoutController } from '../../controllers/teacher/teacher.payout.controller';
+
 
 
 
@@ -339,6 +349,12 @@ container.bind<IEmployeeCourseService>(TYPES.EmployeeCourseService).to(EmployeeC
 container.bind<IEmployeeCommentService>(TYPES.EmployeeCommentService).to(EmployeeCommentService);
 container.bind<IAdminEmployeeService>(TYPES.AdminEmployeeService).to(AdminEmployeeService);
 container.bind<AdminEmployeeController>(TYPES.AdminEmployeeController).to(AdminEmployeeController);
+
+container.bind<IAdminPayoutService>(TYPES.AdminPayoutService).to(AdminPayoutService);
+container.bind<AdminPayoutController>(TYPES.AdminPayoutController).to(AdminPayoutController);
+
+container.bind<ITeacherPayoutService>(TYPES.TeacherPayoutService).to(TeacherPayoutService);
+container.bind<TeacherPayoutController>(TYPES.TeacherPayoutController).to(TeacherPayoutController);
 
 
 
@@ -438,6 +454,9 @@ container.bind<ITeacherReviewRepository>(TYPES.TeacherReviewRepository).to(Teach
 
 container.bind<ITeacherDashboardService>(TYPES.TeacherDashboardService).to(TeacherDashboardService);
 container.bind<TeacherDashboardController>(TYPES.TeacherDashboardController).to(TeacherDashboardController);
+
+// Payouts
+container.bind<IPayoutRepository>(TYPES.PayoutRepository).to(PayoutRepository);
 
 
 export default container;

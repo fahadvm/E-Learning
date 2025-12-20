@@ -10,6 +10,7 @@ import chatRoutes from './teacherRoute//teacher.chat.route';
 import earningsRoutes from './teacherRoute/teacher.earnings.route';
 import enrollmentRoutes from './teacherRoute/teacher.enrollment.route';
 import dashboardRoutes from './teacherRoute/teacher.dashboard.route';
+import payoutRoutes from './teacherRoute/teacher.payout.route';
 
 const teacherRouter = Router();
 
@@ -22,5 +23,6 @@ teacherRouter.use('/chat', chatRoutes);
 teacherRouter.use('/earnings', earningsRoutes);
 teacherRouter.use('/enrollments', enrollmentRoutes);
 teacherRouter.use('/dashboard', dashboardRoutes);
+teacherRouter.use('/payouts', payoutRoutes);
 
 export default teacherRouter;

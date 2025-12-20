@@ -15,10 +15,12 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon, RotateCw } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import RequestPayoutDialog from '@/components/teacher/wallet/RequestPayoutDialog';
+import Link from 'next/link';
 
 type TransactionType = 'ALL' | 'COURSE' | 'CALL';
 
@@ -45,7 +47,7 @@ export default function EarningsPage() {
     try {
       // Fetch stats
       const statsRes = await teacherEarningsApi.getEarningsStats();
-      
+
       if (statsRes.ok) {
         setStats(statsRes.data);
       }
@@ -63,7 +65,7 @@ export default function EarningsPage() {
         startDate: formatDate(dateRange.from),
         endDate: formatDate(dateRange.to),
       });
-      console.log("history",historyRes)
+      console.log("history", historyRes)
 
       if (historyRes.ok) {
         setTransactions(historyRes.data.data);
@@ -95,12 +97,16 @@ export default function EarningsPage() {
     <>
       <Header />
       <main className="container mx-auto bg-gray-50 min-h-screen p-6 md:p-10">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Earnings & History</h1>
-          <p className="text-gray-500 mt-1">Track your revenue from courses and 1:1 calls</p>
-        </div>
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-800">Earnings & History</h1>
+            <p className="text-gray-500 mt-1">Track your revenue from courses and 1:1 calls</p>
+          </div>
+          <RequestPayoutDialog balance={stats.balance} onSuccess={fetchEarnings} />
+               </div>
 
-        <EarningsStats stats={stats}  />
+
+        <EarningsStats stats={stats} />
 
         <div className="bg-white rounded-2xl shadow-sm border p-6 mt-8">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">

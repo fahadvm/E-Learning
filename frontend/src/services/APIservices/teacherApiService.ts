@@ -88,3 +88,9 @@ export const teacherDashboardApi = {
   getEarningsGraph: (timeframe: string = '6months') => get(TEACHER_ROUTES.dashboard.earningsGraph, { timeframe }),
   getUpcomingSchedule: () => get(TEACHER_ROUTES.dashboard.schedule),
 };
+
+export const teacherPayoutApi = {
+  getWalletStats: () => get(TEACHER_ROUTES.payouts.stats),
+  getPayoutHistory: () => get(TEACHER_ROUTES.payouts.history),
+  requestPayout: (data: { amount: number; method: string; details: any }) => post(TEACHER_ROUTES.payouts.withdraw, data),
+};

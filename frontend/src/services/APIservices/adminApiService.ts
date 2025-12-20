@@ -73,4 +73,9 @@ export const adminApiMethods = {
 
   // Reports
   getDashboardStats: () => get(ADMIN_ROUTES.reports.dashboard),
+
+  // Payouts
+  getPayouts: (status?: string) => get(ADMIN_ROUTES.payouts.base, { status }),
+  approvePayout: (id: string) => patch(ADMIN_ROUTES.payouts.approve(id), {}),
+  rejectPayout: (id: string, reason: string) => patch(ADMIN_ROUTES.payouts.reject(id), { reason }),
 };
