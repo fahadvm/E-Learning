@@ -109,10 +109,13 @@ export class StudentSubscriptionService implements IStudentSubscriptionService {
   async hasFeature(studentId: string, featureName: string): Promise<boolean> {
     const subscriptions = await this._planRepo.findActiveSubscription(studentId);
     if (!subscriptions?.length) return false;
+    console.log("active subscriptions plans", subscriptions)
 
     const plans = await Promise.all(
       subscriptions.map((sub: IStudentSubscription) => this._planRepo.getById(sub.planId.toString()))
     );
+    console.log("plans details", plans)
+
 
     return plans.some(
       plan =>
