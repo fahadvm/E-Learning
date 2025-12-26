@@ -52,9 +52,11 @@ export default function CompanyChatWindow({ companyId, currentUserId, currentUse
         if (!chat) return;
 
         // Initialize Socket
-        socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'https://devnext.online/api', {
-            transports: ['websocket'],
-            query: { userId: currentUserId }
+        const url = (process.env.NEXT_PUBLIC_API_URL || "https://api.devnext.online").replace(/\/api\/?$/, "");
+        socket = io(url, {
+            transports: ['websocket', 'polling'],
+            query: { userId: currentUserId },
+            withCredentials: true
         });
 
         socket.on('connect', () => {

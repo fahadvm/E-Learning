@@ -7,7 +7,8 @@ import Header from "@/components/teacher/header";
 
 
 
-const socket: Socket = io("https://devnext.online");
+const url = (process.env.NEXT_PUBLIC_API_URL || "https://api.devnext.online").replace(/\/api\/?$/, "");
+const socket: Socket = io(url, { withCredentials: true, transports: ["websocket", "polling"] });
 
 interface UserConnectedData {
   userId: string;
@@ -161,7 +162,7 @@ export default function TeacherPage() {
   ------------------------------------------------------------- */
   return (
     <>
-    <Header/>
+      <Header />
       <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4">
         {/* ---------- Header (Meet style) ---------- */}
         <header className="absolute top-0 left-0 right-0 flex items-center justify-between px-6 py-3 bg-gray-800 text-white">
@@ -231,8 +232,8 @@ export default function TeacherPage() {
             <button
               onClick={toggleMute}
               className={`p-3 rounded-full transition-all ${isMuted
-                  ? "bg-red-600 hover:bg-red-700"
-                  : "bg-gray-700 hover:bg-gray-600"
+                ? "bg-red-600 hover:bg-red-700"
+                : "bg-gray-700 hover:bg-gray-600"
                 }`}
               title={isMuted ? "Unmute" : "Mute"}
             >
@@ -243,8 +244,8 @@ export default function TeacherPage() {
             <button
               onClick={toggleVideo}
               className={`p-3 rounded-full transition-all ${isVideoOff
-                  ? "bg-red-600 hover:bg-red-700"
-                  : "bg-gray-700 hover:bg-gray-600"
+                ? "bg-red-600 hover:bg-red-700"
+                : "bg-gray-700 hover:bg-gray-600"
                 }`}
               title={isVideoOff ? "Turn on camera" : "Turn off camera"}
             >

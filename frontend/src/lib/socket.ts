@@ -13,7 +13,14 @@ export const initSocket = (
   onMessageEdited: (data: { messageId: string; chatId: string; newMessage: string }) => void = () => { }
 ) => {
   if (!socket) {
-    socket = io("https://devnext.online"); // backend URL
+    const rawUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.devnext.online";
+    // Remove /api suffix if present, as socket.io defaults to root + /socket.io
+    const socketUrl = rawUrl.replace(/\/api\/?$/, "");
+
+    socket = io(socketUrl, {
+      withCredentials: true,
+      transports: ["websocket", "polling"],
+    });
   }
 
   // Join with userId

@@ -38,9 +38,16 @@ export const broadcastEvent = (event: string, data: any) => {
 };
 
 export function initSocket(server: HTTPServer) {
+  const allowedOrigins = [
+    "https://devnext.online",
+    "https://www.devnext.online",
+    "https://api.devnext.online",
+    "http://localhost:3000",
+  ];
+
   const io = new Server(server, {
     cors: {
-      origin: "https://devnext.online",
+      origin: allowedOrigins,
       methods: ["GET", "POST"],
       credentials: true,
     },
