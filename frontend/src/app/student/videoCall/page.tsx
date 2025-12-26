@@ -5,7 +5,7 @@ import { io, Socket } from "socket.io-client";
 import { Video, Mic, MicOff, PhoneOff, VideoOff } from "lucide-react";
 import Header from "@/components/student/header";
 
-const socket: Socket = io("http://localhost:8000");
+const socket: Socket = io("https://devnext.online");
 
 interface UserConnectedData {
   userId: string;

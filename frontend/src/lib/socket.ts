@@ -13,7 +13,7 @@ export const initSocket = (
   onMessageEdited: (data: { messageId: string; chatId: string; newMessage: string }) => void = () => { }
 ) => {
   if (!socket) {
-    socket = io("http://localhost:8000"); // backend URL
+    socket = io("https://devnext.online"); // backend URL
   }
 
   // Join with userId

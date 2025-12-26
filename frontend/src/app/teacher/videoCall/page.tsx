@@ -7,7 +7,7 @@ import Header from "@/components/teacher/header";
 
 
 
-const socket: Socket = io("http://localhost:8000");
+const socket: Socket = io("https://devnext.online");
 
 interface UserConnectedData {
   userId: string;

@@ -40,7 +40,7 @@ export const broadcastEvent = (event: string, data: any) => {
 export function initSocket(server: HTTPServer) {
   const io = new Server(server, {
     cors: {
-      origin: "http://localhost:3000",
+      origin: "https://devnext.online",
       methods: ["GET", "POST"],
       credentials: true,
     },
