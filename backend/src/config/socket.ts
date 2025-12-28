@@ -180,25 +180,34 @@ export function initSocket(server: HTTPServer) {
 
     // Receiver answers call
     socket.on("answer-call", (data: { signal: any; to: string }) => {
-      const callerSocketId = onlineUsers.get(data.to);
-      if (callerSocketId) {
-        io.to(callerSocketId).emit("call-accepted", data.signal);
+      // Robust routing: Try UserID lookup, fallback to direct SocketID
+      const targetSocketId = onlineUsers.get(data.to) || data.to;
+      if (targetSocketId) {
+        io.to(targetSocketId).emit("call-accepted", data.signal);
       }
     });
 
     // Receiver rejects call
     socket.on("reject-call", (data: { to: string }) => {
-      const callerSocketId = onlineUsers.get(data.to);
-      if (callerSocketId) {
-        io.to(callerSocketId).emit("call-rejected");
+      const targetSocketId = onlineUsers.get(data.to) || data.to;
+      if (targetSocketId) {
+        io.to(targetSocketId).emit("call-rejected");
       }
     });
 
     // End call
     socket.on("end-call", (data: { to: string }) => {
-      const otherSocketId = onlineUsers.get(data.to);
-      if (otherSocketId) {
-        io.to(otherSocketId).emit("call-ended");
+      const targetSocketId = onlineUsers.get(data.to) || data.to;
+      if (targetSocketId) {
+        io.to(targetSocketId).emit("call-ended");
+      }
+    });
+
+    // ICE Candidate Relay (Global)
+    socket.on("ice-candidate", (candidate: any, to: string) => {
+      const targetSocketId = onlineUsers.get(to) || to;
+      if (targetSocketId) {
+        io.to(targetSocketId).emit("ice-candidate", candidate, socket.id);
       }
     });
 

@@ -44,6 +44,7 @@ import { convertTo12Hour } from "@/utils/timeConverter";
 import { studentBookingApi } from "@/services/APIservices/studentApiservice";
 import { showInfoToast, showSuccessToast } from "@/utils/Toast";
 import { useRouter } from "next/navigation";
+import { useCall } from "@/context/CallContext";
 
 interface Booking {
   _id: string;
@@ -90,6 +91,7 @@ export function ScheduledCalls() {
   const [copied, setCopied] = useState(false);
 
   const router = useRouter();
+  const { startCall } = useCall();
 
   const fetchScheduledCalls = async () => {
     try {
@@ -150,7 +152,13 @@ export function ScheduledCalls() {
     const sessionStart = new Date(`${date}T${slot.start}:00`);
     const sessionEnd = new Date(`${date}T${slot.end}:00`);
     const joinOpen = new Date(sessionStart.getTime() - 5 * 60 * 1000);
-      router.push(`/student/videoCall?callId=${call.callId}`);
+
+    // Direct call integration
+    if (call.teacherId && call.teacherId._id) {
+      startCall(call.teacherId._id, call.teacherId.name);
+    } else {
+      showInfoToast("Teacher details missing");
+    }
 
     // if (now >= joinOpen && now <= sessionEnd) {
     // } else {
@@ -401,7 +409,7 @@ export function ScheduledCalls() {
                       </div>
                     ) : (
                       <Button
-                        onClick={() => openCallIdModal(call)}
+                        onClick={() => handleJoinCall(call)}
                         className="bg-primary hover:bg-primary/90 min-w-[140px]"
                       >
                         <Video className="h-4 w-4 mr-2" />

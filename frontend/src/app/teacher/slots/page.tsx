@@ -9,9 +9,10 @@ import HistoryTab from "@/components/teacher/slots/history-tab"
 import Header from "@/components/teacher/header"
 import { teacherCallRequestApi } from "@/services/APIservices/teacherApiService"
 
-type SlotStatus = "booked" | "cancelled" | "rescheduled" | "available" 
+type SlotStatus = "booked" | "cancelled" | "rescheduled" | "available"
 
 export type Student = {
+  _id: string
   name: string
   email: string
 }
@@ -23,12 +24,12 @@ export type Course = {
 export type Slot = {
   _id: string
   dateKey: string
-  day:string
+  day: string
   startISO: string
   endISO: string
   status: SlotStatus
   student?: Student
-  callId:string
+  callId: string
   course?: Course
 }
 
@@ -43,7 +44,7 @@ type BackendSlot = {
   status: SlotStatus
   student?: Student
   course?: Course
-  callId:string
+  callId: string
   _id: string
 }
 
@@ -66,14 +67,14 @@ export default function Page() {
         console.log("Slots response:", res.data)
 
         const transformedSlots: Slot[] = res.data.map((item: BackendSlot) => {
-          const { date, slot, day, status, student, course, _id ,callId} = item
-          console.log("item",item)
-          return {  
+          const { date, slot, day, status, student, course, _id, callId } = item
+          console.log("item", item)
+          return {
             _id: _id,
             dateKey: date,
             startISO: slot.start,
             endISO: slot.end,
-            day : day,
+            day: day,
             status,
             student,
             course,
@@ -83,7 +84,7 @@ export default function Page() {
         })
 
         setAllSlots(transformedSlots)
-                console.log("setAllSlots:", transformedSlots)
+        console.log("setAllSlots:", transformedSlots)
 
       } catch (err) {
         console.error("Failed to load slots", err)
@@ -157,7 +158,7 @@ export default function Page() {
                   <SlotsTab slots={allSlots} />
                 </TabsContent>
 
-        
+
 
                 <TabsContent value="upcoming" className="mt-6">
                   <UpcomingTab

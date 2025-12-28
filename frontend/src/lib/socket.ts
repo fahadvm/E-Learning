@@ -6,9 +6,9 @@ const eventListeners: Record<string, Function[]> = {};
 
 export const getSocket = () => socket;
 
-const notifyListeners = (event: string, data: any) => {
+const notifyListeners = (event: string, ...args: any[]) => {
   if (eventListeners[event]) {
-    eventListeners[event].forEach(cb => cb(data));
+    eventListeners[event].forEach(cb => cb(...args));
   }
 };
 
@@ -20,10 +20,8 @@ export const on = (event: string, callback: Function) => {
 
   // If socket exists, attach immediately (for robustness)
   if (socket && !socket.hasListeners(event)) {
-    // This is tricky because we might have multiple callbacks for one event.
-    // Better to let 'notifyListeners' handle it if we wrap the socket.on?
-    // For now, let's just rely on the existing pattern or direct socket access.
-    socket.on(event, (data) => notifyListeners(event, data));
+    // Pass all arguments to the notification system
+    socket.on(event, (...args) => notifyListeners(event, ...args));
   }
 };
 
@@ -34,12 +32,14 @@ export const off = (event: string, callback: Function) => {
 };
 
 // Helper for call context to attach internal listeners
+// Helper for call context to attach internal listeners
 export const attachSocketListener = (event: string, callback: (data: any) => void) => {
-  if (socket) {
-    socket.on(event, callback);
-  }
+  // Use the internal 'on' function so we register interest even if socket is null
+  on(event, callback);
+
   return () => {
-    if (socket) socket.off(event, callback);
+    // Use the internal 'off' function to cleanup
+    off(event, callback);
   }
 };
 
@@ -73,8 +73,8 @@ export const initSocket = (
   socket.on("receive_message", onMessageReceived);
 
   // Listen for chat list updates (WhatsApp style)
-  socket.on("chat-list-update", (data) => {
-    notifyListeners("chat-list-update", data);
+  socket.on("chat-list-update", (...args) => {
+    notifyListeners("chat-list-update", ...args);
   });
 
   // Listen for typing events
@@ -98,26 +98,26 @@ export const initSocket = (
   });
 
   // ---------------- CALL EVENTS ----------------
-  socket.on("incoming-call", (data) => {
-    notifyListeners("incoming-call", data);
+  socket.on("incoming-call", (...args) => {
+    notifyListeners("incoming-call", ...args);
   });
 
-  socket.on("call-accepted", (data) => {
-    notifyListeners("call-accepted", data);
+  socket.on("call-accepted", (...args) => {
+    notifyListeners("call-accepted", ...args);
   });
 
-  socket.on("call-rejected", (data) => {
-    notifyListeners("call-rejected", data);
+  socket.on("call-rejected", (...args) => {
+    notifyListeners("call-rejected", ...args);
   });
 
-  socket.on("call-ended", (data) => {
-    notifyListeners("call-ended", data);
+  socket.on("call-ended", (...args) => {
+    notifyListeners("call-ended", ...args);
   });
 
-  socket.on("ice-candidate", (data: any) => {
+  socket.on("ice-candidate", (...args) => {
     // We might need to handle this globally or pass to specific handler
     // Usually PeerConnection handles this.
-    notifyListeners("ice-candidate", data);
+    notifyListeners("ice-candidate", ...args);
   });
 
 

@@ -7,6 +7,7 @@ import { initSocket, sendMessage, sendTyping, sendReadMessage, sendMessageReacti
 import { studentChatApi } from "@/services/APIservices/studentApiservice";
 import Link from "next/link";
 
+
 const ConfirmationDialog = ({
   isOpen,
   title,
@@ -391,7 +392,6 @@ export default function StudentChatContent() {
   const teacherId = params?.teacherId as string;
   const studentId = student?._id;
   const [chatId, setChatId] = useState<string | null>(searchParams.get("chatId"));
-
   useEffect(() => {
     if (!studentId || !teacherId || chatId) return;
     const createOrFetchChat = async () => {
@@ -486,7 +486,7 @@ export default function StudentChatContent() {
     socket.on("onlineUsers", (users: string[]) => {
       setIsOnline(users.includes(teacherId));
     });
-    if(!chatId)return
+    if (!chatId) return
     joinChat(chatId);
 
     return () => {

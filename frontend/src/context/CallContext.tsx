@@ -29,22 +29,63 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     const [callerInfo, setCallerInfo] = useState<{ name: string; from: string } | null>(null);
     const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
     const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+    const localStreamRef = useRef<MediaStream | null>(null);
 
     // Media Controls
     const [isVideoEnabled, setIsVideoEnabled] = useState(true);
     const [isAudioEnabled, setIsAudioEnabled] = useState(true);
 
     const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
-    const remoteVideoRef = useRef<HTMLVideoElement | null>(null); // We might need this if we render here, but mostly we expose the stream
+    const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
 
-    // Keep track of who we are talking to
     const callPeerIdRef = useRef<string | null>(null);
+    const callStateRef = useRef<CallState>("idle");
+    const pendingOfferRef = useRef<any>(null);
+
+    // Audio Refs
+    const ringtoneRef = useRef<HTMLAudioElement | null>(null);
+    const callingToneRef = useRef<HTMLAudioElement | null>(null);
+
+    useEffect(() => {
+        // Initialize audio on client side
+        ringtoneRef.current = new Audio("https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3");
+        ringtoneRef.current.loop = true;
+
+        callingToneRef.current = new Audio("https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3"); // A softer calling tone
+        callingToneRef.current.loop = true;
+
+        return () => {
+            stopAllSounds();
+        };
+    }, []);
+
+    const stopAllSounds = () => {
+        if (ringtoneRef.current) {
+            ringtoneRef.current.pause();
+            ringtoneRef.current.currentTime = 0;
+        }
+        if (callingToneRef.current) {
+            callingToneRef.current.pause();
+            callingToneRef.current.currentTime = 0;
+        }
+    };
+
+    // Sync Refs
+    useEffect(() => {
+        callStateRef.current = callState;
+    }, [callState]);
+
+    useEffect(() => {
+        localStreamRef.current = localStream;
+    }, [localStream]);
+
 
     // ---------------- MEDIA HELPERS ----------------
     const getMediaStream = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
             setLocalStream(stream);
+            localStreamRef.current = stream; // Immediate sync to avoid race conditions
             setIsVideoEnabled(true);
             setIsAudioEnabled(true);
             return stream;
@@ -56,15 +97,18 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const cleanupMedia = () => {
-        if (localStream) {
-            localStream.getTracks().forEach(track => track.stop());
+        // Use Ref for cleanup to avoid stale closure issues in listeners
+        if (localStreamRef.current) {
+            localStreamRef.current.getTracks().forEach(track => track.stop());
             setLocalStream(null);
+            localStreamRef.current = null; // Immediate sync
         }
         setRemoteStream(null);
         if (peerConnectionRef.current) {
             peerConnectionRef.current.close();
             peerConnectionRef.current = null;
         }
+        stopAllSounds();
     };
 
     // ---------------- WEBRTC HELPERS ----------------
@@ -100,19 +144,15 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         // Incoming Call
         const cleanupIncoming = attachSocketListener("incoming-call", async (data: { signal: any; from: string; name: string }) => {
             console.log("Incoming call from", data.name);
-            if (callState !== "idle") {
+            if (callStateRef.current !== "idle") {
                 // Busy
-                // Optionally emit "busy" signal
                 return;
             }
             setCallerInfo({ name: data.name, from: data.from });
             callPeerIdRef.current = data.from;
             setCallState("incoming");
-
-            // We technically don't need to create PC yet, only when accepted.
-            // But we need to save the offer (signal) to set it later.
-            // Let's store it in a ref or state to use when accepted.
-            (window as any).pendingOffer = data.signal;
+            pendingOfferRef.current = data.signal;
+            ringtoneRef.current?.play().catch(e => console.log("Audio play blocked", e));
         });
 
         // Call Accepted (By the other person when WE are the caller)
@@ -122,22 +162,26 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
             if (peerConnectionRef.current) {
                 await peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(signal));
             }
+            stopAllSounds();
         });
 
         // Call Rejected
         const cleanupRejected = attachSocketListener("call-rejected", () => {
             showInfoToast("Call rejected");
-            endCall();
+            cleanupMedia();
+            setCallState("idle");
+            setCallerInfo(null);
+            callPeerIdRef.current = null;
+            pendingOfferRef.current = null;
         });
 
         // Call Ended
         const cleanupEnded = attachSocketListener("call-ended", () => {
             showInfoToast("Call ended");
-            // Full cleanup
+            cleanupMedia();
             setCallState("idle");
             setCallerInfo(null);
             callPeerIdRef.current = null;
-            cleanupMedia();
         });
 
         // ICE Candidate
@@ -158,12 +202,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
             cleanupEnded();
             cleanupIce();
         };
-    }, [callState]); // Re-bind if state changes? Actually state is in closure if not careful.
-    // Using listeners that depend on state is tricky. 
-    // Ideally, the listeners should be stable. The state check inside "incoming-call" works because it accesses current state? 
-    // No, closure staleness. 
-    // BUT `attachSocketListener` returns a cleanup function, so if dependencies change, we re-subscribe with new closure.
-    // So including `callState` in dependency array is correct for `incoming-call` to see the right state.
+    }, []); // Empty dependency array ensures listeners are attached ONCE and stable
 
 
     // ---------------- ACTIONS ----------------
@@ -185,15 +224,16 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
 
+        const socket = getSocket();
+
         initiateCall({
             userToCall: userId,
             signalData: offer,
-            from: getSocket()?.id || "", // sender socket id
-            name: "User" // We should ideally pass real name from Profile Context, but for now generic or rely on backend to fill?
-            // Backend doesn't know name unless we send it. 
-            // Ideally we fetch current user name from Student/Teacher Context. 
-            // For now let's assume the caller UI passes it or we send "Incoming Call"
+            from: socket?.id || "",
+            name: "User"
         });
+
+        callingToneRef.current?.play().catch(e => console.log("Audio play blocked", e));
     };
 
     const acceptCall = async () => {
@@ -206,7 +246,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         const pc = await createPeerConnection();
         stream.getTracks().forEach(track => pc.addTrack(track, stream));
 
-        const pendingOffer = (window as any).pendingOffer;
+        const pendingOffer = pendingOfferRef.current;
         if (pendingOffer) {
             await pc.setRemoteDescription(new RTCSessionDescription(pendingOffer));
             const answer = await pc.createAnswer();
@@ -218,6 +258,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
             });
 
             setCallState("connected");
+            stopAllSounds();
         }
     };
 
@@ -225,10 +266,11 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         if (callPeerIdRef.current) {
             socketRejectCall({ to: callPeerIdRef.current });
         }
+        cleanupMedia(); // Ensure media tracks are stopped
         setCallState("idle");
         setCallerInfo(null);
         callPeerIdRef.current = null;
-        (window as any).pendingOffer = null;
+        pendingOfferRef.current = null;
     };
 
     const endCall = () => {

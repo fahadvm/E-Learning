@@ -11,6 +11,7 @@ import { teacherCallRequestApi } from "@/services/APIservices/teacherApiService"
 import { showSuccessToast } from "@/utils/Toast";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { useCall } from "@/context/CallContext";
 
 export default function UpcomingTab({
   slots,
@@ -38,6 +39,15 @@ export default function UpcomingTab({
   const [copied, setCopied] = useState(false);
 
   const router = useRouter();
+  const { startCall } = useCall();
+
+  const initiateVideoCall = (slot: Slot) => {
+    if (slot.student && slot.student._id) {
+      startCall(slot.student._id, slot.student.name);
+    } else {
+      showSuccessToast("Student details missing");
+    }
+  };
 
   useEffect(() => {
     if (isModalOpen) {
@@ -192,7 +202,7 @@ export default function UpcomingTab({
               className="bg-blue-700 hover:bg-blue-800"
               onClick={() => {
                 setCallIdModalOpen(false);
-                handleVideoCallClick(modalCall.callId);
+                initiateVideoCall(modalCall);
               }}
             >
               <Video className="h-4 w-4 mr-2" />
@@ -249,9 +259,9 @@ export default function UpcomingTab({
                 <Button
                   variant="default"
                   className="flex items-center gap-1 bg-blue-700 hover:bg-blue-800"
-                  onClick={() => openCallIdModal(s)}
-                  aria-label="Show video call ID"
-                  title="Show video call ID"
+                  onClick={() => initiateVideoCall(s)}
+                  aria-label="Start video call"
+                  title="Start video call"
                 >
                   <Video className="h-4 w-4" />
                 </Button>
@@ -311,8 +321,8 @@ export default function UpcomingTab({
                     <label
                       key={slot._id}
                       className={`flex items-center p-2 border rounded-lg cursor-pointer ${selectedNewSlot?._id === slot._id
-                          ? "border-blue-500 bg-blue-50"
-                          : "hover:bg-gray-50"
+                        ? "border-blue-500 bg-blue-50"
+                        : "hover:bg-gray-50"
                         }`}
                     >
                       <input
