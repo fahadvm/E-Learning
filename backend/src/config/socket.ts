@@ -67,6 +67,7 @@ export function initSocket(server: HTTPServer) {
     socket.on("join", (userId: string) => {
       onlineUsers.set(userId, socket.id);
       broadcastOnlineUsers();
+      console.log(`User ${userId} joined with socket ${socket.id}`);
     });
 
     socket.on("join_chat", (chatId: string) => {
@@ -78,18 +79,34 @@ export function initSocket(server: HTTPServer) {
       // Save to DB
       const savedMessage = await chatService.sendMessage(data.senderId, data.message, data.chatId, data.senderType, data.receiverId, data.receiverType);
 
-      // Group Chat Broadcast (Room based)
+      // Group Chat Broadcast (Room based - for those inside the chat)
       io.to(data.chatId).emit("receive_message", savedMessage);
 
-      // Direct Message Fallback (for online users not in room - mostly for retro-compatibility or notifications)
+      // Notify Recipient for Chat List Update (move to top)
       if (data.receiverId) {
         const receiverSocketId = onlineUsers.get(data.receiverId);
         if (receiverSocketId) {
+          // Emit event to update chat list order
+          io.to(receiverSocketId).emit("chat-list-update", {
+            chatId: data.chatId,
+            lastMessage: savedMessage,
+          });
+
+          // Also check if we need to send a direct message fallback if they aren't in the room
           const receiverSocket = io.sockets.sockets.get(receiverSocketId);
           if (!receiverSocket?.rooms.has(data.chatId)) {
-            io.to(receiverSocketId).emit("receive_message", savedMessage);
+            // Optional: send notification if needed here
           }
         }
+      }
+
+      // Also update sender's chat list (if they have multiple tabs or just for consistency)
+      const senderSocketId = onlineUsers.get(data.senderId);
+      if (senderSocketId) {
+        io.to(senderSocketId).emit("chat-list-update", {
+          chatId: data.chatId,
+          lastMessage: savedMessage,
+        });
       }
     });
 
@@ -137,17 +154,55 @@ export function initSocket(server: HTTPServer) {
 
     socket.on("send_notification", async (data: { receiverId: string; title: string; message: string }) => {
       try {
-        console.log("here the notification event on in ", data)
+        // console.log("here the notification event on in ", data)
         await notificationService.createNotification(data.receiverId, data.title, data.message, "general");
         const receiverSocketId = onlineUsers.get(data.receiverId);
-        console.log("now onwanrd student will get the notification")
+        // console.log("now onwanrd student will get the notification")
         if (receiverSocketId) io.to(receiverSocketId).emit("receive_notification", data);
       } catch (err) {
         logger.error("Error sending notification:", err);
       }
     });
 
-    /** ------------------- VIDEO CALL ------------------- **/
+    /** ------------------- DIRECT CALLING (WhatsApp Style) ------------------- **/
+
+    // Caller initiates call
+    socket.on("call-user", (data: { userToCall: string; signalData: any; from: string; name: string }) => {
+      const receiverSocketId = onlineUsers.get(data.userToCall);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("incoming-call", {
+          signal: data.signalData,
+          from: data.from,
+          name: data.name
+        });
+      }
+    });
+
+    // Receiver answers call
+    socket.on("answer-call", (data: { signal: any; to: string }) => {
+      const callerSocketId = onlineUsers.get(data.to);
+      if (callerSocketId) {
+        io.to(callerSocketId).emit("call-accepted", data.signal);
+      }
+    });
+
+    // Receiver rejects call
+    socket.on("reject-call", (data: { to: string }) => {
+      const callerSocketId = onlineUsers.get(data.to);
+      if (callerSocketId) {
+        io.to(callerSocketId).emit("call-rejected");
+      }
+    });
+
+    // End call
+    socket.on("end-call", (data: { to: string }) => {
+      const otherSocketId = onlineUsers.get(data.to);
+      if (otherSocketId) {
+        io.to(otherSocketId).emit("call-ended");
+      }
+    });
+
+    /** ------------------- ROOM VIDEO CALL (Legacy/Backup) ------------------- **/
 
     socket.on("join-room", (roomId: string, userType: "teacher" | "student") => {
       const room = io.sockets.adapter.rooms.get(roomId);
@@ -170,15 +225,15 @@ export function initSocket(server: HTTPServer) {
 
       // WebRTC signaling
       socket.on("offer", (offer, targetId) => {
-        console.log(`Relaying offer from ${socket.id} to ${targetId}`);
+        // console.log(`Relaying offer from ${socket.id} to ${targetId}`);
         socket.to(targetId).emit("offer", offer, socket.id);
       });
       socket.on("answer", (answer, targetId) => {
-        console.log(`Relaying answer from ${socket.id} to ${targetId}`);
+        // console.log(`Relaying answer from ${socket.id} to ${targetId}`);
         socket.to(targetId).emit("answer", answer, socket.id);
       });
       socket.on("ice-candidate", (candidate, targetId) => {
-        console.log(`Relaying ICE candidate from ${socket.id} to ${targetId}`);
+        // console.log(`Relaying ICE candidate from ${socket.id} to ${targetId}`);
         socket.to(targetId).emit("ice-candidate", candidate, socket.id);
       });
     });
@@ -186,7 +241,7 @@ export function initSocket(server: HTTPServer) {
     /** ------------------- DISCONNECT ------------------- **/
 
     socket.on("disconnect", () => {
-      console.log(`Socket disconnected: ${socket.id}`);
+      // console.log(`Socket disconnected: ${socket.id}`);
       onlineUsers.forEach((value, key) => {
         if (value === socket.id) onlineUsers.delete(key);
       });
@@ -195,6 +250,7 @@ export function initSocket(server: HTTPServer) {
       // Notify rooms for video call
       socket.rooms.forEach((room) => {
         if (room !== socket.id) {
+          socket.to(room).emit("call-ended"); // Use unified event
           socket.to(room).emit("user-disconnected", { userId: socket.id });
         }
       });

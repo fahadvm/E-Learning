@@ -9,6 +9,8 @@ import { studentChatApi } from "@/services/APIservices/studentApiservice";
 import Link from "next/link";
 import { IConversation } from "@/types/student/chat";
 
+import { attachSocketListener } from "@/lib/socket";
+
 export default function MessagesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [conversations, setConversations] = useState<IConversation[]>([]);
@@ -30,6 +32,29 @@ export default function MessagesPage() {
     };
 
     fetchConversations();
+  }, []);
+
+  // Real-time Chat List Update (WhatsApp Style)
+  useEffect(() => {
+    const cleanup = attachSocketListener("chat-list-update", (data: { chatId: string, lastMessage: any }) => {
+      setConversations(prev => {
+        const index = prev.findIndex(c => c._id === data.chatId);
+        if (index !== -1) {
+          // Move to top and update last message (if needed, though API usually gives summary)
+          // Note: local conversation state might differ in structure from socket message
+          // Currently 'lastMessage' in state is string?
+          // Let's check IConversation interface.
+
+          const updatedChat = { ...prev[index], lastMessage: data.lastMessage.message || "New message" };
+          const newList = [...prev];
+          newList.splice(index, 1);
+          newList.unshift(updatedChat);
+          return newList;
+        }
+        return prev;
+      });
+    });
+    return cleanup;
   }, []);
 
   const filteredConversations = conversations.filter((c) =>

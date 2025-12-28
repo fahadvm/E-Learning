@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { ArrowLeft, Video, MoreVertical, Paperclip, Smile } from 'lucide-react'
 import Link from 'next/link'
 import { ChatMessage } from '@/types/student/chat'
+import { useCall } from '@/context/CallContext'
 
 interface User {
     _id: string
@@ -39,12 +40,19 @@ export default function ChatWindow({
     currentUserId,
     addMessage,
 }: ChatWindowProps) {
+    const { startCall } = useCall()
     const [newMessage, setNewMessage] = useState('')
     const messagesEndRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [messages])
+
+    const handleVideoCall = () => {
+        if (selectedChat?.teacherId) {
+            startCall(selectedChat.teacherId._id, selectedChat.teacherId.name)
+        }
+    }
 
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault()
@@ -118,9 +126,10 @@ export default function ChatWindow({
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm" className="p-2">
+                    <Button variant="ghost" size="sm" className="p-2" onClick={handleVideoCall}>
                         <Video className="w-4 h-4" />
                     </Button>
+                    helo
                     <Button variant="ghost" size="sm" className="p-2">
                         <MoreVertical className="w-4 h-4" />
                     </Button>

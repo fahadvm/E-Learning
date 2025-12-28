@@ -2,6 +2,47 @@ import { showSuccessToast } from "@/utils/Toast";
 import { io, Socket } from "socket.io-client";
 
 let socket: Socket | null = null;
+const eventListeners: Record<string, Function[]> = {};
+
+export const getSocket = () => socket;
+
+const notifyListeners = (event: string, data: any) => {
+  if (eventListeners[event]) {
+    eventListeners[event].forEach(cb => cb(data));
+  }
+};
+
+export const on = (event: string, callback: Function) => {
+  if (!eventListeners[event]) {
+    eventListeners[event] = [];
+  }
+  eventListeners[event].push(callback);
+
+  // If socket exists, attach immediately (for robustness)
+  if (socket && !socket.hasListeners(event)) {
+    // This is tricky because we might have multiple callbacks for one event.
+    // Better to let 'notifyListeners' handle it if we wrap the socket.on?
+    // For now, let's just rely on the existing pattern or direct socket access.
+    socket.on(event, (data) => notifyListeners(event, data));
+  }
+};
+
+export const off = (event: string, callback: Function) => {
+  if (eventListeners[event]) {
+    eventListeners[event] = eventListeners[event].filter(cb => cb !== callback);
+  }
+};
+
+// Helper for call context to attach internal listeners
+export const attachSocketListener = (event: string, callback: (data: any) => void) => {
+  if (socket) {
+    socket.on(event, callback);
+  }
+  return () => {
+    if (socket) socket.off(event, callback);
+  }
+};
+
 
 export const initSocket = (
   userId: string,
@@ -21,6 +62,8 @@ export const initSocket = (
       withCredentials: true,
       transports: ["websocket", "polling"],
     });
+
+    console.log("Global Socket Initialized");
   }
 
   // Join with userId
@@ -28,6 +71,11 @@ export const initSocket = (
 
   // Listen for incoming messages
   socket.on("receive_message", onMessageReceived);
+
+  // Listen for chat list updates (WhatsApp style)
+  socket.on("chat-list-update", (data) => {
+    notifyListeners("chat-list-update", data);
+  });
 
   // Listen for typing events
   socket.on("typing", onTypingReceived);
@@ -48,6 +96,30 @@ export const initSocket = (
     console.log("🔔 Notification received:", data);
     showSuccessToast(`🔔 ${data.title}: ${data.message}`);
   });
+
+  // ---------------- CALL EVENTS ----------------
+  socket.on("incoming-call", (data) => {
+    notifyListeners("incoming-call", data);
+  });
+
+  socket.on("call-accepted", (data) => {
+    notifyListeners("call-accepted", data);
+  });
+
+  socket.on("call-rejected", (data) => {
+    notifyListeners("call-rejected", data);
+  });
+
+  socket.on("call-ended", (data) => {
+    notifyListeners("call-ended", data);
+  });
+
+  socket.on("ice-candidate", (data: any) => {
+    // We might need to handle this globally or pass to specific handler
+    // Usually PeerConnection handles this.
+    notifyListeners("ice-candidate", data);
+  });
+
 
   socket.on("accountBlocked", (data) => {
     console.log("🚫 Account blocked event received:", data);
@@ -144,6 +216,22 @@ export const sendNotification = (data: { receiverId: string; title: string; mess
   }
 };
 
+// -------- CALL FUNCTIONS --------
+export const initiateCall = (data: { userToCall: string; signalData: any; from: string; name: string }) => {
+  if (socket) socket.emit("call-user", data);
+};
+
+export const answerCall = (data: { signal: any; to: string }) => {
+  if (socket) socket.emit("answer-call", data);
+};
+
+export const rejectCall = (data: { to: string }) => {
+  if (socket) socket.emit("reject-call", data);
+};
+
+export const endCall = (data: { to: string }) => {
+  if (socket) socket.emit("end-call", data);
+};
 
 
 export const disconnectSocket = () => {
