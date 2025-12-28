@@ -9,11 +9,12 @@ export enum MESSAGES {
   AVAILABILITY_SAVED = "Availability saved successfully",
   EARNINGS_HISTORY_FETCHED = "Earnings history fetched successfully",
   EARNINGS_STATS_FETCHED = "Earnings stats fetched successfully",
-    COURSE_NOT_PURCHASED= "You have not purchased this course.",
+  COURSE_NOT_PURCHASED = "You have not purchased this course.",
 
 
   COURSE_CERTIFICATE_FETCHED = "Course certificate fetched successfully",
   RATING_COURSE_REQUIRED = "Rating and course ID are required",
+  ICE_CONFIG_FETCHED = 'Ice config fetched successfully',
   COURSE_REVIEW_SAVED = "Course review saved successfully",
   COURSE_REVIEWS_FETCHED = "Course reviews fetched successfully",
   COURSE_REVIEW_DELETED = "Course review deleted successfully",

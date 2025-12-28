@@ -32,6 +32,7 @@ export class StudentBookingController implements IStudentBookingController {
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
     const canAccess = await this._subscriptionService.hasFeature(studentId, "Video Call");
+    console.log("can access:",canAccess)
     if (!canAccess) throwError(MESSAGES.FEATURE_NOT_ALLOWED, STATUS_CODES.FORBIDDEN);
 
     const { teacherId, courseId, date, day, startTime, endTime, note } = req.body;

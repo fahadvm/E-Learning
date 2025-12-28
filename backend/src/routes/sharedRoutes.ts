@@ -7,6 +7,7 @@ import aiTutorRoutes from './sharedRoute/shared.ai.route';
 // import compilerRoutes from './sharedRoute/shared.compiler.route';
 
 import uploadRoutes from './sharedRoute/shared.upload.route';
+import webrtcRoutes from './sharedRoute/shared.webrtc.route';
 
 const sharedRoutes = Router();
 
@@ -17,6 +18,7 @@ sharedRoutes.use('/notification', notificationRoutes);
 sharedRoutes.use('/ai', aiTutorRoutes);
 sharedRoutes.use('/compiler', aiTutorRoutes);
 sharedRoutes.use('/', uploadRoutes);
+sharedRoutes.use('/webrtc', webrtcRoutes);
 
 
 

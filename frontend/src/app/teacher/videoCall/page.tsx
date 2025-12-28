@@ -6,6 +6,8 @@ import { Video, Mic, MicOff, PhoneOff, VideoOff } from "lucide-react";
 import Header from "@/components/teacher/header";
 
 
+import { sharedWebRTCApi } from "@/services/APIservices/sharedApiService";
+
 
 const url = (process.env.NEXT_PUBLIC_API_URL || "https://api.devnext.online").replace(/\/api\/?$/, "");
 const socket: Socket = io(url, { withCredentials: true, transports: ["websocket", "polling"] });
@@ -28,8 +30,18 @@ export default function TeacherPage() {
   ------------------------------------------------------------- */
   useEffect(() => {
     const initWebRTC = async () => {
+      let iceServers = [{ urls: "stun:stun.l.google.com:19302" }];
+      try {
+        const res: any = await sharedWebRTCApi.getIceConfig();
+        if (res?.data) {
+          iceServers = res.data;
+        }
+      } catch (error) {
+        console.error("Error fetching ice servers", error);
+      }
+
       peerConnectionRef.current = new RTCPeerConnection({
-        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+        iceServers,
       });
 
       try {

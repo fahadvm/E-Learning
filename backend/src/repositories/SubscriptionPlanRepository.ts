@@ -34,7 +34,10 @@ export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
   }
 
   async getById(id: string): Promise<ISubscriptionPlan | null> {
-    return await SubscriptionPlan.findById(id);
+    console.log("fetching success start",id)
+    const plans = await SubscriptionPlan.findById(id);
+    console.log("fetching success full",plans)
+    return  plans
   }
 
   async update(id: string, plan: Partial<ISubscriptionPlan>): Promise<ISubscriptionPlan | null> {
