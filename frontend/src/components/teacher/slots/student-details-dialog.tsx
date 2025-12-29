@@ -52,59 +52,52 @@ export default function StudentDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Student Details</DialogTitle>
-          <DialogDescription>View information and manage booking for this slot.</DialogDescription>
+      <DialogContent className="sm:max-w-md border-0 shadow-2xl rounded-[2.5rem] p-8 overflow-hidden bg-white">
+        <DialogHeader className="mb-6">
+          <div className="w-16 h-16 bg-zinc-50 rounded-2xl flex items-center justify-center mb-4">
+            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+              <span className="text-white font-black text-xs">S</span>
+            </div>
+          </div>
+          <DialogTitle className="text-2xl font-black text-black">Student Details</DialogTitle>
+          <DialogDescription className="font-medium text-zinc-400">View performance and booking information for this session.</DialogDescription>
         </DialogHeader>
 
         {slot && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-muted-foreground">Status</div>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between p-4 bg-zinc-50 rounded-2xl border border-zinc-100">
+              <span className="text-xs font-black uppercase text-zinc-400 tracking-widest">Status</span>
               {statusBadge(slot.status)}
             </div>
 
-            <Separator />
-
-            <div className="grid grid-cols-1 gap-3 text-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Date</span>
-                <span className="font-medium text-foreground"> {slot.dateKey.split("-").reverse().join("-")}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Time</span>
-                <span className="font-medium text-foreground">{slot.startISO} - {slot.endISO}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Student</span>
-                <span className="font-medium text-foreground">{slot.student?.name ?? "-"}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Email</span>
-                <span className="font-medium text-foreground">{slot.student?.email?? "-"}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Course</span>
-                <span className="font-medium text-foreground">{slot.course?.title?? "-"}</span>
-              </div>
+            <div className="grid grid-cols-1 gap-4 text-sm">
+              <DetailRow label="Meeting Date" value={slot.dateKey.split("-").reverse().join("-")} />
+              <DetailRow label="Schedule" value={`${slot.startISO} - ${slot.endISO}`} />
+              <DetailRow label="Student Name" value={slot.student?.name ?? "-"} />
+              <DetailRow label="Contact Email" value={slot.student?.email ?? "-"} />
+              <DetailRow label="Enrolled Course" value={slot.course?.title ?? "-"} isLast />
             </div>
           </div>
         )}
 
-        <DialogFooter className="gap-5 sm:gap-2">
-          {/* {slot?.status === "booked" ? (
-            // <Button variant="destructive" onClick={() => alert("Cancel booking (wire to API)")}>
-            //   Reschedule Booking
-            // </Button>
-          ) : (
-            <div className="text-xs text-muted-foreground">No actions available for this status.</div>
-          )} */}
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Close
+        <DialogFooter className="mt-8">
+          <Button
+            onClick={() => onOpenChange(false)}
+            className="w-full bg-black text-white hover:bg-zinc-800 font-bold h-12 rounded-xl shadow-lg"
+          >
+            Close Details
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   )
+}
+
+function DetailRow({ label, value, isLast = false }: { label: string; value: string; isLast?: boolean }) {
+  return (
+    <div className={`flex items-center justify-between py-1 ${!isLast ? 'border-b border-zinc-50 pb-3' : ''}`}>
+      <span className="text-[10px] font-black uppercase text-zinc-400 tracking-tight">{label}</span>
+      <span className="text-sm font-bold text-black">{value}</span>
+    </div>
+  );
 }

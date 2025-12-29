@@ -5,10 +5,11 @@ import { ICourseResource } from '../../../../models/CourseResource';
 import { CreateCourseRequest } from '../../../../types/filter/fiterTypes';
 export interface ITeacherCourseService {
   createCourse(req: CreateCourseRequest): Promise<CourseCreateDTO>;
-  getCoursesByTeacherId(teacherId: string): Promise<ICourse[]>;
+  getCoursesByTeacherId(teacherId: string): Promise<any[]>;
   getCourseByIdWithTeacherId(courseId: string, teacherId: string): Promise<ICourse | null>;
   uploadResource(courseId: string, title: string, file: Express.Multer.File): Promise<ICourseResource>;
   deleteResource(resourceId: string): Promise<void>;
   getResources(courseId: string): Promise<ICourseResource[]>;
   editCourse(courseId: string, teacherId: string, updates: CreateCourseRequest): Promise<ICourse | null>;
+  getCourseAnalytics(courseId: string, teacherId: string): Promise<any>;
 }

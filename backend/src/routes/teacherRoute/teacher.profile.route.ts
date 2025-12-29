@@ -17,6 +17,9 @@ router
   .post(authMiddleware('teacher'), asyncHandler(teacherProfileController.createProfile.bind(teacherProfileController)))
   .patch(authMiddleware('teacher'), asyncHandler(teacherProfileController.updateProfile.bind(teacherProfileController)));
 
-router.post('/verify',upload.single('resume'),authMiddleware('teacher'), asyncHandler(teacherProfileController.sendVerificationRequest.bind(teacherProfileController)));
+router.post('/verify', upload.single('resume'), authMiddleware('teacher'), asyncHandler(teacherProfileController.sendVerificationRequest.bind(teacherProfileController)));
+router.patch('/change-password', authMiddleware('teacher'), asyncHandler(teacherProfileController.changePassword.bind(teacherProfileController)));
+router.post('/change-email-otp', authMiddleware('teacher'), asyncHandler(teacherProfileController.requestEmailChange.bind(teacherProfileController)));
+router.post('/verify-change-email', authMiddleware('teacher'), asyncHandler(teacherProfileController.verifyEmailChangeOtp.bind(teacherProfileController)));
 
 export default router;

@@ -13,7 +13,7 @@ export default function Page() {
         <div className="mx-auto max-w-6xl px-4 py-6">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-black text-primary-foreground">
                 <PhoneCall className="h-5 w-5" aria-hidden="true" />
               </span>
               <div>

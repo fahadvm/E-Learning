@@ -216,40 +216,53 @@ export default function UpcomingTab({
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {updatedSlots.map((s) => (
-          <Card key={s._id} className="hover:shadow-md transition-shadow duration-200">
-            <CardHeader className="pb-2 flex flex-row justify-between items-center">
-              <div>
-                <CardTitle className="text-xl font-bold text-gray-900">
+          <Card key={s._id} className="group border-0 shadow-sm ring-1 ring-zinc-200 hover:ring-black transition-all duration-300 rounded-[2rem] overflow-hidden bg-white">
+            <CardHeader className="p-6 border-b border-zinc-100 flex flex-col gap-2">
+              <div className="flex justify-between items-start">
+                <div className="p-2 bg-zinc-50 rounded-xl">
+                  <CalendarClock className="w-5 h-5 text-black" />
+                </div>
+                {s.status === "booked" && (
+                  <Badge className="bg-black text-white text-[10px] font-black uppercase tracking-widest px-3 py-1">
+                    Booked
+                  </Badge>
+                )}
+              </div>
+              <div className="mt-2">
+                <CardTitle className="text-xl font-black text-black tracking-tight">
                   {new Date(s.dateKey).toLocaleDateString("en-US", {
                     weekday: "long",
                     month: "short",
                     day: "numeric",
                   })}
                 </CardTitle>
-                <CardTitle className="text-md font-medium text-gray-700">
+                <p className="text-sm font-bold text-zinc-500">
                   {convertTo12Hour(s.startISO)} - {convertTo12Hour(s.endISO)}
-                </CardTitle>
+                </p>
               </div>
-              {s.status === "booked" && (
-                <Badge className="bg-green-500 text-white text-xs font-semibold">
-                  Booked
-                </Badge>
-              )}
             </CardHeader>
-            <CardContent className="flex items-center justify-between gap-4 pt-4 border-t">
-              <div className="min-w-0">
-                <div className="text-sm font-semibold text-gray-800">
-                  {s.student?.name}
-                  <span className="text-gray-500 text-xs"> • {s.course?.title}</span>
+            <CardContent className="p-6 space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-zinc-50 rounded-full flex items-center justify-center font-black text-zinc-400">
+                  {s.student?.name?.charAt(0) || 'S'}
                 </div>
-                <div className="mt-1 text-xs text-gray-500">{s.student?.email}</div>
+                <div className="min-w-0">
+                  <div className="text-sm font-black text-black line-clamp-1">
+                    {s.student?.name}
+                  </div>
+                  <div className="text-xs font-bold text-zinc-400 truncate">{s.student?.email}</div>
+                  <Badge variant="outline" className="mt-2 text-[10px] font-bold border-zinc-200 text-zinc-500 uppercase">
+                    {s.course?.title || 'No Course Selection'}
+                  </Badge>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
+
+              <div className="grid grid-cols-3 gap-2 pt-4 border-t border-zinc-100">
                 <Button
-                  variant="secondary"
-                  className="flex items-center gap-1"
+                  variant="outline"
+                  className="h-10 rounded-xl border-zinc-200 hover:bg-zinc-50 font-bold"
                   aria-label="Chat with student"
                   title="Chat with student"
                 >
@@ -257,8 +270,7 @@ export default function UpcomingTab({
                 </Button>
 
                 <Button
-                  variant="default"
-                  className="flex items-center gap-1 bg-blue-700 hover:bg-blue-800"
+                  className="h-10 rounded-xl bg-black text-white hover:bg-zinc-800 font-bold shadow-lg"
                   onClick={() => initiateVideoCall(s)}
                   aria-label="Start video call"
                   title="Start video call"
@@ -268,8 +280,8 @@ export default function UpcomingTab({
 
                 {s.status === "booked" && (
                   <Button
-                    variant="destructive"
-                    className="flex items-center gap-1"
+                    variant="outline"
+                    className="h-10 rounded-xl border-zinc-200 text-zinc-400 hover:text-black hover:border-black font-bold"
                     onClick={() => handleRescheduleClick(s._id)}
                     aria-label="Reschedule meeting"
                     title="Reschedule meeting"
@@ -286,75 +298,91 @@ export default function UpcomingTab({
       {/* Reschedule Modal */}
       {isModalOpen && (
         <motion.div
-          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[200] p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="bg-white rounded-xl p-6 w-full max-w-lg shadow-xl"
+            className="bg-white rounded-[2.5rem] p-8 w-full max-w-lg shadow-2xl border border-zinc-100 overflow-hidden"
             initial={{ scale: 0.9, y: 20 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.9, y: 20 }}
           >
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Reschedule Meeting</h2>
-            <p className="text-sm text-gray-600 mb-4">
-              Select a new time slot and provide a reason for rescheduling.
-            </p>
-            {isLoading && <p className="text-sm text-gray-500">Loading available slots...</p>}
-            {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
-
-            <textarea
-              className="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
-              rows={4}
-              value={rescheduleReason}
-              onChange={(e) => setRescheduleReason(e.target.value)}
-              placeholder="Enter reason for rescheduling"
-              aria-label="Reason for rescheduling"
-            />
-
-            <div className="mb-4">
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">Available Slots</h3>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {availableSlots.length ? (
-                  availableSlots.map((slot) => (
-                    <label
-                      key={slot._id}
-                      className={`flex items-center p-2 border rounded-lg cursor-pointer ${selectedNewSlot?._id === slot._id
-                        ? "border-blue-500 bg-blue-50"
-                        : "hover:bg-gray-50"
-                        }`}
-                    >
-                      <input
-                        type="radio"
-                        name="slot"
-                        checked={selectedNewSlot?._id === slot._id}
-                        onChange={() => setSelectedNewSlot(slot)}
-                        className="mr-2"
-                      />
-                      <div>
-                        <div className="text-sm font-medium">
-                          {new Date(slot.dateKey).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                          })}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {convertTo12Hour(slot.startISO)} - {convertTo12Hour(slot.endISO)}
-                        </div>
-                      </div>
-                    </label>
-                  ))
-                ) : (
-                  <p className="text-sm text-gray-500">No available slots found.</p>
-                )}
+            <div className="flex items-center gap-4 mb-6">
+              <div className="p-3 bg-zinc-50 rounded-2xl">
+                <CalendarClock className="w-6 h-6 text-black" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-black text-black tracking-tight">Reschedule</h2>
+                <p className="text-zinc-400 font-medium text-xs">Select a new slot and provide a reason.</p>
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 mt-4">
+            {error && <p className="text-xs font-bold text-red-500 mb-4 bg-red-50 p-3 rounded-xl border border-red-100">{error}</p>}
+
+            <div className="space-y-6">
+              <div>
+                <label className="text-[10px] font-black uppercase text-zinc-400 tracking-widest mb-2 block">Reschedule Reason</label>
+                <textarea
+                  className="w-full p-4 bg-zinc-50 border border-zinc-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black/5 transition-all"
+                  rows={3}
+                  value={rescheduleReason}
+                  onChange={(e) => setRescheduleReason(e.target.value)}
+                  placeholder="Why are we rescheduling this session?"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-black uppercase text-zinc-400 tracking-widest mb-2 block">Available Slots</label>
+                <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                  {availableSlots.length ? (
+                    availableSlots.map((slot) => (
+                      <label
+                        key={slot._id}
+                        className={`flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer ${selectedNewSlot?._id === slot._id
+                          ? "border-black bg-black text-white shadow-lg"
+                          : "border-zinc-100 bg-zinc-50 hover:bg-zinc-100 text-zinc-600"
+                          }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="radio"
+                            name="slot"
+                            checked={selectedNewSlot?._id === slot._id}
+                            onChange={() => setSelectedNewSlot(slot)}
+                            className="hidden"
+                          />
+                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${selectedNewSlot?._id === slot._id ? 'border-white' : 'border-zinc-300'}`}>
+                            {selectedNewSlot?._id === slot._id && <div className="w-2 h-2 bg-white rounded-full" />}
+                          </div>
+                          <div>
+                            <p className="text-xs font-black">
+                              {new Date(slot.dateKey).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </p>
+                            <p className={`text-[10px] font-bold ${selectedNewSlot?._id === slot._id ? 'text-zinc-400' : 'text-zinc-400'}`}>
+                              {convertTo12Hour(slot.startISO)} - {convertTo12Hour(slot.endISO)}
+                            </p>
+                          </div>
+                        </div>
+                      </label>
+                    ))
+                  ) : (
+                    <div className="py-8 text-center bg-zinc-50 rounded-2xl border border-dashed border-zinc-200">
+                      <p className="text-xs font-bold text-zinc-400 italic">No available slots found.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-8">
               <Button
-                variant="outline"
-                className="border-gray-300 text-gray-700"
+                variant="ghost"
+                className="flex-1 h-12 rounded-xl text-zinc-500 font-bold hover:text-black"
                 onClick={() => {
                   setIsModalOpen(false);
                   setRescheduleReason("");
@@ -365,12 +393,11 @@ export default function UpcomingTab({
                 Cancel
               </Button>
               <Button
-                variant="default"
                 onClick={handleRescheduleConfirm}
                 disabled={!rescheduleReason.trim() || !selectedNewSlot || isLoading}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="flex-1 h-12 bg-black text-white hover:bg-zinc-800 rounded-xl font-bold shadow-xl"
               >
-                {isLoading ? "Rescheduling..." : "Confirm"}
+                {isLoading ? "Wait..." : "Confirm"}
               </Button>
             </div>
           </motion.div>
@@ -382,23 +409,25 @@ export default function UpcomingTab({
 
       {/* Pagination */}
       {totalPages && totalPages > 1 && onPageChange && (
-        <div className="flex justify-center items-center gap-4 mt-6">
+        <div className="flex justify-center items-center gap-2 mt-10">
           <Button
             variant="outline"
-            size="sm"
             onClick={() => onPageChange(currentPage! - 1)}
             disabled={currentPage === 1}
+            className="rounded-xl border-zinc-200 font-bold h-10"
           >
             Previous
           </Button>
-          <span className="text-sm text-gray-500">
-            Page {currentPage} of {totalPages}
-          </span>
+          <div className="mx-4 flex items-center gap-1 font-black text-sm text-black">
+            <span>{currentPage}</span>
+            <span className="text-zinc-300">/</span>
+            <span className="text-zinc-400">{totalPages}</span>
+          </div>
           <Button
             variant="outline"
-            size="sm"
             onClick={() => onPageChange(currentPage! + 1)}
             disabled={currentPage === totalPages}
+            className="rounded-xl border-zinc-200 font-bold h-10"
           >
             Next
           </Button>

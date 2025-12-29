@@ -81,4 +81,13 @@ export class TeacherCourseController implements ITeacherCourseController {
     const updated = await this._courseService.editCourse(courseId, teacherId, req as any);
     sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_UPDATED, true, updated);
   }
+
+  async getCourseAnalytics(req: AuthRequest, res: Response): Promise<void> {
+    const { courseId } = req.params;
+    const teacherId = req.user?.id;
+    if (!teacherId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+
+    const analytics = await this._courseService.getCourseAnalytics(courseId, teacherId);
+    sendResponse(res, STATUS_CODES.OK, 'Course analytics fetched successfully', true, analytics);
+  }
 }

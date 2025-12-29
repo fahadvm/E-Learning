@@ -86,7 +86,7 @@ export default function TransactionTable({ transactions, loading }: TransactionT
                                 </div>
                             </TableCell>
                             <TableCell>
-                                <Badge variant={txn.type === 'TEACHER_EARNING' ? 'default' : 'secondary'}>
+                                <Badge variant={txn.type === 'TEACHER_EARNING' ? 'dark' : 'secondary'}>
                                     {txn.type.replace('_', ' ')}
                                 </Badge>
                             </TableCell>

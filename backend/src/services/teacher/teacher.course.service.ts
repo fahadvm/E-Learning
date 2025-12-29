@@ -17,6 +17,11 @@ import { ICompanyRepository } from '../../core/interfaces/repositories/ICompanyR
 import { ITeacherRepository } from '../../core/interfaces/repositories/ITeacherRepository';
 import { IEmployeeRepository } from '../../core/interfaces/repositories/IEmployeeRepository';
 import { CourseStatus } from '../../models/Course';
+import { OrderModel } from '../../models/Order';
+import { CompanyOrderModel } from '../../models/CompanyOrder';
+import { Transaction } from '../../models/Transaction';
+import { Student } from '../../models/Student';
+import { CourseReview } from '../../models/CourseReview';
 
 @injectable()
 export class TeacherCourseService implements ITeacherCourseService {
@@ -144,8 +149,56 @@ export class TeacherCourseService implements ITeacherCourseService {
     return newCourse;
   }
 
-  async getCoursesByTeacherId(teacherId: string): Promise<ICourse[]> {
-    return this._courseRepository.findByTeacherId(teacherId);
+  async getCoursesByTeacherId(teacherId: string): Promise<any[]> {
+    const courses = await this._courseRepository.findByTeacherId(teacherId);
+    if (!courses || courses.length === 0) return [];
+
+    const courseIds = courses.map(c => c._id);
+
+    // 1. Get completion rates for all these courses
+    const progressStats = await Student.aggregate([
+      { $unwind: "$coursesProgress" },
+      { $match: { "coursesProgress.courseId": { $in: courseIds } } },
+      {
+        $group: {
+          _id: "$coursesProgress.courseId",
+          avgCompletion: { $avg: "$coursesProgress.percentage" }
+        }
+      }
+    ]);
+
+    // 2. Get company enrollments for all these courses
+    const companyEnrollmentsData = await CompanyOrderModel.aggregate([
+      { $match: { status: 'paid', "purchasedCourses.courseId": { $in: courseIds } } },
+      { $unwind: "$purchasedCourses" },
+      { $match: { "purchasedCourses.courseId": { $in: courseIds } } },
+      {
+        $group: {
+          _id: "$purchasedCourses.courseId",
+          totalSeats: { $sum: "$purchasedCourses.seats" }
+        }
+      }
+    ]);
+
+    // Wait, let's check CompanyOrder schema to be sure about 'quantity' vs 'seats'
+    // I saw 'seats' in CompanyPurchaseService.ts Line 87.
+    // Let me check CompanyOrder model.
+
+    const statsMap = new Map(progressStats.map(s => [s._id.toString(), Math.round(s.avgCompletion || 0)]));
+    const companyStatsMap = new Map(companyEnrollmentsData.map(s => [s._id.toString(), s.totalSeats || 0]));
+
+    return courses.map(course => {
+      const c = course.toObject ? course.toObject() : course;
+      const cId = c._id.toString();
+
+      return {
+        ...c,
+        enrolledStudents: (c.totalStudents || 0) + (companyStatsMap.get(cId) || 0),
+        rating: c.averageRating || 0,
+        reviewCount: c.reviewCount || 0,
+        completionRate: statsMap.get(cId) || 0
+      };
+    });
   }
 
   async getCourseByIdWithTeacherId(courseId: string, teacherId: string): Promise<ICourse> {
@@ -310,5 +363,111 @@ export class TeacherCourseService implements ITeacherCourseService {
     }
 
     return updatedCourse;
+  }
+
+  async getCourseAnalytics(courseId: string, teacherId: string): Promise<any> {
+    const tId = new Types.ObjectId(teacherId);
+    const cId = new Types.ObjectId(courseId);
+
+    const course = await this._courseRepository.findByIdAndTeacherId(courseId, teacherId);
+    if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
+    // 1. Enrollment Overview
+    const individualEnrollments = await OrderModel.countDocuments({
+      courses: cId,
+      status: 'paid'
+    });
+
+    // Company enrollments (sum of seats bought)
+    const companyEnrollmentsData = await CompanyOrderModel.aggregate([
+      { $match: { status: 'paid', "purchasedCourses.courseId": cId } },
+      { $unwind: "$purchasedCourses" },
+      { $match: { "purchasedCourses.courseId": cId } },
+      { $group: { _id: null, totalSeats: { $sum: "$purchasedCourses.seats" } } }
+    ]);
+    const companyEnrollments = companyEnrollmentsData.length > 0 ? companyEnrollmentsData[0].totalSeats : 0;
+
+    // 2. Revenue Over Time (Last 12 Months)
+    const twelveMonthsAgo = new Date();
+    twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 11);
+    twelveMonthsAgo.setDate(1);
+
+    const revenueData = await Transaction.aggregate([
+      {
+        $match: {
+          courseId: cId,
+          teacherId: tId,
+          type: { $in: ['TEACHER_EARNING', 'COURSE_PURCHASE'] },
+          createdAt: { $gte: twelveMonthsAgo }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" }
+          },
+          revenue: { $sum: "$amount" }
+        }
+      },
+      { $sort: { "_id.year": 1, "_id.month": 1 } }
+    ]);
+
+    // 3. Student Progress & Completion
+    const progressStats = await Student.aggregate([
+      { $unwind: "$coursesProgress" },
+      { $match: { "coursesProgress.courseId": cId } },
+      {
+        $group: {
+          _id: null,
+          avgCompletion: { $avg: "$coursesProgress.percentage" },
+          completedCount: { $sum: { $cond: [{ $gte: ["$coursesProgress.percentage", 100] }, 1, 0] } },
+          totalProgressRecords: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // 4. Lesson Completion Count
+    const lessonCompletion = await Student.aggregate([
+      { $unwind: "$coursesProgress" },
+      { $match: { "coursesProgress.courseId": cId } },
+      { $unwind: "$coursesProgress.completedLessons" },
+      {
+        $group: {
+          _id: "$coursesProgress.completedLessons",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // 5. Rating Distribution
+    const ratingDistribution = await CourseReview.aggregate([
+      { $match: { courseId: cId } },
+      {
+        $group: {
+          _id: "$rating",
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { "_id": -1 } }
+    ]);
+
+    return {
+      overview: {
+        title: course.title,
+        totalStudents: (course.totalStudents || 0) + companyEnrollments,
+        individualEnrollments,
+        companyEnrollments,
+        totalRevenue: revenueData.reduce((acc, curr) => acc + curr.revenue, 0),
+        averageRating: course.averageRating,
+        reviewCount: course.reviewCount,
+        completionRate: progressStats.length > 0 ? progressStats[0].avgCompletion : 0,
+        studentsCompleted: progressStats.length > 0 ? progressStats[0].completedCount : 0
+      },
+      revenueChart: revenueData,
+      lessonStats: lessonCompletion,
+      ratingStats: ratingDistribution,
+      courseStructure: course.modules // For matching lesson IDs with titles on frontend
+    };
   }
 }

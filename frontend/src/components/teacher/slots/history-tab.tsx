@@ -69,17 +69,19 @@ export default function HistoryTab({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       {/* Filter */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-gray-500" />
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-zinc-100 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-zinc-50 rounded-xl">
+            <Filter className="w-4 h-4 text-black" />
+          </div>
           <select
             value={selected}
             onChange={handleFilter}
-            className="border rounded-md px-3 py-2 text-sm"
+            className="bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-black/5"
           >
-            <option value="">All Status</option>
+            <option value="">All Statuses</option>
             <option value="paid">Paid</option>
             <option value="cancelled">Cancelled</option>
             <option value="booked">Booked</option>
@@ -87,99 +89,97 @@ export default function HistoryTab({
         </div>
 
         {slots.length > 0 && (
-          <p className="text-sm text-gray-500">
-            Showing <span className="font-semibold">{slots.length}</span> records
+          <p className="text-sm font-bold text-zinc-400">
+            Total Records: <span className="text-black">{slots.length}</span>
           </p>
         )}
       </div>
 
       {/* Empty State */}
       {!slots.length ? (
-        <Card>
-          <CardContent className="p-10 text-center text-gray-500">
-            <FileText className="mx-auto mb-3 h-10 w-10 opacity-50" />
-            No history found
-          </CardContent>
-        </Card>
+        <div className="py-20 text-center bg-white rounded-[2rem] border border-dashed border-zinc-200">
+          <FileText className="mx-auto mb-4 h-12 w-12 text-zinc-200" />
+          <p className="text-xl font-black text-black">No history found</p>
+          <p className="text-zinc-400 font-medium">Try changing your filters or check back later.</p>
+        </div>
       ) : (
         <>
           {/* Grid */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {slots.map((slot) => (
               <Card
                 key={slot._id}
-                className="hover:shadow-md transition-shadow"
+                className="group border-0 shadow-sm ring-1 ring-zinc-200 hover:ring-black transition-all duration-300 rounded-[2rem] overflow-hidden bg-white"
               >
-                <CardHeader className="pb-2 flex flex-row justify-between items-start">
-                  <div>
-                    <CardTitle className="text-base font-bold text-gray-900">
+                <CardHeader className="p-6 border-b border-zinc-50 space-y-4">
+                  <div className="flex justify-between items-start gap-4">
+                    <CardTitle className="text-lg font-black text-black leading-tight line-clamp-2">
                       {slot.courseId?.title || "Untitled Course"}
                     </CardTitle>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <Badge className={`${statusVariant(slot.status)} text-[10px] font-black uppercase tracking-widest px-3 py-1 shrink-0`}>
+                      {slot.status}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-2 text-zinc-400">
+                    <Calendar className="w-3.5 h-3.5" />
+                    <p className="text-xs font-bold uppercase tracking-tight">
                       {formatDateToDDMMYYYY(slot.date)} • {slot.day}
                     </p>
                   </div>
-
-                  <Badge className={`${statusVariant(slot.status)} text-xs`}>
-                    {slot.status.toUpperCase()}
-                  </Badge>
                 </CardHeader>
 
-                <CardContent className="space-y-3 border-t pt-4 text-sm">
-                  {/* Time */}
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Clock className="h-4 w-4" />
-                    {convertTo12Hour(slot.slot.start)} –{" "}
-                    {convertTo12Hour(slot.slot.end)}
+                <CardContent className="p-6 space-y-5">
+                  {/* Time Section */}
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-zinc-50 rounded-lg">
+                      <Clock className="h-3.5 w-3.5 text-black" />
+                    </div>
+                    <span className="text-sm font-bold text-black">
+                      {convertTo12Hour(slot.slot.start)} – {convertTo12Hour(slot.slot.end)}
+                    </span>
                   </div>
 
-                  {/* Student */}
+                  {/* Student Section */}
                   {slot.studentId && (
-                    <div className="flex items-start gap-2">
-                      <User className="h-4 w-4 text-gray-500 mt-0.5" />
-                      <div>
-                        <p className="font-medium text-gray-800">
+                    <div className="flex items-center gap-3 p-3 bg-zinc-50/50 rounded-2xl border border-zinc-50">
+                      <div className="w-8 h-8 bg-white border border-zinc-100 rounded-full flex items-center justify-center font-black text-[10px] text-zinc-400">
+                        {slot.studentId.name.charAt(0)}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-black text-black truncate">
                           {slot.studentId.name}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-[10px] font-bold text-zinc-400 truncate">
                           {slot.studentId.email}
                         </p>
                       </div>
                     </div>
                   )}
 
-                  {/* Payment */}
+                  {/* Payment Section */}
                   {slot.paymentOrderId && (
-                    <div className="flex items-start gap-2">
-                      <CreditCard className="h-4 w-4 text-gray-500 mt-0.5" />
-                      <p className="text-xs font-mono truncate">
-                        {slot.paymentOrderId}
+                    <div className="flex items-center gap-2 text-zinc-400 bg-zinc-50 p-2 rounded-lg">
+                      <CreditCard className="h-3 w-3" />
+                      <p className="text-[10px] font-mono font-bold truncate">
+                        ID: {slot.paymentOrderId}
                       </p>
-                    </div>
-                  )}
-
-                  {/* Note */}
-                  {slot.note && (
-                    <div className="border-t pt-2 text-xs text-gray-600 italic">
-                      {slot.note}
                     </div>
                   )}
 
                   {/* Cancel reason */}
                   {slot.status === "cancelled" &&
                     slot.cancellationReason && (
-                      <div className="flex items-start gap-2 p-2 rounded-md bg-red-50 border border-red-200">
-                        <XCircle className="h-4 w-4 text-red-500 mt-0.5" />
-                        <p className="text-xs text-red-600">
-                          {slot.cancellationReason}
+                      <div className="flex items-start gap-2 p-3 rounded-xl bg-red-50/50 border border-red-100">
+                        <XCircle className="h-3.5 h-3.5 text-red-500 mt-0.5 shrink-0" />
+                        <p className="text-[10px] text-red-600 font-medium leading-relaxed">
+                          Reason: {slot.cancellationReason}
                         </p>
                       </div>
                     )}
                 </CardContent>
 
-                <div className="px-4 py-2 text-xs text-gray-500 border-t">
-                  Created on{" "}
-                  {new Date(slot.createdAt).toLocaleString("en-US")}
+                <div className="px-6 py-4 bg-zinc-50/50 text-[10px] font-bold text-zinc-400 border-t border-zinc-50">
+                  Recorded on {new Date(slot.createdAt).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' })}
                 </div>
               </Card>
             ))}

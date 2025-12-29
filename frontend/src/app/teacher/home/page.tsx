@@ -1,15 +1,53 @@
 "use client";
-import React, { useState, useEffect } from "react";
+
+import { useEffect, useState, useMemo } from "react";
 import Header from "@/components/teacher/header";
-import { Search, Plus, Edit, Users, Bell, Calendar, TrendingUp, Star } from "lucide-react";
+import Link from "next/link";
+import {
+  Users,
+  Wallet,
+  Calendar,
+  Star,
+  BookOpen,
+  Clock,
+  BarChart3,
+  TrendingUp,
+  ArrowRight,
+  PlusCircle,
+  Briefcase
+} from "lucide-react";
+import { motion } from "framer-motion";
+
 import { teacherDashboardApi } from "@/services/APIservices/teacherApiService";
-import { IDashboardStats, ICoursePerformance, IEarningsData, IScheduleItem } from "@/types/teacher/dashboard";
+import {
+  IDashboardStats,
+  ICoursePerformance,
+  IEarningsData,
+  IScheduleItem
+} from "@/types/teacher/dashboard";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
+/* ================== HELPERS ================== */
+const getLast6Months = () => {
+  const now = new Date();
+  const months: IEarningsData[] = [];
 
-export default function HeroSection() {
-  const [searchQuery, setSearchQuery] = useState("");
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({
+      month: d.toLocaleString("default", { month: "short" }).toUpperCase(),
+      year: d.getFullYear(),
+      amount: 0
+    });
+  }
+  return months;
+};
+
+/* ================== PAGE ================== */
+export default function TeacherDashboard() {
   const [loading, setLoading] = useState(true);
-
   const [stats, setStats] = useState<IDashboardStats | null>(null);
   const [topCourses, setTopCourses] = useState<ICoursePerformance[]>([]);
   const [earningsGraph, setEarningsGraph] = useState<IEarningsData[]>([]);
@@ -21,406 +59,277 @@ export default function HeroSection() {
   }, []);
 
   const fetchDashboardData = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const [statsRes, topCoursesRes, earningsRes, scheduleRes] = await Promise.all([
-        teacherDashboardApi.getStats(),
-        teacherDashboardApi.getTopCourses(),
-        teacherDashboardApi.getEarningsGraph(earningsTimeframe),
-        teacherDashboardApi.getUpcomingSchedule()
-      ]);
+      const [statsRes, topCoursesRes, earningsRes, scheduleRes] =
+        await Promise.all([
+          teacherDashboardApi.getStats(),
+          teacherDashboardApi.getTopCourses(),
+          teacherDashboardApi.getEarningsGraph(earningsTimeframe),
+          teacherDashboardApi.getUpcomingSchedule()
+        ]);
 
-      console.log(statsRes, topCoursesRes, earningsRes, scheduleRes)
+      const baseMonths = getLast6Months();
+      const mergedMonths = baseMonths.map(m => {
+        const found = earningsRes.data.find(
+          (e: IEarningsData) =>
+            e.month.toUpperCase() === m.month
+        );
+        return found ? { ...m, amount: found.amount } : m;
+      });
 
       setStats(statsRes.data);
       setTopCourses(topCoursesRes.data);
-      setEarningsGraph(earningsRes.data);
+      setEarningsGraph(mergedMonths);
       setSchedule(scheduleRes.data);
-    } catch (error) {
-      console.error("Failed to fetch dashboard data", error);
-      // toast.error("Failed to load dashboard data");
+    } catch (err) {
+      console.error("Dashboard error:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleTimeframeChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const timeframe = e.target.value;
-    setEarningsTimeframe(timeframe);
-    // Fetch only earnings graph
-    try {
-      const res = await teacherDashboardApi.getEarningsGraph(timeframe);
-      setEarningsGraph(res.data.data);
-    } catch (error) {
-      console.error("Failed to update earnings graph", error);
-    }
-  };
-
   if (loading) {
     return (
-      <>
+      <div className="min-h-screen bg-[#fafafa] flex flex-col pt-32">
         <Header />
-        <div className="flex items-center justify-center min-h-screen bg-slate-900">
-          <div className="text-white text-xl">Loading Dashboard...</div>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
         </div>
-      </>
-    )
+      </div>
+    );
   }
 
+  const maxAmount = Math.max(...earningsGraph.map(e => e.amount), 1);
+
   return (
-    <>
+    <div className="min-h-screen bg-[#fafafa] pb-12">
       <Header />
 
-      {/* Animated Gradient Background */}
-      <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 opacity-40" />
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse animation-delay-2000" />
-      </div>
-
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
-          style={{ backgroundImage: "url('/black-banner.jpg')" }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-purple-900/40 to-black/70" />
-
-        <div className="relative z-10 container mx-auto px-6 py-24 max-w-7xl">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left Content */}
-            <div className="space-y-8 animate-fade-in">
-     
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight">
-                Advance Your <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Career</span>
-                <br />in a Digital World
-              </h1>
-
-              <p className="text-lg md:text-xl text-gray-200 max-w-2xl">
-                Unlock unlimited access to world-class courses from top experts. Master practical skills in UI/UX, programming, data science, and more.
-              </p>
-
-              {/* Search Bar */}
-              <div className="flex flex-col sm:flex-row gap-3 max-w-xl">
-                <div className="relative flex-1 group">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-400 transition-colors" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search courses, events, or authors..."
-                    className="w-full pl-12 pr-6 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
-                  />
-                </div>
-                <button className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-2xl hover:shadow-2xl hover:shadow-blue-500/25 transform hover:-translate-y-1 transition-all duration-300 flex items-center gap-2">
-                  <Search className="w-5 h-5" />
-                  Search
-                </button>
-              </div>
-
-              <div className="flex flex-wrap gap-3 text-sm">
-                <span className="text-gray-300">Popular:</span>
-                {["UI Design", "UX Research", "Android Dev", "C++ Mastery"].map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-white hover:bg-white/20 cursor-pointer transition-all"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Right Visual - Stats from API ?? or Keep static as "Platform Stats" */}
-            <div className="hidden lg:block">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-tr from-blue-400/20 to-purple-600/20 blur-3xl rounded-3xl" />
-                <div className="relative bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-8 shadow-2xl">
-                  <div className="grid grid-cols-2 gap-6">
-                    {[
-                      { icon: TrendingUp, label: "Active Students", value: stats?.activeStudents || 0 }, // Dynamic
-                      { icon: Calendar, label: "Total Courses", value: stats?.totalCourses || 0 },   // Dynamic
-                      { icon: Users, label: "Active Companies", value: stats?.activeCompanies || 0 }, // Dynamic
-                      { icon: Bell, label: "Daily Updates", value: "24/7" },
-                    ].map((stat, i) => (
-                      <div key={i} className="text-center space-y-2">
-                        <stat.icon className="w-8 h-8 mx-auto text-blue-400" />
-                        <p className="text-3xl font-bold text-white">{stat.value}</p>
-                        <p className="text-sm text-gray-300">{stat.label}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
+      <main className="max-w-7xl mx-auto px-6 pt-32">
+        {/* Welcome Section */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+          <div>
+            <h1 className="text-4xl font-black text-black tracking-tight mb-2">
+              Teacher Dashboard
+            </h1>
+            <p className="text-zinc-500 font-medium">Monitoring your academic growth and performance</p>
+          </div>
+          <div className="flex gap-3">
+            <Button asChild variant="outline" className="border-zinc-200 font-bold rounded-xl h-12 px-6">
+              <Link href="/teacher/earnings">
+                <Wallet className="w-4 h-4 mr-2" />
+                Earnings
+              </Link>
+            </Button>
+            <Button asChild className="bg-black text-white hover:bg-zinc-800 rounded-xl h-12 px-6 font-bold shadow-xl">
+              <Link href="/teacher/courses">
+                <PlusCircle className="w-4 h-4 mr-2" />
+                Manage Courses
+              </Link>
+            </Button>
           </div>
         </div>
-      </section>
 
-
-
-      {/* Premium Dashboard Cards */}
-      <section className="container mx-auto px-6 py-16 max-w-7xl">
-        <div className="grid lg:grid-cols-3 gap-8 mb-12">
-          {/* company progress - MOCKED / TODO: connect to real data if API supports it (currently API returns activeCompanies count only) */}
-          <div className="group relative bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 hover:-translate-y-2">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-600/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-white">Company Progress</h3>
-                <div className="p-3 bg-purple-500/20 rounded-2xl">
-                  <TrendingUp className="w-6 h-6 text-purple-400" />
-                </div>
-              </div>
-
-              <div className="space-y-6 mb-8">
-                {/* Placeholder for now as API doesn't return detailed company progress list yet */}
-                {[
-                  { name: "Tech Corp", progress: 75, color: "from-blue-400 to-blue-600" },
-                  { name: "Innovate Ltd", progress: 90, color: "from-purple-400 to-pink-600" },
-                ].map((company) => (
-                  <div key={company.name} className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="font-medium text-gray-200">{company.name}</span>
-                      <span className="text-gray-400">{company.progress}%</span>
-                    </div>
-                    <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden">
-                      <div
-                        className={`h-full bg-gradient-to-r ${company.color} rounded-full transition-all duration-1000 ease-out`}
-                        style={{ width: `${company.progress}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <button className="w-full py-4 bg-gradient-to-r from-purple-500 to-pink-600 text-white font-semibold rounded-2xl hover:shadow-xl hover:shadow-purple-500/30 transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
-                <Users className="w-5 h-5" />
-                View All Companies
-              </button>
-            </div>
-          </div>
-
-
-          {/* Course Management */}
-          <div className="group relative bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl hover:shadow-blue-500/20 transition-all duration-500 hover:-translate-y-2">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-600/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-white">Course Management</h3>
-                <div className="p-3 bg-blue-500/20 rounded-2xl">
-                  <Edit className="w-6 h-6 text-blue-400" />
-                </div>
-              </div>
-
-              <ul className="space-y-4 mb-8">
-                {/*  Show top 3 courses or just a generic list if we don't have recent courses list from API (using topCourses for now or placeholder) */}
-                {topCourses.length > 0 ? topCourses.slice(0, 3).map((course, i) => (
-                  <li key={course.courseId} className="flex items-center justify-between group/item">
-                    <span className="text-gray-200 group-hover/item:text-white transition-colors truncate max-w-[200px]">{course.title}</span>
-                  </li>
-                )) : (
-                  <li className="text-gray-400">No courses yet</li>
-                )}
-              </ul>
-
-              <button className="w-full py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-2xl hover:shadow-xl hover:shadow-blue-500/30 transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
-                <Plus className="w-5 h-5" />
-                View all Courses
-              </button>
-            </div>
-          </div>
-
-          {/* Student Progress */}
-          <div className="group relative bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 hover:-translate-y-2">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-600/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-white">Student Progress</h3>
-                <div className="p-3 bg-purple-500/20 rounded-2xl">
-                  <TrendingUp className="w-6 h-6 text-purple-400" />
-                </div>
-              </div>
-
-              <div className="space-y-6 mb-8">
-                {/* MOCKED - API doesn't return student progress list yet */}
-                {[
-                  { name: "John Doe", progress: 75, color: "from-blue-400 to-blue-600" },
-                  { name: "Jane Smith", progress: 90, color: "from-purple-400 to-pink-600" },
-                ].map((student) => (
-                  <div key={student.name} className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="font-medium text-gray-200">{student.name}</span>
-                      <span className="text-gray-400">{student.progress}%</span>
-                    </div>
-                    <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden">
-                      <div
-                        className={`h-full bg-gradient-to-r ${student.color} rounded-full transition-all duration-1000 ease-out`}
-                        style={{ width: `${student.progress}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <button className="w-full py-4 bg-gradient-to-r from-purple-500 to-pink-600 text-white font-semibold rounded-2xl hover:shadow-xl hover:shadow-purple-500/30 transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
-                <Users className="w-5 h-5" />
-                View All Students
-              </button>
-            </div>
-          </div>
-
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+          <StatCard
+            label="Active Students"
+            value={stats?.activeStudents ?? 0}
+            icon={<Users className="w-5 h-5" />}
+            isBlack
+          />
+          <StatCard
+            label="Total Revenue"
+            value={`₹${stats?.totalEarnings?.toLocaleString() ?? 0}`}
+            icon={<Wallet className="w-5 h-5 text-zinc-500" />}
+          />
+          <StatCard
+            label="Total Courses"
+            value={stats?.totalCourses ?? 0}
+            icon={<BookOpen className="w-5 h-5 text-zinc-500" />}
+          />
+          <StatCard
+            label="Monthly Payout"
+            value={`₹${stats?.monthlyEarnings?.toLocaleString() ?? 0}`}
+            icon={<TrendingUp className="w-5 h-5 text-zinc-500" />}
+          />
         </div>
 
-        {/* Weekly Schedule - Full Width */}
-        <div className="relative bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-600/5" />
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-2xl font-bold text-white">Weekly Schedule</h3>
-              <Calendar className="w-7 h-7 text-blue-400" />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {schedule.length > 0 ? schedule.map((item, i) => (
-                <div
-                  key={item.id}
-                  className="group relative p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl hover:border-white/30 transition-all duration-300 hover:scale-105"
-                >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${i % 2 === 0 ? "from-blue-500 to-blue-600" : "from-purple-500 to-purple-600"} opacity-0 group-hover:opacity-20 rounded-2xl transition-opacity`} />
-                  <div className="relative">
-                    <p className="text-lg font-bold text-white mb-1">{item.day}</p>
-                    <p className="text-sm text-gray-300">{item.timeRange}</p>
-                    <p className="text-xs text-blue-300 mt-2">{item.title}</p>
-                  </div>
-                </div>
-              )) : (
-                <div className="text-gray-400 col-span-4">No upcoming schedule found.</div>
-              )}
-            </div>
-          </div>
-        </div>
-        {/* === EARNINGS SECTION === */}
-        <section className="container mx-auto px-6 py-16 max-w-7xl">
-          <div className="mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Your Earnings</h2>
-            <p className="text-gray-400">Track revenue, payouts, and course performance</p>
-          </div>
-
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Earnings Overview Cards */}
-            <div className="lg:col-span-2 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[
-                { label: "Total Earnings", value: `$${stats?.totalEarnings.toLocaleString() || 0}`, change: "Lifetime", color: "from-emerald-500 to-teal-600" },
-                { label: "This Month", value: `$${stats?.monthlyEarnings.toLocaleString() || 0}`, change: "Current Month", color: "from-cyan-500 to-blue-600" },
-                { label: "Pending Payout", value: "$0", change: "Ready", color: "from-amber-500 to-orange-600" }, // Mocked for now
-              ].map((stat, i) => (
-                <div
-                  key={i}
-                  className="group relative bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 shadow-2xl hover:shadow-emerald-500/20 transition-all duration-500 hover:-translate-y-2"
-                >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-10 rounded-3xl transition-opacity`} />
-                  <div className="relative z-10">
-                    <p className="text-sm text-gray-400 font-medium">{stat.label}</p>
-                    <p className="text-3xl font-bold text-white mt-2">{stat.value}</p>
-                    <p className={`text-sm mt-2 flex items-center gap-1 text-emerald-400`}>
-                      <TrendingUp className="w-4 h-4" />
-                      {stat.change}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Request Payout Button - Static for now */}
-            <div className="flex items-center justify-center">
-              <button className="group relative w-full max-w-xs px-8 py-6 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-lg rounded-3xl shadow-2xl hover:shadow-emerald-500/40 transform hover:scale-105 transition-all duration-300 overflow-hidden">
-                <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity" />
-                <div className="flex items-center justify-center gap-3">
-                  <div className="p-2 bg-white/20 rounded-xl">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <span>Request Payout</span>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-12 grid lg:grid-cols-2 gap-8">
-            {/* Earnings Chart */}
-            <div className="relative bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-white">Revenue Trend</h3>
-                <select
-                  value={earningsTimeframe}
-                  onChange={handleTimeframeChange}
-                  className="px-4 py-2 bg-white/10 border border-white/20 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-cyan-400">
-                  <option value="6months">Last 6 Months</option>
-                  <option value="year">Last Year</option>
-                </select>
+        {/* Performance Grid */}
+        <div className="grid lg:grid-cols-3 gap-8 mb-10">
+          {/* Revenue Chart Card */}
+          <Card className="lg:col-span-2 border-0 shadow-sm ring-1 ring-zinc-200 rounded-3xl overflow-hidden bg-white">
+            <CardHeader className="flex flex-row items-center justify-between border-b border-zinc-50 pb-6">
+              <div>
+                <CardTitle className="text-xl font-black text-black">Revenue Growth</CardTitle>
+                <CardDescription className="font-medium">Earnings trend for the last 6 months</CardDescription>
               </div>
-
-              {/* Chart Bars */}
-              <div className="flex items-end justify-between h-64 gap-3">
-                {earningsGraph.length > 0 ? earningsGraph.map((data, i) => {
-                  const maxAmount = Math.max(...earningsGraph.map(e => e.amount), 100); // Avoid div by zero
-                  const heightPercent = (data.amount / maxAmount) * 100;
-
+              <Badge variant="outline" className="bg-zinc-50 text-black border-zinc-200 font-bold">
+                +12.5% vs Last Year
+              </Badge>
+            </CardHeader>
+            <CardContent className="pt-10">
+              <div className="h-72 flex items-end justify-between gap-2 sm:gap-4">
+                {earningsGraph.map((item, i) => {
+                  const height = item.amount === 0 ? 5 : (item.amount / maxAmount) * 100;
                   return (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                      <div className="relative w-full bg-white/10 rounded-t-full overflow-hidden h-full flex items-end">
-                        <div
-                          className={`w-full transition-all duration-1000 ease-out rounded-t-full bg-gradient-to-t from-cyan-500 to-cyan-400`}
-                          style={{ height: `${heightPercent}%` }}
-                        />
+                    <div key={i} className="flex-1 flex flex-col items-center gap-4 group h-full"> {/* Added h-full */}
+                      <div className="relative w-full flex-1 flex items-end justify-center h-full"> {/* Added h-full */}
+                        <motion.div
+                          initial={{ height: 0 }}
+                          animate={{ height: `${height}%` }}
+                          transition={{ duration: 1, delay: i * 0.1 }}
+                          className="w-full max-w-[40px] bg-black rounded-t-xl hover:bg-zinc-700 transition-colors relative"
+                        >
+                          <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-[10px] font-bold py-1 px-2 rounded-lg whitespace-nowrap shadow-xl">
+                            ₹{item.amount.toLocaleString()}
+                          </div>
+                        </motion.div>
                       </div>
-                      <p className="text-xs text-gray-400">{data.month}</p>
-                      <p className="text-xs font-medium text-gray-300">${data.amount.toLocaleString()}</p>
+                      <span className="text-[10px] font-black text-zinc-400 tracking-tighter shrink-0"> {/* Added shrink-0 */}
+                        {item.month}
+                      </span>
                     </div>
-                  );
-                }) : <div className="text-gray-400 w-full text-center">No earnings data</div>}
+                  )
+                })}
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            {/* Top Earning Courses */}
-            <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-white">Top Earning Courses</h3>
-                <div className="p-2 bg-emerald-500/20 rounded-xl">
-                  <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                  </svg>
-                </div>
-              </div>
-
-              <div className="space-y-5">
-                {topCourses.length > 0 ? topCourses.map((item, i) => (
-                  <div key={item.courseId} className="flex items-center justify-between group">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-sm">
-                        #{i + 1}
+          {/* Top Courses Card */}
+          <Card className="border-0 shadow-sm ring-1 ring-zinc-200 rounded-3xl overflow-hidden bg-white">
+            <CardHeader className="border-b border-zinc-50 pb-6">
+              <CardTitle className="text-xl font-black text-black">Top Courses</CardTitle>
+              <CardDescription className="font-medium">Based on student enrollment</CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="space-y-6">
+                {topCourses.length > 0 ? (
+                  topCourses.map((course, idx) => (
+                    <div key={course.courseId} className="flex items-center justify-between group cursor-pointer">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-zinc-50 rounded-xl flex items-center justify-center font-black text-zinc-400 group-hover:bg-black group-hover:text-white transition-all">
+                          {idx + 1}
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-black line-clamp-1">{course.title}</p>
+                          <p className="text-xs font-semibold text-zinc-400">{course.studentsCount} students</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-white group-hover:text-cyan-300 transition-colors">{item.title}</p>
-                        <p className="text-sm text-gray-400">{item.studentsCount} students</p>
-                      </div>
+                      <p className="text-xs font-black text-black">₹{course.earnings.toLocaleString()}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold text-white">${item.earnings.toLocaleString()}</p>
-                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-10">
+                    <BookOpen className="w-12 h-12 text-zinc-100 mx-auto mb-2" />
+                    <p className="text-zinc-400 text-sm font-bold">No data available</p>
                   </div>
-                )) : <div className="text-gray-400">No top courses data</div>}
+                )}
+
+                <Button asChild variant="ghost" className="w-full mt-4 font-bold text-zinc-500 hover:text-black hover:bg-zinc-50 rounded-xl">
+                  <Link href="/teacher/courses">
+                    View All Courses <ArrowRight className="w-4 h-4 ml-2" />
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Schedule & Recent Activity Grid */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Weekly Schedule */}
+          <Card className="lg:col-span-2 border-0 shadow-sm ring-1 ring-zinc-200 rounded-3xl overflow-hidden bg-white">
+            <CardHeader className="border-b border-zinc-50 pb-6 flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-xl font-black text-black">Weekly Schedule</CardTitle>
+                <CardDescription className="font-medium">Managing your live sessions and slots</CardDescription>
+              </div>
+              <Button asChild size="sm" variant="outline" className="border-zinc-200 hover:bg-zinc-50 font-bold rounded-xl text-[10px] h-8 shadow-sm">
+                <Link href="/teacher/slots">Manage Slots</Link>
+              </Button>
+            </CardHeader>
+            <CardContent className="pt-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {schedule.length > 0 ? (
+                  schedule.map((item) => (
+                    <div key={item.id} className="p-5 rounded-2xl border border-zinc-500 bg-zinc-50/50 hover:bg-zinc-50 transition-colors">
+                      <div className="flex items-center justify-between mb-3">
+                        <Badge className="bg-white text-black border-zinc-200 font-bold text-[10px] uppercase">{item.day}</Badge>
+                        <div className="flex items-center gap-1 text-[10px] font-bold text-zinc-400">
+                          <Clock className="w-3 h-3" />
+                          {item.timeRange}
+                        </div>
+                      </div>
+                      <h4 className="font-black text-black mb-1 line-clamp-1">{item.title}</h4>
+                      <p className="text-xs font-semibold text-zinc-500 flex items-center">
+                        <Briefcase className="w-3 h-3 mr-1.5" />
+                        Professional Session
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="col-span-full py-10 text-center">
+                    <p className="text-zinc-400 font-bold">No sessions scheduled for this period.</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Quick Actions / Tips Card */}
+          <Card className="border-0 shadow-sm ring-1 ring-zinc-200 rounded-3xl overflow-hidden bg-black text-white">
+            <CardHeader>
+              <CardTitle className="text-xl font-black">Performance Insights</CardTitle>
+              <CardDescription className="text-zinc-400 font-medium">Growth tips for educators</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6 pt-0">
+              <div className="p-4 bg-zinc-900 rounded-2xl border border-zinc-800">
+                <p className="text-xs font-bold mb-2 flex items-center">
+                  <TrendingUp className="w-3.5 h-3.5 mr-2 text-indigo-400" />
+                  Engagement Tip
+                </p>
+                <p className="text-xs text-zinc-400 font-medium leading-relaxed">
+                  Adding interactive resources to "Module 3" could increase completion rates by up to 15% based on student feedback.
+                </p>
               </div>
 
-              <button className="mt-8 w-full py-3 bg-white/10 border border-white/20 text-gray-300 rounded-2xl hover:bg-white/20 hover:border-cyan-400 hover:text-cyan-300 transition-all duration-300 text-sm font-medium">
-                View All Courses
-              </button>
-            </div>
+              <div className="p-4 bg-zinc-900 rounded-2xl border border-zinc-800">
+                <p className="text-xs font-bold mb-2 flex items-center">
+                  <Star className="w-3.5 h-3.5 mr-2 text-yellow-500" />
+                  Recent Feedback
+                </p>
+                <p className="text-xs text-zinc-400 font-medium leading-relaxed">
+                  "Best course on React patterns I've taken." - Student from Apple Inc.
+                </p>
+              </div>
+
+              <Button className="w-full bg-white text-black hover:bg-zinc-200 rounded-xl font-bold h-12 shadow-lg">
+                Check Analytics
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function StatCard({ label, value, icon, isBlack = false }: { label: string; value: string | number; icon: React.ReactNode; isBlack?: boolean }) {
+  return (
+    <Card className={`border-0 shadow-sm ring-1 ring-zinc-200 rounded-3xl overflow-hidden ${isBlack ? 'bg-black text-white' : 'bg-white text-black'}`}>
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <span className={`text-[10px] font-black uppercase tracking-widest ${isBlack ? 'text-zinc-500' : 'text-zinc-400'}`}>
+            {label}
+          </span>
+          <div className={`p-2 rounded-xl ${isBlack ? 'bg-zinc-900' : 'bg-zinc-50'}`}>
+            {icon}
           </div>
-        </section>
-      </section>
-    </>
+        </div>
+        <p className="text-3xl font-black tracking-tight">{value}</p>
+      </CardContent>
+    </Card>
   );
 }

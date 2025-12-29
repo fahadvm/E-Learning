@@ -325,7 +325,7 @@ export default function AvailabilityScheduler() {
               confirmText="Save"
               cancelText="Cancel"
               onConfirm={onSave}
-              triggerButton={<Button>Save Availability</Button>}
+              triggerButton={<Button variant='dark' >Save Availability</Button>}
             />
           </div>
         </CardContent>

@@ -37,4 +37,6 @@ router.put(
     asyncHandler(teacherCourseController.editCourse.bind(teacherCourseController))
 );
 
+router.get('/:courseId/analytics', authMiddleware('teacher'), asyncHandler(teacherCourseController.getCourseAnalytics.bind(teacherCourseController)));
+
 export default router;

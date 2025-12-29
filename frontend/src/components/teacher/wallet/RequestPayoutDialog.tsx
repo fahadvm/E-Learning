@@ -82,7 +82,7 @@ export default function RequestPayoutDialog({ balance, onSuccess }: RequestPayou
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button disabled={balance <= 0} className="bg-primary hover:bg-primary/90">
+                <Button disabled={balance <= 0} className="bg-black hover:bg-black/90">
                     Request Withdrawal
                 </Button>
             </DialogTrigger>
@@ -145,7 +145,7 @@ export default function RequestPayoutDialog({ balance, onSuccess }: RequestPayou
                         />
                     </div>
                     <DialogFooter>
-                        <Button type="submit" disabled={submitting}>
+                        <Button variant="dark" type="submit" disabled={submitting}>
                             {submitting ? 'Submitting...' : 'Submit Request'}
                         </Button>
                     </DialogFooter>

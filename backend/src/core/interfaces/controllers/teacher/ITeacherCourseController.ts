@@ -9,4 +9,5 @@ export interface ITeacherCourseController {
   deleteResource(req: AuthRequest, res: Response): Promise<void>;
   getResources(req: AuthRequest, res: Response): Promise<void>;
   editCourse(req: AuthRequest, res: Response): Promise<void>;
+  getCourseAnalytics(req: AuthRequest, res: Response): Promise<void>;
 }
