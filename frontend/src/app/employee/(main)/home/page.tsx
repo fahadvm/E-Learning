@@ -71,7 +71,6 @@ export default function EmployeeHome() {
                 Full Potential
               </span>
             </h1>
-cd 
             <p className="text-xl md:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed">
               Transform your career with personalized learning paths, expert courses, and a community that celebrates your growth
             </p>
