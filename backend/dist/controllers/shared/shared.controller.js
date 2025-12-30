@@ -78,6 +78,27 @@ let SharedController = class SharedController {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.FILE_UPLOAD_FAILED, HttpStatuscodes_1.STATUS_CODES.INTERNAL_SERVER_ERROR);
             }
         });
+        this.getIceConfig = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                // Default to public STUN server
+                const iceServers = [
+                    { urls: "stun:stun.l.google.com:19302" },
+                ];
+                // If TURN credentials are in environment variables, add them
+                // This allows the user to easily add a TURN server effectively fixing the issue
+                if (process.env.TURN_URL && process.env.TURN_USERNAME && process.env.TURN_CREDENTIAL) {
+                    iceServers.push({
+                        urls: process.env.TURN_URL,
+                        username: process.env.TURN_USERNAME,
+                        credential: process.env.TURN_CREDENTIAL
+                    });
+                }
+                (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.ICE_CONFIG_FETCHED, true, iceServers);
+            }
+            catch (error) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.FAILED, HttpStatuscodes_1.STATUS_CODES.INTERNAL_SERVER_ERROR);
+            }
+        });
     }
 };
 exports.SharedController = SharedController;

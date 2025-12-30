@@ -90,7 +90,7 @@ export default function CompanyLeaderboardPage() {
                   Rank: <span className="text-primary font-bold">#{searchResult.rank}</span>
                 </div>
                 <div className="mt-2 text-gray-400">
-                  Hours: {searchResult.hours}h | Courses: {searchResult.courses} | Streak: {searchResult.streak}
+                  Hours: {formatMinutesToHours(searchResult.hours)} | Courses: {searchResult.courses} | Streak: {searchResult.streak}
                 </div>
               </div>
             )}

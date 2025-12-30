@@ -49,7 +49,10 @@ let SubscriptionPlanRepository = class SubscriptionPlanRepository {
     }
     getById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield subscriptionPlan_1.SubscriptionPlan.findById(id);
+            console.log("fetching success start", id);
+            const plans = yield subscriptionPlan_1.SubscriptionPlan.findById(id);
+            console.log("fetching success full", plans);
+            return plans;
         });
     }
     update(id, plan) {

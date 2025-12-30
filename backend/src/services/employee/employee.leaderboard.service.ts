@@ -9,19 +9,19 @@ import mongoose from "mongoose";
 export class EmployeeLeaderboardService implements IEmployeeLeaderboardService {
 
   private format(data: any[], employeeId: string): ILeaderboardResponseDTO {
-    const leaderboard: ILeaderboardUserDTO[] = data.map((item) => ({
-      _id: item._id.toString(),
-      name: item.name,
-      hours: Math.round((item.totalMinutes || 0) ),
-      streak: item.streakCount || 0,
-      courses: item.completedCourses || 0,
-      isYou: item._id.toString() === employeeId,
-    }));
+    const leaderboard: ILeaderboardUserDTO[] = data
+      .map((item) => ({
+        _id: item._id.toString(),
+        name: item.name,
+        hours: Math.round((item.totalMinutes || 0)),
+        streak: item.streakCount || 0,
+        courses: item.completedCourses || 0,
+        isYou: item._id.toString() === employeeId,
+      }))
+      .sort((a, b) => b.hours - a.hours)
+      .map((item, index) => ({ ...item, rank: index + 1 }));
 
-    leaderboard.sort((a, b) => b.hours - a.hours);
-
-    const youIndex = leaderboard.findIndex((u) => u._id === employeeId);
-    const you = youIndex !== -1 ? { ...leaderboard[youIndex], rank: youIndex + 1 } : undefined;
+    const you = leaderboard.find((u) => u._id === employeeId);
 
     return { leaderboard, you };
   }
@@ -60,18 +60,32 @@ export class EmployeeLeaderboardService implements IEmployeeLeaderboardService {
     const startOfWeek = dayjs().startOf("week").toDate();
 
     const data = await EmployeeLearningRecord.aggregate([
-      { $match: { companyId: new mongoose.Types.ObjectId(companyId), date: { $gte: startOfWeek } } },
-      { $group: { _id: "$employeeId", totalMinutes: { $sum: "$totalMinutes" } } },
-      { $lookup: { from: "employees", localField: "_id", foreignField: "_id", as: "emp" } },
+      { $match: { date: { $gte: startOfWeek } } },
+      {
+        $lookup: {
+          from: "employees",
+          localField: "employeeId",
+          foreignField: "_id",
+          as: "emp"
+        }
+      },
       { $unwind: "$emp" },
+      { $match: { "emp.companyId": new mongoose.Types.ObjectId(companyId) } },
+      {
+        $group: {
+          _id: "$employeeId",
+          totalMinutes: { $sum: "$totalMinutes" },
+          name: { $first: "$emp.name" },
+          streakCount: { $first: "$emp.streakCount" },
+          coursesProgress: { $first: "$emp.coursesProgress" }
+        }
+      },
       {
         $addFields: {
-          name: "$emp.name",
-          streakCount: "$emp.streakCount",
           completedCourses: {
             $size: {
               $filter: {
-                input: "$emp.coursesProgress",
+                input: "$coursesProgress",
                 as: "c",
                 cond: { $eq: ["$$c.percentage", 100] }
               }
@@ -88,18 +102,32 @@ export class EmployeeLeaderboardService implements IEmployeeLeaderboardService {
     const startOfMonth = dayjs().startOf("month").toDate();
 
     const data = await EmployeeLearningRecord.aggregate([
-      { $match: { companyId: new mongoose.Types.ObjectId(companyId), date: { $gte: startOfMonth } } },
-      { $group: { _id: "$employeeId", totalMinutes: { $sum: "$totalMinutes" } } },
-      { $lookup: { from: "employees", localField: "_id", foreignField: "_id", as: "emp" } },
+      { $match: { date: { $gte: startOfMonth } } },
+      {
+        $lookup: {
+          from: "employees",
+          localField: "employeeId",
+          foreignField: "_id",
+          as: "emp"
+        }
+      },
       { $unwind: "$emp" },
+      { $match: { "emp.companyId": new mongoose.Types.ObjectId(companyId) } },
+      {
+        $group: {
+          _id: "$employeeId",
+          totalMinutes: { $sum: "$totalMinutes" },
+          name: { $first: "$emp.name" },
+          streakCount: { $first: "$emp.streakCount" },
+          coursesProgress: { $first: "$emp.coursesProgress" }
+        }
+      },
       {
         $addFields: {
-          name: "$emp.name",
-          streakCount: "$emp.streakCount",
           completedCourses: {
             $size: {
               $filter: {
-                input: "$emp.coursesProgress",
+                input: "$coursesProgress",
                 as: "c",
                 cond: { $eq: ["$$c.percentage", 100] }
               }

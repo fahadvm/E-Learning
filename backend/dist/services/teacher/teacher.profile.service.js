@@ -33,6 +33,8 @@ const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const types_1 = require("../../core/di/types");
 const cloudinary_1 = __importDefault(require("../../config/cloudinary"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const OtpServices_1 = require("../../utils/OtpServices");
 let TeacherProfileService = class TeacherProfileService {
     constructor(_teacherRepository) {
         this._teacherRepository = _teacherRepository;
@@ -99,8 +101,58 @@ let TeacherProfileService = class TeacherProfileService {
             return updated;
         });
     }
+    changePassword(teacherId, currentPassword, newPassword) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const teacher = yield this._teacherRepository.findById(teacherId);
+            if (!teacher)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.TEACHER_NOT_FOUND);
+            const isMatch = yield bcrypt_1.default.compare(currentPassword, teacher.password);
+            if (!isMatch)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.PASSWORD_INCORRECT, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            if (currentPassword === newPassword) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.NEW_PASSWORD_SAME_AS_OLD, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            }
+            const hashedPassword = yield bcrypt_1.default.hash(newPassword, 10);
+            yield this._teacherRepository.updateById(teacherId, { password: hashedPassword });
+        });
+    }
+    requestEmailChange(teacherId, newEmail) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const existing = yield this._teacherRepository.findByEmail(newEmail);
+            if (existing)
+                (0, ResANDError_1.throwError)('Email already in use', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            const otp = (0, OtpServices_1.generateOtp)(6);
+            const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+            yield this._otpRepo.deleteByEmail(newEmail, 'change-email');
+            yield this._otpRepo.create({
+                email: newEmail,
+                otp,
+                expiresAt,
+                purpose: 'change-email'
+            });
+            yield (0, OtpServices_1.sendOtpEmail)(newEmail, otp);
+        });
+    }
+    verifyEmailChangeOtp(teacherId, newEmail, otp) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const otpRecord = yield this._otpRepo.findByEmail(newEmail, 'change-email');
+            if (!otpRecord)
+                (0, ResANDError_1.throwError)('OTP not found or expired', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            if (otpRecord.otp !== otp)
+                (0, ResANDError_1.throwError)('Invalid OTP', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            const existing = yield this._teacherRepository.findByEmail(newEmail);
+            if (existing)
+                (0, ResANDError_1.throwError)('Email already in use', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            yield this._teacherRepository.updateById(teacherId, { email: newEmail });
+            yield this._otpRepo.deleteByEmail(newEmail, 'change-email');
+        });
+    }
 };
 exports.TeacherProfileService = TeacherProfileService;
+__decorate([
+    (0, inversify_1.inject)(types_1.TYPES.OtpRepository),
+    __metadata("design:type", Object)
+], TeacherProfileService.prototype, "_otpRepo", void 0);
 exports.TeacherProfileService = TeacherProfileService = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(types_1.TYPES.TeacherRepository)),

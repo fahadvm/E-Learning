@@ -22,35 +22,41 @@ export class CompanyLeaderboardService implements ICompanyLeaderboardService {
     const employeeIds = ranked.map((x) => new mongoose.Types.ObjectId(x.employeeId));
 
     const employees = await Employee.find({ _id: { $in: employeeIds } })
-      .select("_id name profilePicture coursesProgress streakCount")
+      .select("_id name profilePicture coursesProgress streakCount companyId")
       .lean();
 
-      console.log("employeeIds", employeeIds)
-      console.log("companyId", companyId)
     // Compute course count & total learning minutes
     const learningRecords = await EmployeeLearningRecord.aggregate([
-      { $match: { employeeId: { $in: employeeIds }} },
+      { $match: { employeeId: { $in: employeeIds } } },
       { $group: { _id: "$employeeId", totalMinutes: { $sum: "$totalMinutes" } } }
     ]);
 
-    console.log("learningRecords", learningRecords)
+    const result: ICompanyLeaderboardUserDTO[] = [];
+    let currentRank = 1;
 
-
-    return ranked.map((item, index) => {
+    for (const item of ranked) {
       const emp = employees.find(e => e._id.toString() === item.employeeId);
-      const learning = learningRecords.find(l => l._id.toString() === item.employeeId);
-      console.log("learning", learning)
 
-      return {
+      // Safety check: if employee no longer exists or belongs to another company, skip and clean Redis
+      if (!emp || emp.companyId?.toString() !== companyId) {
+        await redis.zrem(key, item.employeeId);
+        continue;
+      }
+
+      const learning = learningRecords.find(l => l._id.toString() === item.employeeId);
+
+      result.push({
         _id: item.employeeId,
-        name: emp?.name ?? "Unknown",
-        avatar: emp?.profilePicture ?? null,
+        name: emp.name,
+        avatar: emp.profilePicture ?? null,
         hours: Math.round(learning?.totalMinutes || 0),
-        courses: emp?.coursesProgress?.filter(c => c.percentage === 100).length || 0,
-        streak: emp?.streakCount || 0,
-        rank: index + 1
-      };
-    });
+        courses: emp.coursesProgress?.filter(c => c.percentage === 100).length || 0,
+        streak: emp.streakCount || 0,
+        rank: currentRank++
+      });
+    }
+
+    return result;
   }
 
   // Search ANY employee rank (even if not in Top 50)

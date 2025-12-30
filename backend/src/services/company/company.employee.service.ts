@@ -16,6 +16,7 @@ import { IEmployeeLearningPathRepository } from '../../core/interfaces/repositor
 import { IEmployeeLearningPathProgressRepository } from '../../core/interfaces/repositories/IEmployeeLearningPathProgressRepository';
 import { ICompanyChatService } from '../../core/interfaces/services/company/ICompanyChatService';
 import { INotificationService } from '../../core/interfaces/services/shared/INotificationService';
+import { removeFromCompanyLeaderboard } from '../../utils/redis/leaderboard';
 
 
 @injectable()
@@ -64,8 +65,9 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
         await this._employeeRepo.blockEmployee(id, status);
 
         const action = status ? 'blocked' : 'unblocked';
-        const companyId = employee.companyId?.toString();
+        const companyId = employee.companyId?._id.toString();
         const company = companyId ? await this._companyRepo.findById(companyId) : null;
+        console.log("blocking is working")
 
         // Notify Company
         if (companyId) {
@@ -206,8 +208,10 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
     async removeEmployee(companyId: string, employeeId: string): Promise<void> {
         const employee = await this._employeeRepo.findById(employeeId);
         if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+        console.log(employee)
+        console.log(companyId)
 
-        if (employee.companyId?.toString() !== companyId) {
+        if (employee.companyId?._id.toString() !== companyId) {
             throwError('Employee does not belong to this company', STATUS_CODES.FORBIDDEN);
         }
 
@@ -237,6 +241,9 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
         });
 
         await this._companyRepo.removeEmployee(companyId, employeeId);
+
+        // Remove from Leaderboard
+        await removeFromCompanyLeaderboard(companyId, employeeId);
 
         // Remove from Company Group Chat
         await this._companyChatService.removeEmployeeFromGroup(companyId, employeeId);

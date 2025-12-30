@@ -61,15 +61,28 @@ const refreshAccessToken = (refreshToken) => {
 exports.refreshAccessToken = refreshAccessToken;
 const setTokensInCookies = (res, accessToken, refreshToken) => {
     const isProduction = process.env.NODE_ENV === 'production';
+    console.log("setting into cookie", isProduction);
     // Cookie configuration based on environment
-    const cookieOptions = Object.assign({ httpOnly: true, secure: isProduction, sameSite: isProduction ? 'none' : 'lax', path: '/' }, (isProduction && { domain: '.devnext.online' }));
+    const cookieOptions = {
+        httpOnly: true,
+        secure: isProduction, // true in production, false in development
+        sameSite: isProduction ? 'none' : 'lax',
+        path: '/',
+        // ...(isProduction && { domain: '.devnext.online' }), // Set domain only in production
+    };
     res.cookie('token', accessToken, Object.assign(Object.assign({}, cookieOptions), { maxAge: 15 * 60 * 1000 }));
     res.cookie('refreshToken', refreshToken, Object.assign(Object.assign({}, cookieOptions), { maxAge: 7 * 24 * 60 * 60 * 1000 }));
 };
 exports.setTokensInCookies = setTokensInCookies;
 const clearTokens = (res) => {
     const isProduction = process.env.NODE_ENV === 'production';
-    const cookieOptions = Object.assign({ httpOnly: true, secure: isProduction, sameSite: isProduction ? 'none' : 'lax', path: '/' }, (isProduction && { domain: '.devnext.online' }));
+    const cookieOptions = {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        path: '/',
+        // ...(isProduction && { domain: '.devnext.online' }),
+    };
     res.clearCookie('token', cookieOptions);
     res.clearCookie('refreshToken', cookieOptions);
     return res.status(200).json({

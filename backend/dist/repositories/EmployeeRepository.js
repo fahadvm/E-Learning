@@ -305,8 +305,9 @@ let EmployeeRepository = class EmployeeRepository {
             return courseProgress;
         });
     }
-    updateLearningTime(employeeId, courseId, date, roundedHours) {
+    updateLearningTime(employeeId, courseId, date, roundedHours, companyId) {
         return __awaiter(this, void 0, void 0, function* () {
+            const companyObjectId = new mongoose_1.Types.ObjectId(companyId);
             let record = yield EmployeeLearningRecord_1.EmployeeLearningRecord.findOneAndUpdate({
                 employeeId,
                 date,
@@ -315,12 +316,13 @@ let EmployeeRepository = class EmployeeRepository {
                 $inc: {
                     "courses.$.minutes": roundedHours,
                     totalMinutes: roundedHours
-                }
+                },
+                $set: { companyId: companyObjectId }
             }, { new: true });
             if (!record) {
                 record = yield EmployeeLearningRecord_1.EmployeeLearningRecord.findOneAndUpdate({ employeeId, date }, {
                     $inc: { totalMinutes: roundedHours },
-                    $setOnInsert: { employeeId, date },
+                    $setOnInsert: { employeeId, date, companyId: companyObjectId },
                     $push: { courses: { courseId: new mongoose_1.Types.ObjectId(courseId), minutes: roundedHours } },
                 }, { new: true, upsert: true });
             }

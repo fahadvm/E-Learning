@@ -12,3 +12,10 @@ export const updateCompanyLeaderboard = async (
 
   await redis.zadd(`leaderboard:${companyId}`, score, employeeId);
 };
+
+export const removeFromCompanyLeaderboard = async (
+  companyId: string,
+  employeeId: string
+) => {
+  await redis.zrem(`leaderboard:${companyId}`, employeeId);
+};

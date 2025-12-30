@@ -265,8 +265,8 @@ export class EmployeeRepository implements IEmployeeRepository {
         return courseProgress;
     }
 
-    async updateLearningTime(employeeId: string, courseId: string, date: Date, roundedHours: number): Promise<IEmployeeLearningRecord> {
-
+    async updateLearningTime(employeeId: string, courseId: string, date: Date, roundedHours: number, companyId: string): Promise<IEmployeeLearningRecord> {
+        const companyObjectId = new Types.ObjectId(companyId);
         let record = await EmployeeLearningRecord.findOneAndUpdate(
             {
                 employeeId,
@@ -277,7 +277,8 @@ export class EmployeeRepository implements IEmployeeRepository {
                 $inc: {
                     "courses.$.minutes": roundedHours,
                     totalMinutes: roundedHours
-                }
+                },
+                $set: { companyId: companyObjectId }
             },
             { new: true }
         );
@@ -287,7 +288,7 @@ export class EmployeeRepository implements IEmployeeRepository {
                 { employeeId, date },
                 {
                     $inc: { totalMinutes: roundedHours },
-                    $setOnInsert: { employeeId, date },
+                    $setOnInsert: { employeeId, date, companyId: companyObjectId },
                     $push: { courses: { courseId: new Types.ObjectId(courseId), minutes: roundedHours } },
                 },
                 { new: true, upsert: true }

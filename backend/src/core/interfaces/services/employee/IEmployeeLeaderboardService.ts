@@ -7,11 +7,12 @@ export interface ILeaderboardUserDTO {
   streak: number;
   courses: number;
   isYou: boolean;
+  rank: number;
 }
 
 export interface ILeaderboardResponseDTO {
   leaderboard: ILeaderboardUserDTO[];
-  you?: ILeaderboardUserDTO & { rank: number };
+  you?: ILeaderboardUserDTO;
 }
 
 export interface IEmployeeLeaderboardService {

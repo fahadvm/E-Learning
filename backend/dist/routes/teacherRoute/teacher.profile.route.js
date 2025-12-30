@@ -20,4 +20,7 @@ router
     .post((0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(teacherProfileController.createProfile.bind(teacherProfileController)))
     .patch((0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(teacherProfileController.updateProfile.bind(teacherProfileController)));
 router.post('/verify', upload.single('resume'), (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(teacherProfileController.sendVerificationRequest.bind(teacherProfileController)));
+router.patch('/change-password', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(teacherProfileController.changePassword.bind(teacherProfileController)));
+router.post('/change-email-otp', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(teacherProfileController.requestEmailChange.bind(teacherProfileController)));
+router.post('/verify-change-email', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(teacherProfileController.verifyEmailChangeOtp.bind(teacherProfileController)));
 exports.default = router;

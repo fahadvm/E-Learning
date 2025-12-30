@@ -100,10 +100,12 @@ let StudentSubscriptionService = class StudentSubscriptionService {
     }
     hasFeature(studentId, featureName) {
         return __awaiter(this, void 0, void 0, function* () {
-            const subscriptions = yield this._planRepo.findActiveSubscription(studentId);
-            if (!(subscriptions === null || subscriptions === void 0 ? void 0 : subscriptions.length))
+            const subscriptions = yield this._planRepo.findActiveSubscriptions(studentId);
+            if (!subscriptions)
                 return false;
-            const plans = yield Promise.all(subscriptions.map((sub) => this._planRepo.getById(sub.planId.toString())));
+            console.log("active subscriptions plans", subscriptions);
+            const plans = yield Promise.all(subscriptions.map((sub) => this._planRepo.getById(sub.planId._id.toString())));
+            console.log("plans details", plans);
             return plans.some(plan => plan &&
                 plan.features.some((feature) => feature.name === featureName));
         });

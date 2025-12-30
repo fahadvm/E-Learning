@@ -114,7 +114,7 @@ export class EmployeeCompanyService implements IEmployeeCompanyService {
     if (!employee || employee.status !== EmployeeStatus.APPROVED)
       throwError(MESSAGES.NOT_PART_OF_COMPANY, STATUS_CODES.BAD_REQUEST);
 
-    const companyId = employee.companyId?.toString();
+    const companyId = employee.companyId?._id.toString();
     if (!companyId) throwError(MESSAGES.NOT_PART_OF_COMPANY, STATUS_CODES.BAD_REQUEST);
 
     // 🔎 Find all assigned learning paths for this employee

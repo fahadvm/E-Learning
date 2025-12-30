@@ -185,10 +185,10 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         });
 
         // ICE Candidate
-        const cleanupIce = attachSocketListener("ice-candidate", async (candidate: any, from: string) => {
-            if (peerConnectionRef.current) {
+        const cleanupIce = attachSocketListener("ice-candidate", async (data: { candidate: any; from: string }) => {
+            if (peerConnectionRef.current && data.candidate) {
                 try {
-                    await peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(candidate));
+                    await peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(data.candidate));
                 } catch (e) {
                     console.error("Error adding ice candidate", e);
                 }

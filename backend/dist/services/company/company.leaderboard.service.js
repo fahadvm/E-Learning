@@ -28,6 +28,7 @@ let CompanyLeaderboardService = class CompanyLeaderboardService {
     // Get Top 50 Employees (Ranked from Redis)
     getTop50(companyId) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c;
             const key = `leaderboard:${companyId}`;
             const entries = yield redisClient_1.redis.zrevrange(key, 0, 49, "WITHSCORES");
             const ranked = [];
@@ -36,31 +37,34 @@ let CompanyLeaderboardService = class CompanyLeaderboardService {
             }
             const employeeIds = ranked.map((x) => new mongoose_1.default.Types.ObjectId(x.employeeId));
             const employees = yield Employee_1.Employee.find({ _id: { $in: employeeIds } })
-                .select("_id name profilePicture coursesProgress streakCount")
+                .select("_id name profilePicture coursesProgress streakCount companyId")
                 .lean();
-            console.log("employeeIds", employeeIds);
-            console.log("companyId", companyId);
             // Compute course count & total learning minutes
             const learningRecords = yield EmployeeLearningRecord_1.EmployeeLearningRecord.aggregate([
                 { $match: { employeeId: { $in: employeeIds } } },
                 { $group: { _id: "$employeeId", totalMinutes: { $sum: "$totalMinutes" } } }
             ]);
-            console.log("learningRecords", learningRecords);
-            return ranked.map((item, index) => {
-                var _a, _b, _c;
+            const result = [];
+            let currentRank = 1;
+            for (const item of ranked) {
                 const emp = employees.find(e => e._id.toString() === item.employeeId);
+                // Safety check: if employee no longer exists or belongs to another company, skip and clean Redis
+                if (!emp || ((_a = emp.companyId) === null || _a === void 0 ? void 0 : _a.toString()) !== companyId) {
+                    yield redisClient_1.redis.zrem(key, item.employeeId);
+                    continue;
+                }
                 const learning = learningRecords.find(l => l._id.toString() === item.employeeId);
-                console.log("learning", learning);
-                return {
+                result.push({
                     _id: item.employeeId,
-                    name: (_a = emp === null || emp === void 0 ? void 0 : emp.name) !== null && _a !== void 0 ? _a : "Unknown",
-                    avatar: (_b = emp === null || emp === void 0 ? void 0 : emp.profilePicture) !== null && _b !== void 0 ? _b : null,
+                    name: emp.name,
+                    avatar: (_b = emp.profilePicture) !== null && _b !== void 0 ? _b : null,
                     hours: Math.round((learning === null || learning === void 0 ? void 0 : learning.totalMinutes) || 0),
-                    courses: ((_c = emp === null || emp === void 0 ? void 0 : emp.coursesProgress) === null || _c === void 0 ? void 0 : _c.filter(c => c.percentage === 100).length) || 0,
-                    streak: (emp === null || emp === void 0 ? void 0 : emp.streakCount) || 0,
-                    rank: index + 1
-                };
-            });
+                    courses: ((_c = emp.coursesProgress) === null || _c === void 0 ? void 0 : _c.filter(c => c.percentage === 100).length) || 0,
+                    streak: emp.streakCount || 0,
+                    rank: currentRank++
+                });
+            }
+            return result;
         });
     }
     // Search ANY employee rank (even if not in Top 50)

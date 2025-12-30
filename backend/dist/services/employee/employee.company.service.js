@@ -136,7 +136,7 @@ let EmployeeCompanyService = class EmployeeCompanyService {
             const employee = yield this.employeeRepo.findById(employeeId);
             if (!employee || employee.status !== EmployeeStatus.APPROVED)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.NOT_PART_OF_COMPANY, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            const companyId = (_a = employee.companyId) === null || _a === void 0 ? void 0 : _a.toString();
+            const companyId = (_a = employee.companyId) === null || _a === void 0 ? void 0 : _a._id.toString();
             if (!companyId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.NOT_PART_OF_COMPANY, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             // 🔎 Find all assigned learning paths for this employee

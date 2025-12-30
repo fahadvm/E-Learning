@@ -16,6 +16,7 @@ var MESSAGES;
     MESSAGES["COURSE_NOT_PURCHASED"] = "You have not purchased this course.";
     MESSAGES["COURSE_CERTIFICATE_FETCHED"] = "Course certificate fetched successfully";
     MESSAGES["RATING_COURSE_REQUIRED"] = "Rating and course ID are required";
+    MESSAGES["ICE_CONFIG_FETCHED"] = "Ice config fetched successfully";
     MESSAGES["COURSE_REVIEW_SAVED"] = "Course review saved successfully";
     MESSAGES["COURSE_REVIEWS_FETCHED"] = "Course reviews fetched successfully";
     MESSAGES["COURSE_REVIEW_DELETED"] = "Course review deleted successfully";

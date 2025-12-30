@@ -44,7 +44,13 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     if (!employee.companyId) throwError(MESSAGES.NOT_PART_OF_COMPANY, STATUS_CODES.CONFLICT);
     if (!courseId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
-    const orders = await this._companyOrderRepo.getOrdersById(employee.companyId.toString());
+
+    // Extract companyId properly (handle both populated object and string)
+    const companyId = typeof employee.companyId === 'object' && employee.companyId._id
+      ? employee.companyId._id.toString()
+      : employee.companyId.toString();
+
+    const orders = await this._companyOrderRepo.getOrdersById(companyId);
 
     const purchasedCourseIds = orders.flatMap(order => order.purchasedCourses.map(c => c.courseId._id.toString()));
 
@@ -155,18 +161,19 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     const date = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const minutes = seconds / 60;
 
-    const record = await this._employeeRepo.updateLearningTime(employeeId, courseId, date, minutes);
-
     const employee = await this._employeeRepo.findById(employeeId);
     if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND, STATUS_CODES.NOT_FOUND)
-    const companyId = employee?.companyId?.toString();
-    if (companyId) {
-      const completedCourses = employee.coursesProgress?.filter(c => c.percentage === 100).length || 0;
-      const streakCount = employee.streakCount || 0;
-      const totalMinutes = await this._employeeRepo.getTotalMinutes(employeeId, companyId);
+    const companyId = employee?.companyId?._id?.toString() || employee?.companyId?.toString();
+    if (!companyId) throwError(MESSAGES.NOT_PART_OF_COMPANY, STATUS_CODES.CONFLICT);
 
-      await updateCompanyLeaderboard(companyId, employeeId, totalMinutes, completedCourses, streakCount);
-    }
+    const record = await this._employeeRepo.updateLearningTime(employeeId, courseId, date, minutes, companyId);
+
+    const completedCourses = employee.coursesProgress?.filter(c => c.percentage === 100).length || 0;
+    const streakCount = employee.streakCount || 0;
+    const totalMinutes = await this._employeeRepo.getTotalMinutes(employeeId, companyId);
+
+    await updateCompanyLeaderboard(companyId, employeeId, totalMinutes, completedCourses, streakCount);
+
 
     return record;
   }

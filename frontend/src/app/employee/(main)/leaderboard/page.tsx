@@ -9,13 +9,12 @@ import type { LeaderboardUser, LeaderboardResponse } from "@/types/employee/lead
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
 import { useEmployee } from "@/context/employeeContext";
 import { useRouter } from "next/navigation";
-import {  formatMinutesToHours } from "@/utils/timeConverter";
+import { formatMinutesToHours } from "@/utils/timeConverter";
 export default function LeaderboardPage() {
   const [selectedTab, setSelectedTab] = useState<"all-time" | "weekly" | "monthly">("all-time");
   const [allTimeData, setAllTimeData] = useState<LeaderboardUser[]>([]);
   const [weeklyData, setWeeklyData] = useState<LeaderboardUser[]>([]);
   const [monthlyData, setMonthlyData] = useState<LeaderboardUser[]>([]);
-  const [userRank, setUserRank] = useState<LeaderboardUser | null>(null);
   const { employee } = useEmployee()
   const router = useRouter();
 
@@ -27,32 +26,39 @@ export default function LeaderboardPage() {
 
 
   const fetchAllTime = async () => {
-    if (!employee?.companyId) {
+    const companyId = (employee?.companyId as any)?._id || employee?.companyId;
+    if (!companyId) {
       console.log("there is no company id ")
       return
     }
-    const res = await employeeApiMethods.getAllTimeLeaderBoard({ companyId: employee.companyId })
-    console.log("iam trying for fetch all time leaderboard",res)
-    const data: LeaderboardResponse = res.data;
-    setAllTimeData(data.leaderboard);
-    setUserRank(data.you ?? null);
+    const res = await employeeApiMethods.getAllTimeLeaderBoard({ companyId })
+    console.log("iam trying for fetch all time leaderboard", res)
+    if (res?.ok && res.data) {
+      const data: LeaderboardResponse = res.data;
+      setAllTimeData(data.leaderboard);
+    }
   };
 
   const fetchWeekly = async () => {
-    if (!employee?.companyId) return
-    const res = await employeeApiMethods.getWeeklyLeaderBoard({ companyId: employee.companyId })
+    const companyId = (employee?.companyId as any)?._id || employee?.companyId;
+    if (!companyId) return
+    const res = await employeeApiMethods.getWeeklyLeaderBoard({ companyId })
     console.log("weekly :", res)
-    const data: LeaderboardResponse = res.data;
-    setWeeklyData(data.leaderboard);
+    if (res?.ok && res.data) {
+      const data: LeaderboardResponse = res.data;
+      setWeeklyData(data.leaderboard);
+    }
   };
 
   const fetchMonthly = async () => {
-    if (!employee?.companyId) return
-    const res = await employeeApiMethods.getMonthlyLeaderBoard({ companyId: employee.companyId })
-    console.log("weekly :", res)
-
-    const data: LeaderboardResponse = res.data;
-    setMonthlyData(data.leaderboard);
+    const companyId = (employee?.companyId as any)?._id || employee?.companyId;
+    if (!companyId) return
+    const res = await employeeApiMethods.getMonthlyLeaderBoard({ companyId })
+    console.log("monthly :", res)
+    if (res?.ok && res.data) {
+      const data: LeaderboardResponse = res.data;
+      setMonthlyData(data.leaderboard);
+    }
   };
 
   const getRankIcon = (rank: number) => {
@@ -90,110 +96,136 @@ export default function LeaderboardPage() {
   }
 
 
+  const currentLeaderboard = selectedTab === "all-time" ? allTimeData : selectedTab === "weekly" ? weeklyData : monthlyData;
+  const userRank = currentLeaderboard.find(u => u.isYou);
+
+  const LeaderboardTable = ({ data }: { data: LeaderboardUser[] }) => (
+    <Card className="overflow-hidden border-primary/10">
+      <table className="w-full">
+        <thead>
+          <tr className="border-b bg-muted/50">
+            <th className="px-6 py-4 text-left text-sm font-semibold text-muted-foreground">Rank</th>
+            <th className="px-6 py-4 text-left text-sm font-semibold text-muted-foreground">Name</th>
+            <th className="px-6 py-4 text-right text-sm font-semibold text-muted-foreground">Hours</th>
+            <th className="px-6 py-4 text-right text-sm font-semibold text-muted-foreground">Streak</th>
+            <th className="px-3 py-3 text-right text-sm font-semibold text-muted-foreground">Completed Courses</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.length === 0 ? (
+            <tr>
+              <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground">
+                No learning activity recorded for this period yet.
+              </td>
+            </tr>
+          ) : (
+            data.map((user) => (
+              <tr
+                key={user._id}
+                className={`border-b transition-colors duration-200 ${user.isYou ? "bg-primary/5" : "hover:bg-muted/30"
+                  }`}
+              >
+                <td className="px-6 py-4">{getRankIcon(user.rank)}</td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/10 flex items-center justify-center text-sm font-bold text-primary">
+                      {user.avatar ? (
+                        <img src={user.avatar} alt="" className="h-full w-full rounded-full object-cover" />
+                      ) : (
+                        (user.name).slice(0, 2).toUpperCase()
+                      )}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-gray-900">{user.name}</span>
+                      {user.isYou && <span className="text-[10px] items-center self-start px-1.5 py-0.5 rounded-full bg-primary/10 text-primary uppercase tracking-wider font-bold">You</span>}
+                    </div>
+                  </div>
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <span className="font-medium text-gray-700">{formatMinutesToHours(user.hours)}</span>
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <div className="flex items-center justify-end gap-1.5">
+                    <Flame className="h-4 w-4 text-orange-500 fill-orange-500/10" />
+                    <span className="font-medium">{user.streak}</span>
+                  </div>
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <Badge variant="outline" className="font-mono bg-background/50">
+                    {user.courses}
+                  </Badge>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </Card>
+  );
+
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Leaderboard </h1>
-        <p className="text-muted-foreground mt-2">See how you rank among your peers</p>
+      <div className="flex flex-col gap-2">
+        <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">Leaderboard</h1>
+        <p className="text-lg text-muted-foreground">Celebrate excellence and see how you shine among your peers</p>
       </div>
 
-      {/* Your Rank */}
+      {/* Your Rank Card */}
       {userRank && (
-        <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Your Current Rank</p>
-              <p className="text-4xl font-bold mt-2">#{userRank.rank}</p>
-              <p className="text-sm text-muted-foreground mt-2">
-                {formatMinutesToHours(userRank.hours)} learning hours • {userRank.courses} courses completed
-              </p>
-            </div>
-            <div className="text-right">
-              <div className="text-5xl">🎯</div>
-              <p className="text-sm font-medium mt-2">Keep it up!</p>
+        <Card className="p-1 px-1 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent border-primary/20 shadow-lg shadow-primary/5 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform duration-500">
+            <Trophy className="w-32 h-32 text-primary" />
+          </div>
+          <div className="p-6 relative z-10">
+            <div className="flex items-center justify-between">
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-primary/60">Your {selectedTab.replace('-', ' ')} Stats</p>
+                  <p className="text-5xl font-black mt-2 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                    #{userRank.rank}
+                  </p>
+                </div>
+                <div className="flex items-center gap-6 text-sm text-muted-foreground font-medium">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-primary/40" />
+                    {formatMinutesToHours(userRank.hours)} learning hours
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-primary/40" />
+                    {userRank.courses} courses completed
+                  </div>
+                </div>
+              </div>
+              <div className="text-right flex flex-col items-end gap-2">
+                <div className="w-16 h-16 bg-white rounded-2xl shadow-inner flex items-center justify-center text-3xl">
+                  🎯
+                </div>
+                <p className="text-xs font-bold text-primary uppercase tracking-widest">Growth Mindset</p>
+              </div>
             </div>
           </div>
         </Card>
       )}
 
       {/* Tabs */}
-      <Tabs value={selectedTab} onValueChange={(v) => setSelectedTab(v as any)} className="w-full">
-        <TabsList className="grid w-full grid-cols-1">
-          <TabsTrigger value="all-time">All Time</TabsTrigger>
-          {/* <TabsTrigger value="monthly">Monthly</TabsTrigger>
-          <TabsTrigger value="weekly">Weekly</TabsTrigger> */}
+      <Tabs value={selectedTab} onValueChange={(v) => setSelectedTab(v as any)} className="w-full space-y-6">
+        <TabsList className="p-1 bg-muted/50 rounded-xl inline-flex w-auto border border-primary/5">
+          <TabsTrigger value="all-time" className="rounded-lg px-8 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all grayscale data-[state=active]:grayscale-0">All Time</TabsTrigger>
+          <TabsTrigger value="monthly" className="rounded-lg px-8 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all grayscale data-[state=active]:grayscale-0">Monthly</TabsTrigger>
+          <TabsTrigger value="weekly" className="rounded-lg px-8 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all grayscale data-[state=active]:grayscale-0">Weekly</TabsTrigger>
         </TabsList>
 
-        {/* All Time */}
-        <TabsContent value="all-time" className="mt-6">
-          <Card className="overflow-hidden">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b bg-muted/50">
-                  <th className="px-6 py-4 text-left">Rank</th>
-                  <th className="px-6 py-4 text-left">Name</th>
-                  <th className="px-6 py-4 text-right">Hours</th>
-                  <th className="px-6 py-4 text-right">Streak</th>
-                  <th className="px-3 py-3 text-right">Completed Courses</th>
-                </tr>
-              </thead>
-              <tbody>
-                {allTimeData.map((user,index) => (
-                  <tr
-                    key={user._id}
-                    className={`border-b transition ${user.isYou ? "bg-primary/5" : "hover:bg-muted/50"
-                      }`}
-                  >
-                    <td className="px-6 py-4">{getRankIcon(index + 1)}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-semibold">
-                          {(user.avatar ?? user.name).slice(0, 2).toUpperCase()}
-                        </div>
-                        <span className="font-medium">{user.name}</span>
-                        {user.isYou && <Badge variant="secondary">You</Badge>}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-right">{formatMinutesToHours(user.hours)}</td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Flame className="h-4 w-4 text-orange-500" /> {user.streak}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-right">{user.courses}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Card>
+        <TabsContent value="all-time" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+          <LeaderboardTable data={allTimeData} />
         </TabsContent>
 
-        {/* Monthly */}
-        <TabsContent value="monthly" className="mt-6">
-          {monthlyData.map((user) => (
-            <Card key={user._id} className="p-6 flex items-center justify-between">
-              {getRankIcon(user.rank)}
-              <h3 className="font-semibold">{user.name}</h3>
-              <p className="text-sm text-muted-foreground">{user.courses} courses</p>
-              <p className="text-2xl font-bold text-primary">{formatMinutesToHours(user.hours)}</p>
-            </Card>
-          ))}
+        <TabsContent value="monthly" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+          <LeaderboardTable data={monthlyData} />
         </TabsContent>
 
-        {/* Weekly */}
-        <TabsContent value="weekly" className="mt-6">
-          {weeklyData.map((user) => (
-            <Card key={user._id} className="p-6 flex items-center justify-between">
-              {getRankIcon(user.rank)}
-              <h3 className="font-semibold">{user.name}</h3>
-              <div className="flex items-center gap-2">
-                <Flame className="h-4 w-4 text-orange-500" />
-                <p className="text-sm text-muted-foreground">{user.streak}-day streak</p>
-              </div>
-              <p className="text-2xl font-bold text-primary">{formatMinutesToHours(user.hours)}</p>
-            </Card>
-          ))}
+        <TabsContent value="weekly" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+          <LeaderboardTable data={weeklyData} />
         </TabsContent>
       </Tabs>
     </div>

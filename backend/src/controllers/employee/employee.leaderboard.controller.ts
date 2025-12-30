@@ -31,7 +31,7 @@ export class EmployeeLeaderboardController {
 
   async monthly(req: AuthRequest, res: Response) {
     const employeeId = req.user?.id
-    const { companyId } = req.query as { companyId?: string }; console.log("req.params.companyId", companyId)
+    const { companyId } = req.query as { companyId?: string }; console.log("req.query.companyId", companyId)
     if (!employeeId || !companyId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
     const result = await this._leaderboardService.getMonthlyLeaderboard(employeeId, companyId);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.SUCCESS, true, result);

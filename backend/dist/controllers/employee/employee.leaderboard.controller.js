@@ -59,7 +59,7 @@ let EmployeeLeaderboardController = class EmployeeLeaderboardController {
             var _a;
             const employeeId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             const { companyId } = req.query;
-            console.log("req.params.companyId", companyId);
+            console.log("req.query.companyId", companyId);
             if (!employeeId || !companyId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_ID, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const result = yield this._leaderboardService.getMonthlyLeaderboard(employeeId, companyId);

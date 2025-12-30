@@ -49,8 +49,8 @@ export interface ICourse extends Document {
   averageRating: number,
   reviewCount: number,
   requirements?: string[];
-  learningOutcomes?: string[];
   totalStudents?: number;
+  learningOutcomes?: string[];
   modules: IModule[];
   createdAt?: Date;
   updatedAt?: Date;

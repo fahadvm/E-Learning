@@ -71,6 +71,53 @@ let TeacherProfileController = class TeacherProfileController {
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.TEACHER_DETAILS_FETCHED, true, teacher);
         });
     }
+    changePassword(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const teacherId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!teacherId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            const { currentPassword, newPassword, confirmPassword } = req.body;
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_DATA, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            }
+            if (newPassword !== confirmPassword) {
+                (0, ResANDError_1.throwError)('Passwords do not match', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            }
+            yield this._teacherservice.changePassword(teacherId, currentPassword, newPassword);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.PASSWORD_CHANGED, true);
+        });
+    }
+    requestEmailChange(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const teacherId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!teacherId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            const { newEmail } = req.body;
+            if (!newEmail)
+                (0, ResANDError_1.throwError)('New email is required', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(newEmail)) {
+                (0, ResANDError_1.throwError)('Invalid email format', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            }
+            yield this._teacherservice.requestEmailChange(teacherId, newEmail);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'OTP sent to new email address', true);
+        });
+    }
+    verifyEmailChangeOtp(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const teacherId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!teacherId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            const { newEmail, otp } = req.body;
+            if (!newEmail || !otp)
+                (0, ResANDError_1.throwError)('Email and OTP are required', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            yield this._teacherservice.verifyEmailChangeOtp(teacherId, newEmail, otp);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Email updated successfully', true);
+        });
+    }
 };
 exports.TeacherProfileController = TeacherProfileController;
 exports.TeacherProfileController = TeacherProfileController = __decorate([

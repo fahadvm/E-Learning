@@ -59,7 +59,11 @@ let EmployeeCourseService = class EmployeeCourseService {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.NOT_PART_OF_COMPANY, HttpStatuscodes_1.STATUS_CODES.CONFLICT);
             if (!courseId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_ID, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            const orders = yield this._companyOrderRepo.getOrdersById(employee.companyId.toString());
+            // Extract companyId properly (handle both populated object and string)
+            const companyId = typeof employee.companyId === 'object' && employee.companyId._id
+                ? employee.companyId._id.toString()
+                : employee.companyId.toString();
+            const orders = yield this._companyOrderRepo.getOrdersById(companyId);
             const purchasedCourseIds = orders.flatMap(order => order.purchasedCourses.map(c => c.courseId._id.toString()));
             if (!purchasedCourseIds.includes(courseId))
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
@@ -117,7 +121,7 @@ let EmployeeCourseService = class EmployeeCourseService {
     }
     addLearningTime(employeeId, courseId, seconds) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b;
+            var _a, _b, _c, _d;
             const course = yield this._courseRepo.findById(courseId);
             if (!course)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
@@ -127,17 +131,17 @@ let EmployeeCourseService = class EmployeeCourseService {
             const today = new Date();
             const date = new Date(today.getFullYear(), today.getMonth(), today.getDate());
             const minutes = seconds / 60;
-            const record = yield this._employeeRepo.updateLearningTime(employeeId, courseId, date, minutes);
             const employee = yield this._employeeRepo.findById(employeeId);
             if (!employee)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMPLOYEE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
-            const companyId = (_a = employee === null || employee === void 0 ? void 0 : employee.companyId) === null || _a === void 0 ? void 0 : _a.toString();
-            if (companyId) {
-                const completedCourses = ((_b = employee.coursesProgress) === null || _b === void 0 ? void 0 : _b.filter(c => c.percentage === 100).length) || 0;
-                const streakCount = employee.streakCount || 0;
-                const totalMinutes = yield this._employeeRepo.getTotalMinutes(employeeId, companyId);
-                yield (0, leaderboard_1.updateCompanyLeaderboard)(companyId, employeeId, totalMinutes, completedCourses, streakCount);
-            }
+            const companyId = ((_b = (_a = employee === null || employee === void 0 ? void 0 : employee.companyId) === null || _a === void 0 ? void 0 : _a._id) === null || _b === void 0 ? void 0 : _b.toString()) || ((_c = employee === null || employee === void 0 ? void 0 : employee.companyId) === null || _c === void 0 ? void 0 : _c.toString());
+            if (!companyId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.NOT_PART_OF_COMPANY, HttpStatuscodes_1.STATUS_CODES.CONFLICT);
+            const record = yield this._employeeRepo.updateLearningTime(employeeId, courseId, date, minutes, companyId);
+            const completedCourses = ((_d = employee.coursesProgress) === null || _d === void 0 ? void 0 : _d.filter(c => c.percentage === 100).length) || 0;
+            const streakCount = employee.streakCount || 0;
+            const totalMinutes = yield this._employeeRepo.getTotalMinutes(employeeId, companyId);
+            yield (0, leaderboard_1.updateCompanyLeaderboard)(companyId, employeeId, totalMinutes, completedCourses, streakCount);
             return record;
         });
     }

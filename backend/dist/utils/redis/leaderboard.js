@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateCompanyLeaderboard = void 0;
+exports.removeFromCompanyLeaderboard = exports.updateCompanyLeaderboard = void 0;
 const redisClient_1 = require("../redisClient");
 const updateCompanyLeaderboard = (companyId, employeeId, totalMinutes, completedCourses, streakCount) => __awaiter(void 0, void 0, void 0, function* () {
     // Balanced weighted score
@@ -17,3 +17,7 @@ const updateCompanyLeaderboard = (companyId, employeeId, totalMinutes, completed
     yield redisClient_1.redis.zadd(`leaderboard:${companyId}`, score, employeeId);
 });
 exports.updateCompanyLeaderboard = updateCompanyLeaderboard;
+const removeFromCompanyLeaderboard = (companyId, employeeId) => __awaiter(void 0, void 0, void 0, function* () {
+    yield redisClient_1.redis.zrem(`leaderboard:${companyId}`, employeeId);
+});
+exports.removeFromCompanyLeaderboard = removeFromCompanyLeaderboard;

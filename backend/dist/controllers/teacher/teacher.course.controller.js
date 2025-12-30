@@ -101,6 +101,17 @@ let TeacherCourseController = class TeacherCourseController {
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_UPDATED, true, updated);
         });
     }
+    getCourseAnalytics(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const { courseId } = req.params;
+            const teacherId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!teacherId)
+                (0, ResANDError_2.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            const analytics = yield this._courseService.getCourseAnalytics(courseId, teacherId);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Course analytics fetched successfully', true, analytics);
+        });
+    }
 };
 exports.TeacherCourseController = TeacherCourseController;
 exports.TeacherCourseController = TeacherCourseController = __decorate([
