@@ -409,8 +409,8 @@ function ListView({
                 key={p}
                 onClick={() => onPageChange(p)}
                 className={`w-10 h-10 rounded-lg font-medium transition-all ${p === page
-                    ? "bg-primary text-white"
-                    : "bg-white/5 hover:bg-white/10"
+                  ? "bg-primary text-white"
+                  : "bg-white/5 hover:bg-white/10"
                   }`}
               >
                 {p}
@@ -642,10 +642,10 @@ function CreateOrEditView({
               >
                 <div
                   className={`w-12 h-12 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${isActive
-                      ? "bg-primary text-white scale-110 shadow-lg shadow-primary/50"
-                      : isCompleted
-                        ? "bg-green-500 text-white"
-                        : "bg-white/10 text-gray-400"
+                    ? "bg-primary text-white scale-110 shadow-lg shadow-primary/50"
+                    : isCompleted
+                      ? "bg-green-500 text-white"
+                      : "bg-white/10 text-gray-400"
                     }`}
                 >
                   {isCompleted ? (
@@ -718,16 +718,33 @@ function CreateOrEditView({
               <label className="block text-sm font-medium mb-2 text-gray-300">
                 Difficulty Level *
               </label>
-              <div className="grid grid-cols-3 gap-4">
+
+              <div className="
+    grid 
+    grid-cols-1 
+    sm:grid-cols-2 
+    md:grid-cols-3 
+    gap-3 sm:gap-4
+  ">
                 {(["Beginner", "Intermediate", "Advanced"] as Difficulty[]).map(
                   (level) => (
                     <button
                       key={level}
+                      type="button"
                       onClick={() => setForm({ ...form, difficulty: level })}
-                      className={`p-4 rounded-xl border-2 font-medium transition-all ${form.difficulty === level
+                      className={`
+            w-full
+            p-3 sm:p-4
+            rounded-xl
+            border-2
+            font-medium
+            text-sm sm:text-base
+            transition-all
+            ${form.difficulty === level
                           ? "bg-primary/20 border-primary text-primary"
                           : "bg-white/5 border-white/20 hover:border-white/40"
-                        }`}
+                        }
+          `}
                     >
                       {level}
                     </button>
@@ -759,8 +776,8 @@ function CreateOrEditView({
                     key={ico}
                     onClick={() => setForm({ ...form, icon: ico })}
                     className={`text-3xl p-4 rounded-xl border-2 transition-all hover:scale-110 ${form.icon === ico
-                        ? "bg-primary/30 border-primary shadow-lg shadow-primary/20"
-                        : "bg-white/10 border-white/20 hover:border-white/40"
+                      ? "bg-primary/30 border-primary shadow-lg shadow-primary/20"
+                      : "bg-white/10 border-white/20 hover:border-white/40"
                       }`}
                   >
                     {ico}
@@ -880,8 +897,8 @@ function CreateOrEditView({
                         <button
                           onClick={() => toggleLock(i)}
                           className={`p-2 rounded-lg transition-all ${c.locked
-                              ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
-                              : "bg-green-500/20 text-green-400 hover:bg-green-500/30"
+                            ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                            : "bg-green-500/20 text-green-400 hover:bg-green-500/30"
                             }`}
                           title={c.locked ? "Unlock course" : "Lock course"}
                         >

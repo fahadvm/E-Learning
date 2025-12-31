@@ -245,31 +245,79 @@ export default function AddEmployeePage() {
                                 {inviteResult && (
                                     <div className="mt-4">
                                         <div className="rounded-lg bg-white/3 border border-white/6 p-4 flex items-start gap-4">
-                                            <div className="w-20 h-20 rounded-lg overflow-hidden bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                                                {inviteResult.profilePicture ? (
-                                                    <Image src={inviteResult.profilePicture} alt={inviteResult.name} width={80} height={80} className="object-cover" />
-                                                ) : (
-                                                    <div className="text-2xl font-bold text-white">
-                                                        {inviteResult.name?.slice(0, 2).toUpperCase()}
-                                                    </div>
-                                                )}
+
+                                            {/* PROFILE IMAGE */}
+                                            <div className="flex-shrink-0">
+                                                <div className="
+      w-14 h-14 
+      sm:w-16 sm:h-16 
+      lg:w-20 lg:h-20
+      rounded-lg 
+      overflow-hidden 
+      bg-gradient-to-br 
+      from-primary 
+      to-secondary 
+      flex 
+      items-center 
+      justify-center
+    ">
+                                                    {inviteResult.profilePicture ? (
+                                                        <Image
+                                                            src={inviteResult.profilePicture}
+                                                            alt={inviteResult.name}
+                                                            fill
+                                                            className="object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="text-lg sm:text-xl lg:text-2xl font-bold text-white">
+                                                            {inviteResult.name?.slice(0, 2).toUpperCase()}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <div className="flex-1">
-                                                <div className="flex items-center justify-between gap-4">
-                                                    <div>
-                                                        <div className="text-lg font-semibold">{inviteResult.name}</div>
-                                                        <div className="text-sm text-gray-300">{inviteResult.email}</div>
-                                                        {inviteResult.position && <div className="text-sm text-gray-400 mt-1">{inviteResult.position}</div>}
+
+                                            {/* CONTENT */}
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+                                                    {/* USER INFO */}
+                                                    <div className="min-w-0">
+                                                        <div className="text-lg font-semibold truncate">
+                                                            {inviteResult.name}
+                                                        </div>
+
+                                                        <div className="text-sm text-gray-300 truncate">
+                                                            {inviteResult.email}
+                                                        </div>
+
+                                                        {inviteResult.position && (
+                                                            <div className="text-sm text-gray-400 mt-1 truncate">
+                                                                {inviteResult.position}
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                    <div>
-                                                        <Button onClick={() => handleSendInvitation(inviteResult)} className="bg-primary">
-                                                            <UserPlus className="h-4 w-4 mr-2" /> Send Invite
+
+                                                    {/* BUTTON */}
+                                                    <div className="w-full sm:w-auto">
+                                                        <Button
+                                                            onClick={() => handleSendInvitation(inviteResult)}
+                                                            className="bg-primary w-full sm:w-auto"
+                                                        >
+                                                            <UserPlus className="h-4 w-4 mr-2" />
+                                                            Send Invite
                                                         </Button>
                                                     </div>
+
                                                 </div>
-                                                <p className="text-sm text-green-400 mt-3">Invitation flow initiated. The user will receive an email shortly.</p>
+
+                                                {/* STATUS MESSAGE */}
+                                                <p className="text-sm text-green-400 mt-3">
+                                                    Invitation flow initiated. The user will receive an email shortly.
+                                                </p>
                                             </div>
+
                                         </div>
+
                                     </div>
                                 )}
                             </TabsContent>

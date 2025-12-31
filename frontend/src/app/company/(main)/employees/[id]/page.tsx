@@ -96,24 +96,69 @@ export default function EmployeeDetailsPage() {
 
                     {/* Main Content Tabs */}
                     <Tabs defaultValue="profile" className="w-full">
-                        <TabsList className="bg-white/10 border-white/10 p-1 rounded-xl mb-8">
+                        <TabsList
+                            className="
+      bg-white/10 
+      border border-white/10 
+      p-1 
+      rounded-xl 
+      mb-8
+
+      flex 
+      gap-1
+      overflow-x-auto 
+      whitespace-nowrap
+
+      sm:overflow-visible 
+      sm:justify-center
+    "
+                        >
                             <TabsTrigger
                                 value="profile"
-                                className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white flex items-center gap-2 px-6"
+                                className="
+        rounded-lg 
+        data-[state=active]:bg-primary 
+        data-[state=active]:text-white 
+        flex items-center gap-2 
+        px-4 sm:px-6
+        text-sm sm:text-base
+        shrink-0
+      "
                             >
-                                <User className="w-4 h-4" /> Profile
+                                <User className="w-4 h-4" />
+                                <span className="hidden sm:inline">Profile</span>
                             </TabsTrigger>
+
                             <TabsTrigger
                                 value="learning-paths"
-                                className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white flex items-center gap-2 px-6"
+                                className="
+        rounded-lg 
+        data-[state=active]:bg-primary 
+        data-[state=active]:text-white 
+        flex items-center gap-2 
+        px-4 sm:px-6
+        text-sm sm:text-base
+        shrink-0
+      "
                             >
-                                <BookOpen className="w-4 h-4" /> Learning Paths
+                                <BookOpen className="w-4 h-4" />
+                                <span className="hidden sm:inline">Learning Paths</span>
                             </TabsTrigger>
+
                             <TabsTrigger
                                 value="progress"
-                                className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white flex items-center gap-2 px-6"
+                                className="
+        rounded-lg 
+        data-[state=active]:bg-primary 
+        data-[state=active]:text-white 
+        flex items-center gap-2 
+        px-4 sm:px-6
+        text-sm sm:text-base
+        shrink-0
+      "
                             >
-                                <BarChart3 className="w-4 h-4" /> Current Progress
+                                <BarChart3 className="w-4 h-4" />
+                                <span className="hidden sm:inline">Current Progress</span>
                             </TabsTrigger>
                         </TabsList>
 
@@ -129,9 +174,13 @@ export default function EmployeeDetailsPage() {
                         </TabsContent>
 
                         <TabsContent value="progress">
-                            <EmployeeProgressTab progress={progress} assignedPaths={assignedPaths} />
+                            <EmployeeProgressTab
+                                progress={progress}
+                                assignedPaths={assignedPaths}
+                            />
                         </TabsContent>
                     </Tabs>
+
                 </main>
             </div>
 

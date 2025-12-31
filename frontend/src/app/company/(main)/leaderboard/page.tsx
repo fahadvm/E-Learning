@@ -97,71 +97,128 @@ export default function CompanyLeaderboardPage() {
 
             {/* Leaderboard */}
             <section>
-              <div className="rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-12">
-                <h2 className="text-4xl font-bold text-center mb-12 flex items-center justify-center gap-3">
-                  <Trophy className="h-10 w-10 text-primary" />
+              <div className="
+    rounded-2xl 
+    bg-white/5 
+    backdrop-blur-xl 
+    border border-white/10 
+    p-4 sm:p-8 lg:p-12
+  ">
+                {/* HEADER */}
+                <h2 className="
+      text-2xl sm:text-3xl lg:text-4xl 
+      font-bold 
+      text-center 
+      mb-6 sm:mb-10 
+      flex items-center justify-center gap-3
+    ">
+                  <Trophy className="h-7 w-7 sm:h-9 sm:w-9 text-primary" />
                   Top Performers
                 </h2>
 
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   {topList.map((user: any) => (
                     <div
                       key={user._id}
-                      className="flex items-center justify-between p-6 rounded-xl bg-white/5 border border-white/10 hover:border-primary/40 transition-all duration-300"
+                      className="
+            rounded-xl 
+            bg-white/5 
+            border border-white/10 
+            hover:border-primary/40 
+            transition-all duration-300
+            p-4 sm:p-6
+          "
                     >
-                      {/* Left Section */}
-                      <div className="flex items-center gap-6">
-                        {/* Avatar bubble */}
-                        <div className="h-14 w-14 rounded-full flex items-center justify-center text-white font-bold text-xl bg-gradient-to-br from-primary to-secondary ring-4 ring-primary/20">
-                          {user.name.slice(0, 2).toUpperCase()}
-                        </div>
+                      {/* ROW */}
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
 
-                        <div>
-                          <div className="text-xl font-semibold">{user.name}</div>
-
-                          {user.isYou && (
-                            <span className="px-2 py-1 mt-1 inline-block bg-primary/20 text-primary text-xs rounded-lg">
-                              You
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Right stats */}
-                      <div className="grid grid-cols-3 gap-12 text-right">
-
-                        {/* Hours */}
-                        <div>
-                          <div className="text-3xl font-bold text-primary">
-                            {formatMinutesToHours(user.hours)}
+                        {/* LEFT */}
+                        <div className="flex items-center gap-4">
+                          <div className="
+                h-12 w-12 sm:h-14 sm:w-14
+                rounded-full 
+                flex items-center justify-center 
+                text-white font-bold 
+                text-lg sm:text-xl
+                bg-gradient-to-br from-primary to-secondary 
+                ring-4 ring-primary/20
+              ">
+                            {user.name.slice(0, 2).toUpperCase()}
                           </div>
-                          <div className="text-sm text-gray-400">Hours</div>
+
+                          <div>
+                            <div className="text-base sm:text-lg font-semibold">
+                              {user.name}
+                            </div>
+
+                            {user.isYou && (
+                              <span className="
+                    px-2 py-0.5 mt-1 inline-block 
+                    bg-primary/20 text-primary 
+                    text-xs rounded-lg
+                  ">
+                                You
+                              </span>
+                            )}
+                          </div>
                         </div>
 
-                        {/* Streak */}
-                        <div>
-                          <div className="flex items-center justify-end gap-1 text-orange-500">
-                            <Flame className="w-6 h-6" />
-                            <span className="text-2xl font-bold">{user.streak}</span>
-                          </div>
-                          <div className="text-sm text-gray-400">Streak</div>
-                        </div>
+                        {/* RIGHT STATS */}
+                        {/* RIGHT STATS — SINGLE LINE */}
+                        <div
+                          className="
+    flex 
+    items-center 
+    justify-between 
+    sm:justify-end 
+    gap-6 sm:gap-10
+    text-center sm:text-right
+    whitespace-nowrap
+  "
+                        >
 
-                        {/* Courses */}
-                        <div>
-                          <div className="text-3xl font-bold text-secondary">
-                            {user.courses}
+                          {/* HOURS */}
+                          <div>
+                            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary">
+                              {formatMinutesToHours(user.hours)}
+                            </div>
+                            <div className="text-xs sm:text-sm text-gray-400">
+                              Hours
+                            </div>
                           </div>
-                          <div className="text-sm text-gray-400">Courses</div>
+
+                          {/* STREAK */}
+                          <div>
+                            <div className="flex items-center justify-center sm:justify-end gap-1 text-orange-500">
+                              <Flame className="w-4 h-4 sm:w-5 sm:h-5" />
+                              <span className="text-lg sm:text-xl font-bold">
+                                {user.streak}
+                              </span>
+                            </div>
+                            <div className="text-xs sm:text-sm text-gray-400">
+                              Streak
+                            </div>
+                          </div>
+
+                          {/* COURSES */}
+                          <div>
+                            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-secondary">
+                              {user.courses}
+                            </div>
+                            <div className="text-xs sm:text-sm text-gray-400">
+                              Courses
+                            </div>
+                          </div>
+
                         </div>
 
                       </div>
                     </div>
                   ))}
                 </div>
-
               </div>
             </section>
+
           </div >
         </div >
       </div >

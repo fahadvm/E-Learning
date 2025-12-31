@@ -212,16 +212,7 @@ export default function Header() {
           <hr className="border-white/10" />
 
           {/* Suggested Items */}
-          <div className="text-gray-400 text-sm mt-2">Suggestions</div>
-          <Link href="/company/recommended" className="block text-gray-300 hover:text-white transition">
-            Recommended for you
-          </Link>
-          <Link href="/company/learningpath" className="block text-gray-300 hover:text-white transition">
-            Learning Path
-          </Link>
-          <Link href="/company/insights" className="block text-gray-300 hover:text-white transition">
-            Insights & Tips
-          </Link>
+          
 
           <AlertDialog>
             <AlertDialogTrigger asChild>

@@ -24,22 +24,17 @@ export default function EditEmployeeModal({
 }: EditEmployeeModalProps) {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        name: "",
-        email: "",
         position: "",
         department: "",
-        phone: "",
         location: "",
+
     });
 
     useEffect(() => {
         if (employee) {
             setFormData({
-                name: employee.name || "",
-                email: employee.email || "",
                 position: employee.position || "",
                 department: employee.department || "",
-                phone: employee.phone || "",
                 location: employee.location || "",
             });
         }
@@ -67,56 +62,27 @@ export default function EditEmployeeModal({
                     <DialogTitle className="text-xl font-bold">Edit Employee Details</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4 py-4">
+                    
+
                     <div className="space-y-2">
-                        <Label htmlFor="name">Full Name</Label>
+                        <Label htmlFor="position">Position</Label>
                         <Input
-                            id="name"
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            className="bg-white/5 border-white/10"
-                            required
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="email">Email address</Label>
-                        <Input
-                            id="email"
-                            type="email"
-                            value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            className="bg-white/5 border-white/10"
-                            required
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="position">Position</Label>
-                            <Input
-                                id="position"
-                                value={formData.position}
-                                onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                                className="bg-white/5 border-white/10"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="department">Department</Label>
-                            <Input
-                                id="department"
-                                value={formData.department}
-                                onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                                className="bg-white/5 border-white/10"
-                            />
-                        </div>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="phone">Phone Number</Label>
-                        <Input
-                            id="phone"
-                            value={formData.phone}
-                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                            id="position"
+                            value={formData.position}
+                            onChange={(e) => setFormData({ ...formData, position: e.target.value })}
                             className="bg-white/5 border-white/10"
                         />
                     </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="department">Department</Label>
+                        <Input
+                            id="department"
+                            value={formData.department}
+                            onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                            className="bg-white/5 border-white/10"
+                        />
+                    </div>
+               
                     <div className="space-y-2">
                         <Label htmlFor="location">Location</Label>
                         <Input
@@ -131,7 +97,7 @@ export default function EditEmployeeModal({
                             type="button"
                             variant="outline"
                             onClick={onClose}
-                            className="border-white/10 text-white hover:bg-white/5"
+                            className="border-white/10 bg-white/5 text-white hover:bg-white/10"
                         >
                             Cancel
                         </Button>

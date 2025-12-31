@@ -82,128 +82,150 @@ export default function CompanyCart() {
 
   return (
     <>
-      <Header/>
-    <div className="p-10">
-      <h1 className="text-3xl font-bold mb-6">Your Cart</h1>
+      <Header />
+      <div className="px-4 py-6 sm:px-6 lg:px-10">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6">
+          Your Cart
+        </h1>
 
-      {cartCourses.length === 0 ? (
-        <div className="text-center p-16 bg-gray-100 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4">No courses in cart</h2>
-          <Link href="/company/courses">
-            <Button>Browse Courses</Button>
-          </Link>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {cartCourses.map((item) => (
-            <div
-              key={item._id}
-              className="border p-4 rounded-lg flex justify-between items-center"
-            >
-              <div className="flex items-center gap-4">
-                <Image
-                  src={item.courseId.coverImage}
-                  alt="thumbnail"
-                  width={80}
-                  height={60}
-                  className="rounded"
-                />
-                <div>
-                  <h2 className="text-xl font-semibold">
-                    {item.courseId.title}
-                  </h2>
-                  <h2 className="text-xl font-semibold">
-                    ₹{item.courseId.price}
-                  </h2>
-                  <p className="text-gray-600 capitalize">
-                    Access Type: {item.accessType}
-                  </p>
-                  <p className="text-gray-600 capitalize">
-                    Seats: {item.seats}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                {item.accessType === "seats" && (
-                  <div className="flex items-center gap-2">
-                    <select
-                      className="border rounded p-2 min-w-[120px]"
-                      value={
-                        showCustomInput[item.courseId._id]
-                          ? "custom"
-                          : [1, 10, 50, 100].includes(item.seats)
-                            ? item.seats
-                            : "custom"
-                      }
-                      onChange={(e) =>
-                        handleSelectChange(item.courseId._id, e.target.value)
-                      }
-                    >
-                      <option value={1}>1 Seat</option>
-                      <option value={10}>10 Seats</option>
-                      <option value={50}>50 Seats</option>
-                      <option value={100}>100 Seats</option>
-                      <option value="custom">Custom</option>
-                    </select>
-
-                    {/* Custom Seat Input with Apply Button */}
-                    {showCustomInput[item.courseId._id] && (
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="number"
-                          min={1}
-                          max={100}
-                          value={customSeats[item.courseId._id] || 1}
-                          onChange={(e) =>
-                            setCustomSeats({
-                              ...customSeats,
-                              [item.courseId._id]: Number(e.target.value),
-                            })
-                          }
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              applyCustomSeats(item.courseId._id);
-                            }
-                          }}
-                          className="border p-2 w-20 rounded"
-                          placeholder="1-100"
-                        />
-                        <Button
-                          size="sm"
-                          onClick={() => applyCustomSeats(item.courseId._id)}
-                          className="flex items-center gap-1"
-                        >
-                          <Check size={16} />
-                          Apply
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <span className="text-xl font-bold">₹{item.price}</span>
-
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => removeCourse(item.courseId._id)}
-                >
-                  <Trash2 size={16} />
-                </Button>
-              </div>
-            </div>
-          ))}
-
-          <div className="flex justify-between mt-6">
-            <span className="text-2xl font-bold">Total: ₹{calculateTotal()}</span>
-            <Link href="/company/checkout">
-              <Button className="text-lg px-6 py-2">Checkout</Button>
+        {cartCourses.length === 0 ? (
+          <div className="text-center p-8 sm:p-16 bg-gray-100 rounded-lg">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4">
+              No courses in cart
+            </h2>
+            <Link href="/company/courses">
+              <Button>Browse Courses</Button>
             </Link>
           </div>
-        </div>
-      )}
-    </div>
+        ) : (
+          <div className="space-y-4 sm:space-y-6">
+            {cartCourses.map((item) => (
+              <div
+                key={item._id}
+                className="
+            border rounded-lg p-4
+            flex flex-col gap-4
+            md:flex-row md:items-center md:justify-between
+          "
+              >
+                {/* LEFT */}
+                <div className="flex gap-4">
+                  <Image
+                    src={item.courseId.coverImage}
+                    alt="thumbnail"
+                    width={80}
+                    height={60}
+                    className="rounded shrink-0"
+                  />
+
+                  <div className="space-y-1">
+                    <h2 className="text-base sm:text-lg font-semibold">
+                      {item.courseId.title}
+                    </h2>
+                    <p className="text-sm text-gray-600">
+                      Price: ₹{item.courseId.price}
+                    </p>
+                   
+                    <p className="text-sm text-gray-600">
+                      Seats: {item.seats}
+                    </p>
+                  </div>
+                </div>
+
+                {/* RIGHT */}
+                <div className="
+            flex flex-col gap-3
+            sm:flex-row sm:items-center
+          ">
+                  {item.accessType === "seats" && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <select
+                        className="border rounded p-2 min-w-[120px]"
+                        value={
+                          showCustomInput[item.courseId._id]
+                            ? "custom"
+                            : [1, 10, 50, 100].includes(item.seats)
+                              ? item.seats
+                              : "custom"
+                        }
+                        onChange={(e) =>
+                          handleSelectChange(item.courseId._id, e.target.value)
+                        }
+                      >
+                        <option value={1}>1 Seat</option>
+                        <option value={10}>10 Seats</option>
+                        <option value={50}>50 Seats</option>
+                        <option value={100}>100 Seats</option>
+                        <option value="custom">Custom</option>
+                      </select>
+
+                      {showCustomInput[item.courseId._id] && (
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            min={1}
+                            max={100}
+                            value={customSeats[item.courseId._id] || 1}
+                            onChange={(e) =>
+                              setCustomSeats({
+                                ...customSeats,
+                                [item.courseId._id]: Number(e.target.value),
+                              })
+                            }
+                            className="border p-2 w-20 rounded"
+                          />
+                          <Button
+                            size="sm"
+                            onClick={() =>
+                              applyCustomSeats(item.courseId._id)
+                            }
+                          >
+                            <Check size={16} />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between sm:justify-start gap-4">
+                    <span className="text-lg font-bold">
+                      ₹{item.price}
+                    </span>
+
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() =>
+                        removeCourse(item.courseId._id)
+                      }
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {/* TOTAL */}
+            <div className="
+        flex flex-col gap-4
+        sm:flex-row sm:items-center sm:justify-between
+        mt-6
+      ">
+              <span className="text-xl sm:text-2xl font-bold">
+                Total: ₹{calculateTotal()}
+              </span>
+
+              <Link href="/company/checkout" className="w-full sm:w-auto">
+                <Button className="w-full sm:w-auto text-lg px-6 py-2">
+                  Checkout
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
+
     </>
   );
 }

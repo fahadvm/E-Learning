@@ -109,7 +109,7 @@ export default function EmployeeProfileTab({ employee, onUpdate }: EmployeeProfi
                         <div className="grid grid-cols-2 gap-2 w-full">
                             <Button
                                 variant="outline"
-                                className="border-white/10 hover:bg-white/5 text-white"
+                                className="border-white/10 bg-white/5 hover:bg-white/10 text-white"
                                 onClick={toggleBlockEmployee}
                                 disabled={actionLoading}
                             >
@@ -133,7 +133,7 @@ export default function EmployeeProfileTab({ employee, onUpdate }: EmployeeProfi
                                 triggerButton={
                                     <Button
                                         variant="outline"
-                                        className="w-full border-red-500/20 hover:bg-red-500/10 text-red-400"
+                                        className="w-full border-red-500/20 bg-red-500/10 hover:bg-red-500/20 text-red-400"
                                         disabled={actionLoading}
                                     >
                                         <Trash className="w-4 h-4 mr-2" /> Remove
