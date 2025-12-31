@@ -215,7 +215,7 @@ export default function TeacherProfilePage() {
     <div className="min-h-screen bg-gray-50 text-gray-900 selection:bg-black selection:text-white">
       <Header />
 
-      <main className="container mx-auto px-4 md:px-6 py-10 max-w-7xl pt-32">
+      <main className="container mx-auto px-4 md:px-6 py-10 max-w-7xl pt-10">
         {/* Profile Header Card */}
         <div className="relative mb-8 bg-white border border-gray-200 rounded-[2rem] p-8 md:p-12 shadow-sm overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-gray-100 rounded-full blur-[100px] -mr-32 -mt-32" />

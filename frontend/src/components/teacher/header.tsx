@@ -288,7 +288,7 @@ export default function Header() {
         </div>
       )}
 
-      <div className="h-24 lg:h-28" />
+      <div className="h-20 lg:h-24" />
     </>
   );
 }

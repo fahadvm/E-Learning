@@ -126,7 +126,7 @@ export default function Page() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-[#fafafa] pt-32 pb-20">
+      <main className="min-h-screen bg-[#fafafa] pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-6">
           <header className="mb-10 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
             <div className="space-y-1">

@@ -91,7 +91,7 @@ export default function TeacherDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#fafafa] flex flex-col pt-32">
+      <div className="min-h-screen bg-[#fafafa] flex flex-col pt-12">
         <Header />
         <div className="flex-1 flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
@@ -106,7 +106,7 @@ export default function TeacherDashboard() {
     <div className="min-h-screen bg-[#fafafa] pb-12">
       <Header />
 
-      <main className="max-w-7xl mx-auto px-6 pt-32">
+      <main className="max-w-7xl mx-auto px-6 pt-10">
         {/* Welcome Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
           <div>

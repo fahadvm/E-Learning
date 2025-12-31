@@ -179,7 +179,7 @@ export default function MyCoursesPage() {
   return (
     <>
       <Header />
-      <main className="container mx-auto bg-[#fafafa] min-h-screen p-6 md:p-10 pt-32">
+      <main className="container mx-auto bg-[#fafafa] min-h-screen p-6 md:p-10 pt-10">
         {/* Top Bar */}
         <div className="flex justify-between items-center flex-wrap gap-4 mb-10">
           <div>

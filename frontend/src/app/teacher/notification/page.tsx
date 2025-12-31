@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Bell, CheckCircle2, Clock, RefreshCw } from "lucide-react";
 import { showErrorToast, showSuccessToast } from "@/utils/Toast";
 import { teacherCallRequestApi } from "@/services/APIservices/teacherApiService";
+import Header from "@/components/teacher/header";
 import { useTeacher } from "@/context/teacherContext";
 
 interface Notification {
@@ -29,8 +30,8 @@ export default function TeacherNotificationsPage() {
       if (!userId) return;
       setLoading(true);
 
-      const res : any = await teacherCallRequestApi.tester(userId)
-    
+      const res: any = await teacherCallRequestApi.tester(userId)
+
       console.log("Fetched notifications:", res);
 
       if (res) {
@@ -49,7 +50,7 @@ export default function TeacherNotificationsPage() {
   // Mark notification as read
   const markAsRead = async (id: string) => {
     try {
-      const res : any = await teacherCallRequestApi.testerMark({notificationId:id});
+      const res: any = await teacherCallRequestApi.testerMark({ notificationId: id });
       if (res?.ok) {
         showSuccessToast("Marked as read");
         setNotifications((prev) =>
@@ -67,8 +68,9 @@ export default function TeacherNotificationsPage() {
   }, [userId]);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gray-50 pb-10">
+      <Header />
+      <div className="max-w-4xl mx-auto px-6">
         <Card className="shadow-md border border-gray-200">
           <CardHeader className="flex items-center justify-between">
             <CardTitle className="text-xl font-semibold flex items-center gap-2">
@@ -93,10 +95,9 @@ export default function TeacherNotificationsPage() {
                   <div
                     key={n._id}
                     className={`p-4 rounded-lg border flex items-start justify-between transition-all
-                      ${
-                        n.isRead
-                          ? "bg-gray-100 border-gray-200"
-                          : "bg-white border-primary/30 shadow-sm hover:shadow-md"
+                      ${n.isRead
+                        ? "bg-gray-100 border-gray-200"
+                        : "bg-white border-primary/30 shadow-sm hover:shadow-md"
                       }`}
                   >
                     <div className="flex gap-3 items-start">
