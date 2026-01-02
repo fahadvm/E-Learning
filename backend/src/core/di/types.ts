@@ -1,7 +1,4 @@
-import { CompanyCoursePurchaseRepository } from "../../repositories/CompanyCoursePurchaseRepository";
-import { PublicApiRepository } from "../../repositories/PublicApiRepository";
-import { TransactionRepository } from "../../repositories/TransactionRepository";
-import { WalletRepository } from "../../repositories/WalletRepository";
+
 
 export const TYPES = {
     // Repositories

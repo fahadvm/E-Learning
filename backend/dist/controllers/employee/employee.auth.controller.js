@@ -63,9 +63,7 @@ let EmployeeAuthController = class EmployeeAuthController {
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.LOGOUT_SUCCESS, true);
         });
         this.googleAuth = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            console.log("employee side google login is working");
             const { tokenId } = req.body;
-            console.log('tokenId', tokenId);
             if (!tokenId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.GOOGLE_AUTH_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const result = yield this._employeeAuthService.googleAuth(tokenId);
@@ -101,22 +99,20 @@ let EmployeeAuthController = class EmployeeAuthController {
         });
         this.sendChangeEmailOtp = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const { newEmail } = req.body;
-            console.log("req.body new email otp", req.body);
             if (!newEmail)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMAIL_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             yield this._employeeAuthService.sendChangeEmailOtp(req.user.id, newEmail);
-            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "OTP sent to new email", true);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'OTP sent to new email', true);
         });
         this.verifyChangeEmail = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const { newEmail, otp } = req.body;
             if (!newEmail || !otp)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMAIL_OTP_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             yield this._employeeAuthService.verifyChangeEmail(req.user.id, newEmail, otp);
-            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Email updated successfully", true);
+            return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Email updated successfully', true);
         });
         this.changePassword = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const { currentPassword, newPassword } = req.body;
-            console.log("req.body change pass word", req.body);
             if (!currentPassword || !newPassword)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMAIL_PASSWORD_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             yield this._employeeAuthService.changePassword(req.user.id, currentPassword, newPassword);

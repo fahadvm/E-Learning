@@ -72,19 +72,19 @@ let CompanyProfileService = class CompanyProfileService {
         return __awaiter(this, void 0, void 0, function* () {
             const existing = yield this._companyRepository.findById(companyId);
             if (!existing) {
-                (0, ResANDError_1.throwError)("Company not found", HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+                (0, ResANDError_1.throwError)('Company not found', HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             }
-            if (existing.status === "pending") {
-                (0, ResANDError_1.throwError)("Verification already submitted", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            if (existing.status === 'pending') {
+                (0, ResANDError_1.throwError)('Verification already submitted', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             }
-            const certificateUrl = yield this.uploadToCloudinary(certificateFile, "company/certificates");
-            const taxIdUrl = yield this.uploadToCloudinary(taxIdFile, "company/taxIds");
+            const certificateUrl = yield this.uploadToCloudinary(certificateFile, 'company/certificates');
+            const taxIdUrl = yield this.uploadToCloudinary(taxIdFile, 'company/taxIds');
             const updateData = {
                 name,
                 address,
                 pincode,
                 phone,
-                status: "pending",
+                status: 'pending',
                 isVerified: false,
                 registrationDocs: {
                     certificate: certificateUrl,
@@ -105,12 +105,12 @@ let CompanyProfileService = class CompanyProfileService {
             // Check if new email is already in use
             const existingCompany = yield this._companyRepository.findByEmail(newEmail);
             if (existingCompany && existingCompany._id.toString() !== companyId) {
-                (0, ResANDError_1.throwError)("Email already in use", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)('Email already in use', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             }
             // Check rate limiting (1 OTP per minute)
             const existing = emailOtpStore.get(companyId);
             if (existing && Date.now() - existing.createdAt < 60000) {
-                (0, ResANDError_1.throwError)("Please wait 1 minute before requesting another OTP", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)('Please wait 1 minute before requesting another OTP', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             }
             // Generate OTP
             const otp = (0, OtpServices_1.generateOtp)(6);
@@ -137,22 +137,22 @@ let CompanyProfileService = class CompanyProfileService {
         return __awaiter(this, void 0, void 0, function* () {
             const stored = emailOtpStore.get(companyId);
             if (!stored) {
-                (0, ResANDError_1.throwError)("OTP expired or not found. Please request a new one.", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)('OTP expired or not found. Please request a new one.', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             }
             // Check if OTP expired (5 minutes)
             if (Date.now() - stored.createdAt > 300000) {
                 emailOtpStore.delete(companyId);
-                (0, ResANDError_1.throwError)("OTP expired. Please request a new one.", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)('OTP expired. Please request a new one.', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             }
             // Check attempts (max 3)
             if (stored.attempts >= 3) {
                 emailOtpStore.delete(companyId);
-                (0, ResANDError_1.throwError)("Too many failed attempts. Please request a new OTP.", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)('Too many failed attempts. Please request a new OTP.', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             }
             // Verify OTP
             if (stored.otp !== otp || stored.newEmail !== newEmail) {
                 stored.attempts++;
-                (0, ResANDError_1.throwError)("Invalid OTP", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)('Invalid OTP', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             }
             // Update email
             const updated = yield this._companyRepository.updateById(companyId, { email: newEmail });
@@ -171,15 +171,15 @@ let CompanyProfileService = class CompanyProfileService {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COMPANY_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             // Verify current password
             if (!company.password) {
-                (0, ResANDError_1.throwError)("Password not set for this account", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)('Password not set for this account', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             }
             const isMatch = yield bcryptjs_1.default.compare(currentPassword, company.password);
             if (!isMatch) {
-                (0, ResANDError_1.throwError)("Current password is incorrect", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)('Current password is incorrect', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             }
             // Validate new password
             if (newPassword.length < 6) {
-                (0, ResANDError_1.throwError)("New password must be at least 6 characters long", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)('New password must be at least 6 characters long', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             }
             // Hash new password
             const hashedPassword = yield bcryptjs_1.default.hash(newPassword, 10);

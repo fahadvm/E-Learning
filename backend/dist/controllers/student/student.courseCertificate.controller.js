@@ -48,7 +48,7 @@ let StudentCourseCertificateController = class StudentCourseCertificateControlle
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             const page = Number(req.query.page) || 1;
             const limit = Number(req.query.limit) || 6;
-            const search = typeof req.query.search === "string" ? req.query.search : "";
+            const search = typeof req.query.search === 'string' ? req.query.search : '';
             const result = yield this._certService.getMyCourseCertificates(studentId, page, limit, search);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_CERTIFICATE_LIST_FETCHED, true, {
                 certificates: result.certificates,

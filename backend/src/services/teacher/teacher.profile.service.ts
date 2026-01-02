@@ -53,22 +53,17 @@ export class TeacherProfileService implements ITeacherProfileService {
   async sendVerificationRequest(teacherId: string, file: Express.Multer.File): Promise<ITeacher> {
     const teacher = await this._teacherRepository.findById(teacherId);
     if (!teacher) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-
     if (teacher.verificationStatus === VerificationStatus.VERIFIED)
       throwError(MESSAGES.ALREADY_VERIFIED, STATUS_CODES.CONFLICT);
-
     if (teacher.verificationStatus === VerificationStatus.PENDING)
       throwError(MESSAGES.ALREADY_REQUESTED_VERIFICATION, STATUS_CODES.CONFLICT);
-
     // Check profile completeness (optional based on requirements, but user mentioned it)
-    const isComplete = await this._teacherRepository.isProfileComplete(teacherId);
+    // const isComplete = await this._teacherRepository.isProfileComplete(teacherId);
     // if (!isComplete) throwError(MESSAGES.COMPLETE_PROFILE, STATUS_CODES.BAD_REQUEST);
-
     let resumeUrl = teacher.resumeUrl || '';
     if (file) {
       resumeUrl = await this.uploadToCloudinary(file, 'teacher_resumes');
     }
-
     // Set to PENDING, not VERIFIED
     const updated = await this._teacherRepository.sendVerificationRequest(teacherId, VerificationStatus.PENDING, resumeUrl);
 

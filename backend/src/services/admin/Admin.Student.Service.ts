@@ -7,6 +7,7 @@ import { ISubscriptionPlanRepository } from '../../core/interfaces/repositories/
 import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
+import { IStudent } from '../../models/Student';
 
 import {
   adminStudentListDto,
@@ -21,7 +22,7 @@ export class AdminStudentService implements IAdminStudentService {
     @inject(TYPES.StudentRepository) private readonly _studentRepo: IStudentRepository,
     @inject(TYPES.OrderRepository) private readonly _orderRepo: IOrderRepository,
     @inject(TYPES.SubscriptionPlanRepository) private readonly _subscriptionRepo: ISubscriptionPlanRepository
-  ) {}
+  ) { }
 
   async getAllStudents(
     page: number,
@@ -41,12 +42,13 @@ export class AdminStudentService implements IAdminStudentService {
       const courseCount = orders.flatMap((o) => o.courses).length;
       const totalSpent = orders.reduce((sum, o) => sum + o.amount, 0);
 
+      const studentObj = (student.toObject ? student.toObject() : student) as IStudent;
       formatted.push(
         adminStudentListDto({
-          ...student,
+          ...studentObj,
           courseCount,
           totalSpent
-        })
+        } as unknown as IStudent & { courseCount?: number; totalSpent?: number })
       );
     }
 
@@ -61,8 +63,6 @@ export class AdminStudentService implements IAdminStudentService {
     const courses = orders.flatMap((o) => o.courses || []);
     const purchases = orders;
 
-    console.log()
-
     return adminStudentDetailsDto({
       student,
       courses,
@@ -70,13 +70,15 @@ export class AdminStudentService implements IAdminStudentService {
     });
   }
 
-  async blockStudent(studentId: string): Promise<any> {
+  async blockStudent(studentId: string): Promise<IAdminStudentListDTO> {
     const updated = await this._studentRepo.update(studentId, { isBlocked: true });
+    if (!updated) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     return adminStudentListDto(updated);
   }
 
-  async unblockStudent(studentId: string): Promise<any> {
+  async unblockStudent(studentId: string): Promise<IAdminStudentListDTO> {
     const updated = await this._studentRepo.update(studentId, { isBlocked: false });
+    if (!updated) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     return adminStudentListDto(updated);
   }
 }

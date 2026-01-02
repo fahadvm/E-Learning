@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
-import CompanyCoursePurchase, { ICompanyCoursePurchase }  from "../models/CompanyCoursePurchase";
-import { ICompanyCoursePurchaseRepository } from "../core/interfaces/repositories/ICompanyCoursePurchaseRepository";
+import mongoose from 'mongoose';
+import CompanyCoursePurchase, { ICompanyCoursePurchase }  from '../models/CompanyCoursePurchase';
+import { ICompanyCoursePurchaseRepository } from '../core/interfaces/repositories/ICompanyCoursePurchaseRepository';
 
 export class CompanyCoursePurchaseRepository
   implements ICompanyCoursePurchaseRepository
@@ -31,10 +31,10 @@ export class CompanyCoursePurchaseRepository
     courseId: mongoose.Types.ObjectId
   ): Promise<ICompanyCoursePurchase> {
     const record = await CompanyCoursePurchase.findOne({ companyId, courseId });
-    if (!record) throw new Error("Course not purchased");
+    if (!record) throw new Error('Course not purchased');
 
     if (record.seatsUsed >= record.seatsPurchased) {
-      throw new Error("No seats available");
+      throw new Error('No seats available');
     }
 
     record.seatsUsed += 1;
@@ -65,11 +65,11 @@ export class CompanyCoursePurchaseRepository
   async getAllPurchasesByCompany(
     companyId: mongoose.Types.ObjectId
   ): Promise<ICompanyCoursePurchase[]> {
-    return CompanyCoursePurchase.find({ companyId }).populate("courseId");
+    return CompanyCoursePurchase.find({ companyId }).populate('courseId');
   }
   async getPaidPurchasesByCompany(
     companyId: mongoose.Types.ObjectId
   ): Promise<ICompanyCoursePurchase[]> {
-    return CompanyCoursePurchase.find({ companyId,status: 'paid' }).populate("courseId");
+    return CompanyCoursePurchase.find({ companyId,status: 'paid' }).populate('courseId');
   }
 }

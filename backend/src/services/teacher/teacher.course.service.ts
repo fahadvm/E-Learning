@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { ITeacherCourseService } from '../../core/interfaces/services/teacher/ITeacherCourseService';
+import { ITeacherCourseService, ICourseWithStats, ICourseAnalytics } from '../../core/interfaces/services/teacher/ITeacherCourseService';
 import { ICourseRepository } from '../../core/interfaces/repositories/ICourseRepository';
 import { ICourseResourceRepository } from '../../core/interfaces/repositories/ICourseResourceRepository';
 import { ICourseResource } from '../../models/CourseResource';
@@ -10,7 +10,7 @@ import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import cloudinary from '../../config/cloudinary';
 import { Types } from 'mongoose';
-import { ICourse } from '../../models/Course';
+import { ICourse, IModule } from '../../models/Course';
 import { CreateCourseRequest } from '../../types/filter/fiterTypes';
 import { INotificationService } from '../../core/interfaces/services/shared/INotificationService';
 import { ICompanyRepository } from '../../core/interfaces/repositories/ICompanyRepository';
@@ -149,7 +149,7 @@ export class TeacherCourseService implements ITeacherCourseService {
     return newCourse;
   }
 
-  async getCoursesByTeacherId(teacherId: string): Promise<any[]> {
+  async getCoursesByTeacherId(teacherId: string): Promise<ICourseWithStats[]> {
     const courses = await this._courseRepository.findByTeacherId(teacherId);
     if (!courses || courses.length === 0) return [];
 
@@ -157,25 +157,25 @@ export class TeacherCourseService implements ITeacherCourseService {
 
     // 1. Get completion rates for all these courses
     const progressStats = await Student.aggregate([
-      { $unwind: "$coursesProgress" },
-      { $match: { "coursesProgress.courseId": { $in: courseIds } } },
+      { $unwind: '$coursesProgress' },
+      { $match: { 'coursesProgress.courseId': { $in: courseIds } } },
       {
         $group: {
-          _id: "$coursesProgress.courseId",
-          avgCompletion: { $avg: "$coursesProgress.percentage" }
+          _id: '$coursesProgress.courseId',
+          avgCompletion: { $avg: '$coursesProgress.percentage' }
         }
       }
     ]);
 
     // 2. Get company enrollments for all these courses
     const companyEnrollmentsData = await CompanyOrderModel.aggregate([
-      { $match: { status: 'paid', "purchasedCourses.courseId": { $in: courseIds } } },
-      { $unwind: "$purchasedCourses" },
-      { $match: { "purchasedCourses.courseId": { $in: courseIds } } },
+      { $match: { status: 'paid', 'purchasedCourses.courseId': { $in: courseIds } } },
+      { $unwind: '$purchasedCourses' },
+      { $match: { 'purchasedCourses.courseId': { $in: courseIds } } },
       {
         $group: {
-          _id: "$purchasedCourses.courseId",
-          totalSeats: { $sum: "$purchasedCourses.seats" }
+          _id: '$purchasedCourses.courseId',
+          totalSeats: { $sum: '$purchasedCourses.seats' }
         }
       }
     ]);
@@ -193,11 +193,11 @@ export class TeacherCourseService implements ITeacherCourseService {
 
       return {
         ...c,
-        enrolledStudents: (c.totalStudents || 0) + (companyStatsMap.get(cId) || 0),
-        rating: c.averageRating || 0,
-        reviewCount: c.reviewCount || 0,
+        enrolledStudents: (course.totalStudents || 0) + (companyStatsMap.get(cId) || 0),
+        rating: course.averageRating || 0,
+        reviewCount: course.reviewCount || 0,
         completionRate: statsMap.get(cId) || 0
-      };
+      } as ICourseWithStats;
     });
   }
 
@@ -255,7 +255,7 @@ export class TeacherCourseService implements ITeacherCourseService {
     let modulesBody: ModuleDTO[] = [];
     try {
       modulesBody = JSON.parse(req.body.modules || '[]');
-    } catch (e) {
+    } catch {
       modulesBody = [];
     }
 
@@ -324,7 +324,7 @@ export class TeacherCourseService implements ITeacherCourseService {
       requirements: requirements || [],
       isPublished: req.body.isPublished === 'true',
       totalDuration: req.body.totalDuration ? Number(req.body.totalDuration) : undefined,
-      modules: modules as any, // casting to any to match ICourse module structure if strict typing complains
+      modules: modules as unknown as IModule[], // casting to match ICourse module structure
     };
 
     const updatedCourse = await this._courseRepository.editCourse(courseId, updates);
@@ -365,7 +365,7 @@ export class TeacherCourseService implements ITeacherCourseService {
     return updatedCourse;
   }
 
-  async getCourseAnalytics(courseId: string, teacherId: string): Promise<any> {
+  async getCourseAnalytics(courseId: string, teacherId: string): Promise<ICourseAnalytics> {
     const tId = new Types.ObjectId(teacherId);
     const cId = new Types.ObjectId(courseId);
 
@@ -380,10 +380,10 @@ export class TeacherCourseService implements ITeacherCourseService {
 
     // Company enrollments (sum of seats bought)
     const companyEnrollmentsData = await CompanyOrderModel.aggregate([
-      { $match: { status: 'paid', "purchasedCourses.courseId": cId } },
-      { $unwind: "$purchasedCourses" },
-      { $match: { "purchasedCourses.courseId": cId } },
-      { $group: { _id: null, totalSeats: { $sum: "$purchasedCourses.seats" } } }
+      { $match: { status: 'paid', 'purchasedCourses.courseId': cId } },
+      { $unwind: '$purchasedCourses' },
+      { $match: { 'purchasedCourses.courseId': cId } },
+      { $group: { _id: null, totalSeats: { $sum: '$purchasedCourses.seats' } } }
     ]);
     const companyEnrollments = companyEnrollmentsData.length > 0 ? companyEnrollmentsData[0].totalSeats : 0;
 
@@ -404,24 +404,24 @@ export class TeacherCourseService implements ITeacherCourseService {
       {
         $group: {
           _id: {
-            year: { $year: "$createdAt" },
-            month: { $month: "$createdAt" }
+            year: { $year: '$createdAt' },
+            month: { $month: '$createdAt' }
           },
-          revenue: { $sum: "$amount" }
+          revenue: { $sum: '$amount' }
         }
       },
-      { $sort: { "_id.year": 1, "_id.month": 1 } }
+      { $sort: { '_id.year': 1, '_id.month': 1 } }
     ]);
 
     // 3. Student Progress & Completion
     const progressStats = await Student.aggregate([
-      { $unwind: "$coursesProgress" },
-      { $match: { "coursesProgress.courseId": cId } },
+      { $unwind: '$coursesProgress' },
+      { $match: { 'coursesProgress.courseId': cId } },
       {
         $group: {
           _id: null,
-          avgCompletion: { $avg: "$coursesProgress.percentage" },
-          completedCount: { $sum: { $cond: [{ $gte: ["$coursesProgress.percentage", 100] }, 1, 0] } },
+          avgCompletion: { $avg: '$coursesProgress.percentage' },
+          completedCount: { $sum: { $cond: [{ $gte: ['$coursesProgress.percentage', 100] }, 1, 0] } },
           totalProgressRecords: { $sum: 1 }
         }
       }
@@ -429,12 +429,12 @@ export class TeacherCourseService implements ITeacherCourseService {
 
     // 4. Lesson Completion Count
     const lessonCompletion = await Student.aggregate([
-      { $unwind: "$coursesProgress" },
-      { $match: { "coursesProgress.courseId": cId } },
-      { $unwind: "$coursesProgress.completedLessons" },
+      { $unwind: '$coursesProgress' },
+      { $match: { 'coursesProgress.courseId': cId } },
+      { $unwind: '$coursesProgress.completedLessons' },
       {
         $group: {
-          _id: "$coursesProgress.completedLessons",
+          _id: '$coursesProgress.completedLessons',
           count: { $sum: 1 }
         }
       }
@@ -445,11 +445,11 @@ export class TeacherCourseService implements ITeacherCourseService {
       { $match: { courseId: cId } },
       {
         $group: {
-          _id: "$rating",
+          _id: '$rating',
           count: { $sum: 1 }
         }
       },
-      { $sort: { "_id": -1 } }
+      { $sort: { '_id': -1 } }
     ]);
 
     return {
@@ -467,7 +467,7 @@ export class TeacherCourseService implements ITeacherCourseService {
       revenueChart: revenueData,
       lessonStats: lessonCompletion,
       ratingStats: ratingDistribution,
-      courseStructure: course.modules // For matching lesson IDs with titles on frontend
+      courseStructure: course.modules as IModule[] // For matching lesson IDs with titles on frontend
     };
   }
 }

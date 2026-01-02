@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import { IEmployeeLearningPathProgress } from "../../../models/EmployeeLearningPathProgress";
+import mongoose from 'mongoose';
+import { IEmployeeLearningPathProgress } from '../../../models/EmployeeLearningPathProgress';
 
 export interface IEmployeeLearningPathProgressRepository {
   findAssigned(

@@ -15,23 +15,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.uploadPDFtoCloudinary = void 0;
 // utils/uploadPDF.ts
 const cloudinary_1 = __importDefault(require("../config/cloudinary"));
+const logger_1 = __importDefault(require("./logger"));
 const uploadPDFtoCloudinary = (buffer) => __awaiter(void 0, void 0, void 0, function* () {
     const publicId = `cert-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
     return new Promise((resolve, reject) => {
         const uploadStream = cloudinary_1.default.uploader.upload_stream({
-            folder: "certificates",
+            folder: 'certificates',
             public_id: publicId,
-            resource_type: "raw", // Correct for PDFs
-            format: "pdf",
+            resource_type: 'raw', // Correct for PDFs
+            format: 'pdf',
             overwrite: false, // No corruption
-            tags: ["certificate", "pdf"],
+            tags: ['certificate', 'pdf'],
         }, (error, result) => {
             if (error) {
-                console.error("Cloudinary upload failed:", error);
+                logger_1.default.error('Cloudinary upload failed:', error);
                 return reject(error);
             }
             if (!(result === null || result === void 0 ? void 0 : result.secure_url))
-                return reject(new Error("No URL returned"));
+                return reject(new Error('No URL returned'));
             // Use the raw secure_url – NO extra flags or transforms
             // This will be: https://res.cloudinary.com/ds4yhisr0/raw/upload/vXXXX/certificates/cert-XXXX.pdf
             resolve(result.secure_url);

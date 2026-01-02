@@ -16,9 +16,9 @@ router.get('/', (0, authMiddleware_1.authMiddleware)('company'), (0, asyncHandle
 router.get('/:learningPathId', (0, authMiddleware_1.authMiddleware)('company'), (0, asyncHandler_1.asyncHandler)(controller.getOne.bind(controller)));
 router.put('/:learningPathId', (0, authMiddleware_1.authMiddleware)('company'), (0, asyncHandler_1.asyncHandler)(controller.update.bind(controller)));
 router.delete('/:learningPathId', (0, authMiddleware_1.authMiddleware)('company'), (0, asyncHandler_1.asyncHandler)(controller.delete.bind(controller)));
-router.get("/assigned/:employeeId", (0, authMiddleware_1.authMiddleware)("company"), (0, asyncHandler_1.asyncHandler)(controller.listAssigned.bind(controller)));
+router.get('/assigned/:employeeId', (0, authMiddleware_1.authMiddleware)('company'), (0, asyncHandler_1.asyncHandler)(controller.listAssigned.bind(controller)));
 // Assign LP to employee
-router.post("/assign", (0, authMiddleware_1.authMiddleware)("company"), (0, asyncHandler_1.asyncHandler)(controller.assign.bind(controller)));
+router.post('/assign', (0, authMiddleware_1.authMiddleware)('company'), (0, asyncHandler_1.asyncHandler)(controller.assign.bind(controller)));
 // Unassign LP from employee
-router.delete("/unassign/employee", (0, authMiddleware_1.authMiddleware)("company"), (0, asyncHandler_1.asyncHandler)(controller.unassign.bind(controller)));
+router.delete('/unassign/employee', (0, authMiddleware_1.authMiddleware)('company'), (0, asyncHandler_1.asyncHandler)(controller.unassign.bind(controller)));
 exports.default = router;

@@ -66,7 +66,7 @@ export class StudentCourseController implements IStudentCourseController {
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
     if (!language || !code) throwError(MESSAGES.LANGUAGE_AND_CODE_REQUIRED, STATUS_CODES.BAD_REQUEST);
 
-    const canAccess = await this._subscriptionService.hasFeature(studentId, "Compiler");
+    const canAccess = await this._subscriptionService.hasFeature(studentId, 'Compiler');
     if (!canAccess) throwError(MESSAGES.FEATURE_NOT_ALLOWED, STATUS_CODES.FORBIDDEN);
 
     const languageMap: Record<string, number> = {

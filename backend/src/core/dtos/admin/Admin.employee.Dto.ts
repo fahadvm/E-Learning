@@ -1,5 +1,5 @@
-// src/core/dtos/admin/AdminEmployee.dto.ts
 import { IEmployee } from '../../../models/Employee';
+import { ICompany } from '../../../models/Company';
 
 export interface IAdminEmployeeDTO {
   _id: string;
@@ -23,13 +23,13 @@ export interface PaginatedEmployeeDTO {
 }
 
 
-export const adminEmployeeDto = (employee: any): IAdminEmployeeDTO => ({
+export const adminEmployeeDto = (employee: IEmployee): IAdminEmployeeDTO => ({
   _id: employee._id.toString(),
   name: employee.name,
   email: employee.email,
-  companyId: employee.companyId?._id?.toString() || employee.companyId?.toString(),
-  companyName: employee.companyId?.name,
-  coursesAssigned: employee.coursesAssigned?.map((id: any) => id.toString()) || [],
+  companyId: (employee.companyId as unknown as ICompany)?._id?.toString() || employee.companyId?.toString(),
+  companyName: (employee.companyId as unknown as ICompany)?.name,
+  coursesAssigned: employee.coursesAssigned?.map((id) => id.toString()) || [],
   position: employee.position,
   department: employee.department,
   isBlocked: employee.isBlocked,

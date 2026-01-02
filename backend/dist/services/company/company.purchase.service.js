@@ -56,9 +56,9 @@ let CompanyPurchaseService = class CompanyPurchaseService {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.CART_IS_EMPTY, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             }
             // Extract course IDs for duplicate check
-            const courseIds = cart.courses.map(item => { var _a; return ((_a = item.courseId._id) === null || _a === void 0 ? void 0 : _a.toString()) || item.courseId.toString(); });
-            const purchasedCourseIds = yield this._companyOrderRepo.getPurchasedCourseIds(companyId);
-            const duplicates = courseIds.filter(id => purchasedCourseIds.includes(id));
+            // const courseIds = cart.courses.map(item => item.courseId._id?.toString() || item.courseId.toString());
+            // const purchasedCourseIds = await this._companyOrderRepo.getPurchasedCourseIds(companyId);
+            // const duplicates = courseIds.filter(id => purchasedCourseIds.includes(id));
             // if (duplicates.length > 0) {
             //   throwError(MESSAGES.COURSES_ALREADY_PURCHASED, STATUS_CODES.CONFLICT);
             // }
@@ -143,14 +143,14 @@ let CompanyPurchaseService = class CompanyPurchaseService {
                     // Looking at Transaction.ts, `userId: { type: Schema.Types.ObjectId, ref: "Student" }`.
                     // This is a schema limitation. For now, let's store it in userId but notes will clarify.
                     // Ideally we should update Transaction model to support Company, but for this task I will use userId and notes.
-                    type: "COURSE_PURCHASE",
-                    txnNature: "CREDIT",
+                    type: 'COURSE_PURCHASE',
+                    txnNature: 'CREDIT',
                     amount: order.amount,
                     grossAmount: order.amount,
                     teacherShare,
                     platformFee,
-                    paymentMethod: "STRIPE",
-                    paymentStatus: "SUCCESS",
+                    paymentMethod: 'STRIPE',
+                    paymentStatus: 'SUCCESS',
                     notes: `Company Purchase: ${order._id}`
                 });
                 // 2. Distribute to Teachers
@@ -168,14 +168,14 @@ let CompanyPurchaseService = class CompanyPurchaseService {
                         const earningTx = yield this._transactionRepo.create({
                             teacherId: new mongoose_1.default.Types.ObjectId(teacherIdStr),
                             courseId: new mongoose_1.default.Types.ObjectId(courseIdStr),
-                            type: "TEACHER_EARNING",
-                            txnNature: "CREDIT",
+                            type: 'TEACHER_EARNING',
+                            txnNature: 'CREDIT',
                             amount: itemTeacherCut,
                             grossAmount: itemPrice,
                             teacherShare: itemTeacherCut,
                             platformFee: itemPlatformCut,
-                            paymentMethod: "WALLET",
-                            paymentStatus: "SUCCESS",
+                            paymentMethod: 'WALLET',
+                            paymentStatus: 'SUCCESS',
                             notes: `Earning from Company Order: ${order._id}`
                         });
                         // Credit Wallet
@@ -206,14 +206,12 @@ let CompanyPurchaseService = class CompanyPurchaseService {
     getPurchasedCourses(companyId) {
         return __awaiter(this, void 0, void 0, function* () {
             const courses = yield this._companyOrderRepo.getOrdersByCompanyId(companyId);
-            console.log("course fetched more", courses);
             return courses;
         });
     }
     getMycoursesIdsById(companyId) {
         return __awaiter(this, void 0, void 0, function* () {
             const courseIds = yield this._companyOrderRepo.getPurchasedCourseIds(companyId);
-            console.log("course fetched more", courseIds);
             return courseIds;
         });
     }

@@ -38,7 +38,6 @@ let CompanyLearningPathController = class CompanyLearningPathController {
             const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!companyId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
-            console.log(req.body);
             const created = yield this._service.create(companyId, req.body);
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.CREATED, ResponseMessages_1.MESSAGES.CREATED_SUCCESS, true, created);
         });
@@ -98,8 +97,8 @@ let CompanyLearningPathController = class CompanyLearningPathController {
             const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!companyId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
-            const { page = "1", limit = "10", search = "" } = req.query;
-            const data = yield this._service.listCompanyLearningPaths(companyId, Number(page), Number(limit), String(search || ""));
+            const { page = '1', limit = '10', search = '' } = req.query;
+            const data = yield this._service.listCompanyLearningPaths(companyId, Number(page), Number(limit), String(search || ''));
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.LEARNING_PATHS_FETCHED, true, data);
         });
     }
@@ -135,7 +134,6 @@ let CompanyLearningPathController = class CompanyLearningPathController {
     unassign(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
-            console.log("controller for delete is working");
             const companyId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!companyId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);

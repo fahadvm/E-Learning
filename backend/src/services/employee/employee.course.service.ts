@@ -4,7 +4,6 @@ import { IEmployeeRepository } from '../../core/interfaces/repositories/IEmploye
 import { IEmployeeCourseService } from '../../core/interfaces/services/employee/IEmployeeCourseService';
 import { ICompanyOrderRepository } from '../../core/interfaces/repositories/ICompanyOrderRepository';
 import { ICourseRepository } from '../../core/interfaces/repositories/ICourseRepository';
-import { ICompanyOrder } from '../../models/CompanyOrder';
 import { ICourse } from '../../models/Course';
 import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
@@ -13,7 +12,6 @@ import { ICourseProgress, IEmployee } from '../../models/Employee';
 import { ICourseResource } from '../../models/CourseResource';
 import { ICourseResourceRepository } from '../../core/interfaces/repositories/ICourseResourceRepository';
 import { IEmployeeLearningRecord } from '../../models/EmployeeLearningRecord';
-import { IEmployeeLearningPathRepository } from '../../core/interfaces/repositories/IEmployeeLearningPathRepository';
 import { IEmployeeLearningPathProgressRepository } from '../../core/interfaces/repositories/IEmployeeLearningPathProgressRepository';
 import { updateCompanyLeaderboard } from '../../utils/redis/leaderboard';
 import { INotificationService } from '../../core/interfaces/services/shared/INotificationService';
@@ -92,9 +90,7 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     // Check if a new module was unlocked
     const newCompletedModulesCount = progress.completedModules?.length || 0;
     if (newCompletedModulesCount > oldCompletedModulesCount) {
-      // Find the next module
-      const nextModule = course.modules[newCompletedModulesCount];
-
+      // New module unlocked
     }
 
     // Notify on Course Completion
@@ -127,7 +123,7 @@ export class EmployeeCourseService implements IEmployeeCourseService {
       await this._notificationService.createNotification(
         employeeId,
         'Learning Path Finished!',
-        `Amazing work! You have finished the entire learning path.`,
+        'Amazing work! You have finished the entire learning path.',
         'learning-path-complete',
         'employee'
       );
@@ -162,7 +158,7 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     const minutes = seconds / 60;
 
     const employee = await this._employeeRepo.findById(employeeId);
-    if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND, STATUS_CODES.NOT_FOUND)
+    if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     const companyId = employee?.companyId?._id?.toString() || employee?.companyId?.toString();
     if (!companyId) throwError(MESSAGES.NOT_PART_OF_COMPANY, STATUS_CODES.CONFLICT);
 
@@ -197,7 +193,7 @@ export class EmployeeCourseService implements IEmployeeCourseService {
   async getProgress(employeeId: string): Promise<ICourseProgress[] | null> {
     return this._employeeRepo.getProgress(employeeId);
   }
-  async getLearningRecords(employeeId: string): Promise<any> {
+  async getLearningRecords(employeeId: string): Promise<IEmployeeLearningRecord[]> {
     return this._employeeRepo.getLearningRecords(employeeId);
   }
 }

@@ -1,5 +1,5 @@
-import { Server, Socket } from "socket.io";
-import { Server as HTTPServer } from "http";
+import { Server, Socket } from 'socket.io';
+import { Server as HTTPServer } from 'http';
 import container from '../core/di/container';
 import { TYPES } from '../core/di/types';
 import { IChatService } from '../core/interfaces/services/student/IStudentChatService';
@@ -22,7 +22,7 @@ export const getIO = () => ioInstance;
 
 const onlineUsers = new Map<string, string>(); // userId -> socketId
 
-export const emitToUser = (userId: string, event: string, data: any) => {
+export const emitToUser = (userId: string, event: string, data: unknown) => {
   if (ioInstance) {
     const socketId = onlineUsers.get(userId);
     if (socketId) {
@@ -31,7 +31,7 @@ export const emitToUser = (userId: string, event: string, data: any) => {
   }
 };
 
-export const broadcastEvent = (event: string, data: any) => {
+export const broadcastEvent = (event: string, data: unknown) => {
   if (ioInstance) {
     ioInstance.emit(event, data);
   }
@@ -39,16 +39,16 @@ export const broadcastEvent = (event: string, data: any) => {
 
 export function initSocket(server: HTTPServer) {
   const allowedOrigins = [
-    "https://devnext.online",
-    "https://www.devnext.online",
-    "https://api.devnext.online",
-    "http://localhost:3000",
+    'https://devnext.online',
+    'https://www.devnext.online',
+    'https://api.devnext.online',
+    'http://localhost:3000',
   ];
 
   const io = new Server(server, {
     cors: {
       origin: allowedOrigins,
-      methods: ["GET", "POST"],
+      methods: ['GET', 'POST'],
       credentials: true,
     },
   });
@@ -56,38 +56,38 @@ export function initSocket(server: HTTPServer) {
   ioInstance = io;
   const broadcastOnlineUsers = () => {
     const users = Array.from(onlineUsers.keys());
-    io.emit("onlineUsers", users);
+    io.emit('onlineUsers', users);
   };
 
-  io.on("connection", (socket: Socket) => {
-    console.log(`New socket connected: ${socket.id}`);
+  io.on('connection', (socket: Socket) => {
+    logger.info(`New socket connected: ${socket.id}`);
 
     /** ------------------- CHAT ------------------- **/
 
-    socket.on("join", (userId: string) => {
+    socket.on('join', (userId: string) => {
       onlineUsers.set(userId, socket.id);
       broadcastOnlineUsers();
-      console.log(`User ${userId} joined with socket ${socket.id}`);
+      logger.info(`User ${userId} joined with socket ${socket.id}`);
     });
 
-    socket.on("join_chat", (chatId: string) => {
+    socket.on('join_chat', (chatId: string) => {
       socket.join(chatId);
-      console.log(`User ${socket.id} joined chat ${chatId}`);
+      logger.info(`User ${socket.id} joined chat ${chatId}`);
     });
 
-    socket.on("send_message", async (data: { senderId: string; receiverId?: string; message: string; chatId: string; senderType: string; receiverType?: string }) => {
+    socket.on('send_message', async (data: { senderId: string; receiverId?: string; message: string; chatId: string; senderType: string; receiverType?: string }) => {
       // Save to DB
       const savedMessage = await chatService.sendMessage(data.senderId, data.message, data.chatId, data.senderType, data.receiverId, data.receiverType);
 
       // Group Chat Broadcast (Room based - for those inside the chat)
-      io.to(data.chatId).emit("receive_message", savedMessage);
+      io.to(data.chatId).emit('receive_message', savedMessage);
 
       // Notify Recipient for Chat List Update (move to top)
       if (data.receiverId) {
         const receiverSocketId = onlineUsers.get(data.receiverId);
         if (receiverSocketId) {
           // Emit event to update chat list order
-          io.to(receiverSocketId).emit("chat-list-update", {
+          io.to(receiverSocketId).emit('chat-list-update', {
             chatId: data.chatId,
             lastMessage: savedMessage,
           });
@@ -103,74 +103,72 @@ export function initSocket(server: HTTPServer) {
       // Also update sender's chat list (if they have multiple tabs or just for consistency)
       const senderSocketId = onlineUsers.get(data.senderId);
       if (senderSocketId) {
-        io.to(senderSocketId).emit("chat-list-update", {
+        io.to(senderSocketId).emit('chat-list-update', {
           chatId: data.chatId,
           lastMessage: savedMessage,
         });
       }
     });
 
-    socket.on("typing", (data: { senderId: string; receiverId: string }) => {
+    socket.on('typing', (data: { senderId: string; receiverId: string }) => {
       const receiverSocketId = onlineUsers.get(data.receiverId);
-      if (receiverSocketId) io.to(receiverSocketId).emit("typing", { senderId: data.senderId });
+      if (receiverSocketId) io.to(receiverSocketId).emit('typing', { senderId: data.senderId });
     });
 
-    socket.on("read_message", async (data: { chatId: string; messageId: string; senderId: string; receiverId: string }) => {
+    socket.on('read_message', async (data: { chatId: string; messageId: string; senderId: string; receiverId: string }) => {
       try {
         await chatService.markMessageAsRead(data.chatId, data.messageId);
         const senderSocketId = onlineUsers.get(data.senderId);
-        if (senderSocketId) io.to(data.chatId).emit("message_read", { messageId: data.messageId, chatId: data.chatId });
+        if (senderSocketId) io.to(data.chatId).emit('message_read', { messageId: data.messageId, chatId: data.chatId });
       } catch (err) {
-        logger.error("Error marking message as read:", err);
+        logger.error('Error marking message as read:', err);
       }
     });
 
-    socket.on("react_message", async (data: { chatId: string; messageId: string; userId: string; reaction: string; receiverId: string }) => {
+    socket.on('react_message', async (data: { chatId: string; messageId: string; userId: string; reaction: string; receiverId: string }) => {
       try {
         await chatService.addReaction(data.chatId, data.messageId, data.userId, data.reaction);
-        io.to(data.chatId).emit("message_reaction", data);
+        io.to(data.chatId).emit('message_reaction', data);
       } catch (err) {
-        logger.error("Error adding reaction:", err);
+        logger.error('Error adding reaction:', err);
       }
     });
 
-    socket.on("delete_message", async (data: { chatId: string; messageId: string; senderId: string; receiverId: string }) => {
+    socket.on('delete_message', async (data: { chatId: string; messageId: string; senderId: string; receiverId: string }) => {
       try {
         await chatService.deleteMessage(data.chatId, data.messageId, data.senderId);
-        io.to(data.chatId).emit("message_deleted", { messageId: data.messageId, chatId: data.chatId });
+        io.to(data.chatId).emit('message_deleted', { messageId: data.messageId, chatId: data.chatId });
       } catch (err) {
-        logger.error("Error deleting message:", err);
+        logger.error('Error deleting message:', err);
       }
     });
 
-    socket.on("edit_message", async (data: { chatId: string; messageId: string; senderId: string; newMessage: string; receiverId: string }) => {
+    socket.on('edit_message', async (data: { chatId: string; messageId: string; senderId: string; newMessage: string; receiverId: string }) => {
       try {
         await chatService.editMessage(data.chatId, data.messageId, data.senderId, data.newMessage);
-        io.to(data.chatId).emit("message_edited", { messageId: data.messageId, chatId: data.chatId, newMessage: data.newMessage });
+        io.to(data.chatId).emit('message_edited', { messageId: data.messageId, chatId: data.chatId, newMessage: data.newMessage });
       } catch (err) {
-        logger.error("Error editing message:", err);
+        logger.error('Error editing message:', err);
       }
     });
 
-    socket.on("send_notification", async (data: { receiverId: string; title: string; message: string }) => {
+    socket.on('send_notification', async (data: { receiverId: string; title: string; message: string }) => {
       try {
-        // console.log("here the notification event on in ", data)
-        await notificationService.createNotification(data.receiverId, data.title, data.message, "general");
+        await notificationService.createNotification(data.receiverId, data.title, data.message, 'general');
         const receiverSocketId = onlineUsers.get(data.receiverId);
-        // console.log("now onwanrd student will get the notification")
-        if (receiverSocketId) io.to(receiverSocketId).emit("receive_notification", data);
+        if (receiverSocketId) io.to(receiverSocketId).emit('receive_notification', data);
       } catch (err) {
-        logger.error("Error sending notification:", err);
+        logger.error('Error sending notification:', err);
       }
     });
 
     /** ------------------- DIRECT CALLING (WhatsApp Style) ------------------- **/
 
     // Caller initiates call
-    socket.on("call-user", (data: { userToCall: string; signalData: any; from: string; name: string }) => {
+    socket.on('call-user', (data: { userToCall: string; signalData: unknown; from: string; name: string }) => {
       const receiverSocketId = onlineUsers.get(data.userToCall);
       if (receiverSocketId) {
-        io.to(receiverSocketId).emit("incoming-call", {
+        io.to(receiverSocketId).emit('incoming-call', {
           signal: data.signalData,
           from: data.from,
           name: data.name
@@ -179,41 +177,41 @@ export function initSocket(server: HTTPServer) {
     });
 
     // Receiver answers call
-    socket.on("answer-call", (data: { signal: any; to: string }) => {
+    socket.on('answer-call', (data: { signal: unknown; to: string }) => {
       // Robust routing: Try UserID lookup, fallback to direct SocketID
       const targetSocketId = onlineUsers.get(data.to) || data.to;
       if (targetSocketId) {
-        io.to(targetSocketId).emit("call-accepted", data.signal);
+        io.to(targetSocketId).emit('call-accepted', data.signal);
       }
     });
 
     // Receiver rejects call
-    socket.on("reject-call", (data: { to: string }) => {
+    socket.on('reject-call', (data: { to: string }) => {
       const targetSocketId = onlineUsers.get(data.to) || data.to;
       if (targetSocketId) {
-        io.to(targetSocketId).emit("call-rejected");
+        io.to(targetSocketId).emit('call-rejected');
       }
     });
 
     // End call
-    socket.on("end-call", (data: { to: string }) => {
+    socket.on('end-call', (data: { to: string }) => {
       const targetSocketId = onlineUsers.get(data.to) || data.to;
       if (targetSocketId) {
-        io.to(targetSocketId).emit("call-ended");
+        io.to(targetSocketId).emit('call-ended');
       }
     });
 
     // ICE Candidate Relay (Global)
-    socket.on("ice-candidate", (candidate: any, to: string) => {
+    socket.on('ice-candidate', (candidate: unknown, to: string) => {
       const targetSocketId = onlineUsers.get(to) || to;
       if (targetSocketId) {
-        io.to(targetSocketId).emit("ice-candidate", candidate, socket.id);
+        io.to(targetSocketId).emit('ice-candidate', candidate, socket.id);
       }
     });
 
     /** ------------------- ROOM VIDEO CALL (Legacy/Backup) ------------------- **/
 
-    socket.on("join-room", (roomId: string, userType: "teacher" | "student") => {
+    socket.on('join-room', (roomId: string, userType: 'teacher' | 'student') => {
       const room = io.sockets.adapter.rooms.get(roomId);
       const clientsInRoom = room?.size || 0;
       const existingUserTypes = Array.from(room?.values() || []).map(id => {
@@ -223,34 +221,34 @@ export function initSocket(server: HTTPServer) {
 
       // Allow only one teacher and one student per room
       if (clientsInRoom >= 2 || (clientsInRoom === 1 && existingUserTypes[0] === userType)) {
-        socket.emit("room-full");
+        socket.emit('room-full');
         return;
       }
 
       socket.data.userType = userType;
       socket.join(roomId);
-      socket.to(roomId).emit("user-connected", { userId: socket.id, userType });
-      console.log(`User ${socket.id} (${userType}) joined room ${roomId}`);
+      socket.to(roomId).emit('user-connected', { userId: socket.id, userType });
+      logger.info(`User ${socket.id} (${userType}) joined room ${roomId}`);
 
       // WebRTC signaling
-      socket.on("offer", (offer, targetId) => {
-        // console.log(`Relaying offer from ${socket.id} to ${targetId}`);
-        socket.to(targetId).emit("offer", offer, socket.id);
+      socket.on('offer', (offer: unknown, targetId: string) => {
+        // logger.info(`Relaying offer from ${socket.id} to ${targetId}`);
+        socket.to(targetId).emit('offer', offer, socket.id);
       });
-      socket.on("answer", (answer, targetId) => {
-        // console.log(`Relaying answer from ${socket.id} to ${targetId}`);
-        socket.to(targetId).emit("answer", answer, socket.id);
+      socket.on('answer', (answer: unknown, targetId: string) => {
+        // logger.info(`Relaying answer from ${socket.id} to ${targetId}`);
+        socket.to(targetId).emit('answer', answer, socket.id);
       });
-      socket.on("ice-candidate", (candidate, targetId) => {
-        // console.log(`Relaying ICE candidate from ${socket.id} to ${targetId}`);
-        socket.to(targetId).emit("ice-candidate", candidate, socket.id);
+      socket.on('ice-candidate', (candidate: unknown, targetId: string) => {
+        // logger.info(`Relaying ICE candidate from ${socket.id} to ${targetId}`);
+        socket.to(targetId).emit('ice-candidate', candidate, socket.id);
       });
     });
 
     /** ------------------- DISCONNECT ------------------- **/
 
-    socket.on("disconnect", () => {
-      // console.log(`Socket disconnected: ${socket.id}`);
+    socket.on('disconnect', () => {
+      // logger.info(`Socket disconnected: ${socket.id}`);
       onlineUsers.forEach((value, key) => {
         if (value === socket.id) onlineUsers.delete(key);
       });
@@ -259,8 +257,8 @@ export function initSocket(server: HTTPServer) {
       // Notify rooms for video call
       socket.rooms.forEach((room) => {
         if (room !== socket.id) {
-          socket.to(room).emit("call-ended"); // Use unified event
-          socket.to(room).emit("user-disconnected", { userId: socket.id });
+          socket.to(room).emit('call-ended'); // Use unified event
+          socket.to(room).emit('user-disconnected', { userId: socket.id });
         }
       });
     });

@@ -23,6 +23,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StudentCourseCertificateService = void 0;
 const inversify_1 = require("inversify");
+const mongoose_1 = require("mongoose");
 const types_1 = require("../../core/di/types");
 const ResANDError_1 = require("../../utils/ResANDError");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
@@ -44,17 +45,16 @@ let StudentCourseCertificateService = class StudentCourseCertificateService {
             const already = yield this._certRepo.findByStudentCourse(studentId, courseId);
             if (already)
                 return already;
-            const certNumber = "COURSE-CERT-" + Date.now();
+            const certNumber = 'COURSE-CERT-' + Date.now();
             const pdfBuffer = yield (0, generateCertificatePDF_1.generateCertificatePDF)({
                 studentName: student.name,
                 courseName: course.title,
                 certificateNumber: certNumber,
             });
-            console.log("generated pdf", pdfBuffer);
             const certificateUrl = yield (0, uploadPDF_1.uploadPDFtoCloudinary)(pdfBuffer);
             return yield this._certRepo.create({
-                studentId,
-                courseId,
+                studentId: new mongoose_1.Types.ObjectId(studentId),
+                courseId: new mongoose_1.Types.ObjectId(courseId),
                 certificateUrl,
                 certificateNumber: certNumber,
             });

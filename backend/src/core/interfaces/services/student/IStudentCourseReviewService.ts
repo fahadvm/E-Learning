@@ -1,4 +1,4 @@
-import { ICourseReview } from "../../../../models/CourseReview";
+import { ICourseReview } from '../../../../models/CourseReview';
 
 export interface IStudentCourseReviewService {
   addOrUpdateReview(

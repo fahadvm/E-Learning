@@ -1,8 +1,7 @@
 import { ICompanyOrderRepository } from '../core/interfaces/repositories/ICompanyOrderRepository';
 import { ICompanyOrder, CompanyOrderModel } from '../models/CompanyOrder';
 import { injectable } from 'inversify';
-import { ICourse, Course } from '../models/Course';
-import { CourseResource } from '../models/CourseResource';
+
 
 @injectable()
 export class CompanyOrderRepository implements ICompanyOrderRepository {
@@ -13,7 +12,7 @@ export class CompanyOrderRepository implements ICompanyOrderRepository {
 
   async findByStripeSessionId(orderId: string): Promise<ICompanyOrder | null> {
     return await CompanyOrderModel.findOne({ stripeSessionId: orderId })
-      .populate("purchasedCourses.courseId", "title price");
+      .populate('purchasedCourses.courseId', 'title price');
   }
 
   async updateStatus(orderId: string, status: string): Promise<ICompanyOrder | null> {
@@ -24,13 +23,13 @@ export class CompanyOrderRepository implements ICompanyOrderRepository {
     );
   }
 
-  async getOrdersByCompanyId(companyId: string): Promise<(ICompanyOrder & { courses: ICourse[] })[]> {
+  async getOrdersByCompanyId(companyId: string): Promise<ICompanyOrder[]> {
     return CompanyOrderModel.find({
       companyId,
       status: 'paid',
     })
-      .populate<{ purchasedCourses: { courseId: ICourse }[] }>('purchasedCourses.courseId')
-      .exec() as any;
+      .populate('purchasedCourses.courseId')
+      .exec();
   }
 
   async getOrdersById(companyId: string): Promise<ICompanyOrder[]> {
@@ -51,8 +50,8 @@ export class CompanyOrderRepository implements ICompanyOrderRepository {
   async getPurchasedCourseIds(companyId: string): Promise<string[]> {
     const orders = await CompanyOrderModel.find({
       companyId,
-      status: "paid"
-    }).select("purchasedCourses");
+      status: 'paid'
+    }).select('purchasedCourses');
 
     const purchasedCourseIds = orders.flatMap(order =>
       order.purchasedCourses.map(pc => pc.courseId.toString())

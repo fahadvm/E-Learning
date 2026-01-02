@@ -1,6 +1,3 @@
-
-
-
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import mongoose from 'mongoose';
@@ -19,9 +16,9 @@ import { ISubscriptionPlanRepository } from '../../core/interfaces/repositories/
 import { ICourseProgress } from '../../models/Student';
 import { IStudentRepository } from '../../core/interfaces/repositories/IStudentRepository';
 import logger from '../../utils/logger';
-import { Transaction } from '../../models/Transaction';
 import { ITransactionRepository } from '../../core/interfaces/repositories/ITransactionRepository';
 import { IWalletRepository } from '../../core/interfaces/repositories/IwalletRepository';
+import { ITeacher } from '../../models/Teacher';
 
 @injectable()
 export class StudentPurchaseService implements IStudentPurchaseService {
@@ -108,15 +105,15 @@ export class StudentPurchaseService implements IStudentPurchaseService {
 
     const body = `${details.razorpay_order_id}|${details.razorpay_payment_id}`;
     const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!)
       .update(body)
-      .digest("hex");
+      .digest('hex');
 
     const isValid = expectedSignature === details.razorpay_signature;
 
     await this._orderRepo.updateStatus(
       details.razorpay_order_id,
-      isValid ? "paid" : "failed"
+      isValid ? 'paid' : 'failed'
     );
 
     if (!isValid) {
@@ -135,7 +132,7 @@ export class StudentPurchaseService implements IStudentPurchaseService {
     const studentObjId = new mongoose.Types.ObjectId(studentId);
 
     // ---------------- STEP 2: Calculate platform fee + teacher share ----------------
-    const commissionRate = typeof order.commissionRate === "number" ? order.commissionRate : 0.20;
+    const commissionRate = typeof order.commissionRate === 'number' ? order.commissionRate : 0.20;
     const platformFee = Math.round(order.amount * commissionRate);
     const teacherShare = order.amount - platformFee;
 
@@ -148,32 +145,32 @@ export class StudentPurchaseService implements IStudentPurchaseService {
     // ---------------- STEP 3: Create COURSE_PURCHASE transaction ----------------
     await this._transactionRepo.create({
       userId: studentObjId,
-      type: "COURSE_PURCHASE",
-      txnNature: "CREDIT",
+      type: 'COURSE_PURCHASE',
+      txnNature: 'CREDIT',
 
       amount: order.amount,
       grossAmount: order.amount,
       teacherShare: teacherShare,
       platformFee: platformFee,
 
-      paymentMethod: "RAZORPAY",
-      paymentStatus: "SUCCESS",
+      paymentMethod: 'RAZORPAY',
+      paymentStatus: 'SUCCESS',
 
-      notes: `Purchase for courses: ${order.courses.join(",")}`,
+      notes: `Purchase for courses: ${order.courses.join(',')}`,
     });
 
     // ---------------- STEP 4: Loop each course -> TEACHER_EARNING + wallet credit ----------------
     // Normalize course ids and handle typing (order.courses may be ObjectId[] or string[])
     for (const rawCourseId of order.courses) {
       // Normalize courseId to a string (safe) and an ObjectId for DB usage
-      const courseIdStr = (rawCourseId as any)?.toString();
+      const courseIdStr = (rawCourseId as unknown as ICourse)._id?.toString() || rawCourseId.toString();
       if (!courseIdStr) continue;
 
       const course = (await this._courseRepo.findById(courseIdStr)) as ICourse | null;
       if (!course) continue;
 
       // teacherId may be ObjectId or a populated document; normalize to string/ObjectId
-      const rawTeacherId = (course as any).teacherId._id;
+      const rawTeacherId = (course.teacherId as unknown as ITeacher)._id || course.teacherId;
       if (!rawTeacherId) continue;
 
       // teacherIdNormalized will be a string id we can pass to mongoose when needed
@@ -181,8 +178,8 @@ export class StudentPurchaseService implements IStudentPurchaseService {
       if (!teacherIdStr) continue;
 
       // course price: prefer course.price, otherwise split equally
-      const coursePrice = typeof (course as any).price === "number"
-        ? (course as any).price
+      const coursePrice = typeof course.price === 'number'
+        ? course.price
         : Math.round(order.amount / order.courses.length);
 
       const teacherCut = Math.round(coursePrice * (1 - commissionRate));
@@ -193,16 +190,16 @@ export class StudentPurchaseService implements IStudentPurchaseService {
       const earningTx = await this._transactionRepo.create({
         teacherId: new mongoose.Types.ObjectId(teacherIdStr),
         courseId: new mongoose.Types.ObjectId(courseIdStr),
-        type: "TEACHER_EARNING",
-        txnNature: "CREDIT",
+        type: 'TEACHER_EARNING',
+        txnNature: 'CREDIT',
 
         amount: teacherCut,
         grossAmount: coursePrice,
         teacherShare: teacherCut,
         platformFee: platformCut,
 
-        paymentMethod: "WALLET",
-        paymentStatus: "SUCCESS",
+        paymentMethod: 'WALLET',
+        paymentStatus: 'SUCCESS',
 
         notes: `Earning for course ${courseIdStr}`,
       });
@@ -223,7 +220,7 @@ export class StudentPurchaseService implements IStudentPurchaseService {
 
 
   async getPurchasedCourses(studentId: string): Promise<IOrder[] | ICourse[]> {
-    const ispremium = await this._subscriptionRepo.findActiveSubscription(studentId);
+    // const ispremium = await this._subscriptionRepo.findActiveSubscription(studentId);
 
     const orders = await this._orderRepo.getOrdersByStudentId(studentId);
     return orders;
@@ -253,7 +250,7 @@ export class StudentPurchaseService implements IStudentPurchaseService {
     }
 
     const progress = await this._studentRepo.getOrCreateCourseProgress(studentId, courseId);
-    const recommended = await this._courseRepo.findRecommendedCourses(courseId, course.category, course.level, 6)
+    const recommended = await this._courseRepo.findRecommendedCourses(courseId, course.category, course.level, 6);
     return { course, progress, recommended };
   }
 

@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import { ICompanyCoursePurchase } from "../../../models/CompanyCoursePurchase";
+import mongoose from 'mongoose';
+import { ICompanyCoursePurchase } from '../../../models/CompanyCoursePurchase';
 
 export interface ICompanyCoursePurchaseRepository {
   purchaseCourse(

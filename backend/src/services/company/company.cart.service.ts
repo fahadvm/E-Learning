@@ -1,10 +1,7 @@
 // src/services/company/company.cart.service.ts
 import { inject, injectable } from 'inversify';
 import { ICompanyCartService } from '../../core/interfaces/services/company/ICompanyCartService';
-import { ICartRepository } from '../../core/interfaces/repositories/ICartRepository';
 import { TYPES } from '../../core/di/types';
-import { ICourse } from '../../models/Course';
-import { companyCartDto, ICompanyCartDTO } from '../../core/dtos/company/Company.Cart.Dto';
 import { IWishlistRepository } from '../../core/interfaces/repositories/IWishlistRepository';
 import { ICompanyCart, ICompanyCartCourse } from '../../models/CompanyCart';
 import { ICompanyCartRepository } from '../../core/interfaces/repositories/ICompanyCartRepository';
@@ -31,10 +28,10 @@ export class CompanyCartService implements ICompanyCartService {
     return { courses, total };
   }
 
-  async addToCart(userId: string, courseId: string, accessType: "seats" | "unlimited", seats: number): Promise<ICompanyCart> {
+  async addToCart(userId: string, courseId: string, accessType: 'seats' | 'unlimited', seats: number): Promise<ICompanyCart> {
     this._wishlistRepo.removeFromWishlist(userId, courseId);
-    const course = await this._courseRepo.findById(courseId)
-    if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND)
+    const course = await this._courseRepo.findById(courseId);
+    if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     const price = (course.price ?? 0) * seats;
     return this._cartRepo.addToCart(userId, courseId, accessType, seats, price);
   }

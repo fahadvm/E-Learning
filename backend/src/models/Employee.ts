@@ -16,8 +16,8 @@ export interface IEmployee extends Document {
   _id: ObjectId;
   name: string;
   email: string;
-  companyId?: mongoose.Types.ObjectId | null ;
-  requestedCompanyId?: mongoose.Types.ObjectId| null;
+  companyId?: mongoose.Types.ObjectId | null;
+  requestedCompanyId?: mongoose.Types.ObjectId | null;
   password?: string;
   profilePicture?: string;
   coursesAssigned: mongoose.Types.ObjectId[];
@@ -49,8 +49,10 @@ export interface IEmployee extends Document {
 
   // Invitation tracking
   invitedBy?: mongoose.Types.ObjectId | null;
-  invitedAt?: Date| null;
+  invitedAt?: Date | null;
 
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const CourseProgressSchema: Schema = new Schema<ICourseProgress>({

@@ -13,8 +13,8 @@ const adminStudentListDto = (student) => {
         avatar: student.profilePicture || null,
         isBlocked: student.isBlocked,
         joinDate: student.createdAt
-            ? new Date(student.createdAt).toISOString().split("T")[0]
-            : "",
+            ? new Date(student.createdAt).toISOString().split('T')[0]
+            : '',
         coursesCount: (_a = student.courseCount) !== null && _a !== void 0 ? _a : 0,
         totalSpent: (_b = student.totalSpent) !== null && _b !== void 0 ? _b : 0,
     };
@@ -32,11 +32,11 @@ const adminStudentDetailsDto = (data) => {
         email: student.email,
         phone: student.phone,
         avatar: student.profilePicture || null,
-        status: student.isBlocked ? "blocked" : "active",
+        status: student.isBlocked ? 'blocked' : 'active',
         verified: student.isVerified,
         joinDate: student.createdAt
-            ? new Date(student.createdAt).toISOString().split("T")[0]
-            : "",
+            ? new Date(student.createdAt).toISOString().split('T')[0]
+            : '',
         // Corrected coursesProgress mapping
         coursesProgress: student.coursesProgress ? student.coursesProgress.map((c) => {
             var _a;
@@ -46,33 +46,33 @@ const adminStudentDetailsDto = (data) => {
                 completedModules: c.completedModules.map((m) => m.toString()),
                 percentage: c.percentage,
                 lastVisitedLesson: (_a = c.lastVisitedLesson) === null || _a === void 0 ? void 0 : _a.toString(),
-                notes: c.notes || "",
+                notes: c.notes || '',
             });
         }) : [],
         coursesEnrolled: data.courses.length,
         totalSpent: data.purchases.reduce((sum, p) => sum + p.amount, 0),
         courses: data.courses.map((c) => {
-            var _a, _b;
+            var _a;
             return ({
                 id: c._id.toString(),
                 title: c.title,
                 progress: (_a = c.progress) !== null && _a !== void 0 ? _a : 0,
-                lastAccessed: c.lastAccessed || "",
-                status: (_b = c.status) !== null && _b !== void 0 ? _b : "in-progress",
+                lastAccessed: c.lastAccessed || '',
+                status: c.status === 'completed' ? 'completed' : 'in-progress',
             });
         }),
         purchases: data.purchases.map((p) => {
             var _a, _b, _c;
             return ({
                 id: p._id.toString(),
-                date: new Date(p.createdAt).toISOString().split("T")[0],
-                courseName: (_c = (_b = (_a = p.courses) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.title) !== null && _c !== void 0 ? _c : "N/A",
+                date: new Date(p.createdAt).toISOString().split('T')[0],
+                courseName: (_c = (_b = (_a = p.courses) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.title) !== null && _c !== void 0 ? _c : 'N/A',
                 amount: p.amount,
                 status: p.status,
                 invoiceId: p.razorpayOrderId,
             });
         }),
-        notes: (_a = student.notes) !== null && _a !== void 0 ? _a : "",
+        notes: (_a = student.notes) !== null && _a !== void 0 ? _a : '',
     };
 };
 exports.adminStudentDetailsDto = adminStudentDetailsDto;

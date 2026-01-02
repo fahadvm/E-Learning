@@ -33,7 +33,7 @@ class WalletRepository {
         return __awaiter(this, void 0, void 0, function* () {
             const { teacherId, amount } = params;
             if (amount <= 0)
-                throw new Error("Invalid credit amount");
+                throw new Error('Invalid credit amount');
             const updated = yield TeacherWallet_1.TeacherWallet.findOneAndUpdate({ teacherId }, {
                 $inc: { balance: amount, totalEarned: amount },
             }, { new: true, upsert: true, setDefaultsOnInsert: true }).exec();
@@ -45,13 +45,13 @@ class WalletRepository {
         return __awaiter(this, void 0, void 0, function* () {
             const { teacherId, amount } = params;
             if (amount <= 0)
-                throw new Error("Invalid debit amount");
+                throw new Error('Invalid debit amount');
             // fetch and validate
             const wallet = yield TeacherWallet_1.TeacherWallet.findOne({ teacherId }).exec();
             if (!wallet)
-                throw new Error("Wallet not found");
+                throw new Error('Wallet not found');
             if (wallet.balance < amount)
-                throw new Error("Insufficient wallet balance");
+                throw new Error('Insufficient wallet balance');
             const updated = yield TeacherWallet_1.TeacherWallet.findOneAndUpdate({ teacherId }, {
                 $inc: { balance: -amount, totalWithdrawn: amount },
             }, { new: true }).exec();
@@ -61,15 +61,15 @@ class WalletRepository {
     deductBalance(teacherId, amount) {
         return __awaiter(this, void 0, void 0, function* () {
             if (amount <= 0)
-                throw new Error("Invalid amount");
+                throw new Error('Invalid amount');
             // Atomic check and update
             const updated = yield TeacherWallet_1.TeacherWallet.findOneAndUpdate({ teacherId, balance: { $gte: amount } }, { $inc: { balance: -amount } }, { new: true }).exec();
             if (!updated) {
                 // Check if it was existence or balance issue
                 const exists = yield TeacherWallet_1.TeacherWallet.exists({ teacherId });
                 if (!exists)
-                    throw new Error("Wallet not found");
-                throw new Error("Insufficient funds");
+                    throw new Error('Wallet not found');
+                throw new Error('Insufficient funds');
             }
             return updated;
         });
@@ -77,20 +77,20 @@ class WalletRepository {
     refundBalance(teacherId, amount) {
         return __awaiter(this, void 0, void 0, function* () {
             if (amount <= 0)
-                throw new Error("Invalid amount");
+                throw new Error('Invalid amount');
             const updated = yield TeacherWallet_1.TeacherWallet.findOneAndUpdate({ teacherId }, { $inc: { balance: amount } }, { new: true }).exec();
             if (!updated)
-                throw new Error("Wallet not found");
+                throw new Error('Wallet not found');
             return updated;
         });
     }
     recordSuccessfulWithdrawal(teacherId, amount) {
         return __awaiter(this, void 0, void 0, function* () {
             if (amount <= 0)
-                throw new Error("Invalid amount");
+                throw new Error('Invalid amount');
             const updated = yield TeacherWallet_1.TeacherWallet.findOneAndUpdate({ teacherId }, { $inc: { totalWithdrawn: amount } }, { new: true }).exec();
             if (!updated)
-                throw new Error("Wallet not found");
+                throw new Error('Wallet not found');
             return updated;
         });
     }

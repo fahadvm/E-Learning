@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { inject, injectable } from 'inversify';
 import { IAdminProfileService } from '../../core/interfaces/services/admin/IAdminProfileService';
 import { IAdminProfileController } from '../../core/interfaces/controllers/admin/IAdminProfileController';

@@ -1,9 +1,9 @@
-import { IAdminCompanyDto, IAdminCompanyEmployeeDto } from '../../../../core/dtos/admin/Admin.company.Dto';
+import { IAdminCompanyDto, IAdminCompanyEmployeeDto, IAdminCompanyDetailsDto } from '../../../../core/dtos/admin/Admin.company.Dto';
 
 export interface IAdminCompanyService {
     getAllCompanies(page: number, limit: number, search: string): Promise<{ companies: IAdminCompanyDto[], total: number, totalPages: number }>;
     getUnverifiedCompanies(page: number, limit: number, search: string): Promise<{ companies: IAdminCompanyDto[], total: number, totalPages: number }>;
-    getCompanyById(companyId: string): Promise<IAdminCompanyDto>;
+    getCompanyById(companyId: string): Promise<IAdminCompanyDetailsDto>;
     getEmployeeById(employeeId: string): Promise<IAdminCompanyEmployeeDto>;
     verifyCompany(companyId: string): Promise<IAdminCompanyDto>;
     rejectCompany(companyId: string, reason: string): Promise<IAdminCompanyDto>;

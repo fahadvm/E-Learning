@@ -1,8 +1,8 @@
 
-import { injectable, inject } from "inversify";
-import { IAdminReportsService } from "../../core/interfaces/services/admin/IAdminReportsService";
-import { TYPES } from "../../core/di/types";
-import { IAdminReportsRepository } from "../../core/interfaces/repositories/admin/IAdminReportsRepository";
+import { injectable, inject } from 'inversify';
+import { IAdminReportsService, IDashboardData } from '../../core/interfaces/services/admin/IAdminReportsService';
+import { TYPES } from '../../core/di/types';
+import { IAdminReportsRepository } from '../../core/interfaces/repositories/admin/IAdminReportsRepository';
 
 @injectable()
 export class AdminReportsService implements IAdminReportsService {
@@ -10,7 +10,7 @@ export class AdminReportsService implements IAdminReportsService {
         @inject(TYPES.AdminReportsRepository) private _reportsRepo: IAdminReportsRepository
     ) { }
 
-    async getDashboardStats(): Promise<any> {
+    async getDashboardStats(): Promise<IDashboardData> {
         const stats = await this._reportsRepo.getDashboardStats();
         const monthlyRevenue = await this._reportsRepo.getMonthlyRevenue(new Date().getFullYear());
         const userDistribution = await this._reportsRepo.getUserDistribution();
@@ -32,9 +32,9 @@ export class AdminReportsService implements IAdminReportsService {
         };
     }
 
-    async exportReport(format: string): Promise<any> {
+    async exportReport(_format: string): Promise<void> {
         // Implementation for export will be handled here or in controller
         // depending on library usage. Logic: fetch all data -> generate PDF/CSV
-        throw new Error("Method not implemented.");
+        throw new Error(`Export method not implemented for format: ${_format}`);
     }
 }

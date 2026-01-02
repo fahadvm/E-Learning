@@ -1,4 +1,4 @@
-import { IContribution, IGithubContribution, ILeetCodeStats } from "../../../types/common/contribution";
+import { IContribution, IGithubContribution, ILeetCodeStats } from '../../../types/common/contribution';
 
 export interface IPublicApiRepository {
     fetchGitHub(username: string): Promise<IGithubContribution[]>;

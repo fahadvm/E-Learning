@@ -1,13 +1,11 @@
-
-import { injectable } from "inversify";
-import { IAdminReportsRepository } from "../core/interfaces/repositories/admin/IAdminReportsRepository";
-import mongoose from "mongoose";
-import { Transaction } from "../models/Transaction";
-import { Student } from "../models/Student";
-import { Teacher } from "../models/Teacher";
-import { Company } from "../models/Company";
-import { Employee } from "../models/Employee";
-import { Course } from "../models/Course";
+import { injectable } from 'inversify';
+import { IActivity, IAdminReportsRepository } from '../core/interfaces/repositories/admin/IAdminReportsRepository';
+import { Transaction } from '../models/Transaction';
+import { Student, IStudent } from '../models/Student';
+import { Teacher, ITeacher } from '../models/Teacher';
+import { Company } from '../models/Company';
+import { Employee } from '../models/Employee';
+import { Course, ICourse } from '../models/Course';
 
 @injectable()
 export class AdminReportsRepository implements IAdminReportsRepository {
@@ -15,7 +13,7 @@ export class AdminReportsRepository implements IAdminReportsRepository {
     async getDashboardStats(): Promise<{ totalRevenue: number; totalStudents: number; totalTeachers: number; totalCompanies: number; totalCourses: number; }> {
         const revenueAgg = await Transaction.aggregate([
             { $match: { paymentStatus: 'SUCCESS' } },
-            { $group: { _id: null, total: { $sum: "$amount" } } }
+            { $group: { _id: null, total: { $sum: '$amount' } } }
         ]);
         const totalRevenue = revenueAgg[0]?.total || 0;
 
@@ -27,7 +25,7 @@ export class AdminReportsRepository implements IAdminReportsRepository {
         return { totalRevenue, totalStudents, totalTeachers, totalCompanies, totalCourses };
     }
 
-    async getRecentActivity(limit: number): Promise<any[]> {
+    async getRecentActivity(limit: number): Promise<IActivity[]> {
         // Fetch recent purchases
         const recentPurchases = await Transaction.find({ type: 'COURSE_PURCHASE', paymentStatus: 'SUCCESS' })
             .sort({ createdAt: -1 })
@@ -49,35 +47,35 @@ export class AdminReportsRepository implements IAdminReportsRepository {
             .limit(limit)
             .lean();
 
-        const activities: any[] = [];
+        const activities: IActivity[] = [];
 
-        recentPurchases.forEach((tx: any) => {
+        recentPurchases.forEach((tx) => {
             activities.push({
                 type: 'purchase',
-                user: tx.userId?.name || 'Someone',
+                user: (tx.userId as unknown as IStudent)?.name || 'Someone',
                 action: 'enrolled in',
-                target: tx.courseId?.title || 'a course',
-                time: tx.createdAt,
+                target: (tx.courseId as unknown as ICourse)?.title || 'a course',
+                time: tx.createdAt as Date,
             });
         });
 
-        recentCourses.forEach((course: any) => {
+        recentCourses.forEach((course) => {
             activities.push({
                 type: 'upload',
-                user: course.teacherId?.name || 'A teacher',
+                user: (course.teacherId as unknown as ITeacher)?.name || 'A teacher',
                 action: 'published',
                 target: course.title,
-                time: course.createdAt,
+                time: course.createdAt as Date,
             });
         });
 
-        recentStudents.forEach((student: any) => {
+        recentStudents.forEach((student) => {
             activities.push({
                 type: 'signup',
                 user: student.name,
                 action: 'joined',
                 target: 'as a student',
-                time: student.createdAt,
+                time: student.createdAt as Date,
             });
         });
 
@@ -87,7 +85,7 @@ export class AdminReportsRepository implements IAdminReportsRepository {
             .slice(0, limit);
     }
 
-    async getMonthlyRevenue(year: number): Promise<any[]> {
+    async getMonthlyRevenue(year: number): Promise<{ _id: number; revenue: number }[]> {
         const start = new Date(year, 0, 1);
         const end = new Date(year + 1, 0, 1);
 
@@ -100,15 +98,15 @@ export class AdminReportsRepository implements IAdminReportsRepository {
             },
             {
                 $group: {
-                    _id: { $month: "$createdAt" },
-                    revenue: { $sum: "$amount" }
+                    _id: { $month: '$createdAt' },
+                    revenue: { $sum: '$amount' }
                 }
             },
-            { $sort: { "_id": 1 } }
+            { $sort: { '_id': 1 } }
         ]);
     }
 
-    async getUserDistribution(): Promise<any[]> {
+    async getUserDistribution(): Promise<{ name: string; value: number }[]> {
         const students = await Student.countDocuments();
         const teachers = await Teacher.countDocuments();
         const companies = await Company.countDocuments();
@@ -122,28 +120,25 @@ export class AdminReportsRepository implements IAdminReportsRepository {
         ];
     }
 
-    async getTopCourses(limit: number): Promise<any[]> {
-        // Assuming courses have purchasedCount or we count from transactions
-        // Better to count from transactions for accuracy over time if purchasedCount isn't reliable
-        // But let's check Transaction model structure for courseId.
+    async getTopCourses(limit: number): Promise<{ _id: string; title: string; sales: number; revenue: number }[]> {
         return await Transaction.aggregate([
             { $match: { paymentStatus: 'SUCCESS', courseId: { $exists: true } } },
-            { $group: { _id: "$courseId", sales: { $sum: 1 }, revenue: { $sum: "$amount" } } },
+            { $group: { _id: '$courseId', sales: { $sum: 1 }, revenue: { $sum: '$amount' } } },
             { $sort: { sales: -1 } },
             { $limit: limit },
             {
                 $lookup: {
-                    from: "courses",
-                    localField: "_id",
-                    foreignField: "_id",
-                    as: "course"
+                    from: 'courses',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'course'
                 }
             },
-            { $unwind: "$course" },
+            { $unwind: '$course' },
             {
                 $project: {
-                    _id: 1,
-                    title: "$course.title",
+                    _id: { $toString: '$_id' },
+                    title: '$course.title',
                     sales: 1,
                     revenue: 1
                 }
@@ -151,61 +146,57 @@ export class AdminReportsRepository implements IAdminReportsRepository {
         ]);
     }
 
-    async getCompanyRevenue(): Promise<any[]> {
+    async getCompanyRevenue(): Promise<{ name: string; revenue: number }[]> {
         return await Transaction.aggregate([
             { $match: { paymentStatus: 'SUCCESS', companyId: { $exists: true } } },
-            { $group: { _id: "$companyId", totalRevenue: { $sum: "$amount" } } },
+            { $group: { _id: '$companyId', totalRevenue: { $sum: '$amount' } } },
             { $sort: { totalRevenue: -1 } },
             { $limit: 5 },
             {
                 $lookup: {
-                    from: "companies",
-                    localField: "_id",
-                    foreignField: "_id",
-                    as: "company"
+                    from: 'companies',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'company'
                 }
             },
-            { $unwind: "$company" },
+            { $unwind: '$company' },
             {
                 $project: {
-                    name: "$company.name",
-                    revenue: "$totalRevenue"
+                    name: '$company.name',
+                    revenue: '$totalRevenue'
                 }
             }
         ]);
     }
 
-    async getMostActiveTeachers(limit: number): Promise<any[]> {
-        // "Active" could mean login, or content creation, or sales.
-        // Let's assume sales/transactions for now as it's a "Reports" page often linked to revenue.
-        // Or number of courses? 
-        // Let's go with Revenue generated by teacher.
+    async getMostActiveTeachers(limit: number): Promise<{ name: string; email: string; revenue: number; transactions: number }[]> {
         return await Transaction.aggregate([
             { $match: { paymentStatus: 'SUCCESS', teacherId: { $exists: true } } },
-            { $group: { _id: "$teacherId", totalRevenue: { $sum: "$amount" }, transactions: { $sum: 1 } } },
+            { $group: { _id: '$teacherId', totalRevenue: { $sum: '$amount' }, transactions: { $sum: 1 } } },
             { $sort: { transactions: -1 } },
             { $limit: limit },
             {
                 $lookup: {
-                    from: "teachers",
-                    localField: "_id",
-                    foreignField: "_id",
-                    as: "teacher"
+                    from: 'teachers',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'teacher'
                 }
             },
-            { $unwind: "$teacher" },
+            { $unwind: '$teacher' },
             {
                 $project: {
-                    name: "$teacher.name",
-                    email: "$teacher.email",
-                    revenue: "$totalRevenue",
-                    transactions: "$transactions"
+                    name: '$teacher.name',
+                    email: '$teacher.email',
+                    revenue: '$totalRevenue',
+                    transactions: '$transactions'
                 }
             }
         ]);
     }
 
-    async getDailyTrend(days: number): Promise<any[]> {
+    async getDailyTrend(days: number): Promise<{ _id: string; sales: number; revenue: number }[]> {
         const start = new Date();
         start.setDate(start.getDate() - days);
 
@@ -218,12 +209,12 @@ export class AdminReportsRepository implements IAdminReportsRepository {
             },
             {
                 $group: {
-                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
                     sales: { $sum: 1 },
-                    revenue: { $sum: "$amount" }
+                    revenue: { $sum: '$amount' }
                 }
             },
-            { $sort: { "_id": 1 } }
+            { $sort: { '_id': 1 } }
         ]);
     }
 }

@@ -16,8 +16,6 @@ export class ChatController {
         const { chatId } = req.params;
         const limit = parseInt(req.query.limit as string) || 20;
         const before = req.query.before as string;
-
-        console.log(chatId,limit , before)
         const messages = await this._chatService.getMessages(chatId, limit, before);
         sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_DETAILS_FETCHED, true, messages);
     };

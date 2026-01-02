@@ -9,13 +9,13 @@ export interface ICompanyLearningPathService {
     delete(id: string, companyId: string): Promise<void>;
     unassignLearningPath(companyId: string, employeeId: string, learningPathId: string): Promise<void>;
     assignLearningPath(companyId: string, employeeId: string, learningPathId: string): Promise<IEmployeeLearningPathProgress>
-    listAssignedLearningPaths(companyId: string, employeeId: string): Promise<IEmployeeLearningPath[]>
+    listAssignedLearningPaths(companyId: string, employeeId: string): Promise<IEmployeeLearningPathProgress[]>
     listCompanyLearningPaths(
-            companyId: string,
-            page: number,
-            limit: number,
-            search: string,
-        ): Promise<{ items: IEmployeeLearningPath[]; total: number; totalPages: number }>
+        companyId: string,
+        page: number,
+        limit: number,
+        search: string,
+    ): Promise<{ items: IEmployeeLearningPath[]; total: number; totalPages: number }>
 
 
 }

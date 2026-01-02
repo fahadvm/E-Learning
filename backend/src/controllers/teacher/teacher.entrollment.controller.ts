@@ -1,11 +1,11 @@
-import { Response } from "express";
-import { injectable, inject } from "inversify";
-import { TeacherEnrollmentService } from "../../services/teacher/TeacherEnrollmentService";
-import { TYPES } from "../../core/di/types";
-import { MESSAGES } from "../../utils/ResponseMessages";
-import { STATUS_CODES } from "../../utils/HttpStatuscodes";
-import { sendResponse, throwError } from "../../utils/ResANDError";
-import { AuthRequest } from "../../types/AuthenticatedRequest";
+import { Response } from 'express';
+import { injectable, inject } from 'inversify';
+import { TeacherEnrollmentService } from '../../services/teacher/TeacherEnrollmentService';
+import { TYPES } from '../../core/di/types';
+import { MESSAGES } from '../../utils/ResponseMessages';
+import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { sendResponse, throwError } from '../../utils/ResANDError';
+import { AuthRequest } from '../../types/AuthenticatedRequest';
 
 @injectable()
 export class TeacherEnrollmentController {

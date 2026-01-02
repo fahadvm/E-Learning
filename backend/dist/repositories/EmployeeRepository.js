@@ -88,7 +88,7 @@ let EmployeeRepository = class EmployeeRepository {
     getAssignedCourses(employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
             const employee = yield Employee_1.Employee.findById(employeeId)
-                .populate("coursesAssigned")
+                .populate('coursesAssigned')
                 .lean();
             return employee;
         });
@@ -97,7 +97,7 @@ let EmployeeRepository = class EmployeeRepository {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield EmployeeLearningRecord_1.EmployeeLearningRecord.aggregate([
                 { $match: { employeeId: new mongoose_1.default.Types.ObjectId(employeeId), companyId: new mongoose_1.default.Types.ObjectId(companyId) } },
-                { $group: { _id: null, total: { $sum: "$totalMinutes" } } }
+                { $group: { _id: null, total: { $sum: '$totalMinutes' } } }
             ]);
             return result.length > 0 ? result[0].total : 0;
         });
@@ -154,7 +154,6 @@ let EmployeeRepository = class EmployeeRepository {
     }
     updateById(employeeId, data) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("update data from service ", data);
             return yield Employee_1.Employee.findByIdAndUpdate(employeeId, data, { new: true }).lean().exec();
         });
     }
@@ -187,8 +186,8 @@ let EmployeeRepository = class EmployeeRepository {
     findCompanyByEmployeeId(employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
             const employee = yield Employee_1.Employee.findById(employeeId)
-                .populate("companyId")
-                .populate("requestedCompanyId")
+                .populate('companyId')
+                .populate('requestedCompanyId')
                 .exec();
             return employee;
         });
@@ -311,10 +310,10 @@ let EmployeeRepository = class EmployeeRepository {
             let record = yield EmployeeLearningRecord_1.EmployeeLearningRecord.findOneAndUpdate({
                 employeeId,
                 date,
-                "courses.courseId": new mongoose_1.Types.ObjectId(courseId)
+                'courses.courseId': new mongoose_1.Types.ObjectId(courseId)
             }, {
                 $inc: {
-                    "courses.$.minutes": roundedHours,
+                    'courses.$.minutes': roundedHours,
                     totalMinutes: roundedHours
                 },
                 $set: { companyId: companyObjectId }
@@ -334,7 +333,7 @@ let EmployeeRepository = class EmployeeRepository {
     getLearningRecords(employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
             return EmployeeLearningRecord_1.EmployeeLearningRecord.find({ employeeId })
-                .populate("courses.courseId", "title duration")
+                .populate('courses.courseId', 'title duration')
                 .sort({ updatedAt: -1 })
                 .lean();
         });
@@ -342,7 +341,7 @@ let EmployeeRepository = class EmployeeRepository {
     getProgress(employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
             const employee = yield Employee_1.Employee.findById(employeeId)
-                .populate("coursesProgress.courseId", "title duration")
+                .populate('coursesProgress.courseId', 'title duration')
                 .lean();
             if (!employee)
                 return null;

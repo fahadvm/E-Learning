@@ -18,7 +18,7 @@ export interface IPayout extends Document {
     amount: number;
     status: PayoutStatus;
     method: PayoutMethod;
-    details: Record<string, any>; // Flexible for bank details or UPI ID
+    details: Record<string, string>; // Flexible for bank details or UPI ID
     adminNote?: string;
     transactionId?: Types.ObjectId; // Link to the debit transaction
     createdAt?: Date;

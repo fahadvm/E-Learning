@@ -36,26 +36,26 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Transaction = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const TransactionSchema = new mongoose_1.Schema({
-    userId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Student" },
-    teacherId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Teacher" },
-    companyId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Company" },
-    courseId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Course" },
-    meetingId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Meeting" },
+    userId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Student' },
+    teacherId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Teacher' },
+    companyId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Company' },
+    courseId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Course' },
+    meetingId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Meeting' },
     type: {
         type: String,
         enum: [
-            "COURSE_PURCHASE",
-            "MEETING_BOOKING",
-            "SUBSCRIPTION_PURCHASE",
-            "TEACHER_EARNING",
-            "TEACHER_WITHDRAWAL",
-            "ADMIN_ADJUSTMENT",
+            'COURSE_PURCHASE',
+            'MEETING_BOOKING',
+            'SUBSCRIPTION_PURCHASE',
+            'TEACHER_EARNING',
+            'TEACHER_WITHDRAWAL',
+            'ADMIN_ADJUSTMENT',
         ],
         required: true,
     },
     txnNature: {
         type: String,
-        enum: ["CREDIT", "DEBIT"],
+        enum: ['CREDIT', 'DEBIT'],
         required: true,
     },
     amount: { type: Number, required: true },
@@ -65,14 +65,14 @@ const TransactionSchema = new mongoose_1.Schema({
     platformFee: { type: Number, default: 0 },
     paymentStatus: {
         type: String,
-        enum: ["PENDING", "SUCCESS", "FAILED"],
-        default: "SUCCESS",
+        enum: ['PENDING', 'SUCCESS', 'FAILED'],
+        default: 'SUCCESS',
     },
     paymentMethod: {
         type: String,
-        enum: ["RAZORPAY", "STRIPE", "WALLET", "MANUAL"],
+        enum: ['RAZORPAY', 'STRIPE', 'WALLET', 'MANUAL'],
         required: true,
     },
     notes: { type: String },
 }, { timestamps: true });
-exports.Transaction = mongoose_1.default.model("Transaction", TransactionSchema);
+exports.Transaction = mongoose_1.default.model('Transaction', TransactionSchema);

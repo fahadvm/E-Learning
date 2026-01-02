@@ -50,11 +50,11 @@ let AdminReportsService = class AdminReportsService {
             };
         });
     }
-    exportReport(format) {
+    exportReport(_format) {
         return __awaiter(this, void 0, void 0, function* () {
             // Implementation for export will be handled here or in controller
             // depending on library usage. Logic: fetch all data -> generate PDF/CSV
-            throw new Error("Method not implemented.");
+            throw new Error(`Export method not implemented for format: ${_format}`);
         });
     }
 };

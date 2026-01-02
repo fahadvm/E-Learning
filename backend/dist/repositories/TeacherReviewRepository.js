@@ -41,7 +41,7 @@ let TeacherReviewRepository = class TeacherReviewRepository {
     getTeacherReviews(teacherId) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield TeacherReview_1.default.find({ teacherId })
-                .populate("studentId", "name profilePicture")
+                .populate('studentId', 'name profilePicture')
                 .sort({ createdAt: -1 });
         });
     }
@@ -56,8 +56,8 @@ let TeacherReviewRepository = class TeacherReviewRepository {
                 { $match: { teacherId: new mongoose_1.default.Types.ObjectId(teacherId) } },
                 {
                     $group: {
-                        _id: "$teacherId",
-                        averageRating: { $avg: "$rating" },
+                        _id: '$teacherId',
+                        averageRating: { $avg: '$rating' },
                         totalReviews: { $sum: 1 }
                     }
                 }

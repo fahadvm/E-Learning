@@ -160,24 +160,24 @@ let TeacherCourseService = class TeacherCourseService {
             const courseIds = courses.map(c => c._id);
             // 1. Get completion rates for all these courses
             const progressStats = yield Student_1.Student.aggregate([
-                { $unwind: "$coursesProgress" },
-                { $match: { "coursesProgress.courseId": { $in: courseIds } } },
+                { $unwind: '$coursesProgress' },
+                { $match: { 'coursesProgress.courseId': { $in: courseIds } } },
                 {
                     $group: {
-                        _id: "$coursesProgress.courseId",
-                        avgCompletion: { $avg: "$coursesProgress.percentage" }
+                        _id: '$coursesProgress.courseId',
+                        avgCompletion: { $avg: '$coursesProgress.percentage' }
                     }
                 }
             ]);
             // 2. Get company enrollments for all these courses
             const companyEnrollmentsData = yield CompanyOrder_1.CompanyOrderModel.aggregate([
-                { $match: { status: 'paid', "purchasedCourses.courseId": { $in: courseIds } } },
-                { $unwind: "$purchasedCourses" },
-                { $match: { "purchasedCourses.courseId": { $in: courseIds } } },
+                { $match: { status: 'paid', 'purchasedCourses.courseId': { $in: courseIds } } },
+                { $unwind: '$purchasedCourses' },
+                { $match: { 'purchasedCourses.courseId': { $in: courseIds } } },
                 {
                     $group: {
-                        _id: "$purchasedCourses.courseId",
-                        totalSeats: { $sum: "$purchasedCourses.seats" }
+                        _id: '$purchasedCourses.courseId',
+                        totalSeats: { $sum: '$purchasedCourses.seats' }
                     }
                 }
             ]);
@@ -189,7 +189,7 @@ let TeacherCourseService = class TeacherCourseService {
             return courses.map(course => {
                 const c = course.toObject ? course.toObject() : course;
                 const cId = c._id.toString();
-                return Object.assign(Object.assign({}, c), { enrolledStudents: (c.totalStudents || 0) + (companyStatsMap.get(cId) || 0), rating: c.averageRating || 0, reviewCount: c.reviewCount || 0, completionRate: statsMap.get(cId) || 0 });
+                return Object.assign(Object.assign({}, c), { enrolledStudents: (course.totalStudents || 0) + (companyStatsMap.get(cId) || 0), rating: course.averageRating || 0, reviewCount: course.reviewCount || 0, completionRate: statsMap.get(cId) || 0 });
             });
         });
     }
@@ -252,7 +252,7 @@ let TeacherCourseService = class TeacherCourseService {
             try {
                 modulesBody = JSON.parse(req.body.modules || '[]');
             }
-            catch (e) {
+            catch (_c) {
                 modulesBody = [];
             }
             const modules = [];
@@ -313,7 +313,7 @@ let TeacherCourseService = class TeacherCourseService {
                 requirements: requirements || [],
                 isPublished: req.body.isPublished === 'true',
                 totalDuration: req.body.totalDuration ? Number(req.body.totalDuration) : undefined,
-                modules: modules, // casting to any to match ICourse module structure if strict typing complains
+                modules: modules, // casting to match ICourse module structure
             };
             const updatedCourse = yield this._courseRepository.editCourse(courseId, updates);
             if (updatedCourse) {
@@ -349,10 +349,10 @@ let TeacherCourseService = class TeacherCourseService {
             });
             // Company enrollments (sum of seats bought)
             const companyEnrollmentsData = yield CompanyOrder_1.CompanyOrderModel.aggregate([
-                { $match: { status: 'paid', "purchasedCourses.courseId": cId } },
-                { $unwind: "$purchasedCourses" },
-                { $match: { "purchasedCourses.courseId": cId } },
-                { $group: { _id: null, totalSeats: { $sum: "$purchasedCourses.seats" } } }
+                { $match: { status: 'paid', 'purchasedCourses.courseId': cId } },
+                { $unwind: '$purchasedCourses' },
+                { $match: { 'purchasedCourses.courseId': cId } },
+                { $group: { _id: null, totalSeats: { $sum: '$purchasedCourses.seats' } } }
             ]);
             const companyEnrollments = companyEnrollmentsData.length > 0 ? companyEnrollmentsData[0].totalSeats : 0;
             // 2. Revenue Over Time (Last 12 Months)
@@ -371,35 +371,35 @@ let TeacherCourseService = class TeacherCourseService {
                 {
                     $group: {
                         _id: {
-                            year: { $year: "$createdAt" },
-                            month: { $month: "$createdAt" }
+                            year: { $year: '$createdAt' },
+                            month: { $month: '$createdAt' }
                         },
-                        revenue: { $sum: "$amount" }
+                        revenue: { $sum: '$amount' }
                     }
                 },
-                { $sort: { "_id.year": 1, "_id.month": 1 } }
+                { $sort: { '_id.year': 1, '_id.month': 1 } }
             ]);
             // 3. Student Progress & Completion
             const progressStats = yield Student_1.Student.aggregate([
-                { $unwind: "$coursesProgress" },
-                { $match: { "coursesProgress.courseId": cId } },
+                { $unwind: '$coursesProgress' },
+                { $match: { 'coursesProgress.courseId': cId } },
                 {
                     $group: {
                         _id: null,
-                        avgCompletion: { $avg: "$coursesProgress.percentage" },
-                        completedCount: { $sum: { $cond: [{ $gte: ["$coursesProgress.percentage", 100] }, 1, 0] } },
+                        avgCompletion: { $avg: '$coursesProgress.percentage' },
+                        completedCount: { $sum: { $cond: [{ $gte: ['$coursesProgress.percentage', 100] }, 1, 0] } },
                         totalProgressRecords: { $sum: 1 }
                     }
                 }
             ]);
             // 4. Lesson Completion Count
             const lessonCompletion = yield Student_1.Student.aggregate([
-                { $unwind: "$coursesProgress" },
-                { $match: { "coursesProgress.courseId": cId } },
-                { $unwind: "$coursesProgress.completedLessons" },
+                { $unwind: '$coursesProgress' },
+                { $match: { 'coursesProgress.courseId': cId } },
+                { $unwind: '$coursesProgress.completedLessons' },
                 {
                     $group: {
-                        _id: "$coursesProgress.completedLessons",
+                        _id: '$coursesProgress.completedLessons',
                         count: { $sum: 1 }
                     }
                 }
@@ -409,11 +409,11 @@ let TeacherCourseService = class TeacherCourseService {
                 { $match: { courseId: cId } },
                 {
                     $group: {
-                        _id: "$rating",
+                        _id: '$rating',
                         count: { $sum: 1 }
                     }
                 },
-                { $sort: { "_id": -1 } }
+                { $sort: { '_id': -1 } }
             ]);
             return {
                 overview: {

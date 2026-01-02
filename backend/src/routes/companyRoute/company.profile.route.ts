@@ -14,8 +14,8 @@ const companyProfileController = container.get<CompanyProfileController>(TYPES.C
 router.get('/', authMiddleware('company'), asyncHandler(companyProfileController.getProfile.bind(companyProfileController)));
 
 router.post('/verify', authMiddleware('company'), upload.fields([
-    { name: "certificate", maxCount: 1 },
-    { name: "taxId", maxCount: 1 }
+    { name: 'certificate', maxCount: 1 },
+    { name: 'taxId', maxCount: 1 }
 ]), asyncHandler(companyProfileController.verify.bind(companyProfileController)));
 
 router.put('/', authMiddleware('company'), asyncHandler(companyProfileController.updateProfile.bind(companyProfileController)));

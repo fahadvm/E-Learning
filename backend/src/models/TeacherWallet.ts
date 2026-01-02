@@ -1,8 +1,8 @@
-import mongoose, { Schema, Document, Types } from "mongoose";
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IWithdrawal {
   amount: number;
-  status: "PENDING" | "APPROVED" | "REJECTED";
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
   adminNote?: string;
   requestedAt: Date;
   processedAt?: Date;
@@ -29,20 +29,20 @@ const WithdrawalSchema = new Schema<IWithdrawal>(
     amount: { type: Number, required: true },
     status: {
       type: String,
-      enum: ["PENDING", "APPROVED", "REJECTED"],
-      default: "PENDING",
+      enum: ['PENDING', 'APPROVED', 'REJECTED'],
+      default: 'PENDING',
     },
     adminNote: { type: String },
     requestedAt: { type: Date, default: Date.now },
     processedAt: { type: Date },
-    transactionId: { type: Schema.Types.ObjectId, ref: "Transaction" },
+    transactionId: { type: Schema.Types.ObjectId, ref: 'Transaction' },
   },
   { _id: false }
 );
 
 const TeacherWalletSchema = new Schema<ITeacherWallet>(
   {
-    teacherId: { type: Schema.Types.ObjectId, ref: "Teacher", unique: true, required: true },
+    teacherId: { type: Schema.Types.ObjectId, ref: 'Teacher', unique: true, required: true },
 
     balance: { type: Number, default: 0 },
     totalEarned: { type: Number, default: 0 },
@@ -54,6 +54,6 @@ const TeacherWalletSchema = new Schema<ITeacherWallet>(
 );
 
 export const TeacherWallet = mongoose.model<ITeacherWallet>(
-  "TeacherWallet",
+  'TeacherWallet',
   TeacherWalletSchema
 );

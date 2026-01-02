@@ -100,11 +100,10 @@ export class StudentBookingRepository implements IStudentBookingRepository {
     nextWeek: string
   ): Promise<IBooking[]> {
 
-    console.log("findBookedSlots in repository:", teacherId, today, nextWeek)
     return await Booking.find({
       teacherId,
       date: { $gte: today, $lte: nextWeek },
-      status: { $in: ["pending", "booked", "rescheduled"] }
+      status: { $in: ['pending', 'booked', 'rescheduled'] }
     }).lean();
   }
 
@@ -140,8 +139,8 @@ export class StudentBookingRepository implements IStudentBookingRepository {
 
   async findByPaymentId(paymentOrderId: string): Promise<IBooking | null> {
     return Booking.findOne({ paymentOrderId })
-      .populate("courseId")
-      .populate("teacherId").lean().exec();
+      .populate('courseId')
+      .populate('teacherId').lean().exec();
   }
 
   async rejectBooking(bookingId: string, reason: string): Promise<IBooking | null> {
@@ -258,12 +257,12 @@ export class StudentBookingRepository implements IStudentBookingRepository {
     return await Booking.findOne({
       teacherId,
       date,
-      status: { $in: ["pending", "booked", "rescheduled"] },
+      status: { $in: ['pending', 'booked', 'rescheduled'] },
 
       $or: [
         {
-          "slot.start": { $lt: endTime },
-          "slot.end": { $gt: startTime }
+          'slot.start': { $lt: endTime },
+          'slot.end': { $gt: startTime }
         }
       ]
     });
@@ -281,7 +280,7 @@ export class StudentBookingRepository implements IStudentBookingRepository {
         end: nextSlot.end
       },
       rescheduledReason: reason,
-      rescheduleStatus: "requested"
+      rescheduleStatus: 'requested'
     }, { new: true });
   }
 
@@ -289,10 +288,10 @@ export class StudentBookingRepository implements IStudentBookingRepository {
   async approveReschedule(bookingId: string): Promise<IBooking> {
     const oldBooking = await Booking.findById(bookingId);
 
-    if (!oldBooking) throwError("Booking not found.", STATUS_CODES.NOT_FOUND);
+    if (!oldBooking) throwError('Booking not found.', STATUS_CODES.NOT_FOUND);
 
-    if (oldBooking.rescheduleStatus !== "requested") {
-      throwError("No pending reschedule request.", STATUS_CODES.BAD_REQUEST);
+    if (oldBooking.rescheduleStatus !== 'requested') {
+      throwError('No pending reschedule request.', STATUS_CODES.BAD_REQUEST);
     }
 
     const newBooking = await Booking.create({
@@ -304,12 +303,12 @@ export class StudentBookingRepository implements IStudentBookingRepository {
       slot: oldBooking.requestedSlot,
       note: oldBooking.note,
       callId: oldBooking.callId,
-      status: "booked",
+      status: 'booked',
       rescheduledFrom: oldBooking._id,
     });
 
-    oldBooking.status = "rescheduled";
-    oldBooking.rescheduleStatus = "approved";
+    oldBooking.status = 'rescheduled';
+    oldBooking.rescheduleStatus = 'approved';
     oldBooking.rescheduledTo = newBooking._id;
     oldBooking.rescheduledAt = new Date();
     oldBooking.requestedDate = undefined;

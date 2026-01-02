@@ -2,11 +2,11 @@ import { injectable } from 'inversify';
 import { Chat, IChat } from '../models/chat';
 import { IMessage, Message } from '../models/message';
 import { IChatRepository } from '../core/interfaces/repositories/IChatRepository';
-import { Types } from 'mongoose';
+import { Types, FilterQuery } from 'mongoose';
 
 @injectable()
 export class ChatRepository implements IChatRepository {
-  async findOrCreateChat(participants: string[]) {
+  async findOrCreateChat(participants: string[]): Promise<IChat> {
     const participantIds = participants.map(id => new Types.ObjectId(id));
     const chat = await Chat.findOne({ participants: { $all: participantIds } });
     if (chat) return chat;
@@ -15,7 +15,7 @@ export class ChatRepository implements IChatRepository {
     return newChat;
   }
 
-  async saveMessage(senderId: string, content: string, chatId: string, senderType: string, receiverId?: string, receiverType?: string, fileUrl?: string, messageType: string = 'text') {
+  async saveMessage(senderId: string, content: string, chatId: string, senderType: string, receiverId?: string, receiverType?: string, fileUrl?: string, messageType: string = 'text'): Promise<IMessage> {
     let chat;
     if (chatId) {
       chat = await Chat.findById(chatId);
@@ -23,36 +23,41 @@ export class ChatRepository implements IChatRepository {
       chat = await this.findOrCreateChat([senderId, receiverId]);
     }
 
-    if (!chat) throw new Error("Chat not found");
+    if (!chat) throw new Error('Chat not found');
 
-    const messageData: any = {
-      chatId: chat._id,
+    const messageData: Partial<IMessage> = {
+      chatId: chat._id as Types.ObjectId,
       senderId: new Types.ObjectId(senderId),
-      senderType: senderType,
+      senderType: senderType as IMessage['senderType'],
       message: content,
-      type: messageType,
+      type: messageType as IMessage['type'],
       fileUrl: fileUrl
     };
 
     if (receiverId) {
       messageData.receiverId = new Types.ObjectId(receiverId);
-      messageData.receiverType = receiverType;
+      messageData.receiverType = receiverType as IMessage['receiverType'];
     }
 
-    const message = await Message.create(messageData);
+    const messageArray = await Message.create([messageData]);
+    const message = messageArray[0];
     await Chat.findByIdAndUpdate(chat._id, { lastMessage: content });
     return message;
   }
 
-  async getStudentMessages(chatId: string, limit: number, before?: Date) {
-    const query: any = { chatId: new Types.ObjectId(chatId) };
-    console.log(before)
-
-    return Message.find(query).populate('receiverId', 'name email profilePicture').sort({ createdAt: 1 });
+  async getStudentMessages(chatId: string, limit: number, before?: Date): Promise<IMessage[]> {
+    const query: FilterQuery<IMessage> = { chatId: new Types.ObjectId(chatId) };
+    if (before) {
+      query.createdAt = { $lt: before };
+    }
+    return Message.find(query)
+      .populate('receiverId', 'name email profilePicture')
+      .sort({ createdAt: 1 })
+      .limit(limit);
   }
 
-  async getTeacherMessages(chatId: string, limit?: number, before?: Date) {
-    const query: any = { chatId: new Types.ObjectId(chatId) };
+  async getTeacherMessages(chatId: string, limit?: number, before?: Date): Promise<IMessage[]> {
+    const query: FilterQuery<IMessage> = { chatId: new Types.ObjectId(chatId) };
     if (before) {
       query.createdAt = { $lt: before };
     }
@@ -65,7 +70,7 @@ export class ChatRepository implements IChatRepository {
       .populate('studentId', 'name email profilePicture');
   }
 
-  async getStudentChats(userId: string) {
+  async getStudentChats(userId: string): Promise<IChat[]> {
     const chats = await Chat.find({ studentId: new Types.ObjectId(userId) })
       .populate('teacherId', 'name email profilePicture')
       .lean();
@@ -76,13 +81,13 @@ export class ChatRepository implements IChatRepository {
         receiverId: new Types.ObjectId(userId),
         isRead: false
       });
-      return { ...chat, unread };
+      return { ...chat, unread } as IChat;
     }));
 
     return chatsWithUnread;
   }
 
-  async getTeacherChats(userId: string) {
+  async getTeacherChats(userId: string): Promise<IChat[]> {
     const chats = await Chat.find({ teacherId: new Types.ObjectId(userId) })
       .populate('studentId', 'name email profilePicture')
       .lean();
@@ -93,13 +98,13 @@ export class ChatRepository implements IChatRepository {
         receiverId: new Types.ObjectId(userId),
         isRead: false
       });
-      return { ...chat, unread };
+      return { ...chat, unread } as IChat;
     }));
 
     return chatsWithUnread;
   }
 
-  async findOrCreateCompanyGroup(companyId: string, groupName: string) {
+  async findOrCreateCompanyGroup(companyId: string, groupName: string): Promise<IChat> {
     let chat = await Chat.findOne({ companyId: new Types.ObjectId(companyId), type: 'group' });
     if (!chat) {
       chat = await Chat.create({
@@ -112,19 +117,19 @@ export class ChatRepository implements IChatRepository {
     return chat;
   }
 
-  async addParticipantToGroup(chatId: string, participantId: string) {
+  async addParticipantToGroup(chatId: string, participantId: string): Promise<IChat | null> {
     return Chat.findByIdAndUpdate(chatId, {
       $addToSet: { participants: new Types.ObjectId(participantId) }
     }, { new: true });
   }
 
-  async removeParticipantFromGroup(chatId: string, participantId: string) {
+  async removeParticipantFromGroup(chatId: string, participantId: string): Promise<IChat | null> {
     return Chat.findByIdAndUpdate(chatId, {
       $pull: { participants: new Types.ObjectId(participantId) }
     }, { new: true });
   }
 
-  async getCompanyGroupChat(companyId: string) {
+  async getCompanyGroupChat(companyId: string): Promise<IChat | null> {
     return Chat.findOne({ companyId: new Types.ObjectId(companyId), type: 'group' });
   }
 }

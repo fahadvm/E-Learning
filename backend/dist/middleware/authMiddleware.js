@@ -63,7 +63,7 @@ const authMiddleware = (role) => {
             next();
         }
         catch (err) {
-            if (err.statusCode) {
+            if (err && typeof err === 'object' && 'statusCode' in err) {
                 return next(err);
             }
             return (0, ResANDError_1.throwError)('Invalid or expired token', HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);

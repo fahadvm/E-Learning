@@ -17,7 +17,6 @@ export class EmployeeProfileController implements IEmployeeProfileController{
   ) {}
 
   getProfile = async (req: Request, res: Response) => {
-    console.log("getting profile of employee")
     const decoded = decodeToken(req.cookies.token);
     if (!decoded?.id) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
     const employee = await this._employeeProfileService.getProfile(decoded.id);
@@ -28,7 +27,6 @@ export class EmployeeProfileController implements IEmployeeProfileController{
   editProfile = async (req: AuthRequest, res: Response) => {
     const employeeId = req.user?.id;
     if (!employeeId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
-    console.log("req body while updating profile ",req.body)
     const updated = await this._employeeProfileService.updateEmployeeProfile(employeeId, req.body);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.PROFILE_UPDATED, true, updated);
   };

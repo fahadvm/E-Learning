@@ -72,7 +72,6 @@ let CompanyEmployeeService = class CompanyEmployeeService {
             const action = status ? 'blocked' : 'unblocked';
             const companyId = (_a = employee.companyId) === null || _a === void 0 ? void 0 : _a._id.toString();
             const company = companyId ? yield this._companyRepo.findById(companyId) : null;
-            console.log("blocking is working");
             // Notify Company
             if (companyId) {
                 yield this._notificationService.createNotification(companyId, `Employee ${action}`, `Employee ${employee.name} has been ${action}.`, 'employee', 'company', `/company/employees/${id}`);
@@ -167,8 +166,6 @@ let CompanyEmployeeService = class CompanyEmployeeService {
             const employee = yield this._employeeRepo.findById(employeeId);
             if (!employee)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMPLOYEE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
-            console.log(employee);
-            console.log(companyId);
             if (((_a = employee.companyId) === null || _a === void 0 ? void 0 : _a._id.toString()) !== companyId) {
                 (0, ResANDError_1.throwError)('Employee does not belong to this company', HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
             }

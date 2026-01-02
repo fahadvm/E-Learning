@@ -36,11 +36,8 @@ let AdminTeacherService = class AdminTeacherService {
         this._transactionRepo = _transactionRepo;
         this._notificationService = _notificationService;
     }
-    // ... (getAllTeachers, getVerificationRequests, getTeacherById, etc - skipped) 
-    // Skipping unchanged methods...
     getAllTeachers(page, limit, search, status) {
         return __awaiter(this, void 0, void 0, function* () {
-            // ... (implementation same as before)
             const skip = (page - 1) * limit;
             const teachers = yield this._teacherRepo.findAll({ skip, limit, search, status });
             const total = yield this._teacherRepo.count(search, status);
@@ -50,7 +47,10 @@ let AdminTeacherService = class AdminTeacherService {
                 const totalCourses = courses.length;
                 const totalStudents = courses.reduce((sum, c) => sum + (c.totalStudents || 0), 0);
                 const totalEarnings = yield this._transactionRepo.teacherEarnings(teacher._id.toString());
-                return (0, Admin_teacher_Dto_1.adminTeacherDto)(Object.assign(Object.assign({}, teacher), { totalCourses, totalStudents, totalEarnings }));
+                const teacherObj = (teacher.toObject ? teacher.toObject() : teacher);
+                return (0, Admin_teacher_Dto_1.adminTeacherDto)(Object.assign(Object.assign({}, teacherObj), { totalCourses,
+                    totalStudents,
+                    totalEarnings }));
             })));
             return { data, total, totalPages };
         });
@@ -61,7 +61,7 @@ let AdminTeacherService = class AdminTeacherService {
             const teachers = yield this._teacherRepo.findPendingRequests({ skip, limit, search });
             const total = yield this._teacherRepo.countPendingRequests(search);
             const totalPages = Math.ceil(total / limit);
-            const data = teachers.map(Admin_teacher_Dto_1.adminTeacherDto);
+            const data = teachers.map(t => (0, Admin_teacher_Dto_1.adminTeacherDto)(t));
             return { data, total, totalPages };
         });
     }
@@ -73,9 +73,13 @@ let AdminTeacherService = class AdminTeacherService {
             const courses = yield this._courseRepo.findByTeacherId(teacherId);
             const totalStudents = courses.reduce((sum, c) => sum + (c.totalStudents || 0), 0);
             const totalEarnings = yield this._transactionRepo.teacherEarnings(teacherId);
-            const teacherWithStats = Object.assign(Object.assign({}, teacher), { totalStudents,
+            const teacherObj = (teacher.toObject ? teacher.toObject() : teacher);
+            const teacherWithStats = Object.assign(Object.assign({}, teacherObj), { totalStudents,
                 totalEarnings });
-            return (0, Admin_teacher_Dto_1.adminTeacherDetailsDto)({ teacher: teacherWithStats, courses });
+            return (0, Admin_teacher_Dto_1.adminTeacherDetailsDto)({
+                teacher: teacherWithStats,
+                courses
+            });
         });
     }
     getUnverifiedTeachers() {
@@ -109,7 +113,6 @@ let AdminTeacherService = class AdminTeacherService {
             const updated = yield this._teacherRepo.updateStatus(teacherId, { isBlocked: true });
             if (!updated)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.TEACHER_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
-            // If teacher is blocked, all their courses should be auto-unpublished
             yield this._courseRepo.unpublishByTeacherId(teacherId);
             return (0, Admin_teacher_Dto_1.adminTeacherDto)(updated);
         });

@@ -152,7 +152,8 @@ export class AdminProfileService implements IAdminProfileService {
     // await sendWelcomeEmail(email, password);
 
     // Return admin without password
-    const { password: _, ...adminWithoutPassword } = newAdmin;
-    return adminWithoutPassword as Omit<IAdmin, 'password'>;
+    const adminObj = newAdmin.toObject ? newAdmin.toObject() : { ...newAdmin };
+    delete (adminObj as { password?: string }).password;
+    return adminObj as Omit<IAdmin, 'password'>;
   }
 }

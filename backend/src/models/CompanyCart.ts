@@ -3,7 +3,7 @@ import { ICourse } from './Course';
 
 export interface ICompanyCartCourse {
     courseId: mongoose.Types.ObjectId | ICourse;
-    accessType: "seats" | "unlimited";
+    accessType: 'seats' | 'unlimited';
     seats: number;
     price: number;
 }
@@ -22,7 +22,7 @@ const CartSchema = new Schema<ICompanyCart>(
         courses: [
             {
                 courseId: { type: Schema.Types.ObjectId, ref: 'Course', required: true },
-                accessType: { type: String, enum: ["seats", "unlimited"], default: "seats" },
+                accessType: { type: String, enum: ['seats', 'unlimited'], default: 'seats' },
                 seats: { type: Number, default: 1 },
                 price: { type: Number, required: true },
             }

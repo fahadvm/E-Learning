@@ -15,8 +15,8 @@ const router = express_1.default.Router();
 const companyProfileController = container_1.default.get(types_1.TYPES.CompanyProfileController);
 router.get('/', (0, authMiddleware_1.authMiddleware)('company'), (0, asyncHandler_1.asyncHandler)(companyProfileController.getProfile.bind(companyProfileController)));
 router.post('/verify', (0, authMiddleware_1.authMiddleware)('company'), upload.fields([
-    { name: "certificate", maxCount: 1 },
-    { name: "taxId", maxCount: 1 }
+    { name: 'certificate', maxCount: 1 },
+    { name: 'taxId', maxCount: 1 }
 ]), (0, asyncHandler_1.asyncHandler)(companyProfileController.verify.bind(companyProfileController)));
 router.put('/', (0, authMiddleware_1.authMiddleware)('company'), (0, asyncHandler_1.asyncHandler)(companyProfileController.updateProfile.bind(companyProfileController)));
 // Email Change Routes

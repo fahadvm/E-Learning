@@ -56,8 +56,8 @@ export const authMiddleware = (role: 'student' | 'teacher' | 'company' | 'admin'
       };
 
       next();
-    } catch (err: any) {
-      if (err.statusCode) {
+    } catch (err: unknown) {
+      if (err && typeof err === 'object' && 'statusCode' in err) {
         return next(err);
       }
       return throwError('Invalid or expired token', STATUS_CODES.UNAUTHORIZED);

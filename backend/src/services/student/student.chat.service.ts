@@ -7,6 +7,8 @@ import { IChat } from '../../models/chat';  // Adjust path
 import { throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { IOrderRepository } from '../../core/interfaces/repositories/IOrderRepository';
+import { ICourse } from '../../models/Course';
+import { ITeacher } from '../../models/Teacher';
 
 @injectable()
 export class ChatService implements IChatService {
@@ -22,7 +24,7 @@ export class ChatService implements IChatService {
   }
 
   async getMessages(chatId: string, limit: number, before: string): Promise<IMessage[]> {
-    let beforeDate = new Date(before);
+    const beforeDate = new Date(before);
 
 
     return this._chatRepository.getStudentMessages(chatId, limit, beforeDate);
@@ -54,18 +56,18 @@ export class ChatService implements IChatService {
 
 
   async deleteMessage(chatId: string, messageId: string, senderId: string): Promise<void> {
-    console.log("deleting is working")
     if (!senderId || !chatId) throwError(MESSAGES.ID_REQUIRED);
 
     const deleted = await Message.findByIdAndDelete(messageId);
-    console.log("deleted", deleted)
+    if (!deleted) throwError(MESSAGES.MESSAGE_EDIT_FAILED);
+
+
   }
   async editMessage(chatId: string, messageId: string, senderId: string, newMessage: string): Promise<void> {
-    // console.log(chatId, messageId, senderId, newMessage)
     if (!senderId || !chatId) throwError(MESSAGES.ID_REQUIRED);
 
     const edit = await Message.findByIdAndUpdate(messageId, { $set: { message: newMessage, edited: true } });
-    console.log("edited in service ", edit)
+    if (!edit) throwError(MESSAGES.MESSAGE_EDIT_FAILED);
   }
 
   async getTeachersFromPurchases(
@@ -79,11 +81,10 @@ export class ChatService implements IChatService {
       courseCount: number;
       hasChat: boolean;
     }[];
-    courses: any[];
+    courses: ICourse[];
   }> {
     // 1) Fetch orders populated with courses → teacher
     const enrollments = await this._orderRepo.getOrdersByStudentId(studentId);
-    console.log("-- Orders --", JSON.stringify(enrollments, null, 2));
 
     const teacherMap = new Map<
       string,
@@ -96,18 +97,18 @@ export class ChatService implements IChatService {
       }
     >();
 
-    const purchasedCourses: any[] = [];
+    const purchasedCourses: ICourse[] = [];
 
     for (const order of enrollments) {
       if (!order.courses || order.courses.length === 0) continue;
 
-      for (const course of order.courses as any[]) {
-        if (!course) continue;
+      for (const courseItem of order.courses) {
+        if (!courseItem) continue;
 
+        const course = courseItem as unknown as ICourse;
         purchasedCourses.push(course);
 
-        const teacher = course.teacherId;
-        console.log("populated teacher:", teacher)
+        const teacher = course.teacherId as unknown as ITeacher;
 
         if (!teacher) continue;
 
@@ -127,7 +128,6 @@ export class ChatService implements IChatService {
       }
     }
 
-    console.log("-- teacherMap --", teacherMap);
 
     // 3) Check chat threads
     const chats = await this._chatRepository.getStudentChats(studentId);
@@ -140,14 +140,10 @@ export class ChatService implements IChatService {
     }));
 
     // 5) Return teachers + purchased courses
-    console.log("-- Final Result --", { teachers, purchasedCourses });
 
     return {
       teachers,
       courses: purchasedCourses,
     };
   }
-
-
-
 }

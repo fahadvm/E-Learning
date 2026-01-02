@@ -49,26 +49,26 @@ export class CompanyProfileService implements ICompanyProfileService {
     phone: string,
     certificateFile: Express.Multer.File,
     taxIdFile: Express.Multer.File
-  ) {
+  ): Promise<ICompany | null> {
     const existing = await this._companyRepository.findById(companyId);
 
     if (!existing) {
-      throwError("Company not found", STATUS_CODES.NOT_FOUND);
+      throwError('Company not found', STATUS_CODES.NOT_FOUND);
     }
 
-    if (existing.status === "pending") {
-      throwError("Verification already submitted", STATUS_CODES.BAD_REQUEST);
+    if (existing.status === 'pending') {
+      throwError('Verification already submitted', STATUS_CODES.BAD_REQUEST);
     }
 
-    const certificateUrl = await this.uploadToCloudinary(certificateFile, "company/certificates");
-    const taxIdUrl = await this.uploadToCloudinary(taxIdFile, "company/taxIds");
+    const certificateUrl = await this.uploadToCloudinary(certificateFile, 'company/certificates');
+    const taxIdUrl = await this.uploadToCloudinary(taxIdFile, 'company/taxIds');
 
     const updateData = {
       name,
       address,
       pincode,
       phone,
-      status: "pending",
+      status: 'pending',
       isVerified: false,
       registrationDocs: {
         certificate: certificateUrl,
@@ -89,13 +89,13 @@ export class CompanyProfileService implements ICompanyProfileService {
     // Check if new email is already in use
     const existingCompany = await this._companyRepository.findByEmail(newEmail);
     if (existingCompany && existingCompany._id.toString() !== companyId) {
-      throwError("Email already in use", STATUS_CODES.BAD_REQUEST);
+      throwError('Email already in use', STATUS_CODES.BAD_REQUEST);
     }
 
     // Check rate limiting (1 OTP per minute)
     const existing = emailOtpStore.get(companyId);
     if (existing && Date.now() - existing.createdAt < 60000) {
-      throwError("Please wait 1 minute before requesting another OTP", STATUS_CODES.BAD_REQUEST);
+      throwError('Please wait 1 minute before requesting another OTP', STATUS_CODES.BAD_REQUEST);
     }
 
     // Generate OTP
@@ -126,25 +126,25 @@ export class CompanyProfileService implements ICompanyProfileService {
     const stored = emailOtpStore.get(companyId);
 
     if (!stored) {
-      throwError("OTP expired or not found. Please request a new one.", STATUS_CODES.BAD_REQUEST);
+      throwError('OTP expired or not found. Please request a new one.', STATUS_CODES.BAD_REQUEST);
     }
 
     // Check if OTP expired (5 minutes)
     if (Date.now() - stored.createdAt > 300000) {
       emailOtpStore.delete(companyId);
-      throwError("OTP expired. Please request a new one.", STATUS_CODES.BAD_REQUEST);
+      throwError('OTP expired. Please request a new one.', STATUS_CODES.BAD_REQUEST);
     }
 
     // Check attempts (max 3)
     if (stored.attempts >= 3) {
       emailOtpStore.delete(companyId);
-      throwError("Too many failed attempts. Please request a new OTP.", STATUS_CODES.BAD_REQUEST);
+      throwError('Too many failed attempts. Please request a new OTP.', STATUS_CODES.BAD_REQUEST);
     }
 
     // Verify OTP
     if (stored.otp !== otp || stored.newEmail !== newEmail) {
       stored.attempts++;
-      throwError("Invalid OTP", STATUS_CODES.BAD_REQUEST);
+      throwError('Invalid OTP', STATUS_CODES.BAD_REQUEST);
     }
 
     // Update email
@@ -164,17 +164,17 @@ export class CompanyProfileService implements ICompanyProfileService {
 
     // Verify current password
     if (!company.password) {
-      throwError("Password not set for this account", STATUS_CODES.BAD_REQUEST);
+      throwError('Password not set for this account', STATUS_CODES.BAD_REQUEST);
     }
 
     const isMatch = await bcrypt.compare(currentPassword, company.password);
     if (!isMatch) {
-      throwError("Current password is incorrect", STATUS_CODES.BAD_REQUEST);
+      throwError('Current password is incorrect', STATUS_CODES.BAD_REQUEST);
     }
 
     // Validate new password
     if (newPassword.length < 6) {
-      throwError("New password must be at least 6 characters long", STATUS_CODES.BAD_REQUEST);
+      throwError('New password must be at least 6 characters long', STATUS_CODES.BAD_REQUEST);
     }
 
     // Hash new password

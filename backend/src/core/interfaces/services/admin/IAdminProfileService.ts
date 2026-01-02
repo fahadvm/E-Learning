@@ -1,4 +1,4 @@
-import { IAdmin } from "../../../../models/Admin";
+import { IAdmin } from '../../../../models/Admin';
 
 export interface IAdminProfileService {
   getProfile(adminId: string): Promise<Omit<IAdmin, 'password'>>;

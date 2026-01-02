@@ -19,6 +19,7 @@ dotenv.config();
 import { ITransactionRepository } from '../../core/interfaces/repositories/ITransactionRepository';
 import { IWalletRepository } from '../../core/interfaces/repositories/IwalletRepository';
 import { ICompanyCoursePurchaseRepository } from '../../core/interfaces/repositories/ICompanyCoursePurchaseRepository';
+import { ITeacher } from '../../models/Teacher';
 
 @injectable()
 export class CompanyPurchaseService implements ICompanyPurchaseService {
@@ -46,11 +47,10 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
     }
 
     // Extract course IDs for duplicate check
-    const courseIds = cart.courses.map(item => item.courseId._id?.toString() || item.courseId.toString());
+    // const courseIds = cart.courses.map(item => item.courseId._id?.toString() || item.courseId.toString());
 
-    const purchasedCourseIds = await this._companyOrderRepo.getPurchasedCourseIds(companyId);
-    const duplicates = courseIds.filter(id => purchasedCourseIds.includes(id));
-
+    // const purchasedCourseIds = await this._companyOrderRepo.getPurchasedCourseIds(companyId);
+    // const duplicates = courseIds.filter(id => purchasedCourseIds.includes(id));
     // if (duplicates.length > 0) {
     //   throwError(MESSAGES.COURSES_ALREADY_PURCHASED, STATUS_CODES.CONFLICT);
     // }
@@ -112,9 +112,9 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
       await this._companyOrderRepo.updateStatus(sessionId, 'paid');
       await this._cartRepo.clearCart(companyId);
       for (const item of order.purchasedCourses) {
-        const courseId = (item.courseId as any)?._id
-          ? new mongoose.Types.ObjectId((item.courseId as any)._id)
-          : new mongoose.Types.ObjectId(item.courseId as any);
+        const courseId = (item.courseId as unknown as ICourse)?._id
+          ? new mongoose.Types.ObjectId((item.courseId as unknown as ICourse)._id)
+          : new mongoose.Types.ObjectId(item.courseId as unknown as string);
         await this._PurchaseRepo.purchaseCourse(
           new mongoose.Types.ObjectId(order.companyId),
           courseId,
@@ -146,14 +146,14 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
         // Looking at Transaction.ts, `userId: { type: Schema.Types.ObjectId, ref: "Student" }`.
         // This is a schema limitation. For now, let's store it in userId but notes will clarify.
         // Ideally we should update Transaction model to support Company, but for this task I will use userId and notes.
-        type: "COURSE_PURCHASE",
-        txnNature: "CREDIT",
+        type: 'COURSE_PURCHASE',
+        txnNature: 'CREDIT',
         amount: order.amount,
         grossAmount: order.amount,
         teacherShare,
         platformFee,
-        paymentMethod: "STRIPE",
-        paymentStatus: "SUCCESS",
+        paymentMethod: 'STRIPE',
+        paymentStatus: 'SUCCESS',
         notes: `Company Purchase: ${order._id}`
       });
 
@@ -161,11 +161,11 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
       for (const item of order.purchasedCourses) {
         // item.courseId might be populated or just ID. 
         // Need to ensure we get the course to find teacherId.
-        const courseIdStr = (item.courseId as any)._id?.toString() || item.courseId.toString();
+        const courseIdStr = (item.courseId as unknown as ICourse)._id?.toString() || item.courseId.toString();
         const course = await this._courseRepo.findById(courseIdStr);
 
         if (course && course.teacherId) {
-          const teacherIdStr = (course.teacherId as any)._id?.toString() || course.teacherId.toString();
+          const teacherIdStr = (course.teacherId as unknown as ITeacher)._id?.toString() || course.teacherId.toString();
 
           // Calculate specific cut for this course item
           const itemPrice = item.price;
@@ -175,14 +175,14 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
           const earningTx = await this._transactionRepo.create({
             teacherId: new mongoose.Types.ObjectId(teacherIdStr),
             courseId: new mongoose.Types.ObjectId(courseIdStr),
-            type: "TEACHER_EARNING",
-            txnNature: "CREDIT",
+            type: 'TEACHER_EARNING',
+            txnNature: 'CREDIT',
             amount: itemTeacherCut,
             grossAmount: itemPrice,
             teacherShare: itemTeacherCut,
             platformFee: itemPlatformCut,
-            paymentMethod: "WALLET",
-            paymentStatus: "SUCCESS",
+            paymentMethod: 'WALLET',
+            paymentStatus: 'SUCCESS',
             notes: `Earning from Company Order: ${order._id}`
           });
 
@@ -214,15 +214,13 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
   /**
    * Get purchased courses for a company
    */
-  async getPurchasedCourses(companyId: string): Promise<(ICompanyOrder & { courses: ICourse[] })[]> {
+  async getPurchasedCourses(companyId: string): Promise<ICompanyOrder[]> {
     const courses = await this._companyOrderRepo.getOrdersByCompanyId(companyId);
-    console.log("course fetched more", courses)
-    return courses
+    return courses;
   }
 
   async getMycoursesIdsById(companyId: string): Promise<string[] | null> {
     const courseIds = await this._companyOrderRepo.getPurchasedCourseIds(companyId);
-    console.log("course fetched more", courseIds)
-    return courseIds
+    return courseIds;
   }
 }

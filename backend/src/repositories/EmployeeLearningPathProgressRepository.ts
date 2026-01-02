@@ -1,8 +1,8 @@
-import { injectable } from "inversify";
-import { Types } from "mongoose";
-import { IEmployeeLearningPathProgressRepository } from "../core/interfaces/repositories/IEmployeeLearningPathProgressRepository";
-import { EmployeeLearningPathProgress, IEmployeeLearningPathProgress } from "../models/EmployeeLearningPathProgress";
-import { EmployeeLearningPath } from "../models/EmployeeLearningPath";
+import { injectable } from 'inversify';
+import { Types } from 'mongoose';
+import { IEmployeeLearningPathProgressRepository } from '../core/interfaces/repositories/IEmployeeLearningPathProgressRepository';
+import { EmployeeLearningPathProgress, IEmployeeLearningPathProgress } from '../models/EmployeeLearningPathProgress';
+import { EmployeeLearningPath, IEmployeeLearningPath } from '../models/EmployeeLearningPath';
 
 @injectable()
 export class EmployeeLearningPathProgressRepository implements IEmployeeLearningPathProgressRepository {
@@ -11,7 +11,7 @@ export class EmployeeLearningPathProgressRepository implements IEmployeeLearning
             companyId: new Types.ObjectId(companyId),
             employeeId: new Types.ObjectId(employeeId),
         })
-            .populate("learningPathId")
+            .populate('learningPathId')
             .lean()
             .exec();
     }
@@ -27,7 +27,7 @@ export class EmployeeLearningPathProgressRepository implements IEmployeeLearning
         return EmployeeLearningPathProgress.find({
             employeeId: new Types.ObjectId(employeeId),
         })
-            .populate("learningPathId")
+            .populate('learningPathId')
             .lean()
             .exec();
     }
@@ -46,10 +46,10 @@ export class EmployeeLearningPathProgressRepository implements IEmployeeLearning
 
         const learningPath = await EmployeeLearningPath
             .findById(learningPathId)
-            .select("courses");
+            .select('courses');
 
         if (!learningPath || learningPath.courses.length === 0) {
-            throw new Error("Learning path has no courses");
+            throw new Error('Learning path has no courses');
         }
 
         const firstCourse = learningPath.courses[0];
@@ -58,7 +58,7 @@ export class EmployeeLearningPathProgressRepository implements IEmployeeLearning
             companyId: new Types.ObjectId(companyId),
             employeeId: new Types.ObjectId(employeeId),
             learningPathId: new Types.ObjectId(learningPathId),
-            status: "active",
+            status: 'active',
             percentage: 0, // learning path %
             completedCourses: [],
 
@@ -92,13 +92,13 @@ export class EmployeeLearningPathProgressRepository implements IEmployeeLearning
         const progress = await EmployeeLearningPathProgress
             .findOne({
                 employeeId: new Types.ObjectId(employeeId),
-                "currentCourse.courseId": new Types.ObjectId(courseId)
+                'currentCourse.courseId': new Types.ObjectId(courseId)
             })
-            .populate("learningPathId");
+            .populate('learningPathId');
 
-        if (!progress) throw new Error("Progress record not found");
+        if (!progress) throw new Error('Progress record not found');
 
-        const learningPath = progress.learningPathId as any;
+        const learningPath = progress.learningPathId as unknown as IEmployeeLearningPath;
         const totalCourses = learningPath.courses.length;
 
         progress.currentCourse.percentage = percentage;
@@ -116,7 +116,7 @@ export class EmployeeLearningPathProgressRepository implements IEmployeeLearning
                 progress.currentCourse.courseId = learningPath.courses[progress.currentCourse.index].courseId;
                 progress.currentCourse.percentage = 0;
             } else {
-                progress.status = "completed";
+                progress.status = 'completed';
                 progress.percentage = 100;
                 const finalSave = await progress.save();
                 return finalSave.toObject();

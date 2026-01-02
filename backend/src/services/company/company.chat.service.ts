@@ -1,9 +1,9 @@
 
-import { inject, injectable } from "inversify";
-import { ICompanyChatService } from "../../core/interfaces/services/company/ICompanyChatService";
-import { TYPES } from "../../core/di/types";
-import { IChatRepository } from "../../core/interfaces/repositories/IChatRepository";
-import { IChat } from "../../models/chat";
+import { inject, injectable } from 'inversify';
+import { ICompanyChatService } from '../../core/interfaces/services/company/ICompanyChatService';
+import { TYPES } from '../../core/di/types';
+import { IChatRepository } from '../../core/interfaces/repositories/IChatRepository';
+import { IChat } from '../../models/chat';
 
 @injectable()
 export class CompanyChatService implements ICompanyChatService {

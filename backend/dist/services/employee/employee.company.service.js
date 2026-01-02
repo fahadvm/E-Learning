@@ -76,7 +76,7 @@ let EmployeeCompanyService = class EmployeeCompanyService {
         return __awaiter(this, void 0, void 0, function* () {
             const employee = yield this.employeeRepo.findById(employeeId);
             if (!employee || !employee.invitedBy)
-                (0, ResANDError_1.throwError)("No invitation found", HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+                (0, ResANDError_1.throwError)('No invitation found', HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             yield this.employeeRepo.updateById(employeeId, {
                 companyId: employee.invitedBy,
                 invitedBy: null,
@@ -94,7 +94,7 @@ let EmployeeCompanyService = class EmployeeCompanyService {
         return __awaiter(this, void 0, void 0, function* () {
             const employee = yield this.employeeRepo.findById(employeeId);
             if (!employee || !employee.invitedBy)
-                (0, ResANDError_1.throwError)("No invitation found", HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+                (0, ResANDError_1.throwError)('No invitation found', HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             yield this.employeeRepo.updateById(employeeId, {
                 invitedBy: null,
                 invitedAt: null,
@@ -118,7 +118,6 @@ let EmployeeCompanyService = class EmployeeCompanyService {
             if (employee.status === EmployeeStatus.REQUESTED || employee.status === EmployeeStatus.INVITED)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ALREADY_REQUESTED_COMPANY, HttpStatuscodes_1.STATUS_CODES.CONFLICT);
             const requestedCompanyId = new mongoose_1.default.Types.ObjectId(companyId);
-            console.log("requested company id ", requestedCompanyId);
             yield this.employeeRepo.updateById(employeeId, { requestedCompanyId, status: EmployeeStatus.REQUESTED });
         });
     }

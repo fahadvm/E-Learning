@@ -47,7 +47,7 @@ export class StudentRepository implements IStudentRepository {
 
   async update(id: string, data: Partial<IStudent>): Promise<IStudent> {
     const updated = await Student.findByIdAndUpdate(id, { $set: data }, { new: true }).lean().exec();
-    if (!updated) throwError(MESSAGES.STUDENT_NOT_FOUND,STATUS_CODES.NOT_FOUND)
+    if (!updated) throwError(MESSAGES.STUDENT_NOT_FOUND,STATUS_CODES.NOT_FOUND);
     return updated;
   }
 

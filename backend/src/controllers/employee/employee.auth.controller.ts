@@ -46,9 +46,7 @@ export class EmployeeAuthController implements IEmployeeAuthController {
   };
 
   googleAuth = async (req: Request, res: Response) => {
-    console.log("employee side google login is working")
     const { tokenId } = req.body;
-    console.log('tokenId', tokenId);
     if (!tokenId) throwError(MESSAGES.GOOGLE_AUTH_REQUIRED, STATUS_CODES.BAD_REQUEST);
     const result = await this._employeeAuthService.googleAuth(tokenId);
     setTokensInCookies(res, result.token, result.refreshToken);
@@ -84,22 +82,20 @@ export class EmployeeAuthController implements IEmployeeAuthController {
 
   sendChangeEmailOtp = async (req: AuthRequest, res: Response) => {
     const { newEmail } = req.body;
-    console.log("req.body new email otp",req.body)
     if (!newEmail) throwError(MESSAGES.EMAIL_REQUIRED, STATUS_CODES.BAD_REQUEST);
     await this._employeeAuthService.sendChangeEmailOtp(req.user!.id, newEmail);
-    return sendResponse(res, STATUS_CODES.OK, "OTP sent to new email", true);
+    return sendResponse(res, STATUS_CODES.OK, 'OTP sent to new email', true);
   };
 
   verifyChangeEmail = async (req: AuthRequest, res: Response) => {
     const { newEmail, otp } = req.body;
     if (!newEmail || !otp) throwError(MESSAGES.EMAIL_OTP_REQUIRED, STATUS_CODES.BAD_REQUEST);
     await this._employeeAuthService.verifyChangeEmail(req.user!.id, newEmail, otp);
-    return sendResponse(res, STATUS_CODES.OK, "Email updated successfully", true);
+    return sendResponse(res, STATUS_CODES.OK, 'Email updated successfully', true);
   };
 
   changePassword = async (req: AuthRequest, res: Response) => {
     const { currentPassword, newPassword } = req.body;
-        console.log("req.body change pass word",req.body)
 
     if (!currentPassword || !newPassword) throwError(MESSAGES.EMAIL_PASSWORD_REQUIRED, STATUS_CODES.BAD_REQUEST);
     await this._employeeAuthService.changePassword(req.user!.id, currentPassword, newPassword);

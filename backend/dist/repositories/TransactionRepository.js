@@ -59,15 +59,15 @@ class TransactionRepository {
                 {
                     $match: {
                         teacherId: new mongoose_1.default.Types.ObjectId(teacherId),
-                        type: "TEACHER_EARNING",
-                        txnNature: "CREDIT",
-                        paymentStatus: "SUCCESS"
+                        type: 'TEACHER_EARNING',
+                        txnNature: 'CREDIT',
+                        paymentStatus: 'SUCCESS'
                     }
                 },
                 {
                     $group: {
                         _id: null,
-                        totalEarnings: { $sum: "$amount" }
+                        totalEarnings: { $sum: '$amount' }
                     }
                 }
             ]);

@@ -1,11 +1,11 @@
-import { inject, injectable } from "inversify";
-import { Response } from "express";
-import { AuthRequest } from "../../types/AuthenticatedRequest";
-import { TYPES } from "../../core/di/types";
-import { sendResponse } from "../../utils/ResANDError";
-import { STATUS_CODES } from "../../utils/HttpStatuscodes";
-import { MESSAGES } from "../../utils/ResponseMessages";
-import { IEmployeeLearningPathService } from "../../core/interfaces/services/employee/IEmployeeLearningPathService";
+import { inject, injectable } from 'inversify';
+import { Response } from 'express';
+import { AuthRequest } from '../../types/AuthenticatedRequest';
+import { TYPES } from '../../core/di/types';
+import { sendResponse } from '../../utils/ResANDError';
+import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { MESSAGES } from '../../utils/ResponseMessages';
+import { IEmployeeLearningPathService } from '../../core/interfaces/services/employee/IEmployeeLearningPathService';
 
 @injectable()
 export class EmployeeLearningPathController {

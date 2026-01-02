@@ -35,7 +35,7 @@ let TeacherPayoutController = class TeacherPayoutController {
             var _a;
             const teacherId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             const stats = yield this._payoutService.getWalletStats(teacherId);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Wallet stats fetched", true, stats);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Wallet stats fetched', true, stats);
         });
     }
     getPayoutHistory(req, res) {
@@ -43,7 +43,7 @@ let TeacherPayoutController = class TeacherPayoutController {
             var _a;
             const teacherId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             const history = yield this._payoutService.getPayoutHistory(teacherId);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Payout history fetched", true, history);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Payout history fetched', true, history);
         });
     }
     requestPayout(req, res) {
@@ -52,9 +52,9 @@ let TeacherPayoutController = class TeacherPayoutController {
             const teacherId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             const { amount, method, details } = req.body;
             if (!amount || !method || !details)
-                (0, ResANDError_1.throwError)("Missing required fields", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)('Missing required fields', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const result = yield this._payoutService.requestPayout(teacherId, Number(amount), method, details);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Payout requested successfully", true, result);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Payout requested successfully', true, result);
         });
     }
 };

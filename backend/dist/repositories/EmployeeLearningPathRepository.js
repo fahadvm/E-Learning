@@ -59,9 +59,9 @@ let EmployeeLearningPathRepository = class EmployeeLearningPathRepository {
         return __awaiter(this, void 0, void 0, function* () {
             const query = { companyId: new mongoose_1.Types.ObjectId(companyId) };
             if (search) {
-                query["$or"] = [
-                    { title: { $regex: search, $options: "i" } },
-                    { category: { $regex: search, $options: "i" } },
+                query['$or'] = [
+                    { title: { $regex: search, $options: 'i' } },
+                    { category: { $regex: search, $options: 'i' } },
                 ];
             }
             return EmployeeLearningPath_1.EmployeeLearningPath.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean().exec();
@@ -71,9 +71,9 @@ let EmployeeLearningPathRepository = class EmployeeLearningPathRepository {
         return __awaiter(this, void 0, void 0, function* () {
             const query = { companyId: new mongoose_1.Types.ObjectId(companyId) };
             if (search) {
-                query["$or"] = [
-                    { title: { $regex: search, $options: "i" } },
-                    { category: { $regex: search, $options: "i" } },
+                query['$or'] = [
+                    { title: { $regex: search, $options: 'i' } },
+                    { category: { $regex: search, $options: 'i' } },
                 ];
             }
             return EmployeeLearningPath_1.EmployeeLearningPath.countDocuments(query).exec();

@@ -4,11 +4,9 @@ import { TYPES } from '../../core/di/types';
 import { IPayoutRepository } from '../../core/interfaces/repositories/IPayoutRepository';
 import { IWalletRepository } from '../../core/interfaces/repositories/IwalletRepository';
 import { ITransactionRepository } from '../../core/interfaces/repositories/ITransactionRepository';
-import { ITransaction, Transaction } from '../../models/Transaction'; // Directly import model for manual update if repo lacks method
 import { IPayout, PayoutStatus } from '../../models/Payout';
 import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
-import { MESSAGES } from '../../utils/ResponseMessages';
 
 @injectable()
 export class AdminPayoutService implements IAdminPayoutService {
@@ -19,19 +17,19 @@ export class AdminPayoutService implements IAdminPayoutService {
     ) { }
 
     async getAllPayouts(status?: string): Promise<IPayout[]> {
-        const filter: any = {};
-        if (status && status !== 'All') filter.status = status;
+        const filter: { status?: PayoutStatus; teacherId?: string } = {};
+        if (status && status !== 'All') filter.status = status as PayoutStatus;
         return await this._payoutRepo.findAll(filter, 0, 100); // Limit 100 for now
     }
 
     async approvePayout(payoutId: string): Promise<IPayout> {
         const payout = await this._payoutRepo.findById(payoutId);
-        if (!payout) throwError("Payout not found", STATUS_CODES.NOT_FOUND);
-        if (payout.status !== PayoutStatus.PENDING) throwError("Payout is not pending", STATUS_CODES.BAD_REQUEST);
+        if (!payout) throwError('Payout not found', STATUS_CODES.NOT_FOUND);
+        if (payout.status !== PayoutStatus.PENDING) throwError('Payout is not pending', STATUS_CODES.BAD_REQUEST);
 
         // 1. Update Payout Status
         const updatedPayout = await this._payoutRepo.updateStatus(payoutId, PayoutStatus.APPROVED);
-        if (!updatedPayout) throwError("Failed to update payout", STATUS_CODES.INTERNAL_SERVER_ERROR);
+        if (!updatedPayout) throwError('Failed to update payout', STATUS_CODES.INTERNAL_SERVER_ERROR);
 
         // 2. Commit Withdrawal in Wallet (Update totalWithdrawn)
         await this._walletRepo.recordSuccessfulWithdrawal(updatedPayout.teacherId.toString(), updatedPayout.amount);
@@ -54,12 +52,12 @@ export class AdminPayoutService implements IAdminPayoutService {
 
     async rejectPayout(payoutId: string, reason: string): Promise<IPayout> {
         const payout = await this._payoutRepo.findById(payoutId);
-        if (!payout) throwError("Payout not found", STATUS_CODES.NOT_FOUND);
-        if (payout.status !== PayoutStatus.PENDING) throwError("Payout is not pending", STATUS_CODES.BAD_REQUEST);
+        if (!payout) throwError('Payout not found', STATUS_CODES.NOT_FOUND);
+        if (payout.status !== PayoutStatus.PENDING) throwError('Payout is not pending', STATUS_CODES.BAD_REQUEST);
 
         // 1. Update Payout Status
         const updatedPayout = await this._payoutRepo.updateStatus(payoutId, PayoutStatus.REJECTED, reason);
-        if (!updatedPayout) throwError("Failed to update payout", STATUS_CODES.INTERNAL_SERVER_ERROR);
+        if (!updatedPayout) throwError('Failed to update payout', STATUS_CODES.INTERNAL_SERVER_ERROR);
 
         // 2. Refund Balance
         await this._walletRepo.refundBalance(updatedPayout.teacherId.toString(), updatedPayout.amount);

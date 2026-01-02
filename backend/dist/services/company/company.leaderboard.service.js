@@ -30,19 +30,19 @@ let CompanyLeaderboardService = class CompanyLeaderboardService {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b, _c;
             const key = `leaderboard:${companyId}`;
-            const entries = yield redisClient_1.redis.zrevrange(key, 0, 49, "WITHSCORES");
+            const entries = yield redisClient_1.redis.zrevrange(key, 0, 49, 'WITHSCORES');
             const ranked = [];
             for (let i = 0; i < entries.length; i += 2) {
                 ranked.push({ employeeId: entries[i], score: Number(entries[i + 1]) });
             }
             const employeeIds = ranked.map((x) => new mongoose_1.default.Types.ObjectId(x.employeeId));
             const employees = yield Employee_1.Employee.find({ _id: { $in: employeeIds } })
-                .select("_id name profilePicture coursesProgress streakCount companyId")
+                .select('_id name profilePicture coursesProgress streakCount companyId')
                 .lean();
             // Compute course count & total learning minutes
             const learningRecords = yield EmployeeLearningRecord_1.EmployeeLearningRecord.aggregate([
                 { $match: { employeeId: { $in: employeeIds } } },
-                { $group: { _id: "$employeeId", totalMinutes: { $sum: "$totalMinutes" } } }
+                { $group: { _id: '$employeeId', totalMinutes: { $sum: '$totalMinutes' } } }
             ]);
             const result = [];
             let currentRank = 1;
@@ -73,7 +73,7 @@ let CompanyLeaderboardService = class CompanyLeaderboardService {
             var _a, _b;
             const employee = yield Employee_1.Employee.findOne({
                 companyId,
-                name: { $regex: name, $options: "i" }
+                name: { $regex: name, $options: 'i' }
             }).lean();
             if (!employee)
                 return null;
@@ -82,7 +82,7 @@ let CompanyLeaderboardService = class CompanyLeaderboardService {
             // Get total learning minutes from records
             const learning = yield EmployeeLearningRecord_1.EmployeeLearningRecord.aggregate([
                 { $match: { employeeId: employee._id, companyId: new mongoose_1.default.Types.ObjectId(companyId) } },
-                { $group: { _id: "$employeeId", totalMinutes: { $sum: "$totalMinutes" } } }
+                { $group: { _id: '$employeeId', totalMinutes: { $sum: '$totalMinutes' } } }
             ]);
             const totalMinutes = learning.length > 0 ? learning[0].totalMinutes : 0;
             // Score formula

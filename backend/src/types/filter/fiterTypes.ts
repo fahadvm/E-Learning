@@ -1,3 +1,7 @@
+import { ICourse } from '../../models/Course';
+import { IStudent } from '../../models/Student';
+import mongoose from 'mongoose';
+
 export interface IBookingFilter {
   teacherId: string;
   status?: string;
@@ -25,7 +29,7 @@ export interface EmployeeSummary {
   position: string;
 }
 
-export type OtpPurpose = "signup" | "change-email" | "forgot-password";
+export type OtpPurpose = 'signup' | 'change-email' | 'forgot-password';
 
 export interface OtpQuery {
   email: string;
@@ -46,8 +50,9 @@ export type RazorpayOrderResponse = {
   attempts: number;
   created_at: number;
 };
-export interface CreateCourseRequest extends Express.Request {
-  user?: { id: string };
+import { AuthRequest } from '../AuthenticatedRequest';
+
+export interface CreateCourseRequest extends AuthRequest {
   body: {
     title: string;
     subtitle?: string;
@@ -84,9 +89,9 @@ export interface ITeacherSlot {
     start: string;
     end: string;
   };
-  status: "available" | "pending" | "booked" | "cancelled" | "rescheduled" | "failed";
-  student?: any;
-  course?: any;
+  status: 'available' | 'pending' | 'booked' | 'cancelled' | 'rescheduled' | 'failed';
+  student?: mongoose.Types.ObjectId | IStudent;
+  course?: mongoose.Types.ObjectId | ICourse;
   callId: string | undefined
 }
 export interface TemporaryCompanyData {

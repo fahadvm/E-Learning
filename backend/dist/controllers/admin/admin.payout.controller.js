@@ -34,14 +34,14 @@ let AdminPayoutController = class AdminPayoutController {
         return __awaiter(this, void 0, void 0, function* () {
             const { status } = req.query;
             const payouts = yield this._payoutService.getAllPayouts(status);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Payouts fetched", true, payouts);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Payouts fetched', true, payouts);
         });
     }
     approvePayout(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { payoutId } = req.params;
             const result = yield this._payoutService.approvePayout(payoutId);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Payout approved", true, result);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Payout approved', true, result);
         });
     }
     rejectPayout(req, res) {
@@ -49,7 +49,7 @@ let AdminPayoutController = class AdminPayoutController {
             const { payoutId } = req.params;
             const { reason } = req.body;
             const result = yield this._payoutService.rejectPayout(payoutId, reason);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Payout rejected", true, result);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Payout rejected', true, result);
         });
     }
 };

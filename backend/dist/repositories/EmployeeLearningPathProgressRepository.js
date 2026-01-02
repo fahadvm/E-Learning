@@ -27,7 +27,7 @@ let EmployeeLearningPathProgressRepository = class EmployeeLearningPathProgressR
                 companyId: new mongoose_1.Types.ObjectId(companyId),
                 employeeId: new mongoose_1.Types.ObjectId(employeeId),
             })
-                .populate("learningPathId")
+                .populate('learningPathId')
                 .lean()
                 .exec();
         });
@@ -42,7 +42,7 @@ let EmployeeLearningPathProgressRepository = class EmployeeLearningPathProgressR
             return EmployeeLearningPathProgress_1.EmployeeLearningPathProgress.find({
                 employeeId: new mongoose_1.Types.ObjectId(employeeId),
             })
-                .populate("learningPathId")
+                .populate('learningPathId')
                 .lean()
                 .exec();
         });
@@ -62,16 +62,16 @@ let EmployeeLearningPathProgressRepository = class EmployeeLearningPathProgressR
         return __awaiter(this, void 0, void 0, function* () {
             const learningPath = yield EmployeeLearningPath_1.EmployeeLearningPath
                 .findById(learningPathId)
-                .select("courses");
+                .select('courses');
             if (!learningPath || learningPath.courses.length === 0) {
-                throw new Error("Learning path has no courses");
+                throw new Error('Learning path has no courses');
             }
             const firstCourse = learningPath.courses[0];
             const doc = yield EmployeeLearningPathProgress_1.EmployeeLearningPathProgress.create({
                 companyId: new mongoose_1.Types.ObjectId(companyId),
                 employeeId: new mongoose_1.Types.ObjectId(employeeId),
                 learningPathId: new mongoose_1.Types.ObjectId(learningPathId),
-                status: "active",
+                status: 'active',
                 percentage: 0, // learning path %
                 completedCourses: [],
                 currentCourse: {
@@ -107,11 +107,11 @@ let EmployeeLearningPathProgressRepository = class EmployeeLearningPathProgressR
             const progress = yield EmployeeLearningPathProgress_1.EmployeeLearningPathProgress
                 .findOne({
                 employeeId: new mongoose_1.Types.ObjectId(employeeId),
-                "currentCourse.courseId": new mongoose_1.Types.ObjectId(courseId)
+                'currentCourse.courseId': new mongoose_1.Types.ObjectId(courseId)
             })
-                .populate("learningPathId");
+                .populate('learningPathId');
             if (!progress)
-                throw new Error("Progress record not found");
+                throw new Error('Progress record not found');
             const learningPath = progress.learningPathId;
             const totalCourses = learningPath.courses.length;
             progress.currentCourse.percentage = percentage;
@@ -126,7 +126,7 @@ let EmployeeLearningPathProgressRepository = class EmployeeLearningPathProgressR
                     progress.currentCourse.percentage = 0;
                 }
                 else {
-                    progress.status = "completed";
+                    progress.status = 'completed';
                     progress.percentage = 100;
                     const finalSave = yield progress.save();
                     return finalSave.toObject();

@@ -41,7 +41,7 @@ let ChatService = class ChatService {
     }
     getMessages(chatId, limit, before) {
         return __awaiter(this, void 0, void 0, function* () {
-            let beforeDate = new Date(before);
+            const beforeDate = new Date(before);
             return this._chatRepository.getStudentMessages(chatId, limit, beforeDate);
         });
     }
@@ -70,38 +70,37 @@ let ChatService = class ChatService {
     }
     deleteMessage(chatId, messageId, senderId) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("deleting is working");
             if (!senderId || !chatId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED);
             const deleted = yield message_1.Message.findByIdAndDelete(messageId);
-            console.log("deleted", deleted);
+            if (!deleted)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.MESSAGE_EDIT_FAILED);
         });
     }
     editMessage(chatId, messageId, senderId, newMessage) {
         return __awaiter(this, void 0, void 0, function* () {
-            // console.log(chatId, messageId, senderId, newMessage)
             if (!senderId || !chatId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED);
             const edit = yield message_1.Message.findByIdAndUpdate(messageId, { $set: { message: newMessage, edited: true } });
-            console.log("edited in service ", edit);
+            if (!edit)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.MESSAGE_EDIT_FAILED);
         });
     }
     getTeachersFromPurchases(studentId) {
         return __awaiter(this, void 0, void 0, function* () {
             // 1) Fetch orders populated with courses → teacher
             const enrollments = yield this._orderRepo.getOrdersByStudentId(studentId);
-            console.log("-- Orders --", JSON.stringify(enrollments, null, 2));
             const teacherMap = new Map();
             const purchasedCourses = [];
             for (const order of enrollments) {
                 if (!order.courses || order.courses.length === 0)
                     continue;
-                for (const course of order.courses) {
-                    if (!course)
+                for (const courseItem of order.courses) {
+                    if (!courseItem)
                         continue;
+                    const course = courseItem;
                     purchasedCourses.push(course);
                     const teacher = course.teacherId;
-                    console.log("populated teacher:", teacher);
                     if (!teacher)
                         continue;
                     const tid = String(teacher._id);
@@ -119,14 +118,12 @@ let ChatService = class ChatService {
                     }
                 }
             }
-            console.log("-- teacherMap --", teacherMap);
             // 3) Check chat threads
             const chats = yield this._chatRepository.getStudentChats(studentId);
             const chatTeacherIds = new Set(chats.map((c) => String(c.teacherId)));
             // 4) Final teachers array
             const teachers = Array.from(teacherMap.values()).map((t) => (Object.assign(Object.assign({}, t), { hasChat: chatTeacherIds.has(t._id) })));
             // 5) Return teachers + purchased courses
-            console.log("-- Final Result --", { teachers, purchasedCourses });
             return {
                 teachers,
                 courses: purchasedCourses,

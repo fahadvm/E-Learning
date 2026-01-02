@@ -39,19 +39,19 @@ const WithdrawalSchema = new mongoose_1.Schema({
     amount: { type: Number, required: true },
     status: {
         type: String,
-        enum: ["PENDING", "APPROVED", "REJECTED"],
-        default: "PENDING",
+        enum: ['PENDING', 'APPROVED', 'REJECTED'],
+        default: 'PENDING',
     },
     adminNote: { type: String },
     requestedAt: { type: Date, default: Date.now },
     processedAt: { type: Date },
-    transactionId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Transaction" },
+    transactionId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Transaction' },
 }, { _id: false });
 const TeacherWalletSchema = new mongoose_1.Schema({
-    teacherId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Teacher", unique: true, required: true },
+    teacherId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Teacher', unique: true, required: true },
     balance: { type: Number, default: 0 },
     totalEarned: { type: Number, default: 0 },
     totalWithdrawn: { type: Number, default: 0 },
     withdrawals: { type: [WithdrawalSchema], default: [] },
 }, { timestamps: true });
-exports.TeacherWallet = mongoose_1.default.model("TeacherWallet", TeacherWalletSchema);
+exports.TeacherWallet = mongoose_1.default.model('TeacherWallet', TeacherWalletSchema);

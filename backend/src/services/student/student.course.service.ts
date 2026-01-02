@@ -13,7 +13,6 @@ import { ICourseResource } from '../../models/CourseResource';
 import { ICourseResourceRepository } from '../../core/interfaces/repositories/ICourseResourceRepository';
 import { CourseQuery } from '../../types/filter/fiterTypes';
 import { SortOrder } from 'mongoose';
-import { ICourse } from '../../models/Course';
 import { IStudentCourseCertificateService } from '../../core/interfaces/services/student/IStudentCourseCertificateService';
 
 @injectable()

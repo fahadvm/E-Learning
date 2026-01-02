@@ -97,7 +97,7 @@ export class TeacherRepository implements ITeacherRepository {
   }
 
   async findUnverified(): Promise<ITeacher[]> {
-    return Teacher.find({ verificationStatus: "pending" }).lean();
+    return Teacher.find({ verificationStatus: 'pending' }).lean();
   }
 
   async verifyTeacherById(id: string): Promise<ITeacher | null> {

@@ -13,7 +13,7 @@ export class CompanyProfileController implements ICompanyProfileController {
   constructor(
     @inject(TYPES.CompanyProfileService)
     private readonly _companyService: ICompanyProfileService
-  ) {}
+  ) { }
 
   async getProfile(req: Request, res: Response): Promise<void> {
     const decoded = decodeToken(req.cookies.token);
@@ -28,8 +28,9 @@ export class CompanyProfileController implements ICompanyProfileController {
   async verify(req: Request, res: Response): Promise<void> {
     const { name, address, phone, companyId, pincode } = req.body;
 
-    const certificateFile = (req.files as any)?.certificate?.[0];
-    const taxIdFile = (req.files as any)?.taxId?.[0];
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    const certificateFile = files?.certificate?.[0];
+    const taxIdFile = files?.taxId?.[0];
 
     if (!certificateFile || !taxIdFile) {
       throwError(MESSAGES.CERTIFICATE_AND_TAXID_REQUIRED, STATUS_CODES.BAD_REQUEST);

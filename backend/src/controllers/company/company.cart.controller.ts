@@ -27,7 +27,6 @@ export class CompanyCartController implements ICompanyCartController {
   addToCart = async (req: AuthRequest, res: Response) => {
     const companyId = req.user?.id;
     if (!companyId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
-    console.log("add to cart req.body", req.body)
 
     const { courseId, seats = 1 } = req.body;
     if (!courseId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
@@ -35,7 +34,7 @@ export class CompanyCartController implements ICompanyCartController {
     // Ensure seats is a valid number
     const seatCount = Number(seats) || 1;
 
-    const cart = await this._cartService.addToCart(companyId, courseId, "seats", seatCount);
+    const cart = await this._cartService.addToCart(companyId, courseId, 'seats', seatCount);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.CART_COURSE_ADDED, true, cart);
   };
 

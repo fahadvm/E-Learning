@@ -95,7 +95,7 @@ export class CompanyLearningPathService implements ICompanyLearningPathService {
         companyId: string,
         page: number,
         limit: number,
-        search: string = ""
+        search: string = ''
     ): Promise<{ items: IEmployeeLearningPath[]; total: number; totalPages: number }> {
         const skip = (page - 1) * limit;
         const [items, total] = await Promise.all([
@@ -105,7 +105,7 @@ export class CompanyLearningPathService implements ICompanyLearningPathService {
         return { items, total, totalPages: Math.max(1, Math.ceil(total / limit)) };
     }
 
-    async listAssignedLearningPaths(companyId: string, employeeId: string): Promise<any[]> {
+    async listAssignedLearningPaths(companyId: string, employeeId: string): Promise<IEmployeeLearningPathProgress[]> {
         const assigned = await this._assignRepo.findAssigned(companyId, employeeId);
         return assigned;
     }
@@ -120,7 +120,6 @@ export class CompanyLearningPathService implements ICompanyLearningPathService {
 
         // Check seat availability for all courses in the learning path
         const seatCheckResults = await this.checkLearningPathSeats(companyId, lp);
-        console.log("seatCheckResults", seatCheckResults)
 
         // If any course has insufficient seats, throw error with details
         const insufficientSeats = seatCheckResults.filter(result => result.remaining <= 0);
@@ -135,7 +134,7 @@ export class CompanyLearningPathService implements ICompanyLearningPathService {
         // Create progress with sequential rule (Option B): first course index = 0; UI locks others based on index
         const progress = await this._assignRepo.create(companyId, employeeId, learningPathId);
 
-        const company = await this._companyRepo.findById(companyId);
+        // const company = await this._companyRepo.findById(companyId);
 
         // Notify Employee
         await this._notificationService.createNotification(
@@ -144,7 +143,7 @@ export class CompanyLearningPathService implements ICompanyLearningPathService {
             `You have been assigned to the learning path: ${lp.title}.`,
             'learning-path',
             'employee',
-            `/employee/learning-paths`
+            '/employee/learning-paths'
         );
 
         for (const course of lp.courses) {
@@ -200,7 +199,6 @@ export class CompanyLearningPathService implements ICompanyLearningPathService {
                 );
                 return sum + (purchasedCourse?.seats || 0);
             }, 0);
-            console.log("totalSeats:", totalSeats)
 
             // Get assigned seats - count unique employees who have this course in any learning path
             const assignedSeats = await this._assignRepo.countAssignedSeats(companyId, course.courseId.toString());
@@ -218,7 +216,6 @@ export class CompanyLearningPathService implements ICompanyLearningPathService {
     }
 
     async unassignLearningPath(companyId: string, employeeId: string, learningPathId: string): Promise<void> {
-        console.log(companyId, employeeId, learningPathId)
         const exists = await this._assignRepo.findOne(companyId, employeeId, learningPathId);
         if (!exists) throwError(MESSAGES.LEARNING_PATH_ASSIGNMENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 

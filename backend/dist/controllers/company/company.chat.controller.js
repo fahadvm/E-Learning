@@ -34,7 +34,7 @@ let CompanyChatController = class CompanyChatController {
             try {
                 const companyId = req.params.companyId;
                 const group = yield this._companyChatService.getCompanyGroup(companyId);
-                return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Company group fetched", true, group);
+                return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Company group fetched', true, group);
             }
             catch (error) {
                 next(error);
@@ -44,7 +44,7 @@ let CompanyChatController = class CompanyChatController {
             try {
                 const chatId = req.params.chatId;
                 const messages = yield this._chatService.getMessages(chatId, 50, new Date().toISOString());
-                return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Messages fetched successfully", true, messages);
+                return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Messages fetched successfully', true, messages);
             }
             catch (error) {
                 next(error);

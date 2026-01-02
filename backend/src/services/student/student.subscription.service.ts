@@ -44,7 +44,7 @@ export class StudentSubscriptionService implements IStudentSubscriptionService {
       if (isSamePlanActive) {
         throwError(
           MESSAGES.ACTIVE_SUBSCRIPTION_EXISTS ||
-          "This plan is already active for the student"
+          'This plan is already active for the student'
         );
       }
     }
@@ -109,12 +109,10 @@ export class StudentSubscriptionService implements IStudentSubscriptionService {
   async hasFeature(studentId: string, featureName: string): Promise<boolean> {
     const subscriptions = await this._planRepo.findActiveSubscriptions(studentId);
     if (!subscriptions) return false;
-    console.log("active subscriptions plans", subscriptions)
 
     const plans = await Promise.all(
       subscriptions.map((sub: IStudentSubscription) => this._planRepo.getById(sub.planId._id.toString()))
     );
-    console.log("plans details", plans)
 
 
     return plans.some(

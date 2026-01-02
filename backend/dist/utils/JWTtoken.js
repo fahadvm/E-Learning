@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.clearTokens = exports.setTokensInCookies = exports.refreshAccessToken = exports.decodeToken = exports.verifyRefreshToken = exports.verifyAccessToken = exports.generateRefreshToken = exports.generateAccessToken = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const logger_1 = __importDefault(require("./logger"));
 dotenv_1.default.config();
 const SECRET_KEY = process.env.JWT_SECRET || 'yourAccessSecret';
 const REFRESH_KEY = process.env.REFRESH_SECRET || 'yourRefreshSecret';
@@ -42,7 +43,7 @@ exports.verifyRefreshToken = verifyRefreshToken;
 const decodeToken = (token) => {
     try {
         const decoded = jsonwebtoken_1.default.decode(token);
-        console.log("decoding details is ", decoded);
+        logger_1.default.info('decoding details is ', decoded);
         return decoded;
     }
     catch (_a) {
@@ -61,7 +62,7 @@ const refreshAccessToken = (refreshToken) => {
 exports.refreshAccessToken = refreshAccessToken;
 const setTokensInCookies = (res, accessToken, refreshToken) => {
     const isProduction = process.env.NODE_ENV === 'production';
-    console.log("setting into cookie", isProduction);
+    logger_1.default.info('setting into cookie', isProduction);
     // Cookie configuration based on environment
     const cookieOptions = {
         httpOnly: true,

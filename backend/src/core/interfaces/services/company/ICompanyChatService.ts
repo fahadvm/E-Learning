@@ -1,5 +1,5 @@
 
-import { IChat } from "../../../../models/chat";
+import { IChat } from '../../../../models/chat';
 
 export interface ICompanyChatService {
     createCompanyGroup(companyId: string, groupName: string): Promise<IChat>;

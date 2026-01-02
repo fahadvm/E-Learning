@@ -21,6 +21,8 @@ export enum EmployeeStatus {
   REJECTED = 'rejected'
 }
 
+import { ICompany } from '../../models/Company';
+
 @injectable()
 export class EmployeeCompanyService implements IEmployeeCompanyService {
   constructor(
@@ -41,7 +43,7 @@ export class EmployeeCompanyService implements IEmployeeCompanyService {
     return company;
   }
 
-  async getInvitation(employeeId: string): Promise<any | null> {
+  async getInvitation(employeeId: string): Promise<ICompany | null> {
     const employee = await this.employeeRepo.findById(employeeId);
     if (!employee || !employee.invitedBy) return null;
 
@@ -55,7 +57,7 @@ export class EmployeeCompanyService implements IEmployeeCompanyService {
   async acceptInvite(employeeId: string): Promise<void> {
     const employee = await this.employeeRepo.findById(employeeId);
     if (!employee || !employee.invitedBy)
-      throwError("No invitation found", STATUS_CODES.NOT_FOUND);
+      throwError('No invitation found', STATUS_CODES.NOT_FOUND);
 
     await this.employeeRepo.updateById(employeeId, {
       companyId: employee.invitedBy,
@@ -74,7 +76,7 @@ export class EmployeeCompanyService implements IEmployeeCompanyService {
   async rejectInvite(employeeId: string): Promise<void> {
     const employee = await this.employeeRepo.findById(employeeId);
     if (!employee || !employee.invitedBy)
-      throwError("No invitation found", STATUS_CODES.NOT_FOUND);
+      throwError('No invitation found', STATUS_CODES.NOT_FOUND);
 
     await this.employeeRepo.updateById(employeeId, {
       invitedBy: null,
@@ -97,7 +99,6 @@ export class EmployeeCompanyService implements IEmployeeCompanyService {
       throwError(MESSAGES.ALREADY_REQUESTED_COMPANY, STATUS_CODES.CONFLICT);
 
     const requestedCompanyId = new mongoose.Types.ObjectId(companyId);
-    console.log("requested company id ", requestedCompanyId)
     await this.employeeRepo.updateById(employeeId, { requestedCompanyId, status: EmployeeStatus.REQUESTED });
   }
 

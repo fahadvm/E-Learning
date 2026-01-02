@@ -1,10 +1,10 @@
-import { NextFunction, Request, Response } from "express";
-import { inject, injectable } from "inversify";
-import { TYPES } from "../../core/di/types";
-import { ICompanyChatService } from "../../core/interfaces/services/company/ICompanyChatService";
-import { sendResponse } from "../../utils/ResANDError";
-import { STATUS_CODES } from "../../utils/HttpStatuscodes";
-import { IChatService } from "../../core/interfaces/services/student/IStudentChatService";
+import { NextFunction, Request, Response } from 'express';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '../../core/di/types';
+import { ICompanyChatService } from '../../core/interfaces/services/company/ICompanyChatService';
+import { sendResponse } from '../../utils/ResANDError';
+import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { IChatService } from '../../core/interfaces/services/student/IStudentChatService';
 
 @injectable()
 export class CompanyChatController {
@@ -17,7 +17,7 @@ export class CompanyChatController {
         try {
             const companyId = req.params.companyId;
             const group = await this._companyChatService.getCompanyGroup(companyId);
-            return sendResponse(res, STATUS_CODES.OK, "Company group fetched", true, group);
+            return sendResponse(res, STATUS_CODES.OK, 'Company group fetched', true, group);
         } catch (error) {
             next(error);
         }
@@ -27,9 +27,9 @@ export class CompanyChatController {
         try {
             const chatId = req.params.chatId;
             const messages = await this._chatService.getMessages(chatId, 50, new Date().toISOString());
-            return sendResponse(res, STATUS_CODES.OK, "Messages fetched successfully", true, messages);
+            return sendResponse(res, STATUS_CODES.OK, 'Messages fetched successfully', true, messages);
         } catch (error) {
             next(error);
         }
-    }
+    };
 }

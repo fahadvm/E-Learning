@@ -127,7 +127,7 @@ let CompanyLearningPathService = class CompanyLearningPathService {
         });
     }
     listCompanyLearningPaths(companyId_1, page_1, limit_1) {
-        return __awaiter(this, arguments, void 0, function* (companyId, page, limit, search = "") {
+        return __awaiter(this, arguments, void 0, function* (companyId, page, limit, search = '') {
             const skip = (page - 1) * limit;
             const [items, total] = yield Promise.all([
                 this._repo.listByCompany(companyId, skip, limit, search),
@@ -153,7 +153,6 @@ let CompanyLearningPathService = class CompanyLearningPathService {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.LEARNING_PATH_ALREADY_ASSIGNED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             // Check seat availability for all courses in the learning path
             const seatCheckResults = yield this.checkLearningPathSeats(companyId, lp);
-            console.log("seatCheckResults", seatCheckResults);
             // If any course has insufficient seats, throw error with details
             const insufficientSeats = seatCheckResults.filter(result => result.remaining <= 0);
             if (insufficientSeats.length > 0) {
@@ -162,9 +161,9 @@ let CompanyLearningPathService = class CompanyLearningPathService {
             }
             // Create progress with sequential rule (Option B): first course index = 0; UI locks others based on index
             const progress = yield this._assignRepo.create(companyId, employeeId, learningPathId);
-            const company = yield this._companyRepo.findById(companyId);
+            // const company = await this._companyRepo.findById(companyId);
             // Notify Employee
-            yield this._notificationService.createNotification(employeeId, 'New Learning Path Assigned', `You have been assigned to the learning path: ${lp.title}.`, 'learning-path', 'employee', `/employee/learning-paths`);
+            yield this._notificationService.createNotification(employeeId, 'New Learning Path Assigned', `You have been assigned to the learning path: ${lp.title}.`, 'learning-path', 'employee', '/employee/learning-paths');
             for (const course of lp.courses) {
                 yield this._purchaseRepo.increaseSeatUsage(new mongoose_1.default.Types.ObjectId(companyId), new mongoose_1.default.Types.ObjectId(course.courseId.toString()));
                 // Check if seat limit reached for this course
@@ -194,7 +193,6 @@ let CompanyLearningPathService = class CompanyLearningPathService {
                     const purchasedCourse = order.purchasedCourses.find(pc => pc.courseId.toString() === course.courseId.toString());
                     return sum + ((purchasedCourse === null || purchasedCourse === void 0 ? void 0 : purchasedCourse.seats) || 0);
                 }, 0);
-                console.log("totalSeats:", totalSeats);
                 // Get assigned seats - count unique employees who have this course in any learning path
                 const assignedSeats = yield this._assignRepo.countAssignedSeats(companyId, course.courseId.toString());
                 results.push({
@@ -210,7 +208,6 @@ let CompanyLearningPathService = class CompanyLearningPathService {
     }
     unassignLearningPath(companyId, employeeId, learningPathId) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(companyId, employeeId, learningPathId);
             const exists = yield this._assignRepo.findOne(companyId, employeeId, learningPathId);
             if (!exists)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.LEARNING_PATH_ASSIGNMENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);

@@ -16,7 +16,7 @@ function throwErrorWithRes(res, message, statusCode = 400) {
     throw error;
 }
 function throwError(message, statusCode = 400) {
-    console.log('Throwing error in :', message);
+    logger_1.default.error('Throwing error in :', message);
     const error = new Error(message);
     error.statusCode = statusCode;
     throw error;

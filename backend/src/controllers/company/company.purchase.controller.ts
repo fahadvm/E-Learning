@@ -8,7 +8,8 @@ import { sendResponse, throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { CompanyOrderModel } from '../../models/CompanyOrder';
-import PDFDocument from "pdfkit";
+import PDFDocument from 'pdfkit';
+import { ICourse } from '../../models/Course';
 
 @injectable()
 export class CompanyPurchaseController implements ICompanyPurchaseController {
@@ -18,7 +19,7 @@ export class CompanyPurchaseController implements ICompanyPurchaseController {
     ) { }
 
     async createCheckoutSession(req: AuthRequest, res: Response) {
-        console
+        console;
         const companyId = req.user?.id;
 
         if (!companyId) {
@@ -52,20 +53,20 @@ export class CompanyPurchaseController implements ICompanyPurchaseController {
         const { orderId } = req.params;
 
         const order = await CompanyOrderModel.findById(orderId).populate(
-            "purchasedCourses.courseId",
-            "title price"
+            'purchasedCourses.courseId',
+            'title price'
         );
 
         if (!order) {
-            return res.status(404).json({ message: "Order not found" });
+            return res.status(404).json({ message: 'Order not found' });
         }
 
         // Create PDF
         const doc = new PDFDocument();
 
-        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader('Content-Type', 'application/pdf');
         res.setHeader(
-            "Content-Disposition",
+            'Content-Disposition',
             `attachment; filename=receipt_${orderId}.pdf`
         );
 
@@ -73,16 +74,16 @@ export class CompanyPurchaseController implements ICompanyPurchaseController {
         doc.pipe(res);
 
         // Content
-        doc.fontSize(20).text("Payment Receipt", { align: "center" });
+        doc.fontSize(20).text('Payment Receipt', { align: 'center' });
         doc.moveDown();
 
         doc.fontSize(12).text(`Order ID: ${orderId}`);
         doc.text(`Total Paid: ₹${order.amount}`);
         doc.moveDown();
 
-        doc.text("Purchased Courses:");
-        order.purchasedCourses.forEach((item: any) => {
-            const course = item.courseId;
+        doc.text('Purchased Courses:');
+        order.purchasedCourses.forEach((item) => {
+            const course = item.courseId as unknown as ICourse;
             doc.text(`• ${course.title} — ₹${item.price} (${item.seats} seat${item.seats > 1 ? 's' : ''})`);
         });
 

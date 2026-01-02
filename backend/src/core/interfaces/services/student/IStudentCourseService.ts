@@ -1,5 +1,4 @@
 import { GetStudentCoursesRequestDTO, IStudentCourseDTO, PaginatedCourseDTO } from '../../../../core/dtos/student/Student.course.Dto';
-import { ICourse } from '../../../../models/Course';
 import { ICourseResource } from '../../../../models/CourseResource';
 import { ICourseProgress } from '../../../../models/Student';
 

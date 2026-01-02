@@ -37,7 +37,7 @@ let TeacherPayoutService = class TeacherPayoutService {
     requestPayout(teacherId, amount, method, details) {
         return __awaiter(this, void 0, void 0, function* () {
             if (amount <= 0)
-                (0, ResANDError_1.throwError)("Invalid amount", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)('Invalid amount', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             // 1. Deduct Balance (Atomic)
             // This will throw if insufficient funds
             yield this._walletRepo.deductBalance(teacherId, amount);
@@ -55,11 +55,11 @@ let TeacherPayoutService = class TeacherPayoutService {
                     teacherId: new mongoose_1.Types.ObjectId(teacherId),
                     amount: amount,
                     grossAmount: amount, // For withdrawal, gross = net
-                    type: "TEACHER_WITHDRAWAL",
-                    txnNature: "DEBIT",
-                    paymentStatus: "PENDING",
-                    paymentMethod: "MANUAL", // or WALLET mapping
-                    description: `Payout Request ${payout._id}`
+                    type: 'TEACHER_WITHDRAWAL',
+                    txnNature: 'DEBIT',
+                    paymentStatus: 'PENDING',
+                    paymentMethod: 'MANUAL', // or WALLET mapping
+                    notes: `Payout Request ${payout._id}`
                 });
                 return payout;
             }

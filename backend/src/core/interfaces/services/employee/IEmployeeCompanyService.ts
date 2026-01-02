@@ -7,7 +7,7 @@ export interface IEmployeeCompanyService {
   sendRequest(employeeId: string, companyId: string): Promise<void>;
   cancelRequest(employeeId: string): Promise<void>;
   leaveCompany(employeeId: string): Promise<void>;
-  getInvitation(employeeId: string): Promise<any | null>;
+  getInvitation(employeeId: string): Promise<ICompany | null>;
   acceptInvite(employeeId: string): Promise<void>;
   rejectInvite(employeeId: string): Promise<void>;
 }

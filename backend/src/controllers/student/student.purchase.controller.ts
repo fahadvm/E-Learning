@@ -24,7 +24,6 @@ export class StudentPurchaseController implements IStudentPurchaseController {
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
     const { courses, amount } = req.body;
-    console.log("creating order new coureses are:",req.body)
     if (!courses || !amount)
       throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
 
@@ -59,10 +58,9 @@ export class StudentPurchaseController implements IStudentPurchaseController {
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, course);
   };
   public async getPurchasedCourseIds(req: AuthRequest, res: Response) {
-    const studentId = req.user?.id
-    if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED)
+    const studentId = req.user?.id;
+    if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
     const courseIds = await this._PurchaseService.getPurchasedCourseIds(studentId);
-    console.log("entrolled course ids:", courseIds)
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_IDS_FETCHED, true, courseIds);
   }
 
@@ -77,15 +75,10 @@ export class StudentPurchaseController implements IStudentPurchaseController {
 
   getPurchaseHistory = async (req: AuthRequest, res: Response) => {
     const studentId = req.user?.id;
-    console.log("getting history")
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
-    
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
-    
     const result = await this._PurchaseService.getPurchaseHistory(studentId, page, limit);
-    console.log("getting history result",result)
-
     return sendResponse(
       res,
       STATUS_CODES.OK,

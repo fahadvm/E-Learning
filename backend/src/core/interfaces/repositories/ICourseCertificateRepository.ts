@@ -1,4 +1,4 @@
-import { ICourseCertificate } from "../../../models/CourseCertificate";
+import { ICourseCertificate } from '../../../models/CourseCertificate';
 
 export interface ICourseCertificateRepository {
   create(data: Partial<ICourseCertificate>): Promise<ICourseCertificate>;

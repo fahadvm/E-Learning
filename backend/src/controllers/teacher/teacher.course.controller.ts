@@ -73,12 +73,12 @@ export class TeacherCourseController implements ITeacherCourseController {
     sendResponse(res, STATUS_CODES.OK, MESSAGES.RESOURCES_FETCHED, true, resources);
   }
 
-  async editCourse(req: AuthRequest, res: Response): Promise<void> {
+  async editCourse(req: CreateCourseRequest, res: Response): Promise<void> {
     const { courseId } = req.params;
     const teacherId = req.user?.id;
     if (!teacherId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
-    const updated = await this._courseService.editCourse(courseId, teacherId, req as any);
+    const updated = await this._courseService.editCourse(courseId, teacherId, req);
     sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSE_UPDATED, true, updated);
   }
 

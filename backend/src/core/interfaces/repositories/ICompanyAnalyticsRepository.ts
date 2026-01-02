@@ -1,13 +1,20 @@
 export interface ICompanyAnalyticsRepository {
     countEmployees(companyId: string): Promise<number>;
-    getLearningRecords(companyId: string, startDate: Date, endDate?: Date): Promise<any[]>;
-    getProgressRecords(companyId: string): Promise<any[]>;
-    getPaidOrders(companyId: string): Promise<any[]>;
-    getEmployees(companyId: string): Promise<Array<{ _id: string; name?: string; email: string }>>;
-    getEmployeeLearningRecords(employeeId: string, startDate: Date): Promise<any[]>;
-    getEmployeeProgress(employeeId: string): Promise<any[]>;
+    getLearningRecords(
+        companyId: string,
+        startDate: Date,
+        endDate?: Date
+    ): Promise<ILearningRecord[]>;
+    getProgressRecords(companyId: string): Promise<IEmployeeProgress[]>;
+    getPaidOrders(companyId: string): Promise<ICompanyOrder[]>;
+    getEmployees(companyId: string): Promise<IEmployeeBasic[]>;
+    getEmployeeLearningRecords(
+        employeeId: string,
+        startDate: Date
+    ): Promise<ILearningRecordRaw[]>;
+    getEmployeeProgress(employeeId: string): Promise<IEmployeeProgress[]>;
 }
-  export interface ILearningRecord {
+export interface ILearningRecord {
     _id: Date;
     minutes: number;
 }

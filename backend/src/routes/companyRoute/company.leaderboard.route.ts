@@ -1,6 +1,5 @@
 import express from 'express';
 import container from '../../core/di/container';
-import { CompanyEmployeeController } from '../../controllers/company/company.employee.controller';
 import { authMiddleware } from '../../middleware/authMiddleware';
 import { asyncHandler } from '../../middleware/asyncHandler';
 import { TYPES } from '../../core/di/types';
@@ -11,12 +10,12 @@ const companyLeaderboardController = container.get<CompanyLeaderboardController>
 
 
 router.get(
-    "/",
-    authMiddleware("company"),
-    asyncHandler(companyLeaderboardController.getLeaderboard.bind(companyLeaderboardController)))
+    '/',
+    authMiddleware('company'),
+    asyncHandler(companyLeaderboardController.getLeaderboard.bind(companyLeaderboardController)));
 router.get(
-    "/search",
-    authMiddleware("company"),
-    asyncHandler(companyLeaderboardController.search.bind(companyLeaderboardController)))
+    '/search',
+    authMiddleware('company'),
+    asyncHandler(companyLeaderboardController.search.bind(companyLeaderboardController)));
 
 export default router;

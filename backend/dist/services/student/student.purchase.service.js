@@ -90,14 +90,15 @@ let StudentPurchaseService = class StudentPurchaseService {
     }
     verifyPayment(details, studentId) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             logger_1.default.debug(details.razorpay_order_id, details.razorpay_payment_id, details.razorpay_signature);
             const body = `${details.razorpay_order_id}|${details.razorpay_payment_id}`;
             const expectedSignature = crypto_1.default
-                .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+                .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
                 .update(body)
-                .digest("hex");
+                .digest('hex');
             const isValid = expectedSignature === details.razorpay_signature;
-            yield this._orderRepo.updateStatus(details.razorpay_order_id, isValid ? "paid" : "failed");
+            yield this._orderRepo.updateStatus(details.razorpay_order_id, isValid ? 'paid' : 'failed');
             if (!isValid) {
                 yield this._cartRepo.clearCart(studentId);
                 return { success: false };
@@ -109,7 +110,7 @@ let StudentPurchaseService = class StudentPurchaseService {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ORDER_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             const studentObjId = new mongoose_1.default.Types.ObjectId(studentId);
             // ---------------- STEP 2: Calculate platform fee + teacher share ----------------
-            const commissionRate = typeof order.commissionRate === "number" ? order.commissionRate : 0.20;
+            const commissionRate = typeof order.commissionRate === 'number' ? order.commissionRate : 0.20;
             const platformFee = Math.round(order.amount * commissionRate);
             const teacherShare = order.amount - platformFee;
             // Save platformFee + share into the order (cast id to ObjectId for update)
@@ -120,28 +121,28 @@ let StudentPurchaseService = class StudentPurchaseService {
             // ---------------- STEP 3: Create COURSE_PURCHASE transaction ----------------
             yield this._transactionRepo.create({
                 userId: studentObjId,
-                type: "COURSE_PURCHASE",
-                txnNature: "CREDIT",
+                type: 'COURSE_PURCHASE',
+                txnNature: 'CREDIT',
                 amount: order.amount,
                 grossAmount: order.amount,
                 teacherShare: teacherShare,
                 platformFee: platformFee,
-                paymentMethod: "RAZORPAY",
-                paymentStatus: "SUCCESS",
-                notes: `Purchase for courses: ${order.courses.join(",")}`,
+                paymentMethod: 'RAZORPAY',
+                paymentStatus: 'SUCCESS',
+                notes: `Purchase for courses: ${order.courses.join(',')}`,
             });
             // ---------------- STEP 4: Loop each course -> TEACHER_EARNING + wallet credit ----------------
             // Normalize course ids and handle typing (order.courses may be ObjectId[] or string[])
             for (const rawCourseId of order.courses) {
                 // Normalize courseId to a string (safe) and an ObjectId for DB usage
-                const courseIdStr = rawCourseId === null || rawCourseId === void 0 ? void 0 : rawCourseId.toString();
+                const courseIdStr = ((_a = rawCourseId._id) === null || _a === void 0 ? void 0 : _a.toString()) || rawCourseId.toString();
                 if (!courseIdStr)
                     continue;
                 const course = (yield this._courseRepo.findById(courseIdStr));
                 if (!course)
                     continue;
                 // teacherId may be ObjectId or a populated document; normalize to string/ObjectId
-                const rawTeacherId = course.teacherId._id;
+                const rawTeacherId = course.teacherId._id || course.teacherId;
                 if (!rawTeacherId)
                     continue;
                 // teacherIdNormalized will be a string id we can pass to mongoose when needed
@@ -149,7 +150,7 @@ let StudentPurchaseService = class StudentPurchaseService {
                 if (!teacherIdStr)
                     continue;
                 // course price: prefer course.price, otherwise split equally
-                const coursePrice = typeof course.price === "number"
+                const coursePrice = typeof course.price === 'number'
                     ? course.price
                     : Math.round(order.amount / order.courses.length);
                 const teacherCut = Math.round(coursePrice * (1 - commissionRate));
@@ -158,14 +159,14 @@ let StudentPurchaseService = class StudentPurchaseService {
                 const earningTx = yield this._transactionRepo.create({
                     teacherId: new mongoose_1.default.Types.ObjectId(teacherIdStr),
                     courseId: new mongoose_1.default.Types.ObjectId(courseIdStr),
-                    type: "TEACHER_EARNING",
-                    txnNature: "CREDIT",
+                    type: 'TEACHER_EARNING',
+                    txnNature: 'CREDIT',
                     amount: teacherCut,
                     grossAmount: coursePrice,
                     teacherShare: teacherCut,
                     platformFee: platformCut,
-                    paymentMethod: "WALLET",
-                    paymentStatus: "SUCCESS",
+                    paymentMethod: 'WALLET',
+                    paymentStatus: 'SUCCESS',
                     notes: `Earning for course ${courseIdStr}`,
                 });
                 // Credit teacher wallet (atomic upsert)
@@ -182,7 +183,7 @@ let StudentPurchaseService = class StudentPurchaseService {
     }
     getPurchasedCourses(studentId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const ispremium = yield this._subscriptionRepo.findActiveSubscription(studentId);
+            // const ispremium = await this._subscriptionRepo.findActiveSubscription(studentId);
             const orders = yield this._orderRepo.getOrdersByStudentId(studentId);
             return orders;
         });

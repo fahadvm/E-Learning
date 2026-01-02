@@ -1,8 +1,8 @@
 import { IOrderRepository } from '../core/interfaces/repositories/IOrderRepository';
 import { IOrder, OrderModel } from '../models/Order';
 import { injectable } from 'inversify';
-import { ICourse } from '../models/Course';
 import mongoose, { Types } from 'mongoose';
+import { ICourse } from '../models/Course';
 
 @injectable()
 export class OrderRepository implements IOrderRepository {
@@ -29,20 +29,20 @@ export class OrderRepository implements IOrderRepository {
 
   async getOrdersByStudentId(
     studentId: string
-  ): Promise<any> {
+  ): Promise<(IOrder & { courses: ICourse[] })[]> {
     return OrderModel.find({
       studentId,
-      status: "paid",
+      status: 'paid',
     })
       .populate({
-        path: "courses",
-        model: "Course",
+        path: 'courses',
+        model: 'Course',
         populate: {
-          path: "teacherId",
-          model: "Teacher",
+          path: 'teacherId',
+          model: 'Teacher',
         },
       })
-      .exec();
+      .exec() as unknown as Promise<(IOrder & { courses: ICourse[] })[]>;
   }
 
   async getOrderedCourseIds(studentId: string): Promise<string[]> {
@@ -50,11 +50,15 @@ export class OrderRepository implements IOrderRepository {
       studentId,
       status: 'paid',
     })
-      .select("courses")
+      .select('courses')
       .exec();
 
     const courseIds = orders.flatMap((order) =>
-      order.courses.map((id: any) => id.toString())
+      order.courses.map((c) => {
+        if (c instanceof Types.ObjectId) return c.toString();
+        if (typeof c === 'object' && '_id' in c) return (c as ICourse)._id?.toString() || '';
+        return String(c);
+      })
     );
 
     return courseIds;
@@ -72,19 +76,20 @@ export class OrderRepository implements IOrderRepository {
 
 
   async getOrderDetailsByrazorpayOrderId(studentId: string, orderId: string): Promise<IOrder | null> {
-    return OrderModel.findOne({ studentId, razorpayOrderId: orderId, status: 'paid' })
+    const order = await OrderModel.findOne({ studentId, razorpayOrderId: orderId, status: 'paid' })
       .populate({
-        path: "courses",
-        select: "coverImage title totalDuration teacherId",
+        path: 'courses',
+        select: 'coverImage title totalDuration teacherId',
         populate: {
-          path: "teacherId",
-          select: "name",
+          path: 'teacherId',
+          select: 'name',
         },
       })
       .lean();
+    return order as IOrder | null;
   }
 
-    async findOrdersByStudent(
+  async findOrdersByStudent(
     studentId: string,
     page: number,
     limit: number
@@ -92,9 +97,9 @@ export class OrderRepository implements IOrderRepository {
     const skip = (page - 1) * limit;
 
     // ensure valid ObjectId filter
-    const filter: any = {};
+    const filter: mongoose.FilterQuery<IOrder> = {};
     if (mongoose.Types.ObjectId.isValid(studentId)) {
-      filter.studentId = studentId;
+      filter.studentId = new mongoose.Types.ObjectId(studentId);
     } else {
       // no orders if invalid id (caller should validate; defensive)
       return { orders: [], total: 0 };

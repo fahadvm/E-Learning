@@ -1,4 +1,4 @@
-import { ICompanyCart } from "../../../models/CompanyCart";
+import { ICompanyCart } from '../../../models/CompanyCart';
 
 export interface ICompanyCartRepository {
   getCart(userId: string): Promise<ICompanyCart | null>;
@@ -6,7 +6,7 @@ export interface ICompanyCartRepository {
   addToCart(
     userId: string,
     courseId: string,
-    accessType: "seats" | "unlimited",
+    accessType: 'seats' | 'unlimited',
     seats: number,
     price: number
   ): Promise<ICompanyCart>;

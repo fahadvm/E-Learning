@@ -99,11 +99,10 @@ let StudentBookingRepository = class StudentBookingRepository {
     }
     findBookedSlots(teacherId, today, nextWeek) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("findBookedSlots in repository:", teacherId, today, nextWeek);
             return yield Booking_1.Booking.find({
                 teacherId,
                 date: { $gte: today, $lte: nextWeek },
-                status: { $in: ["pending", "booked", "rescheduled"] }
+                status: { $in: ['pending', 'booked', 'rescheduled'] }
             }).lean();
         });
     }
@@ -139,8 +138,8 @@ let StudentBookingRepository = class StudentBookingRepository {
     findByPaymentId(paymentOrderId) {
         return __awaiter(this, void 0, void 0, function* () {
             return Booking_1.Booking.findOne({ paymentOrderId })
-                .populate("courseId")
-                .populate("teacherId").lean().exec();
+                .populate('courseId')
+                .populate('teacherId').lean().exec();
         });
     }
     rejectBooking(bookingId, reason) {
@@ -229,11 +228,11 @@ let StudentBookingRepository = class StudentBookingRepository {
             return yield Booking_1.Booking.findOne({
                 teacherId,
                 date,
-                status: { $in: ["pending", "booked", "rescheduled"] },
+                status: { $in: ['pending', 'booked', 'rescheduled'] },
                 $or: [
                     {
-                        "slot.start": { $lt: endTime },
-                        "slot.end": { $gt: startTime }
+                        'slot.start': { $lt: endTime },
+                        'slot.end': { $gt: startTime }
                     }
                 ]
             });
@@ -248,7 +247,7 @@ let StudentBookingRepository = class StudentBookingRepository {
                     end: nextSlot.end
                 },
                 rescheduledReason: reason,
-                rescheduleStatus: "requested"
+                rescheduleStatus: 'requested'
             }, { new: true });
         });
     }
@@ -256,9 +255,9 @@ let StudentBookingRepository = class StudentBookingRepository {
         return __awaiter(this, void 0, void 0, function* () {
             const oldBooking = yield Booking_1.Booking.findById(bookingId);
             if (!oldBooking)
-                (0, ResANDError_1.throwError)("Booking not found.", HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
-            if (oldBooking.rescheduleStatus !== "requested") {
-                (0, ResANDError_1.throwError)("No pending reschedule request.", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)('Booking not found.', HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            if (oldBooking.rescheduleStatus !== 'requested') {
+                (0, ResANDError_1.throwError)('No pending reschedule request.', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             }
             const newBooking = yield Booking_1.Booking.create({
                 studentId: oldBooking.studentId,
@@ -269,11 +268,11 @@ let StudentBookingRepository = class StudentBookingRepository {
                 slot: oldBooking.requestedSlot,
                 note: oldBooking.note,
                 callId: oldBooking.callId,
-                status: "booked",
+                status: 'booked',
                 rescheduledFrom: oldBooking._id,
             });
-            oldBooking.status = "rescheduled";
-            oldBooking.rescheduleStatus = "approved";
+            oldBooking.status = 'rescheduled';
+            oldBooking.rescheduleStatus = 'approved';
             oldBooking.rescheduledTo = newBooking._id;
             oldBooking.rescheduledAt = new Date();
             oldBooking.requestedDate = undefined;

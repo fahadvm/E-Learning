@@ -6,19 +6,20 @@ import { IEmployeeRepository } from '../../core/interfaces/repositories/IEmploye
 import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
-import { adminCompanyDto, IAdminCompanyDto ,IAdminCompanyEmployeeDto ,adminCompanyEmployeeDto} from '../../core/dtos/admin/Admin.company.Dto';
+import { adminCompanyDto, IAdminCompanyDto, IAdminCompanyEmployeeDto, adminCompanyEmployeeDto, IAdminCompanyDetailsDto } from '../../core/dtos/admin/Admin.company.Dto';
+import { IEmployee } from '../../models/Employee';
 
 @injectable()
 export class AdminCompanyService implements IAdminCompanyService {
   constructor(
-  @inject(TYPES.CompanyRepository)
-  private readonly _companyRepo: ICompanyRepository,
+    @inject(TYPES.CompanyRepository)
+    private readonly _companyRepo: ICompanyRepository,
 
-  @inject(TYPES.EmployeeRepository)
-  private readonly _employeeRepo: IEmployeeRepository
-) { }
+    @inject(TYPES.EmployeeRepository)
+    private readonly _employeeRepo: IEmployeeRepository
+  ) { }
 
-    async getAllCompanies(
+  async getAllCompanies(
     page: number,
     limit: number,
     search: string
@@ -30,14 +31,15 @@ export class AdminCompanyService implements IAdminCompanyService {
     return { companies: companies.map(adminCompanyDto), total, totalPages };
   }
 
-  async getCompanyById(companyId: string): Promise<any> {
+  async getCompanyById(companyId: string): Promise<IAdminCompanyDetailsDto> {
     const company = await this._companyRepo.findById(companyId);
     if (!company) throwError(MESSAGES.COMPANY_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    const employees = company.employees || [];
-    // const courses = await this._).findById(companyId);
+
+    const employees = (company.employees as unknown as IEmployee[]) || [];
+
     return {
       company: adminCompanyDto(company),
-      employees
+      employees: employees.map(adminCompanyEmployeeDto)
     };
   }
 
@@ -54,7 +56,7 @@ export class AdminCompanyService implements IAdminCompanyService {
   }
 
 
-  
+
 
   async getEmployeeById(employeeId: string): Promise<IAdminCompanyEmployeeDto> {
     const employee = await this._employeeRepo.findById(employeeId);

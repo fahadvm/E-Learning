@@ -41,8 +41,10 @@ let StudentTeacherReviewService = class StudentTeacherReviewService {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ALREADY_REVIEWED);
             const studentIdObj = new mongoose_1.default.Types.ObjectId(studentId);
             const teacherIdObj = new mongoose_1.default.Types.ObjectId(teacherId);
-            return this._reviewRepo.create({ studentId: studentIdObj,
-                teacherId: teacherIdObj, rating, comment });
+            return this._reviewRepo.create({
+                studentId: studentIdObj,
+                teacherId: teacherIdObj, rating, comment
+            });
         });
     }
     updateReview(reviewId, studentId, data) {
@@ -53,7 +55,7 @@ let StudentTeacherReviewService = class StudentTeacherReviewService {
             return updated;
         });
     }
-    deleteReview(reviewId, studentId) {
+    deleteReview(reviewId) {
         return __awaiter(this, void 0, void 0, function* () {
             const deleted = yield this._reviewRepo.delete(reviewId);
             if (!deleted)

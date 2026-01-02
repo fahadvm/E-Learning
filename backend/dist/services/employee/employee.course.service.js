@@ -95,8 +95,7 @@ let EmployeeCourseService = class EmployeeCourseService {
             // Check if a new module was unlocked
             const newCompletedModulesCount = ((_b = progress.completedModules) === null || _b === void 0 ? void 0 : _b.length) || 0;
             if (newCompletedModulesCount > oldCompletedModulesCount) {
-                // Find the next module
-                const nextModule = course.modules[newCompletedModulesCount];
+                // New module unlocked
             }
             // Notify on Course Completion
             if (progress.percentage === 100) {
@@ -110,7 +109,7 @@ let EmployeeCourseService = class EmployeeCourseService {
             // Notify on Learning Path Completion
             if (learningPathProgress.status === 'completed') {
                 // Notify Employee
-                yield this._notificationService.createNotification(employeeId, 'Learning Path Finished!', `Amazing work! You have finished the entire learning path.`, 'learning-path-complete', 'employee');
+                yield this._notificationService.createNotification(employeeId, 'Learning Path Finished!', 'Amazing work! You have finished the entire learning path.', 'learning-path-complete', 'employee');
                 // Notify Company
                 if (employee === null || employee === void 0 ? void 0 : employee.companyId) {
                     yield this._notificationService.createNotification(employee.companyId.toString(), 'Learning Path Completed', `${employee.name} has finished an assigned learning path.`, 'learning-path-complete', 'company', `/company/employees/${employeeId}`);

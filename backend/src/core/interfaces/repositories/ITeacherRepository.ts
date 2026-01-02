@@ -1,5 +1,4 @@
 import { ITeacher, VerificationStatus } from '../../../models/Teacher';
-import { PaginatedTeacherDTO } from '../../dtos/admin/Admin.teacher.Dto';
 
 export interface ITeacherRepository {
   create(teacher: Partial<ITeacher>): Promise<ITeacher>;

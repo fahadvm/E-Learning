@@ -7,8 +7,6 @@ import { ITransactionRepository } from '../../core/interfaces/repositories/ITran
 import { IPayout, PayoutMethod, PayoutStatus } from '../../models/Payout';
 import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
-import { MESSAGES } from '../../utils/ResponseMessages';
-import { TransactionType, TxnNature, PaymentStatus, PaymentMethod } from '../../models/Transaction';
 import { Types } from 'mongoose';
 
 @injectable()
@@ -19,8 +17,8 @@ export class TeacherPayoutService implements ITeacherPayoutService {
         @inject(TYPES.TransactionRepository) private readonly _transactionRepo: ITransactionRepository
     ) { }
 
-    async requestPayout(teacherId: string, amount: number, method: PayoutMethod, details: any): Promise<IPayout> {
-        if (amount <= 0) throwError("Invalid amount", STATUS_CODES.BAD_REQUEST);
+    async requestPayout(teacherId: string, amount: number, method: PayoutMethod, details: Record<string, string>): Promise<IPayout> {
+        if (amount <= 0) throwError('Invalid amount', STATUS_CODES.BAD_REQUEST);
 
         // 1. Deduct Balance (Atomic)
         // This will throw if insufficient funds
@@ -41,12 +39,12 @@ export class TeacherPayoutService implements ITeacherPayoutService {
                 teacherId: new Types.ObjectId(teacherId),
                 amount: amount,
                 grossAmount: amount, // For withdrawal, gross = net
-                type: "TEACHER_WITHDRAWAL",
-                txnNature: "DEBIT",
-                paymentStatus: "PENDING",
-                paymentMethod: "MANUAL", // or WALLET mapping
-                description: `Payout Request ${payout._id}`
-            } as any);
+                type: 'TEACHER_WITHDRAWAL',
+                txnNature: 'DEBIT',
+                paymentStatus: 'PENDING',
+                paymentMethod: 'MANUAL', // or WALLET mapping
+                notes: `Payout Request ${payout._id}`
+            });
 
             return payout;
 

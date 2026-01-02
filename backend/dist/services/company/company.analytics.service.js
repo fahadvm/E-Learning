@@ -59,11 +59,11 @@ let CompanyAnalyticsService = class CompanyAnalyticsService {
     }
     getStartDate(now, range) {
         const date = new Date(now);
-        if (range === "week")
+        if (range === 'week')
             date.setDate(date.getDate() - 7);
-        if (range === "month")
+        if (range === 'month')
             date.setMonth(date.getMonth() - 1);
-        if (range === "year")
+        if (range === 'year')
             date.setFullYear(date.getFullYear() - 1);
         return date;
     }
@@ -80,15 +80,15 @@ let CompanyAnalyticsService = class CompanyAnalyticsService {
     getGraphData(companyId, range, startDate, endDate) {
         return __awaiter(this, void 0, void 0, function* () {
             const records = yield this.repo.getLearningRecords(companyId, startDate, endDate);
-            if (range === "week")
+            if (range === 'week')
                 return this.groupByDays(records, startDate);
-            if (range === "month")
+            if (range === 'month')
                 return this.groupByWeeks(records, startDate);
             return this.groupByMonths(records, startDate);
         });
     }
     groupByDays(records, startDate) {
-        const labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         const result = [];
         for (let i = 0; i < 7; i++) {
             const dayDate = new Date(startDate);
@@ -116,7 +116,7 @@ let CompanyAnalyticsService = class CompanyAnalyticsService {
         return result;
     }
     groupByMonths(records, startDate) {
-        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const result = [];
         for (let i = 0; i < 12; i++) {
             const monthDate = new Date(startDate);

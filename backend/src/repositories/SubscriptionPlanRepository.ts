@@ -5,8 +5,7 @@ import { FilterQuery } from 'mongoose';
 import { ISubscriptionPlanRepository } from '../core/interfaces/repositories/ISubscriptionPlanRepository';
 import { ISubscriptionPlan, SubscriptionPlan } from '../models/subscriptionPlan';
 import { IStudentSubscription, StudentSubscription } from '../models/StudentSubscription';
-import logger from '../utils/logger';
-import { Student } from '../models/Student';
+
 
 
 @injectable()
@@ -34,10 +33,8 @@ export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
   }
 
   async getById(id: string): Promise<ISubscriptionPlan | null> {
-    console.log("fetching success start",id)
     const plans = await SubscriptionPlan.findById(id);
-    console.log("fetching success full",plans)
-    return  plans
+    return plans;
   }
 
   async update(id: string, plan: Partial<ISubscriptionPlan>): Promise<ISubscriptionPlan | null> {
@@ -80,12 +77,12 @@ export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
   }
 
   async updatePaymentStatus(
-    studentId : string,
+    studentId: string,
     orderId: string,
     status: 'pending' | 'active' | 'expired' | 'cancelled',
     paymentId?: string
   ): Promise<IStudentSubscription | null> {
-    const student = await Student.findByIdAndUpdate(studentId,{isPremium:true})
+    // const student = await Student.findByIdAndUpdate(studentId,{isPremium:true});
     return await StudentSubscription.findOneAndUpdate(
       { orderId },
       { status, paymentId },
@@ -93,10 +90,10 @@ export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
     );
   }
 
-  async findActiveSubscription(studentId: string): Promise<any | null> {
-    return await StudentSubscription.findOne({ studentId, status: 'active' }).populate("planId");
+  async findActiveSubscription(studentId: string): Promise<IStudentSubscription | null> {
+    return await StudentSubscription.findOne({ studentId, status: 'active' }).populate('planId') as IStudentSubscription | null;
   }
   async findActiveSubscriptions(studentId: string): Promise<IStudentSubscription[] | null> {
-    return await StudentSubscription.find({ studentId, status: 'active' }).populate("planId");
+    return await StudentSubscription.find({ studentId, status: 'active' }).populate('planId');
   }
 }

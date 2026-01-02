@@ -34,9 +34,9 @@ export class StudentProfileService implements IStudentProfileService {
       const [github, leetcode] = await Promise.all([
       this._PublicApiRepo.fetchGitHub(githubUsername),
       this._PublicApiRepo.fetchLeetCodeStats(leetcodeUsername),
-    ])
-    const contributions = { github, leetcode }
-    return contributions 
+    ]);
+    const contributions = { github, leetcode };
+    return contributions; 
   }
 
 }

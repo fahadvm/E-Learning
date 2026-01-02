@@ -154,30 +154,30 @@ export class StudentAuthService implements IStudentAuthService {
     if (!student || !student.password)
       throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     const isMatch = await bcrypt.compare(currentPassword, student.password);
-    if (!isMatch) throwError("Incorrect current password", STATUS_CODES.BAD_REQUEST);
+    if (!isMatch) throwError('Incorrect current password', STATUS_CODES.BAD_REQUEST);
     const hashed = await bcrypt.hash(newPassword, 10);
     await this._studentRepo.update(studentId, { password: hashed });
   }
 
   async sendEmailChangeOtp(studentId: string, newEmail: string) {
     const existing = await this._studentRepo.findByEmail(newEmail);
-    if (existing) throwError("Email already in use", STATUS_CODES.CONFLICT);
+    if (existing) throwError('Email already in use', STATUS_CODES.CONFLICT);
     const otp = generateOtp();
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
     await this._otpRepo.create({
       email: newEmail,
       otp,
       expiresAt,
-      purpose: "change-email",
+      purpose: 'change-email',
     });
     await sendOtpEmail(newEmail, otp);
   }
   async verifyEmailChangeOtp(studentId: string, newEmail: string, otp: string): Promise<IStudent> {
     const record = await this._otpRepo.findByEmail(newEmail);
-    if (!record || record.purpose !== "change-email")
-      throwError("Invalid OTP request", STATUS_CODES.BAD_REQUEST);
+    if (!record || record.purpose !== 'change-email')
+      throwError('Invalid OTP request', STATUS_CODES.BAD_REQUEST);
     if (record.otp !== otp || record.expiresAt < new Date())
-      throwError("OTP is invalid or expired", STATUS_CODES.BAD_REQUEST);
+      throwError('OTP is invalid or expired', STATUS_CODES.BAD_REQUEST);
     const updatedUser = await this._studentRepo.update(studentId, { email: newEmail });
     await this._otpRepo.deleteByEmail(newEmail);
     return updatedUser;

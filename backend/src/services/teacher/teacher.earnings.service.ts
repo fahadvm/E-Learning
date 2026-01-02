@@ -1,14 +1,11 @@
-import { inject, injectable } from "inversify";
-import { ITeacherEarningsService } from "../../core/interfaces/services/teacher/ITeacherEarningsService";
-import { TYPES } from "../../core/di/types";
-import { ITransactionRepository } from "../../core/interfaces/repositories/ITransactionRepository";
-import { IWalletRepository } from "../../core/interfaces/repositories/IwalletRepository";
-import { IPaginationResponse } from "../../core/dtos/teacher/TeacherDTO";
-import { ITransaction } from "../../models/Transaction";
-import { throwError } from "../../utils/ResANDError";
-import { MESSAGES } from "../../utils/ResponseMessages";
-import { STATUS_CODES } from "../../utils/HttpStatuscodes";
-import mongoose from "mongoose";
+import { inject, injectable } from 'inversify';
+import { ITeacherEarningsService, IEarningsStats } from '../../core/interfaces/services/teacher/ITeacherEarningsService';
+import { TYPES } from '../../core/di/types';
+import { ITransactionRepository } from '../../core/interfaces/repositories/ITransactionRepository';
+import { IWalletRepository } from '../../core/interfaces/repositories/IwalletRepository';
+import { IPaginationResponse } from '../../core/dtos/teacher/TeacherDTO';
+import { ITransaction } from '../../models/Transaction';
+import mongoose, { FilterQuery } from 'mongoose';
 
 @injectable()
 export class TeacherEarningsService implements ITeacherEarningsService {
@@ -30,7 +27,7 @@ export class TeacherEarningsService implements ITeacherEarningsService {
         const { page, limit, type, startDate, endDate } = filters;
         const skip = (page - 1) * limit;
 
-        const query: any = {
+        const query: FilterQuery<ITransaction> = {
             teacherId: new mongoose.Types.ObjectId(teacherId),
             paymentStatus: 'SUCCESS',
             txnNature: { $in: ['CREDIT', 'DEBIT'] },
@@ -47,25 +44,27 @@ export class TeacherEarningsService implements ITeacherEarningsService {
 
         // Proper date range (inclusive start, end of day)
         if (startDate || endDate) {
-            query.createdAt = {};
+            const dateFilter: { $gte?: Date; $lte?: Date } = {};
             if (startDate) {
-                query.createdAt.$gte = new Date(startDate);
-                query.createdAt.$gte.setHours(0, 0, 0, 0);
+                const d = new Date(startDate);
+                d.setHours(0, 0, 0, 0);
+                dateFilter.$gte = d;
             }
             if (endDate) {
-                query.createdAt.$lte = new Date(endDate);
-                query.createdAt.$lte.setHours(23, 59, 59, 999);
+                const d = new Date(endDate);
+                d.setHours(23, 59, 59, 999);
+                dateFilter.$lte = d;
             }
+            query.createdAt = dateFilter;
         }
 
-        const sort = { createdAt: -1 };
+        const sort: Record<string, 1 | -1> = { createdAt: -1 };
 
         const [data, total] = await Promise.all([
             this._transactionRepo.find(query, { skip, limit, sort }),
             this._transactionRepo.count(query),
         ]);
 
-        console.log("getting earnings",data)
 
         return {
             data,
@@ -76,7 +75,7 @@ export class TeacherEarningsService implements ITeacherEarningsService {
         };
     }
 
-    async getEarningsStats(teacherId: string): Promise<any> {
+    async getEarningsStats(teacherId: string): Promise<IEarningsStats> {
         const wallet = await this._walletRepo.findByTeacherId(teacherId);
         if (!wallet) return { balance: 0, totalEarned: 0, totalWithdrawn: 0 };
 

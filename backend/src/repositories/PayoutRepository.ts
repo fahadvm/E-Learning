@@ -25,7 +25,7 @@ export class PayoutRepository implements IPayoutRepository {
     }
 
     async updateStatus(id: string, status: PayoutStatus, adminNote?: string): Promise<IPayout | null> {
-        const updates: any = { status, processedAt: new Date() };
+        const updates: Partial<IPayout> = { status, processedAt: new Date() };
         if (adminNote) updates.adminNote = adminNote;
         return await Payout.findByIdAndUpdate(id, updates, { new: true });
     }

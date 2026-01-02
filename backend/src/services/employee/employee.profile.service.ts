@@ -18,7 +18,7 @@ export class EmployeeProfileService implements IEmployeeProfileService {
   async getProfile(employeeId: string): Promise<IEmployee> {
     const employee = await this._employeeRepo.findById(employeeId);
     if (!employee) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    return employee
+    return employee;
 
   }
 

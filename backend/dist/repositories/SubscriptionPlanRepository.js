@@ -20,7 +20,6 @@ exports.SubscriptionPlanRepository = void 0;
 const inversify_1 = require("inversify");
 const subscriptionPlan_1 = require("../models/subscriptionPlan");
 const StudentSubscription_1 = require("../models/StudentSubscription");
-const Student_1 = require("../models/Student");
 let SubscriptionPlanRepository = class SubscriptionPlanRepository {
     create(plan) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -49,9 +48,7 @@ let SubscriptionPlanRepository = class SubscriptionPlanRepository {
     }
     getById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("fetching success start", id);
             const plans = yield subscriptionPlan_1.SubscriptionPlan.findById(id);
-            console.log("fetching success full", plans);
             return plans;
         });
     }
@@ -98,18 +95,18 @@ let SubscriptionPlanRepository = class SubscriptionPlanRepository {
     }
     updatePaymentStatus(studentId, orderId, status, paymentId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const student = yield Student_1.Student.findByIdAndUpdate(studentId, { isPremium: true });
+            // const student = await Student.findByIdAndUpdate(studentId,{isPremium:true});
             return yield StudentSubscription_1.StudentSubscription.findOneAndUpdate({ orderId }, { status, paymentId }, { new: true });
         });
     }
     findActiveSubscription(studentId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield StudentSubscription_1.StudentSubscription.findOne({ studentId, status: 'active' }).populate("planId");
+            return yield StudentSubscription_1.StudentSubscription.findOne({ studentId, status: 'active' }).populate('planId');
         });
     }
     findActiveSubscriptions(studentId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield StudentSubscription_1.StudentSubscription.find({ studentId, status: 'active' }).populate("planId");
+            return yield StudentSubscription_1.StudentSubscription.find({ studentId, status: 'active' }).populate('planId');
         });
     }
 };

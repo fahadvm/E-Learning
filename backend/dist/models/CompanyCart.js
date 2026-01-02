@@ -40,7 +40,7 @@ const CartSchema = new mongoose_1.Schema({
     courses: [
         {
             courseId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Course', required: true },
-            accessType: { type: String, enum: ["seats", "unlimited"], default: "seats" },
+            accessType: { type: String, enum: ['seats', 'unlimited'], default: 'seats' },
             seats: { type: Number, default: 1 },
             price: { type: Number, required: true },
         }

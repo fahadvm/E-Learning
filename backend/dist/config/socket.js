@@ -43,46 +43,46 @@ const broadcastEvent = (event, data) => {
 exports.broadcastEvent = broadcastEvent;
 function initSocket(server) {
     const allowedOrigins = [
-        "https://devnext.online",
-        "https://www.devnext.online",
-        "https://api.devnext.online",
-        "http://localhost:3000",
+        'https://devnext.online',
+        'https://www.devnext.online',
+        'https://api.devnext.online',
+        'http://localhost:3000',
     ];
     const io = new socket_io_1.Server(server, {
         cors: {
             origin: allowedOrigins,
-            methods: ["GET", "POST"],
+            methods: ['GET', 'POST'],
             credentials: true,
         },
     });
     ioInstance = io;
     const broadcastOnlineUsers = () => {
         const users = Array.from(onlineUsers.keys());
-        io.emit("onlineUsers", users);
+        io.emit('onlineUsers', users);
     };
-    io.on("connection", (socket) => {
-        console.log(`New socket connected: ${socket.id}`);
+    io.on('connection', (socket) => {
+        logger_1.default.info(`New socket connected: ${socket.id}`);
         /** ------------------- CHAT ------------------- **/
-        socket.on("join", (userId) => {
+        socket.on('join', (userId) => {
             onlineUsers.set(userId, socket.id);
             broadcastOnlineUsers();
-            console.log(`User ${userId} joined with socket ${socket.id}`);
+            logger_1.default.info(`User ${userId} joined with socket ${socket.id}`);
         });
-        socket.on("join_chat", (chatId) => {
+        socket.on('join_chat', (chatId) => {
             socket.join(chatId);
-            console.log(`User ${socket.id} joined chat ${chatId}`);
+            logger_1.default.info(`User ${socket.id} joined chat ${chatId}`);
         });
-        socket.on("send_message", (data) => __awaiter(this, void 0, void 0, function* () {
+        socket.on('send_message', (data) => __awaiter(this, void 0, void 0, function* () {
             // Save to DB
             const savedMessage = yield chatService.sendMessage(data.senderId, data.message, data.chatId, data.senderType, data.receiverId, data.receiverType);
             // Group Chat Broadcast (Room based - for those inside the chat)
-            io.to(data.chatId).emit("receive_message", savedMessage);
+            io.to(data.chatId).emit('receive_message', savedMessage);
             // Notify Recipient for Chat List Update (move to top)
             if (data.receiverId) {
                 const receiverSocketId = onlineUsers.get(data.receiverId);
                 if (receiverSocketId) {
                     // Emit event to update chat list order
-                    io.to(receiverSocketId).emit("chat-list-update", {
+                    io.to(receiverSocketId).emit('chat-list-update', {
                         chatId: data.chatId,
                         lastMessage: savedMessage,
                     });
@@ -96,74 +96,72 @@ function initSocket(server) {
             // Also update sender's chat list (if they have multiple tabs or just for consistency)
             const senderSocketId = onlineUsers.get(data.senderId);
             if (senderSocketId) {
-                io.to(senderSocketId).emit("chat-list-update", {
+                io.to(senderSocketId).emit('chat-list-update', {
                     chatId: data.chatId,
                     lastMessage: savedMessage,
                 });
             }
         }));
-        socket.on("typing", (data) => {
+        socket.on('typing', (data) => {
             const receiverSocketId = onlineUsers.get(data.receiverId);
             if (receiverSocketId)
-                io.to(receiverSocketId).emit("typing", { senderId: data.senderId });
+                io.to(receiverSocketId).emit('typing', { senderId: data.senderId });
         });
-        socket.on("read_message", (data) => __awaiter(this, void 0, void 0, function* () {
+        socket.on('read_message', (data) => __awaiter(this, void 0, void 0, function* () {
             try {
                 yield chatService.markMessageAsRead(data.chatId, data.messageId);
                 const senderSocketId = onlineUsers.get(data.senderId);
                 if (senderSocketId)
-                    io.to(data.chatId).emit("message_read", { messageId: data.messageId, chatId: data.chatId });
+                    io.to(data.chatId).emit('message_read', { messageId: data.messageId, chatId: data.chatId });
             }
             catch (err) {
-                logger_1.default.error("Error marking message as read:", err);
+                logger_1.default.error('Error marking message as read:', err);
             }
         }));
-        socket.on("react_message", (data) => __awaiter(this, void 0, void 0, function* () {
+        socket.on('react_message', (data) => __awaiter(this, void 0, void 0, function* () {
             try {
                 yield chatService.addReaction(data.chatId, data.messageId, data.userId, data.reaction);
-                io.to(data.chatId).emit("message_reaction", data);
+                io.to(data.chatId).emit('message_reaction', data);
             }
             catch (err) {
-                logger_1.default.error("Error adding reaction:", err);
+                logger_1.default.error('Error adding reaction:', err);
             }
         }));
-        socket.on("delete_message", (data) => __awaiter(this, void 0, void 0, function* () {
+        socket.on('delete_message', (data) => __awaiter(this, void 0, void 0, function* () {
             try {
                 yield chatService.deleteMessage(data.chatId, data.messageId, data.senderId);
-                io.to(data.chatId).emit("message_deleted", { messageId: data.messageId, chatId: data.chatId });
+                io.to(data.chatId).emit('message_deleted', { messageId: data.messageId, chatId: data.chatId });
             }
             catch (err) {
-                logger_1.default.error("Error deleting message:", err);
+                logger_1.default.error('Error deleting message:', err);
             }
         }));
-        socket.on("edit_message", (data) => __awaiter(this, void 0, void 0, function* () {
+        socket.on('edit_message', (data) => __awaiter(this, void 0, void 0, function* () {
             try {
                 yield chatService.editMessage(data.chatId, data.messageId, data.senderId, data.newMessage);
-                io.to(data.chatId).emit("message_edited", { messageId: data.messageId, chatId: data.chatId, newMessage: data.newMessage });
+                io.to(data.chatId).emit('message_edited', { messageId: data.messageId, chatId: data.chatId, newMessage: data.newMessage });
             }
             catch (err) {
-                logger_1.default.error("Error editing message:", err);
+                logger_1.default.error('Error editing message:', err);
             }
         }));
-        socket.on("send_notification", (data) => __awaiter(this, void 0, void 0, function* () {
+        socket.on('send_notification', (data) => __awaiter(this, void 0, void 0, function* () {
             try {
-                // console.log("here the notification event on in ", data)
-                yield notificationService.createNotification(data.receiverId, data.title, data.message, "general");
+                yield notificationService.createNotification(data.receiverId, data.title, data.message, 'general');
                 const receiverSocketId = onlineUsers.get(data.receiverId);
-                // console.log("now onwanrd student will get the notification")
                 if (receiverSocketId)
-                    io.to(receiverSocketId).emit("receive_notification", data);
+                    io.to(receiverSocketId).emit('receive_notification', data);
             }
             catch (err) {
-                logger_1.default.error("Error sending notification:", err);
+                logger_1.default.error('Error sending notification:', err);
             }
         }));
         /** ------------------- DIRECT CALLING (WhatsApp Style) ------------------- **/
         // Caller initiates call
-        socket.on("call-user", (data) => {
+        socket.on('call-user', (data) => {
             const receiverSocketId = onlineUsers.get(data.userToCall);
             if (receiverSocketId) {
-                io.to(receiverSocketId).emit("incoming-call", {
+                io.to(receiverSocketId).emit('incoming-call', {
                     signal: data.signalData,
                     from: data.from,
                     name: data.name
@@ -171,36 +169,36 @@ function initSocket(server) {
             }
         });
         // Receiver answers call
-        socket.on("answer-call", (data) => {
+        socket.on('answer-call', (data) => {
             // Robust routing: Try UserID lookup, fallback to direct SocketID
             const targetSocketId = onlineUsers.get(data.to) || data.to;
             if (targetSocketId) {
-                io.to(targetSocketId).emit("call-accepted", data.signal);
+                io.to(targetSocketId).emit('call-accepted', data.signal);
             }
         });
         // Receiver rejects call
-        socket.on("reject-call", (data) => {
+        socket.on('reject-call', (data) => {
             const targetSocketId = onlineUsers.get(data.to) || data.to;
             if (targetSocketId) {
-                io.to(targetSocketId).emit("call-rejected");
+                io.to(targetSocketId).emit('call-rejected');
             }
         });
         // End call
-        socket.on("end-call", (data) => {
+        socket.on('end-call', (data) => {
             const targetSocketId = onlineUsers.get(data.to) || data.to;
             if (targetSocketId) {
-                io.to(targetSocketId).emit("call-ended");
+                io.to(targetSocketId).emit('call-ended');
             }
         });
         // ICE Candidate Relay (Global)
-        socket.on("ice-candidate", (candidate, to) => {
+        socket.on('ice-candidate', (candidate, to) => {
             const targetSocketId = onlineUsers.get(to) || to;
             if (targetSocketId) {
-                io.to(targetSocketId).emit("ice-candidate", candidate, socket.id);
+                io.to(targetSocketId).emit('ice-candidate', candidate, socket.id);
             }
         });
         /** ------------------- ROOM VIDEO CALL (Legacy/Backup) ------------------- **/
-        socket.on("join-room", (roomId, userType) => {
+        socket.on('join-room', (roomId, userType) => {
             const room = io.sockets.adapter.rooms.get(roomId);
             const clientsInRoom = (room === null || room === void 0 ? void 0 : room.size) || 0;
             const existingUserTypes = Array.from((room === null || room === void 0 ? void 0 : room.values()) || []).map(id => {
@@ -210,30 +208,30 @@ function initSocket(server) {
             });
             // Allow only one teacher and one student per room
             if (clientsInRoom >= 2 || (clientsInRoom === 1 && existingUserTypes[0] === userType)) {
-                socket.emit("room-full");
+                socket.emit('room-full');
                 return;
             }
             socket.data.userType = userType;
             socket.join(roomId);
-            socket.to(roomId).emit("user-connected", { userId: socket.id, userType });
-            console.log(`User ${socket.id} (${userType}) joined room ${roomId}`);
+            socket.to(roomId).emit('user-connected', { userId: socket.id, userType });
+            logger_1.default.info(`User ${socket.id} (${userType}) joined room ${roomId}`);
             // WebRTC signaling
-            socket.on("offer", (offer, targetId) => {
-                // console.log(`Relaying offer from ${socket.id} to ${targetId}`);
-                socket.to(targetId).emit("offer", offer, socket.id);
+            socket.on('offer', (offer, targetId) => {
+                // logger.info(`Relaying offer from ${socket.id} to ${targetId}`);
+                socket.to(targetId).emit('offer', offer, socket.id);
             });
-            socket.on("answer", (answer, targetId) => {
-                // console.log(`Relaying answer from ${socket.id} to ${targetId}`);
-                socket.to(targetId).emit("answer", answer, socket.id);
+            socket.on('answer', (answer, targetId) => {
+                // logger.info(`Relaying answer from ${socket.id} to ${targetId}`);
+                socket.to(targetId).emit('answer', answer, socket.id);
             });
-            socket.on("ice-candidate", (candidate, targetId) => {
-                // console.log(`Relaying ICE candidate from ${socket.id} to ${targetId}`);
-                socket.to(targetId).emit("ice-candidate", candidate, socket.id);
+            socket.on('ice-candidate', (candidate, targetId) => {
+                // logger.info(`Relaying ICE candidate from ${socket.id} to ${targetId}`);
+                socket.to(targetId).emit('ice-candidate', candidate, socket.id);
             });
         });
         /** ------------------- DISCONNECT ------------------- **/
-        socket.on("disconnect", () => {
-            // console.log(`Socket disconnected: ${socket.id}`);
+        socket.on('disconnect', () => {
+            // logger.info(`Socket disconnected: ${socket.id}`);
             onlineUsers.forEach((value, key) => {
                 if (value === socket.id)
                     onlineUsers.delete(key);
@@ -242,8 +240,8 @@ function initSocket(server) {
             // Notify rooms for video call
             socket.rooms.forEach((room) => {
                 if (room !== socket.id) {
-                    socket.to(room).emit("call-ended"); // Use unified event
-                    socket.to(room).emit("user-disconnected", { userId: socket.id });
+                    socket.to(room).emit('call-ended'); // Use unified event
+                    socket.to(room).emit('user-disconnected', { userId: socket.id });
                 }
             });
         });

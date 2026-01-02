@@ -1,6 +1,7 @@
-import cloudinary from "../config/cloudinary";
+import cloudinary from '../config/cloudinary';
+import logger from './logger';
 
-export const uploadToCloudinary = async (buffer: Buffer, folder: string = "chat-uploads", resourceType: "auto" | "image" | "video" | "raw" = "auto"): Promise<string> => {
+export const uploadToCloudinary = async (buffer: Buffer, folder: string = 'chat-uploads', resourceType: 'auto' | 'image' | 'video' | 'raw' = 'auto'): Promise<string> => {
     const publicId = `upload-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
     return new Promise((resolve, reject) => {
@@ -13,10 +14,10 @@ export const uploadToCloudinary = async (buffer: Buffer, folder: string = "chat-
             },
             (error, result) => {
                 if (error) {
-                    console.error("Cloudinary upload failed:", error);
+                    logger.error('Cloudinary upload failed:', error);
                     return reject(error);
                 }
-                if (!result?.secure_url) return reject(new Error("No URL returned"));
+                if (!result?.secure_url) return reject(new Error('No URL returned'));
                 resolve(result.secure_url);
             }
         );

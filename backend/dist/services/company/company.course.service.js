@@ -71,7 +71,6 @@ let CompanyCourseService = class CompanyCourseService {
         return __awaiter(this, void 0, void 0, function* () {
             const companyIdObj = new mongoose_1.default.Types.ObjectId(companyId);
             const orders = yield this._purchasedRepository.getAllPurchasesByCompany(companyIdObj);
-            console.log("orders in service", orders);
             return orders;
         });
     }
@@ -80,7 +79,7 @@ let CompanyCourseService = class CompanyCourseService {
             if (!courseId || !companyId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_ID, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const orders = yield this._companyOrderRepository.getOrdersByCompanyId(companyId);
-            const purchasedCourseIds = orders.flatMap((order) => order.courses.map((c) => c.toString()));
+            const purchasedCourseIds = orders.flatMap((order) => order.purchasedCourses.map((c) => c.courseId.toString()));
             if (!purchasedCourseIds.includes(courseId)) {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             }

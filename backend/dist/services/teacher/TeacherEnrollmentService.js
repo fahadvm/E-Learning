@@ -32,51 +32,51 @@ let TeacherEnrollmentService = class TeacherEnrollmentService {
     getEnrollments(teacherId) {
         return __awaiter(this, void 0, void 0, function* () {
             // === 1. INDIVIDUAL STUDENT ENROLLMENTS FROM ORDER MODEL === //
-            const individualRaw = yield mongoose_1.default.model("Order").aggregate([
+            const individualRaw = yield mongoose_1.default.model('Order').aggregate([
                 {
-                    $match: { status: "paid" }
+                    $match: { status: 'paid' }
                 },
                 {
                     $lookup: {
-                        from: "students",
-                        localField: "studentId",
-                        foreignField: "_id",
-                        as: "student"
+                        from: 'students',
+                        localField: 'studentId',
+                        foreignField: '_id',
+                        as: 'student'
                     }
                 },
-                { $unwind: "$student" },
-                { $unwind: "$courses" }, // expand each course
+                { $unwind: '$student' },
+                { $unwind: '$courses' }, // expand each course
                 // Populate the course
                 {
                     $lookup: {
-                        from: "courses",
-                        localField: "courses",
-                        foreignField: "_id",
-                        as: "course"
+                        from: 'courses',
+                        localField: 'courses',
+                        foreignField: '_id',
+                        as: 'course'
                     }
                 },
-                { $unwind: "$course" },
+                { $unwind: '$course' },
                 // Filter courses that belong to this teacher
                 {
                     $match: {
-                        "course.teacherId": new mongoose_1.default.Types.ObjectId(teacherId)
+                        'course.teacherId': new mongoose_1.default.Types.ObjectId(teacherId)
                     }
                 },
                 // Extract Course Progress for this student
                 {
                     $project: {
-                        id: "$_id",
-                        name: "$student.name",
-                        email: "$student.email",
-                        courseTitle: "$course.title",
-                        enrolledAt: "$createdAt",
-                        source: "individual",
+                        id: '$_id',
+                        name: '$student.name',
+                        email: '$student.email',
+                        courseTitle: '$course.title',
+                        enrolledAt: '$createdAt',
+                        source: 'individual',
                         // Filter course progress
                         progressObj: {
                             $filter: {
-                                input: "$student.coursesProgress",
-                                as: "cp",
-                                cond: { $eq: ["$$cp.courseId", "$course._id"] }
+                                input: '$student.coursesProgress',
+                                as: 'cp',
+                                cond: { $eq: ['$$cp.courseId', '$course._id'] }
                             }
                         }
                     }
@@ -86,15 +86,15 @@ let TeacherEnrollmentService = class TeacherEnrollmentService {
             const formattedIndividual = individualRaw.map((e) => {
                 const prog = e.progressObj && e.progressObj[0];
                 const percentage = prog ? prog.percentage : 0;
-                const status = percentage === 100 ? "Completed" :
-                    percentage > 0 ? "In Progress" :
-                        "Not Started";
+                const status = percentage === 100 ? 'Completed' :
+                    percentage > 0 ? 'In Progress' :
+                        'Not Started';
                 return {
                     id: e.id,
                     name: e.name,
                     email: e.email,
                     courseTitle: e.courseTitle,
-                    source: "individual",
+                    source: 'individual',
                     enrolledAt: e.enrolledAt,
                     progress: percentage,
                     status
@@ -102,61 +102,61 @@ let TeacherEnrollmentService = class TeacherEnrollmentService {
             });
             // === 2. COMPANY ENROLLMENTS (Already Correct) === //
             const companyEnrollmentsRaw = yield mongoose_1.default.model('CompanyOrder').aggregate([
-                { $unwind: "$purchasedCourses" },
+                { $unwind: '$purchasedCourses' },
                 {
                     $lookup: {
-                        from: "courses",
-                        localField: "purchasedCourses.courseId",
-                        foreignField: "_id",
-                        as: "course"
+                        from: 'courses',
+                        localField: 'purchasedCourses.courseId',
+                        foreignField: '_id',
+                        as: 'course'
                     }
                 },
-                { $unwind: "$course" },
+                { $unwind: '$course' },
                 {
                     $match: {
-                        "course.teacherId": new mongoose_1.default.Types.ObjectId(teacherId),
-                        "status": "paid"
+                        'course.teacherId': new mongoose_1.default.Types.ObjectId(teacherId),
+                        'status': 'paid'
                     }
                 },
                 {
                     $lookup: {
-                        from: "companies",
-                        localField: "companyId",
-                        foreignField: "_id",
-                        as: "company"
+                        from: 'companies',
+                        localField: 'companyId',
+                        foreignField: '_id',
+                        as: 'company'
                     }
                 },
-                { $unwind: "$company" },
+                { $unwind: '$company' },
                 // 👉 LOOKUP ASSIGNED EMPLOYEES
                 {
                     $lookup: {
-                        from: "employeelearningpaths", // <-- CHANGE IF YOUR COLLECTION NAME IS DIFFERENT
-                        let: { courseId: "$purchasedCourses.courseId", companyId: "$companyId" },
+                        from: 'employeelearningpaths', // <-- CHANGE IF YOUR COLLECTION NAME IS DIFFERENT
+                        let: { courseId: '$purchasedCourses.courseId', companyId: '$companyId' },
                         pipeline: [
                             {
                                 $match: {
                                     $expr: {
                                         $and: [
-                                            { $eq: ["$courseId", "$$courseId"] },
-                                            { $eq: ["$companyId", "$$companyId"] }
+                                            { $eq: ['$courseId', '$$courseId'] },
+                                            { $eq: ['$companyId', '$$companyId'] }
                                         ]
                                     }
                                 }
                             }
                         ],
-                        as: "assigned"
+                        as: 'assigned'
                     }
                 },
                 {
                     $project: {
-                        id: "$_id",
-                        companyName: "$company.name",
-                        email: "$company.email",
-                        courseTitle: "$course.title",
-                        source: "company",
-                        purchasedSeats: "$purchasedCourses.seats",
-                        assignedSeats: { $size: "$assigned" },
-                        enrolledAt: "$createdAt"
+                        id: '$_id',
+                        companyName: '$company.name',
+                        email: '$company.email',
+                        courseTitle: '$course.title',
+                        source: 'company',
+                        purchasedSeats: '$purchasedCourses.seats',
+                        assignedSeats: { $size: '$assigned' },
+                        enrolledAt: '$createdAt'
                     }
                 }
             ]);

@@ -21,6 +21,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CourseCertificateRepository = void 0;
 const inversify_1 = require("inversify");
 const CourseCertificate_1 = __importDefault(require("../models/CourseCertificate"));
+const mongoose_1 = require("mongoose");
 let CourseCertificateRepository = class CourseCertificateRepository {
     create(data) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -35,16 +36,16 @@ let CourseCertificateRepository = class CourseCertificateRepository {
     findByStudent(studentId, page, limit, search) {
         return __awaiter(this, void 0, void 0, function* () {
             const skip = (page - 1) * limit;
-            const query = { studentId };
+            const query = { studentId: new mongoose_1.Types.ObjectId(studentId) };
             if (search) {
                 query.$or = [
-                    { certificateNumber: { $regex: search, $options: "i" } },
-                    { "courseId.title": { $regex: search, $options: "i" } }
+                    { certificateNumber: { $regex: search, $options: 'i' } }
                 ];
+                // Note: searching by populated field like 'courseId.title' doesn't work directly in find()
             }
             const certificates = yield CourseCertificate_1.default
                 .find(query)
-                .populate("courseId", "title coverImage")
+                .populate('courseId', 'title coverImage')
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit);
@@ -57,7 +58,7 @@ let CourseCertificateRepository = class CourseCertificateRepository {
             return yield CourseCertificate_1.default.findOne({
                 courseId,
                 studentId,
-            }).populate("courseId", "title coverImage");
+            }).populate('courseId', 'title coverImage');
         });
     }
 };

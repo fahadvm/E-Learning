@@ -1,6 +1,11 @@
 import { ICourseProgress, IEmployee } from '../../../models/Employee';
 import { IEmployeeLearningRecord } from '../../../models/EmployeeLearningRecord';
 
+export interface IStreakInfo {
+  streakCount: number;
+  longestStreak: number;
+}
+
 export interface IEmployeeRepository {
   create(employee: Partial<IEmployee>): Promise<IEmployee>;
   findByEmail(email: string): Promise<IEmployee | null>;
@@ -28,7 +33,7 @@ export interface IEmployeeRepository {
   saveNotes(employeeId: string, courseId: string, notes: string): Promise<ICourseProgress>
   getProgress(employeeId: string): Promise<ICourseProgress[] | null>
   getLearningRecords(employeeId: string): Promise<IEmployeeLearningRecord[]>
-  updateLoginStreak(employeeId: string): Promise<any>
+  updateLoginStreak(employeeId: string): Promise<IStreakInfo>
   searchByEmailOrName(query: string): Promise<IEmployee[]>
   findInactiveEmployees(days: number): Promise<IEmployee[]>
   findAllPaginated(skip: number, limit: number, search: string, status?: string): Promise<IEmployee[]>;

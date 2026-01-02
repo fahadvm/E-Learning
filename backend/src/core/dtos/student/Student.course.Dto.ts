@@ -90,7 +90,7 @@ export const StudentCourseDTO = (course: ICourse): IStudentCourseDTO => ({
   isVerified: course.isVerified,
   status: course.status,
   adminRemarks: course.adminRemarks,
-  teacherId: course.teacherId && typeof course.teacherId === "object"
+  teacherId: course.teacherId && typeof course.teacherId === 'object'
     ? {
       _id: (course.teacherId as ITeacher)._id.toString(),
       name: (course.teacherId as ITeacher).name,

@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ICompanyCoursePurchase extends Document {
     companyId: mongoose.Types.ObjectId;
@@ -11,8 +11,8 @@ export interface ICompanyCoursePurchase extends Document {
 
 const CompanyCoursePurchaseSchema = new Schema<ICompanyCoursePurchase>(
     {
-        companyId: { type: Schema.Types.ObjectId, ref: "Company", required: true },
-        courseId: { type: Schema.Types.ObjectId, ref: "Course", required: true },
+        companyId: { type: Schema.Types.ObjectId, ref: 'Company', required: true },
+        courseId: { type: Schema.Types.ObjectId, ref: 'Course', required: true },
         seatsPurchased: { type: Number, required: true },
         seatsUsed: { type: Number, default: 0 },
 
@@ -21,6 +21,6 @@ const CompanyCoursePurchaseSchema = new Schema<ICompanyCoursePurchase>(
 );
 
 export default mongoose.model<ICompanyCoursePurchase>(
-    "CompanyCoursePurchase",
+    'CompanyCoursePurchase',
     CompanyCoursePurchaseSchema
 );

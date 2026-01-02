@@ -21,6 +21,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PublicApiRepository = void 0;
 const inversify_1 = require("inversify");
 const node_fetch_1 = __importDefault(require("node-fetch"));
+const logger_1 = __importDefault(require("../utils/logger"));
 let PublicApiRepository = class PublicApiRepository {
     fetchGitHub(username) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -32,7 +33,7 @@ let PublicApiRepository = class PublicApiRepository {
                 return Array.isArray(json === null || json === void 0 ? void 0 : json.contributions) ? json.contributions : [];
             }
             catch (error) {
-                console.error("GitHub fetch failed:", error);
+                logger_1.default.error('GitHub fetch failed:', error);
                 return [];
             }
         });
@@ -53,9 +54,9 @@ let PublicApiRepository = class PublicApiRepository {
       }
     `;
             try {
-                const response = yield (0, node_fetch_1.default)("https://leetcode.com/graphql", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                const response = yield (0, node_fetch_1.default)('https://leetcode.com/graphql', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ query, variables: { username } }),
                 });
                 const json = (yield response.json());
@@ -66,7 +67,7 @@ let PublicApiRepository = class PublicApiRepository {
                 const map = { All: 0, Easy: 0, Medium: 0, Hard: 0 };
                 stats.forEach((item) => {
                     map[item.difficulty] = item.count;
-                    if (item.difficulty !== "All")
+                    if (item.difficulty !== 'All')
                         map.All += item.count;
                 });
                 return {
@@ -77,7 +78,7 @@ let PublicApiRepository = class PublicApiRepository {
                 };
             }
             catch (error) {
-                console.error("LeetCode stats fetch failed:", error);
+                logger_1.default.error('LeetCode stats fetch failed:', error);
                 return { totalSolved: 0, easySolved: 0, mediumSolved: 0, hardSolved: 0 };
             }
         });

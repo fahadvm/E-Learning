@@ -1,8 +1,8 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ICourseCertificate extends Document {
-  studentId: string;
-  courseId: string;
+  studentId: mongoose.Types.ObjectId;
+  courseId: mongoose.Types.ObjectId;
   certificateUrl: string;
   certificateNumber: string;
   issuedAt: Date;
@@ -10,8 +10,8 @@ export interface ICourseCertificate extends Document {
 
 const courseCertificateSchema = new Schema(
   {
-    studentId: { type: Schema.Types.ObjectId, ref: "Student", required: true },
-    courseId: { type: Schema.Types.ObjectId, ref: "Course", required: true },
+    studentId: { type: Schema.Types.ObjectId, ref: 'Student', required: true },
+    courseId: { type: Schema.Types.ObjectId, ref: 'Course', required: true },
     certificateUrl: { type: String, required: true },
     certificateNumber: { type: String, required: true },
     issuedAt: { type: Date, default: Date.now },
@@ -20,6 +20,6 @@ const courseCertificateSchema = new Schema(
 );
 
 export default mongoose.model<ICourseCertificate>(
-  "CourseCertificate",
+  'CourseCertificate',
   courseCertificateSchema
 );

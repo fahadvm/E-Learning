@@ -1,10 +1,10 @@
 import { injectable } from 'inversify';
-import { IEmployeeRepository } from '../core/interfaces/repositories/IEmployeeRepository';
+import { IEmployeeRepository, IStreakInfo } from '../core/interfaces/repositories/IEmployeeRepository';
 import { IEmployee, Employee, ICourseProgress } from '../models/Employee';
 import { Course } from '../models/Course';
 import { throwError } from '../utils/ResANDError';
 import { MESSAGES } from '../utils/ResponseMessages';
-import mongoose, { Types } from 'mongoose';
+import mongoose, { Types, FilterQuery } from 'mongoose';
 import { STATUS_CODES } from '../utils/HttpStatuscodes';
 import { EmployeeLearningRecord, IEmployeeLearningRecord } from '../models/EmployeeLearningRecord';
 
@@ -34,7 +34,7 @@ export class EmployeeRepository implements IEmployeeRepository {
 
     async getAssignedCourses(employeeId: string): Promise<IEmployee | null> {
         const employee = await Employee.findById(employeeId)
-            .populate("coursesAssigned")
+            .populate('coursesAssigned')
             .lean();
         return employee;
     }
@@ -42,7 +42,7 @@ export class EmployeeRepository implements IEmployeeRepository {
     async getTotalMinutes(employeeId: string, companyId: string) {
         const result = await EmployeeLearningRecord.aggregate([
             { $match: { employeeId: new mongoose.Types.ObjectId(employeeId), companyId: new mongoose.Types.ObjectId(companyId) } },
-            { $group: { _id: null, total: { $sum: "$totalMinutes" } } }
+            { $group: { _id: null, total: { $sum: '$totalMinutes' } } }
         ]);
 
         return result.length > 0 ? result[0].total : 0;
@@ -116,7 +116,6 @@ export class EmployeeRepository implements IEmployeeRepository {
     }
 
     async updateById(employeeId: string, data: Partial<IEmployee>): Promise<IEmployee | null> {
-        console.log("update data from service ", data)
 
         return await Employee.findByIdAndUpdate(employeeId, data, { new: true }).lean().exec();
     }
@@ -146,11 +145,11 @@ export class EmployeeRepository implements IEmployeeRepository {
 
     async findCompanyByEmployeeId(employeeId: string): Promise<IEmployee | null> {
         const employee = await Employee.findById(employeeId)
-            .populate("companyId")
-            .populate("requestedCompanyId")
-            .exec()
+            .populate('companyId')
+            .populate('requestedCompanyId')
+            .exec();
 
-        return employee
+        return employee;
 
     }
 
@@ -271,11 +270,11 @@ export class EmployeeRepository implements IEmployeeRepository {
             {
                 employeeId,
                 date,
-                "courses.courseId": new Types.ObjectId(courseId)
+                'courses.courseId': new Types.ObjectId(courseId)
             },
             {
                 $inc: {
-                    "courses.$.minutes": roundedHours,
+                    'courses.$.minutes': roundedHours,
                     totalMinutes: roundedHours
                 },
                 $set: { companyId: companyObjectId }
@@ -292,7 +291,7 @@ export class EmployeeRepository implements IEmployeeRepository {
                     $push: { courses: { courseId: new Types.ObjectId(courseId), minutes: roundedHours } },
                 },
                 { new: true, upsert: true }
-            )
+            );
         }
         if (!record) throwError(MESSAGES.RECORD_CREATION_FAILED);
         return record;
@@ -300,21 +299,21 @@ export class EmployeeRepository implements IEmployeeRepository {
 
     async getLearningRecords(employeeId: string): Promise<IEmployeeLearningRecord[]> {
         return EmployeeLearningRecord.find({ employeeId })
-            .populate("courses.courseId", "title duration")
+            .populate('courses.courseId', 'title duration')
             .sort({ updatedAt: -1 })
             .lean();
     }
 
     async getProgress(employeeId: string): Promise<ICourseProgress[] | null> {
         const employee = await Employee.findById(employeeId)
-            .populate("coursesProgress.courseId", "title duration")
+            .populate('coursesProgress.courseId', 'title duration')
             .lean();
 
         if (!employee) return null;
         return employee.coursesProgress || [];
     }
 
-    async updateLoginStreak(employeeId: string): Promise<any> {
+    async updateLoginStreak(employeeId: string): Promise<IStreakInfo> {
         const employee = await Employee.findById(employeeId);
         if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND);
 
@@ -377,7 +376,7 @@ export class EmployeeRepository implements IEmployeeRepository {
     }
 
     async findAllPaginated(skip: number, limit: number, search: string, status?: string): Promise<IEmployee[]> {
-        const query: any = {};
+        const query: FilterQuery<IEmployee> = {};
         if (search) {
             query.$or = [
                 { name: { $regex: search, $options: 'i' } },
@@ -394,7 +393,7 @@ export class EmployeeRepository implements IEmployeeRepository {
     }
 
     async countAll(search: string, status?: string): Promise<number> {
-        const query: any = {};
+        const query: FilterQuery<IEmployee> = {};
         if (search) {
             query.$or = [
                 { name: { $regex: search, $options: 'i' } },

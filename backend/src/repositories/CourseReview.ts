@@ -1,7 +1,7 @@
-import { injectable } from "inversify";
-import { ICourseReviewRepository } from "../core/interfaces/repositories/ICourseReviewRepository";
-import { CourseReview, ICourseReview } from "../models/CourseReview";
-import mongoose from "mongoose";
+import { injectable } from 'inversify';
+import { ICourseReviewRepository } from '../core/interfaces/repositories/ICourseReviewRepository';
+import { CourseReview, ICourseReview } from '../models/CourseReview';
+import mongoose from 'mongoose';
 
 @injectable()
 export class CourseReviewRepository implements ICourseReviewRepository {
@@ -38,7 +38,7 @@ export class CourseReviewRepository implements ICourseReviewRepository {
 
   async getReviews(courseId: string): Promise<ICourseReview[]> {
     return await CourseReview.find({ courseId })
-      .populate("studentId", "name profilePicture")
+      .populate('studentId', 'name profilePicture')
       .sort({ createdAt: -1 });
   }
 
@@ -49,8 +49,8 @@ export class CourseReviewRepository implements ICourseReviewRepository {
       { $match: { courseId: new mongoose.Types.ObjectId(courseId) } },
       {
         $group: {
-          _id: "$courseId",
-          avgRating: { $avg: "$rating" },
+          _id: '$courseId',
+          avgRating: { $avg: '$rating' },
           total: { $sum: 1 }
         }
       }

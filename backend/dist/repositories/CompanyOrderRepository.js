@@ -28,7 +28,7 @@ let CompanyOrderRepository = class CompanyOrderRepository {
     findByStripeSessionId(orderId) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield CompanyOrder_1.CompanyOrderModel.findOne({ stripeSessionId: orderId })
-                .populate("purchasedCourses.courseId", "title price");
+                .populate('purchasedCourses.courseId', 'title price');
         });
     }
     updateStatus(orderId, status) {
@@ -67,8 +67,8 @@ let CompanyOrderRepository = class CompanyOrderRepository {
         return __awaiter(this, void 0, void 0, function* () {
             const orders = yield CompanyOrder_1.CompanyOrderModel.find({
                 companyId,
-                status: "paid"
-            }).select("purchasedCourses");
+                status: 'paid'
+            }).select('purchasedCourses');
             const purchasedCourseIds = orders.flatMap(order => order.purchasedCourses.map(pc => pc.courseId.toString()));
             return purchasedCourseIds;
         });

@@ -120,7 +120,7 @@ let TeacherRepository = class TeacherRepository {
     }
     findUnverified() {
         return __awaiter(this, void 0, void 0, function* () {
-            return Teacher_1.Teacher.find({ verificationStatus: "pending" }).lean();
+            return Teacher_1.Teacher.find({ verificationStatus: 'pending' }).lean();
         });
     }
     verifyTeacherById(id) {

@@ -9,7 +9,7 @@ export class CommentRepository implements ICommentRepository {
         const newComment = new Comment(comment);
         const saved = await newComment.save();
 
-        return await saved.populate("userId", "_id name profilePicture");
+        return await saved.populate('userId', '_id name profilePicture');
     }
 
     async getCommentsByCourse(courseId: string): Promise<IComment[]> {

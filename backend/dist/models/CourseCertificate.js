@@ -35,10 +35,10 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const courseCertificateSchema = new mongoose_1.Schema({
-    studentId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Student", required: true },
-    courseId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Course", required: true },
+    studentId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Student', required: true },
+    courseId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Course', required: true },
     certificateUrl: { type: String, required: true },
     certificateNumber: { type: String, required: true },
     issuedAt: { type: Date, default: Date.now },
 }, { timestamps: true });
-exports.default = mongoose_1.default.model("CourseCertificate", courseCertificateSchema);
+exports.default = mongoose_1.default.model('CourseCertificate', courseCertificateSchema);

@@ -1,8 +1,9 @@
-
-import { injectable, inject } from "inversify";
-import { ITransactionAdminService } from "../../core/interfaces/services/admin/ITransactionAdminService";
-import { TYPES } from "../../core/di/types";
-import { ITransactionRepository } from "../../core/interfaces/repositories/ITransactionRepository";
+import { injectable, inject } from 'inversify';
+import { ITransactionAdminService } from '../../core/interfaces/services/admin/ITransactionAdminService';
+import { TYPES } from '../../core/di/types';
+import { ITransactionRepository } from '../../core/interfaces/repositories/ITransactionRepository';
+import { ITransaction, PaymentStatus } from '../../models/Transaction';
+import { FilterQuery } from 'mongoose';
 
 @injectable()
 export class TransactionAdminService implements ITransactionAdminService {
@@ -10,8 +11,15 @@ export class TransactionAdminService implements ITransactionAdminService {
         @inject(TYPES.TransactionRepository) private _transactionRepo: ITransactionRepository
     ) { }
 
-    async getAllTransactions(query: any): Promise<{
-        transactions: any[];
+    async getAllTransactions(query: {
+        page?: number;
+        limit?: number;
+        search?: string;
+        startDate?: string;
+        endDate?: string;
+        status?: string;
+    }): Promise<{
+        transactions: ITransaction[];
         total: number;
         page: number;
         totalPages: number;
@@ -25,16 +33,17 @@ export class TransactionAdminService implements ITransactionAdminService {
             status,
         } = query;
 
-        const filter: any = {};
+        const filter: FilterQuery<ITransaction> = {};
 
         if (status) {
-            filter.paymentStatus = status;
+            filter.paymentStatus = status as PaymentStatus;
         }
 
         if (startDate || endDate) {
-            filter.createdAt = {};
-            if (startDate) filter.createdAt.$gte = new Date(startDate);
-            if (endDate) filter.createdAt.$lte = new Date(endDate);
+            const dateFilter: { $gte?: Date; $lte?: Date } = {};
+            if (startDate) dateFilter.$gte = new Date(startDate);
+            if (endDate) dateFilter.$lte = new Date(endDate);
+            filter.createdAt = dateFilter;
         }
 
         if (search) {
@@ -44,7 +53,7 @@ export class TransactionAdminService implements ITransactionAdminService {
             }
         }
 
-        const sort: any = { createdAt: -1 };
+        const sort: Record<string, 1 | -1> = { createdAt: -1 };
         const skip = (Number(page) - 1) * Number(limit);
         const limitNum = Number(limit);
 
@@ -53,10 +62,7 @@ export class TransactionAdminService implements ITransactionAdminService {
             limit: limitNum,
             sort
         }, [
-            { path: 'userId', select: 'name email avatar' },
-            { path: 'teacherId', select: 'name email avatar' },
-            { path: 'companyId', select: 'name email logo' },
-            { path: 'courseId', select: 'title' }
+            'userId', 'teacherId', 'companyId', 'courseId'
         ]);
 
         const total = await this._transactionRepo.count(filter);

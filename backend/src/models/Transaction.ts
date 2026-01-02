@@ -1,16 +1,16 @@
-import mongoose, { Schema, Document, Types } from "mongoose";
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export type TransactionType =
-  | "COURSE_PURCHASE"
-  | "MEETING_BOOKING"
-  | "SUBSCRIPTION_PURCHASE"
-  | "TEACHER_EARNING"
-  | "TEACHER_WITHDRAWAL"
-  | "ADMIN_ADJUSTMENT";
+  | 'COURSE_PURCHASE'
+  | 'MEETING_BOOKING'
+  | 'SUBSCRIPTION_PURCHASE'
+  | 'TEACHER_EARNING'
+  | 'TEACHER_WITHDRAWAL'
+  | 'ADMIN_ADJUSTMENT';
 
-export type TxnNature = "CREDIT" | "DEBIT";
-export type PaymentStatus = "PENDING" | "SUCCESS" | "FAILED";
-export type PaymentMethod = "RAZORPAY" | "STRIPE" | "WALLET" | "MANUAL";
+export type TxnNature = 'CREDIT' | 'DEBIT';
+export type PaymentStatus = 'PENDING' | 'SUCCESS' | 'FAILED';
+export type PaymentMethod = 'RAZORPAY' | 'STRIPE' | 'WALLET' | 'MANUAL';
 
 export interface ITransaction extends Document {
   _id: Types.ObjectId;
@@ -44,29 +44,29 @@ export interface ITransaction extends Document {
 
 const TransactionSchema = new Schema<ITransaction>(
   {
-    userId: { type: Schema.Types.ObjectId, ref: "Student" },
-    teacherId: { type: Schema.Types.ObjectId, ref: "Teacher" },
-    companyId: { type: Schema.Types.ObjectId, ref: "Company" },
+    userId: { type: Schema.Types.ObjectId, ref: 'Student' },
+    teacherId: { type: Schema.Types.ObjectId, ref: 'Teacher' },
+    companyId: { type: Schema.Types.ObjectId, ref: 'Company' },
 
-    courseId: { type: Schema.Types.ObjectId, ref: "Course" },
-    meetingId: { type: Schema.Types.ObjectId, ref: "Meeting" },
+    courseId: { type: Schema.Types.ObjectId, ref: 'Course' },
+    meetingId: { type: Schema.Types.ObjectId, ref: 'Meeting' },
 
     type: {
       type: String,
       enum: [
-        "COURSE_PURCHASE",
-        "MEETING_BOOKING",
-        "SUBSCRIPTION_PURCHASE",
-        "TEACHER_EARNING",
-        "TEACHER_WITHDRAWAL",
-        "ADMIN_ADJUSTMENT",
+        'COURSE_PURCHASE',
+        'MEETING_BOOKING',
+        'SUBSCRIPTION_PURCHASE',
+        'TEACHER_EARNING',
+        'TEACHER_WITHDRAWAL',
+        'ADMIN_ADJUSTMENT',
       ],
       required: true,
     },
 
     txnNature: {
       type: String,
-      enum: ["CREDIT", "DEBIT"],
+      enum: ['CREDIT', 'DEBIT'],
       required: true,
     },
 
@@ -79,13 +79,13 @@ const TransactionSchema = new Schema<ITransaction>(
 
     paymentStatus: {
       type: String,
-      enum: ["PENDING", "SUCCESS", "FAILED"],
-      default: "SUCCESS",
+      enum: ['PENDING', 'SUCCESS', 'FAILED'],
+      default: 'SUCCESS',
     },
 
     paymentMethod: {
       type: String,
-      enum: ["RAZORPAY", "STRIPE", "WALLET", "MANUAL"],
+      enum: ['RAZORPAY', 'STRIPE', 'WALLET', 'MANUAL'],
       required: true,
     },
 
@@ -95,6 +95,6 @@ const TransactionSchema = new Schema<ITransaction>(
 );
 
 export const Transaction = mongoose.model<ITransaction>(
-  "Transaction",
+  'Transaction',
   TransactionSchema
 );

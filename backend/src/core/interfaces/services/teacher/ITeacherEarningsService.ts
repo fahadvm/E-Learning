@@ -1,5 +1,11 @@
-import { ITransaction } from "../../../../models/Transaction";
-import { IPaginationResponse } from "../../../dtos/teacher/TeacherDTO";
+import { ITransaction } from '../../../../models/Transaction';
+import { IPaginationResponse } from '../../../dtos/teacher/TeacherDTO';
+
+export interface IEarningsStats {
+    balance: number;
+    totalEarned: number;
+    totalWithdrawn: number;
+}
 
 export interface ITeacherEarningsService {
     getEarningsHistory(
@@ -13,5 +19,5 @@ export interface ITeacherEarningsService {
         }
     ): Promise<IPaginationResponse<ITransaction>>;
 
-    getEarningsStats(teacherId: string): Promise<any>;
+    getEarningsStats(teacherId: string): Promise<IEarningsStats>;
 }

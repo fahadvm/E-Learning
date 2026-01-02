@@ -32,7 +32,6 @@ let EmployeeProfileController = class EmployeeProfileController {
     constructor(_employeeProfileService) {
         this._employeeProfileService = _employeeProfileService;
         this.getProfile = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            console.log("getting profile of employee");
             const decoded = (0, JWTtoken_1.decodeToken)(req.cookies.token);
             if (!(decoded === null || decoded === void 0 ? void 0 : decoded.id))
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
@@ -46,7 +45,6 @@ let EmployeeProfileController = class EmployeeProfileController {
             const employeeId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!employeeId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
-            console.log("req body while updating profile ", req.body);
             const updated = yield this._employeeProfileService.updateEmployeeProfile(employeeId, req.body);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.PROFILE_UPDATED, true, updated);
         });

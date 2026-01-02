@@ -10,5 +10,5 @@ const authMiddleware_1 = require("../../middleware/authMiddleware");
 const asyncHandler_1 = require("../../middleware/asyncHandler");
 const adminReportsRoute = (0, express_1.Router)();
 const adminReportsController = container_1.default.get(types_1.TYPES.AdminReportsController);
-adminReportsRoute.get("/dashboard", (0, authMiddleware_1.authMiddleware)('admin'), (0, asyncHandler_1.asyncHandler)(adminReportsController.getDashboardStats.bind(adminReportsController)));
+adminReportsRoute.get('/dashboard', (0, authMiddleware_1.authMiddleware)('admin'), (0, asyncHandler_1.asyncHandler)(adminReportsController.getDashboardStats.bind(adminReportsController)));
 exports.default = adminReportsRoute;

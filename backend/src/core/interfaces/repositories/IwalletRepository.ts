@@ -1,5 +1,5 @@
-import { TeacherWallet, ITeacherWallet } from "../../../models/TeacherWallet";
-import { Types } from "mongoose";
+import {  ITeacherWallet } from '../../../models/TeacherWallet';
+import { Types } from 'mongoose';
 
 export interface IWalletRepository {
     findByTeacherId(teacherId: Types.ObjectId | string): Promise<ITeacherWallet | null>;

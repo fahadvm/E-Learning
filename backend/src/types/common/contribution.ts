@@ -29,7 +29,7 @@ export interface ILeetCodeGraphQLResponse {
     matchedUser?: {
       submitStats?: {
         acSubmissionNum?: Array<{
-          difficulty: "All" | "Easy" | "Medium" | "Hard";
+          difficulty: 'All' | 'Easy' | 'Medium' | 'Hard';
           count: number;
         }>;
       };

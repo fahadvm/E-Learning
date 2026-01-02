@@ -14,19 +14,19 @@ export class AdminPayoutController {
     async getAllPayouts(req: Request, res: Response) {
         const { status } = req.query;
         const payouts = await this._payoutService.getAllPayouts(status as string);
-        sendResponse(res, STATUS_CODES.OK, "Payouts fetched", true, payouts);
+        sendResponse(res, STATUS_CODES.OK, 'Payouts fetched', true, payouts);
     }
 
     async approvePayout(req: Request, res: Response) {
         const { payoutId } = req.params;
         const result = await this._payoutService.approvePayout(payoutId);
-        sendResponse(res, STATUS_CODES.OK, "Payout approved", true, result);
+        sendResponse(res, STATUS_CODES.OK, 'Payout approved', true, result);
     }
 
     async rejectPayout(req: Request, res: Response) {
         const { payoutId } = req.params;
         const { reason } = req.body;
         const result = await this._payoutService.rejectPayout(payoutId, reason);
-        sendResponse(res, STATUS_CODES.OK, "Payout rejected", true, result);
+        sendResponse(res, STATUS_CODES.OK, 'Payout rejected', true, result);
     }
 }

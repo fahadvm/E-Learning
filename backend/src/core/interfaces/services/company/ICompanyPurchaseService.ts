@@ -1,5 +1,5 @@
 import { ICompanyOrder } from '../../../../models/CompanyOrder';
-import { ICourse } from '../../../../models/Course';
+
 
 
 export interface ICompanyPurchaseService {
@@ -10,6 +10,6 @@ export interface ICompanyPurchaseService {
   verifyPayment(sessionId: string, companyId: string): Promise<{ success: boolean; amount?: number; order?: ICompanyOrder | null }>;
 
 
-  getPurchasedCourses(companyId: string): Promise<(ICompanyOrder & { courses: ICourse[] })[]>;
+  getPurchasedCourses(companyId: string): Promise<ICompanyOrder[]>;
   getMycoursesIdsById(companyId: string): Promise<string[] | null>;
 }

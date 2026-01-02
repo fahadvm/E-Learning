@@ -1,10 +1,10 @@
-import { inject, injectable } from "inversify";
-import { TYPES } from "../../core/di/types";
-import { ICourseReviewRepository } from "../../core/interfaces/repositories/ICourseReviewRepository";
-import { IStudentCourseReviewService } from "../../core/interfaces/services/student/IStudentCourseReviewService";
-import { ICourseReview } from "../../models/CourseReview";
-import { ICourseRepository } from "../../core/interfaces/repositories/ICourseRepository";
-import mongoose from "mongoose";
+import { inject, injectable } from 'inversify';
+import { TYPES } from '../../core/di/types';
+import { ICourseReviewRepository } from '../../core/interfaces/repositories/ICourseReviewRepository';
+import { IStudentCourseReviewService } from '../../core/interfaces/services/student/IStudentCourseReviewService';
+import { ICourseReview } from '../../models/CourseReview';
+import { ICourseRepository } from '../../core/interfaces/repositories/ICourseRepository';
+import mongoose from 'mongoose';
 
 @injectable()
 export class StudentCourseReviewService implements IStudentCourseReviewService {
@@ -59,7 +59,6 @@ export class StudentCourseReviewService implements IStudentCourseReviewService {
 
     private async updateCourseStats(courseId: string): Promise<void> {
         const stats = await this._reviewRepo.getCourseReviewStats(courseId);
-        console.log("stats updatd :",stats)
 
         const avgRating = stats[0]?.avgRating || 0;
         const reviewCount = stats[0]?.total || 0;

@@ -16,7 +16,6 @@ import { INotificationRepository } from '../../core/interfaces/repositories/INot
 import { IAvailableSlot } from '../../types/filter/fiterTypes';
 import { ITransactionRepository } from '../../core/interfaces/repositories/ITransactionRepository';
 import { IWalletRepository } from '../../core/interfaces/repositories/IwalletRepository';
-import { Transaction } from '../../models/Transaction';
 
 
 @injectable()
@@ -56,7 +55,7 @@ export class StudentBookingService implements IStudentBookingService {
       endTime
     );
 
-    if (conflict) throwError("Slot already locked or booked", STATUS_CODES.CONFLICT);
+    if (conflict) throwError('Slot already locked or booked', STATUS_CODES.CONFLICT);
 
 
     const booking = await this._bookingRepo.createBooking({
@@ -119,7 +118,7 @@ export class StudentBookingService implements IStudentBookingService {
 
     if (expectedSignature !== razorpay_signature)
       throwError('Payment verification failed', STATUS_CODES.BAD_REQUEST);
-    const callId = crypto.randomBytes(4).toString("hex");
+    const callId = crypto.randomBytes(4).toString('hex');
     const updated = await this._bookingRepo.verifyAndMarkPaid(razorpay_order_id, callId);
 
     if (updated) {
@@ -151,14 +150,14 @@ export class StudentBookingService implements IStudentBookingService {
       await this._transactionRepo.create({
         userId: updated.studentId,
         meetingId: updated._id,
-        type: "MEETING_BOOKING",
-        txnNature: "CREDIT", // Money credited TO SYSTEM (from student)
+        type: 'MEETING_BOOKING',
+        txnNature: 'CREDIT', // Money credited TO SYSTEM (from student)
         amount: BOOKING_AMOUNT,
         grossAmount: BOOKING_AMOUNT,
         teacherShare,
         platformFee,
-        paymentMethod: "RAZORPAY",
-        paymentStatus: "SUCCESS",
+        paymentMethod: 'RAZORPAY',
+        paymentStatus: 'SUCCESS',
         notes: `Booking Payment: ${updated._id}`
       });
 
@@ -166,14 +165,14 @@ export class StudentBookingService implements IStudentBookingService {
       const earningTx = await this._transactionRepo.create({
         teacherId: updated.teacherId,
         meetingId: updated._id,
-        type: "TEACHER_EARNING",
-        txnNature: "CREDIT",
+        type: 'TEACHER_EARNING',
+        txnNature: 'CREDIT',
         amount: teacherShare,
         grossAmount: BOOKING_AMOUNT,
         teacherShare,
         platformFee,
-        paymentMethod: "WALLET",
-        paymentStatus: "SUCCESS",
+        paymentMethod: 'WALLET',
+        paymentStatus: 'SUCCESS',
         notes: `Earning from Booking: ${updated._id}`
       });
 
@@ -212,7 +211,6 @@ export class StudentBookingService implements IStudentBookingService {
   }
 
   async getAvailableSlots(teacherId: string): Promise<IAvailableSlot[] | null> {
-    console.log("getAvailableSlots......")
     const availability = await this._availibilityRepo.getAvailabilityByTeacherId(teacherId);
     if (!availability) return [];
 
@@ -250,7 +248,6 @@ export class StudentBookingService implements IStudentBookingService {
       nextWeek.format('YYYY-MM-DD')
     );
 
-    console.log("findBookedSlots slots ", bookings)
 
 
 
@@ -270,7 +267,6 @@ export class StudentBookingService implements IStudentBookingService {
       new Map(availableSlots.map(s => [`${s.date}-${s.start}-${s.end}`, s])).values()
     );
 
-    console.log("available slots ", uniqueSlots)
 
 
     return uniqueSlots;

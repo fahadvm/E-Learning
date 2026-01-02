@@ -1,4 +1,4 @@
-import { IPayout, PayoutStatus } from '../../../../models/Payout';
+import { IPayout } from '../../../../models/Payout';
 
 export interface IAdminPayoutService {
     getAllPayouts(status?: string): Promise<IPayout[]>;

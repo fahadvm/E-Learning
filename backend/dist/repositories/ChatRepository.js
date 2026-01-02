@@ -41,7 +41,7 @@ let ChatRepository = class ChatRepository {
                 chat = yield this.findOrCreateChat([senderId, receiverId]);
             }
             if (!chat)
-                throw new Error("Chat not found");
+                throw new Error('Chat not found');
             const messageData = {
                 chatId: chat._id,
                 senderId: new mongoose_1.Types.ObjectId(senderId),
@@ -54,7 +54,8 @@ let ChatRepository = class ChatRepository {
                 messageData.receiverId = new mongoose_1.Types.ObjectId(receiverId);
                 messageData.receiverType = receiverType;
             }
-            const message = yield message_1.Message.create(messageData);
+            const messageArray = yield message_1.Message.create([messageData]);
+            const message = messageArray[0];
             yield chat_1.Chat.findByIdAndUpdate(chat._id, { lastMessage: content });
             return message;
         });
@@ -62,8 +63,13 @@ let ChatRepository = class ChatRepository {
     getStudentMessages(chatId, limit, before) {
         return __awaiter(this, void 0, void 0, function* () {
             const query = { chatId: new mongoose_1.Types.ObjectId(chatId) };
-            console.log(before);
-            return message_1.Message.find(query).populate('receiverId', 'name email profilePicture').sort({ createdAt: 1 });
+            if (before) {
+                query.createdAt = { $lt: before };
+            }
+            return message_1.Message.find(query)
+                .populate('receiverId', 'name email profilePicture')
+                .sort({ createdAt: 1 })
+                .limit(limit);
         });
     }
     getTeacherMessages(chatId, limit, before) {

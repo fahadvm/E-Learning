@@ -72,7 +72,6 @@ let StudentCourseReviewService = class StudentCourseReviewService {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
             const stats = yield this._reviewRepo.getCourseReviewStats(courseId);
-            console.log("stats updatd :", stats);
             const avgRating = ((_a = stats[0]) === null || _a === void 0 ? void 0 : _a.avgRating) || 0;
             const reviewCount = ((_b = stats[0]) === null || _b === void 0 ? void 0 : _b.total) || 0;
             yield this._courseRepo.updateStatus(courseId, {

@@ -35,9 +35,9 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const TeacherReviewSchema = new mongoose_1.Schema({
-    teacherId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Teacher", required: true },
-    studentId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Student", required: true },
+    teacherId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Teacher', required: true },
+    studentId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Student', required: true },
     rating: { type: Number, required: true, min: 1, max: 5 },
-    comment: { type: String, default: "" },
+    comment: { type: String, default: '' },
 }, { timestamps: true });
-exports.default = mongoose_1.default.model("TeacherReview", TeacherReviewSchema);
+exports.default = mongoose_1.default.model('TeacherReview', TeacherReviewSchema);

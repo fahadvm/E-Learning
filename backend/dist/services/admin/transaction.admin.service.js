@@ -36,11 +36,12 @@ let TransactionAdminService = class TransactionAdminService {
                 filter.paymentStatus = status;
             }
             if (startDate || endDate) {
-                filter.createdAt = {};
+                const dateFilter = {};
                 if (startDate)
-                    filter.createdAt.$gte = new Date(startDate);
+                    dateFilter.$gte = new Date(startDate);
                 if (endDate)
-                    filter.createdAt.$lte = new Date(endDate);
+                    dateFilter.$lte = new Date(endDate);
+                filter.createdAt = dateFilter;
             }
             if (search) {
                 const isObjectId = /^[0-9a-fA-F]{24}$/.test(search);
@@ -56,10 +57,7 @@ let TransactionAdminService = class TransactionAdminService {
                 limit: limitNum,
                 sort
             }, [
-                { path: 'userId', select: 'name email avatar' },
-                { path: 'teacherId', select: 'name email avatar' },
-                { path: 'companyId', select: 'name email logo' },
-                { path: 'courseId', select: 'title' }
+                'userId', 'teacherId', 'companyId', 'courseId'
             ]);
             const total = yield this._transactionRepo.count(filter);
             return {

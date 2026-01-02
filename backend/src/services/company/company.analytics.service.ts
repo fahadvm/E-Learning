@@ -1,13 +1,10 @@
-import { inject, injectable } from "inversify";
-import { TYPES } from "../../core/di/types";
+import { inject, injectable } from 'inversify';
+import { TYPES } from '../../core/di/types';
 import {
   ICompanyAnalyticsRepository,
   ILearningRecord,
-  IEmployeeBasic,
-  IEmployeeProgress,
-  ILearningRecordRaw,
   ICompanyOrder
-} from "../../core/interfaces/repositories/ICompanyAnalyticsRepository";
+} from '../../core/interfaces/repositories/ICompanyAnalyticsRepository';
 
 interface TrackerStats {
   totalEmployees: number;
@@ -26,7 +23,7 @@ export class CompanyAnalyticsService {
     private readonly repo: ICompanyAnalyticsRepository
   ) {}
 
-  async getTrackerStats(companyId: string, range: "week" | "month" | "year"): Promise<TrackerStats> {
+  async getTrackerStats(companyId: string, range: 'week' | 'month' | 'year'): Promise<TrackerStats> {
     const now = new Date();
     const startDate = this.getStartDate(now, range);
 
@@ -62,11 +59,11 @@ export class CompanyAnalyticsService {
     };
   }
 
-  private getStartDate(now: Date, range: "week" | "month" | "year"): Date {
+  private getStartDate(now: Date, range: 'week' | 'month' | 'year'): Date {
     const date = new Date(now);
-    if (range === "week") date.setDate(date.getDate() - 7);
-    if (range === "month") date.setMonth(date.getMonth() - 1);
-    if (range === "year") date.setFullYear(date.getFullYear() - 1);
+    if (range === 'week') date.setDate(date.getDate() - 7);
+    if (range === 'month') date.setMonth(date.getMonth() - 1);
+    if (range === 'year') date.setFullYear(date.getFullYear() - 1);
     return date;
   }
 
@@ -84,14 +81,14 @@ export class CompanyAnalyticsService {
 
   private async getGraphData(
     companyId: string,
-    range: "week" | "month" | "year",
+    range: 'week' | 'month' | 'year',
     startDate: Date,
     endDate: Date
   ): Promise<Array<{ label: string; hours: number }>> {
     const records = await this.repo.getLearningRecords(companyId, startDate, endDate);
 
-    if (range === "week") return this.groupByDays(records, startDate);
-    if (range === "month") return this.groupByWeeks(records, startDate);
+    if (range === 'week') return this.groupByDays(records, startDate);
+    if (range === 'month') return this.groupByWeeks(records, startDate);
     return this.groupByMonths(records, startDate);
   }
 
@@ -99,7 +96,7 @@ export class CompanyAnalyticsService {
     records: ILearningRecord[],
     startDate: Date
   ): Array<{ label: string; hours: number }> {
-    const labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const result: Array<{ label: string; hours: number }> = [];
 
     for (let i = 0; i < 7; i++) {
@@ -145,7 +142,7 @@ export class CompanyAnalyticsService {
     records: ILearningRecord[],
     startDate: Date
   ): Array<{ label: string; hours: number }> {
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const result: Array<{ label: string; hours: number }> = [];
 
     for (let i = 0; i < 12; i++) {

@@ -39,6 +39,6 @@ const bookingSchema = new mongoose_1.Schema({
         end: { type: String }
     }
 }, { timestamps: true });
-bookingSchema.index({ teacherId: 1, date: 1, "slot.start": 1, "slot.end": 1 }, { unique: true, partialFilterExpression: { status: { $in: ["pending", "booked", "rescheduled"] } } });
+bookingSchema.index({ teacherId: 1, date: 1, 'slot.start': 1, 'slot.end': 1 }, { unique: true, partialFilterExpression: { status: { $in: ['pending', 'booked', 'rescheduled'] } } });
 bookingSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0, partialFilterExpression: { status: 'pending' } });
 exports.Booking = (0, mongoose_1.model)('Booking', bookingSchema);

@@ -14,7 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.uploadToCloudinary = void 0;
 const cloudinary_1 = __importDefault(require("../config/cloudinary"));
-const uploadToCloudinary = (buffer_1, ...args_1) => __awaiter(void 0, [buffer_1, ...args_1], void 0, function* (buffer, folder = "chat-uploads", resourceType = "auto") {
+const logger_1 = __importDefault(require("./logger"));
+const uploadToCloudinary = (buffer_1, ...args_1) => __awaiter(void 0, [buffer_1, ...args_1], void 0, function* (buffer, folder = 'chat-uploads', resourceType = 'auto') {
     const publicId = `upload-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
     return new Promise((resolve, reject) => {
         const uploadStream = cloudinary_1.default.uploader.upload_stream({
@@ -24,11 +25,11 @@ const uploadToCloudinary = (buffer_1, ...args_1) => __awaiter(void 0, [buffer_1,
             overwrite: false,
         }, (error, result) => {
             if (error) {
-                console.error("Cloudinary upload failed:", error);
+                logger_1.default.error('Cloudinary upload failed:', error);
                 return reject(error);
             }
             if (!(result === null || result === void 0 ? void 0 : result.secure_url))
-                return reject(new Error("No URL returned"));
+                return reject(new Error('No URL returned'));
             resolve(result.secure_url);
         });
         uploadStream.end(buffer);

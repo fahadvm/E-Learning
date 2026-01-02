@@ -30,7 +30,7 @@ const ResponseMessages_1 = require("../../utils/ResponseMessages");
 let AdminReportsController = class AdminReportsController {
     constructor(_service) {
         this._service = _service;
-        this.getDashboardStats = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+        this.getDashboardStats = (_req, res) => __awaiter(this, void 0, void 0, function* () {
             const data = yield this._service.getDashboardStats();
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.DASHBOARD_STATS_FETCHED, true, data);
         });

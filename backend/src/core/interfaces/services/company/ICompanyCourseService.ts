@@ -1,6 +1,4 @@
 import { ICourse } from '../../../../models/Course';
-import { ICompanyOrder } from '../../../../models/CompanyOrder';
-import { IEmployee } from '../../../../models/Employee';
 import { ICourseResource } from '../../../../models/CourseResource';
 import { ICompanyCoursePurchase } from '../../../../models/CompanyCoursePurchase';
 

@@ -1,11 +1,11 @@
-import { Response } from "express";
-import { inject, injectable } from "inversify";
-import { TYPES } from "../../core/di/types";
-import { AuthRequest } from "../../types/AuthenticatedRequest";
-import { sendResponse, throwError } from "../../utils/ResANDError";
-import { MESSAGES } from "../../utils/ResponseMessages";
-import { STATUS_CODES } from "../../utils/HttpStatuscodes";
-import { IStudentTeacherReviewService } from "../../core/interfaces/services/student/IStudentTeacherReviewService";
+import { Response } from 'express';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '../../core/di/types';
+import { AuthRequest } from '../../types/AuthenticatedRequest';
+import { sendResponse, throwError } from '../../utils/ResANDError';
+import { MESSAGES } from '../../utils/ResponseMessages';
+import { STATUS_CODES } from '../../utils/HttpStatuscodes';
+import { IStudentTeacherReviewService } from '../../core/interfaces/services/student/IStudentTeacherReviewService';
 
 @injectable()
 export class StudentTeacherReviewController {

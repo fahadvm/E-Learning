@@ -70,23 +70,23 @@ let CompanyPurchaseController = class CompanyPurchaseController {
     downloadReceipt(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { orderId } = req.params;
-            const order = yield CompanyOrder_1.CompanyOrderModel.findById(orderId).populate("purchasedCourses.courseId", "title price");
+            const order = yield CompanyOrder_1.CompanyOrderModel.findById(orderId).populate('purchasedCourses.courseId', 'title price');
             if (!order) {
-                return res.status(404).json({ message: "Order not found" });
+                return res.status(404).json({ message: 'Order not found' });
             }
             // Create PDF
             const doc = new pdfkit_1.default();
-            res.setHeader("Content-Type", "application/pdf");
-            res.setHeader("Content-Disposition", `attachment; filename=receipt_${orderId}.pdf`);
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename=receipt_${orderId}.pdf`);
             // Pipe BEFORE writing
             doc.pipe(res);
             // Content
-            doc.fontSize(20).text("Payment Receipt", { align: "center" });
+            doc.fontSize(20).text('Payment Receipt', { align: 'center' });
             doc.moveDown();
             doc.fontSize(12).text(`Order ID: ${orderId}`);
             doc.text(`Total Paid: ₹${order.amount}`);
             doc.moveDown();
-            doc.text("Purchased Courses:");
+            doc.text('Purchased Courses:');
             order.purchasedCourses.forEach((item) => {
                 const course = item.courseId;
                 doc.text(`• ${course.title} — ₹${item.price} (${item.seats} seat${item.seats > 1 ? 's' : ''})`);

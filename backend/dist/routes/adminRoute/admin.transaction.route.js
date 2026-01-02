@@ -10,5 +10,5 @@ const authMiddleware_1 = require("../../middleware/authMiddleware");
 const asyncHandler_1 = require("../../middleware/asyncHandler");
 const transactionAdminRoute = (0, express_1.Router)();
 const transactionAdminController = container_1.default.get(types_1.TYPES.TransactionAdminController);
-transactionAdminRoute.get("/", (0, authMiddleware_1.authMiddleware)('admin'), (0, asyncHandler_1.asyncHandler)(transactionAdminController.getTransactions.bind(transactionAdminController)));
+transactionAdminRoute.get('/', (0, authMiddleware_1.authMiddleware)('admin'), (0, asyncHandler_1.asyncHandler)(transactionAdminController.getTransactions.bind(transactionAdminController)));
 exports.default = transactionAdminRoute;

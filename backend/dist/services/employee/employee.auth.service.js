@@ -94,7 +94,6 @@ let EmployeeAuthService = class EmployeeAuthService {
             const token = (0, JWTtoken_1.generateAccessToken)(employee._id.toString(), 'employee');
             const refreshToken = (0, JWTtoken_1.generateRefreshToken)(employee._id.toString(), 'employee');
             let streak = yield this._employeeRepo.updateLoginStreak(employee._id.toString());
-            console.log("streak :", streak);
             if (!streak)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STREAK_FAILED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             return {
@@ -199,31 +198,30 @@ let EmployeeAuthService = class EmployeeAuthService {
         return __awaiter(this, void 0, void 0, function* () {
             const existing = yield this._employeeRepo.findByEmail(newEmail);
             if (existing)
-                (0, ResANDError_1.throwError)("Email already in use.", HttpStatuscodes_1.STATUS_CODES.CONFLICT);
+                (0, ResANDError_1.throwError)('Email already in use.', HttpStatuscodes_1.STATUS_CODES.CONFLICT);
             const otp = (0, OtpServices_1.generateOtp)();
             const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
             const existingOtp = yield this._otpRepo.findByEmail(newEmail);
             if (existingOtp)
-                yield this._otpRepo.updateOtp(newEmail, otp, expiresAt, "change-email");
+                yield this._otpRepo.updateOtp(newEmail, otp, expiresAt, 'change-email');
             else
-                yield this._otpRepo.create({ email: newEmail, otp, expiresAt, purpose: "change-email" });
+                yield this._otpRepo.create({ email: newEmail, otp, expiresAt, purpose: 'change-email' });
             yield (0, OtpServices_1.sendOtpEmail)(newEmail, otp);
         });
     }
     verifyChangeEmail(employeeId, newEmail, otp) {
         return __awaiter(this, void 0, void 0, function* () {
             const record = yield this._otpRepo.findByEmail(newEmail);
-            if (!record || record.purpose !== "change-email")
-                (0, ResANDError_1.throwError)("OTP not valid", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            if (!record || record.purpose !== 'change-email')
+                (0, ResANDError_1.throwError)('OTP not valid', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             if (record.otp !== otp || record.expiresAt < new Date())
-                (0, ResANDError_1.throwError)("Invalid OTP", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)('Invalid OTP', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             yield this._employeeRepo.updateById(employeeId, { email: newEmail });
             yield this._otpRepo.deleteByEmail(newEmail);
         });
     }
     changePassword(employeeID, oldPassword, newPassword) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("change pass word id in service with ", employeeID, oldPassword, newPassword);
             const employee = yield this._employeeRepo.findById(employeeID);
             if (!employee)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STUDENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
@@ -231,7 +229,7 @@ let EmployeeAuthService = class EmployeeAuthService {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STUDENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             const match = yield bcryptjs_1.default.compare(oldPassword, employee.password);
             if (!match)
-                (0, ResANDError_1.throwError)("Old password incorrect", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)('Old password incorrect', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const hashed = yield bcryptjs_1.default.hash(newPassword, 10);
             yield this._employeeRepo.updateById(employeeID, { password: hashed });
         });

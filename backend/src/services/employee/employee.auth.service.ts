@@ -76,8 +76,7 @@ export class EmployeeAuthService implements IEmployeeAuthService {
     const token = generateAccessToken(employee._id.toString(), 'employee');
     const refreshToken = generateRefreshToken(employee._id.toString(), 'employee');
     let streak = await this._employeeRepo.updateLoginStreak(employee._id.toString());
-    console.log("streak :", streak)
-    if (!streak) throwError(MESSAGES.STREAK_FAILED, STATUS_CODES.BAD_REQUEST)
+    if (!streak) throwError(MESSAGES.STREAK_FAILED, STATUS_CODES.BAD_REQUEST);
 
     return {
       token,
@@ -99,7 +98,7 @@ export class EmployeeAuthService implements IEmployeeAuthService {
     const refreshToken = generateRefreshToken(employee._id.toString(), 'employee');
 
     let streak = await this._employeeRepo.updateLoginStreak(employee._id.toString());
-    if (!streak) throwError(MESSAGES.STREAK_FAILED, STATUS_CODES.BAD_REQUEST)
+    if (!streak) throwError(MESSAGES.STREAK_FAILED, STATUS_CODES.BAD_REQUEST);
 
 
     return {
@@ -140,7 +139,7 @@ export class EmployeeAuthService implements IEmployeeAuthService {
     const token = generateAccessToken(user._id.toString(), user.role);
     const refreshToken = generateRefreshToken(user._id.toString(), user.role);
     let streak = await this._employeeRepo.updateLoginStreak(user._id.toString());
-    if (!streak) throwError(MESSAGES.STREAK_FAILED, STATUS_CODES.BAD_REQUEST)
+    if (!streak) throwError(MESSAGES.STREAK_FAILED, STATUS_CODES.BAD_REQUEST);
     return {
       token,
       refreshToken,
@@ -171,35 +170,34 @@ export class EmployeeAuthService implements IEmployeeAuthService {
 
   async sendChangeEmailOtp(employeeId: string, newEmail: string) {
     const existing = await this._employeeRepo.findByEmail(newEmail);
-    if (existing) throwError("Email already in use.", STATUS_CODES.CONFLICT);
+    if (existing) throwError('Email already in use.', STATUS_CODES.CONFLICT);
 
     const otp = generateOtp();
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
     const existingOtp = await this._otpRepo.findByEmail(newEmail);
-    if (existingOtp) await this._otpRepo.updateOtp(newEmail, otp, expiresAt, "change-email");
-    else await this._otpRepo.create({ email: newEmail, otp, expiresAt, purpose: "change-email" });
+    if (existingOtp) await this._otpRepo.updateOtp(newEmail, otp, expiresAt, 'change-email');
+    else await this._otpRepo.create({ email: newEmail, otp, expiresAt, purpose: 'change-email' });
 
     await sendOtpEmail(newEmail, otp);
   }
 
   async verifyChangeEmail(employeeId: string, newEmail: string, otp: string) {
     const record = await this._otpRepo.findByEmail(newEmail);
-    if (!record || record.purpose !== "change-email") throwError("OTP not valid", STATUS_CODES.BAD_REQUEST);
-    if (record.otp !== otp || record.expiresAt < new Date()) throwError("Invalid OTP", STATUS_CODES.BAD_REQUEST);
+    if (!record || record.purpose !== 'change-email') throwError('OTP not valid', STATUS_CODES.BAD_REQUEST);
+    if (record.otp !== otp || record.expiresAt < new Date()) throwError('Invalid OTP', STATUS_CODES.BAD_REQUEST);
 
     await this._employeeRepo.updateById(employeeId, { email: newEmail });
     await this._otpRepo.deleteByEmail(newEmail);
   }
 
   async changePassword(employeeID: string, oldPassword: string, newPassword: string) {
-    console.log("change pass word id in service with ", employeeID, oldPassword, newPassword)
     const employee = await this._employeeRepo.findById(employeeID);
     if (!employee) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     if (!employee.password) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
     const match = await bcrypt.compare(oldPassword, employee.password);
-    if (!match) throwError("Old password incorrect", STATUS_CODES.BAD_REQUEST);
+    if (!match) throwError('Old password incorrect', STATUS_CODES.BAD_REQUEST);
 
     const hashed = await bcrypt.hash(newPassword, 10);
     await this._employeeRepo.updateById(employeeID, { password: hashed });

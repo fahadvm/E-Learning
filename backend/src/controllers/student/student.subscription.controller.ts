@@ -8,7 +8,6 @@ import { AuthRequest } from '../../types/AuthenticatedRequest';
 import { sendResponse, throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
-import logger from '../../utils/logger';
 
 @injectable()
 export class StudentSubscriptionController implements IStudentSubscriptionController {

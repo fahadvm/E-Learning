@@ -1,9 +1,9 @@
-import { injectable } from "inversify";
-import mongoose from "mongoose";
-import { Employee } from "../../models/Employee";
-import { EmployeeLearningRecord } from "../../models/EmployeeLearningRecord";
-import { redis } from "../../utils/redisClient";
-import { ICompanyLeaderboardService, ICompanyLeaderboardUserDTO } from "../../core/interfaces/services/company/ICompanyLeaderboardService";
+import { injectable } from 'inversify';
+import mongoose from 'mongoose';
+import { Employee } from '../../models/Employee';
+import { EmployeeLearningRecord } from '../../models/EmployeeLearningRecord';
+import { redis } from '../../utils/redisClient';
+import { ICompanyLeaderboardService, ICompanyLeaderboardUserDTO } from '../../core/interfaces/services/company/ICompanyLeaderboardService';
 
 @injectable()
 export class CompanyLeaderboardService implements ICompanyLeaderboardService {
@@ -12,7 +12,7 @@ export class CompanyLeaderboardService implements ICompanyLeaderboardService {
   async getTop50(companyId: string) {
     const key = `leaderboard:${companyId}`;
 
-    const entries = await redis.zrevrange(key, 0, 49, "WITHSCORES");
+    const entries = await redis.zrevrange(key, 0, 49, 'WITHSCORES');
 
     const ranked: { employeeId: string; score: number }[] = [];
     for (let i = 0; i < entries.length; i += 2) {
@@ -22,13 +22,13 @@ export class CompanyLeaderboardService implements ICompanyLeaderboardService {
     const employeeIds = ranked.map((x) => new mongoose.Types.ObjectId(x.employeeId));
 
     const employees = await Employee.find({ _id: { $in: employeeIds } })
-      .select("_id name profilePicture coursesProgress streakCount companyId")
+      .select('_id name profilePicture coursesProgress streakCount companyId')
       .lean();
 
     // Compute course count & total learning minutes
     const learningRecords = await EmployeeLearningRecord.aggregate([
       { $match: { employeeId: { $in: employeeIds } } },
-      { $group: { _id: "$employeeId", totalMinutes: { $sum: "$totalMinutes" } } }
+      { $group: { _id: '$employeeId', totalMinutes: { $sum: '$totalMinutes' } } }
     ]);
 
     const result: ICompanyLeaderboardUserDTO[] = [];
@@ -63,7 +63,7 @@ export class CompanyLeaderboardService implements ICompanyLeaderboardService {
   async searchEmployee(companyId: string, name: string): Promise<ICompanyLeaderboardUserDTO | null> {
     const employee = await Employee.findOne({
       companyId,
-      name: { $regex: name, $options: "i" }
+      name: { $regex: name, $options: 'i' }
     }).lean();
 
     if (!employee) return null;
@@ -74,7 +74,7 @@ export class CompanyLeaderboardService implements ICompanyLeaderboardService {
     // Get total learning minutes from records
     const learning = await EmployeeLearningRecord.aggregate([
       { $match: { employeeId: employee._id, companyId: new mongoose.Types.ObjectId(companyId) } },
-      { $group: { _id: "$employeeId", totalMinutes: { $sum: "$totalMinutes" } } }
+      { $group: { _id: '$employeeId', totalMinutes: { $sum: '$totalMinutes' } } }
     ]);
 
     const totalMinutes = learning.length > 0 ? learning[0].totalMinutes : 0;

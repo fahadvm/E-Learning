@@ -124,6 +124,8 @@ var MESSAGES;
     MESSAGES["ACCOUNT_BLOCKED"] = "Account is blocked";
     MESSAGES["ALL_FIELDS_REQUIRED"] = "All fields are required";
     MESSAGES["ID_REQUIRED"] = "Id is required";
+    MESSAGES["MESSAGE_EDIT_FAILED"] = "Editing message failed";
+    MESSAGES["MESSAGE_DELETE_FAILED"] = "Delete message failed";
     MESSAGES["FILE_REQUIRED"] = "File is required";
     MESSAGES["ALREADY_EXISTS"] = "Resource already exists";
     MESSAGES["BAD_REQUEST"] = "Bad request";

@@ -49,9 +49,9 @@ let EmployeeLeaderboardService = class EmployeeLeaderboardService {
                         completedCourses: {
                             $size: {
                                 $filter: {
-                                    input: "$coursesProgress",
-                                    as: "c",
-                                    cond: { $eq: ["$$c.percentage", 100] }
+                                    input: '$coursesProgress',
+                                    as: 'c',
+                                    cond: { $eq: ['$$c.percentage', 100] }
                                 }
                             }
                         }
@@ -59,39 +59,39 @@ let EmployeeLeaderboardService = class EmployeeLeaderboardService {
                 },
                 {
                     $lookup: {
-                        from: "employeelearningrecords",
-                        localField: "_id",
-                        foreignField: "employeeId",
-                        as: "records"
+                        from: 'employeelearningrecords',
+                        localField: '_id',
+                        foreignField: 'employeeId',
+                        as: 'records'
                     }
                 },
-                { $addFields: { totalMinutes: { $sum: "$records.totalMinutes" } } }
+                { $addFields: { totalMinutes: { $sum: '$records.totalMinutes' } } }
             ]);
             return this.format(users, employeeId);
         });
     }
     getWeeklyLeaderboard(employeeId, companyId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const startOfWeek = (0, dayjs_1.default)().startOf("week").toDate();
+            const startOfWeek = (0, dayjs_1.default)().startOf('week').toDate();
             const data = yield EmployeeLearningRecord_1.EmployeeLearningRecord.aggregate([
                 { $match: { date: { $gte: startOfWeek } } },
                 {
                     $lookup: {
-                        from: "employees",
-                        localField: "employeeId",
-                        foreignField: "_id",
-                        as: "emp"
+                        from: 'employees',
+                        localField: 'employeeId',
+                        foreignField: '_id',
+                        as: 'emp'
                     }
                 },
-                { $unwind: "$emp" },
-                { $match: { "emp.companyId": new mongoose_1.default.Types.ObjectId(companyId) } },
+                { $unwind: '$emp' },
+                { $match: { 'emp.companyId': new mongoose_1.default.Types.ObjectId(companyId) } },
                 {
                     $group: {
-                        _id: "$employeeId",
-                        totalMinutes: { $sum: "$totalMinutes" },
-                        name: { $first: "$emp.name" },
-                        streakCount: { $first: "$emp.streakCount" },
-                        coursesProgress: { $first: "$emp.coursesProgress" }
+                        _id: '$employeeId',
+                        totalMinutes: { $sum: '$totalMinutes' },
+                        name: { $first: '$emp.name' },
+                        streakCount: { $first: '$emp.streakCount' },
+                        coursesProgress: { $first: '$emp.coursesProgress' }
                     }
                 },
                 {
@@ -99,9 +99,9 @@ let EmployeeLeaderboardService = class EmployeeLeaderboardService {
                         completedCourses: {
                             $size: {
                                 $filter: {
-                                    input: "$coursesProgress",
-                                    as: "c",
-                                    cond: { $eq: ["$$c.percentage", 100] }
+                                    input: '$coursesProgress',
+                                    as: 'c',
+                                    cond: { $eq: ['$$c.percentage', 100] }
                                 }
                             }
                         }
@@ -113,26 +113,26 @@ let EmployeeLeaderboardService = class EmployeeLeaderboardService {
     }
     getMonthlyLeaderboard(employeeId, companyId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const startOfMonth = (0, dayjs_1.default)().startOf("month").toDate();
+            const startOfMonth = (0, dayjs_1.default)().startOf('month').toDate();
             const data = yield EmployeeLearningRecord_1.EmployeeLearningRecord.aggregate([
                 { $match: { date: { $gte: startOfMonth } } },
                 {
                     $lookup: {
-                        from: "employees",
-                        localField: "employeeId",
-                        foreignField: "_id",
-                        as: "emp"
+                        from: 'employees',
+                        localField: 'employeeId',
+                        foreignField: '_id',
+                        as: 'emp'
                     }
                 },
-                { $unwind: "$emp" },
-                { $match: { "emp.companyId": new mongoose_1.default.Types.ObjectId(companyId) } },
+                { $unwind: '$emp' },
+                { $match: { 'emp.companyId': new mongoose_1.default.Types.ObjectId(companyId) } },
                 {
                     $group: {
-                        _id: "$employeeId",
-                        totalMinutes: { $sum: "$totalMinutes" },
-                        name: { $first: "$emp.name" },
-                        streakCount: { $first: "$emp.streakCount" },
-                        coursesProgress: { $first: "$emp.coursesProgress" }
+                        _id: '$employeeId',
+                        totalMinutes: { $sum: '$totalMinutes' },
+                        name: { $first: '$emp.name' },
+                        streakCount: { $first: '$emp.streakCount' },
+                        coursesProgress: { $first: '$emp.coursesProgress' }
                     }
                 },
                 {
@@ -140,9 +140,9 @@ let EmployeeLeaderboardService = class EmployeeLeaderboardService {
                         completedCourses: {
                             $size: {
                                 $filter: {
-                                    input: "$coursesProgress",
-                                    as: "c",
-                                    cond: { $eq: ["$$c.percentage", 100] }
+                                    input: '$coursesProgress',
+                                    as: 'c',
+                                    cond: { $eq: ['$$c.percentage', 100] }
                                 }
                             }
                         }

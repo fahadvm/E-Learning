@@ -52,22 +52,24 @@ let TeacherEarningsService = class TeacherEarningsService {
             }
             // Proper date range (inclusive start, end of day)
             if (startDate || endDate) {
-                query.createdAt = {};
+                const dateFilter = {};
                 if (startDate) {
-                    query.createdAt.$gte = new Date(startDate);
-                    query.createdAt.$gte.setHours(0, 0, 0, 0);
+                    const d = new Date(startDate);
+                    d.setHours(0, 0, 0, 0);
+                    dateFilter.$gte = d;
                 }
                 if (endDate) {
-                    query.createdAt.$lte = new Date(endDate);
-                    query.createdAt.$lte.setHours(23, 59, 59, 999);
+                    const d = new Date(endDate);
+                    d.setHours(23, 59, 59, 999);
+                    dateFilter.$lte = d;
                 }
+                query.createdAt = dateFilter;
             }
             const sort = { createdAt: -1 };
             const [data, total] = yield Promise.all([
                 this._transactionRepo.find(query, { skip, limit, sort }),
                 this._transactionRepo.count(query),
             ]);
-            console.log("getting earnings", data);
             return {
                 data,
                 total,

@@ -99,7 +99,7 @@ let StudentBookingService = class StudentBookingService {
             const courseIdObj = new mongoose_1.Types.ObjectId(courseId);
             const conflict = yield this._bookingRepo.findConflictingSlot(teacherId, date, startTime, endTime);
             if (conflict)
-                (0, ResANDError_1.throwError)("Slot already locked or booked", HttpStatuscodes_1.STATUS_CODES.CONFLICT);
+                (0, ResANDError_1.throwError)('Slot already locked or booked', HttpStatuscodes_1.STATUS_CODES.CONFLICT);
             const booking = yield this._bookingRepo.createBooking({
                 studentId: studentIdObj,
                 teacherId: teacherIdObj,
@@ -161,7 +161,7 @@ let StudentBookingService = class StudentBookingService {
                 .digest('hex');
             if (expectedSignature !== razorpay_signature)
                 (0, ResANDError_1.throwError)('Payment verification failed', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            const callId = crypto.randomBytes(4).toString("hex");
+            const callId = crypto.randomBytes(4).toString('hex');
             const updated = yield this._bookingRepo.verifyAndMarkPaid(razorpay_order_id, callId);
             if (updated) {
                 yield this._notificationRepo.createNotification(updated.teacherId.toString(), 'New Booking Confirmed!', ' booked a paid session for .', 'booking', 'teacher');
@@ -183,28 +183,28 @@ let StudentBookingService = class StudentBookingService {
                 yield this._transactionRepo.create({
                     userId: updated.studentId,
                     meetingId: updated._id,
-                    type: "MEETING_BOOKING",
-                    txnNature: "CREDIT", // Money credited TO SYSTEM (from student)
+                    type: 'MEETING_BOOKING',
+                    txnNature: 'CREDIT', // Money credited TO SYSTEM (from student)
                     amount: BOOKING_AMOUNT,
                     grossAmount: BOOKING_AMOUNT,
                     teacherShare,
                     platformFee,
-                    paymentMethod: "RAZORPAY",
-                    paymentStatus: "SUCCESS",
+                    paymentMethod: 'RAZORPAY',
+                    paymentStatus: 'SUCCESS',
                     notes: `Booking Payment: ${updated._id}`
                 });
                 // 2. Transaction: Teacher Earning (TEACHER_EARNING)
                 const earningTx = yield this._transactionRepo.create({
                     teacherId: updated.teacherId,
                     meetingId: updated._id,
-                    type: "TEACHER_EARNING",
-                    txnNature: "CREDIT",
+                    type: 'TEACHER_EARNING',
+                    txnNature: 'CREDIT',
                     amount: teacherShare,
                     grossAmount: BOOKING_AMOUNT,
                     teacherShare,
                     platformFee,
-                    paymentMethod: "WALLET",
-                    paymentStatus: "SUCCESS",
+                    paymentMethod: 'WALLET',
+                    paymentStatus: 'SUCCESS',
                     notes: `Earning from Booking: ${updated._id}`
                 });
                 // Credit Wallet
@@ -251,7 +251,6 @@ let StudentBookingService = class StudentBookingService {
     }
     getAvailableSlots(teacherId) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("getAvailableSlots......");
             const availability = yield this._availibilityRepo.getAvailabilityByTeacherId(teacherId);
             if (!availability)
                 return [];
@@ -277,14 +276,12 @@ let StudentBookingService = class StudentBookingService {
             }
             // fetch bookings for next 7 days
             const bookings = yield this._bookingRepo.findBookedSlots(teacherId, today.format('YYYY-MM-DD'), nextWeek.format('YYYY-MM-DD'));
-            console.log("findBookedSlots slots ", bookings);
             // convert booked slots into ISO strings
             const bookedSlots = new Set(bookings.map(b => (0, dayjs_1.default)(`${b.date}T${b.slot.start}`).toISOString()));
             // filter out already booked slots
             const availableSlots = slotsForWeek.filter(s => !bookedSlots.has((0, dayjs_1.default)(s.slot).toISOString()));
             // remove duplicates
             const uniqueSlots = Array.from(new Map(availableSlots.map(s => [`${s.date}-${s.start}-${s.end}`, s])).values());
-            console.log("available slots ", uniqueSlots);
             return uniqueSlots;
         });
     }

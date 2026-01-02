@@ -2,16 +2,19 @@ import mongoose, { Schema, Document } from 'mongoose';
 import { ICourse } from './Course';
 
 export interface IOrder extends Document {
+  _id: mongoose.Types.ObjectId;
   studentId: mongoose.Types.ObjectId;
   courses: (mongoose.Types.ObjectId | ICourse)[];
   razorpayOrderId: string;
-  paymentMethod: string; 
+  paymentMethod: string;
   amount: number;
   currency: string;
   status: 'created' | 'paid' | 'failed';
-  platformFee: number;    
-  teacherShare: number;   
-  commissionRate: number; 
+  platformFee: number;
+  teacherShare: number;
+  commissionRate: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const OrderSchema = new Schema<IOrder>(

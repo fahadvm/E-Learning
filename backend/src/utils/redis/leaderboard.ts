@@ -1,4 +1,4 @@
-import { redis } from "../redisClient";
+import { redis } from '../redisClient';
 
 export const updateCompanyLeaderboard = async (
   companyId: string,

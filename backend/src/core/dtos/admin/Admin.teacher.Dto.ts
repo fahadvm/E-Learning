@@ -1,9 +1,11 @@
-// core/dtos/admin/Admin.teacher.Dto.ts
+import { ITeacher } from '../../../models/Teacher';
+import { ICourse } from '../../../models/Course';
+
 export interface IAdminTeacherDTO {
   _id: string;
   name: string;
-  email: string;           
-  bio: string;           
+  email: string;
+  bio: string;
   avatar?: string;
   isBlocked: boolean;
   verificationStatus: string;
@@ -24,13 +26,27 @@ export interface PaginatedTeacherDTO {
   totalPages: number;
 }
 
+export interface IAdminTeacherDetailsDTO {
+  teacher: IAdminTeacherDTO;
+  courses: {
+    _id: string;
+    title: string;
+    thumbnail: string;
+    category: string;
+    price: number;
+    rating: number;
+    totalStudents: number;
+    status: string;
+  }[];
+}
+
 // simple mapper
-export const adminTeacherDto = (t: any): IAdminTeacherDTO => ({
+export const adminTeacherDto = (t: ITeacher & { totalCourses?: number; totalStudents?: number; totalEarnings?: number }): IAdminTeacherDTO => ({
   _id: t._id?.toString(),
   name: t.name,
   email: t.email,
-  bio: t.about,
-  avatar: t.profilePicture || t.avatar || '',
+  bio: t.about || '',
+  avatar: t.profilePicture || '',
   isBlocked: !!t.isBlocked,
   verificationStatus: t.verificationStatus,
   verificationReason: t.verificationReason || '',
@@ -44,20 +60,22 @@ export const adminTeacherDto = (t: any): IAdminTeacherDTO => ({
   skills: Array.isArray(t.skills) ? t.skills : [],
 });
 
-export const adminTeacherDetailsDto = (payload: { teacher: any; courses: any[] }) => {
+export const adminTeacherDetailsDto = (payload: { teacher: ITeacher; courses: ICourse[] }): IAdminTeacherDetailsDTO => {
   const { teacher, courses } = payload;
   return {
-    teacher: adminTeacherDto(teacher),
-    courses: courses.map((c: any) => ({
-      _id: c._id?.toString(),
+    teacher: adminTeacherDto(teacher as ITeacher & { totalCourses?: number; totalStudents?: number; totalEarnings?: number }),
+    courses: courses.map((c) => ({
+      _id: c._id?.toString() || '',
       title: c.title,
-      thumbnail: c.coverImage || c.thumbnail || '',
-      category: c.category,
+      thumbnail: c.coverImage || '',
+      category: typeof c.category === 'object' && c.category !== null && 'name' in c.category
+        ? (c.category as { name: string }).name
+        : String(c.category || ''),
       price: c.price ?? 0,
-      rating: c.rating ?? 0,
+      rating: (c as unknown as { averageRating: number }).averageRating ?? 0,
       totalStudents: c.totalStudents ?? 0,
       status: c.status ?? 'published',
     })),
-    
+
   };
 };

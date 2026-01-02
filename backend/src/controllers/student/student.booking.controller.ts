@@ -30,19 +30,14 @@ export class StudentBookingController implements IStudentBookingController {
   lockSlot = async (req: AuthRequest, res: Response) => {
     const studentId = req.user?.id;
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
-
-    const canAccess = await this._subscriptionService.hasFeature(studentId, "Video Call");
-    console.log("can access:",canAccess)
+    const canAccess = await this._subscriptionService.hasFeature(studentId, 'Video Call');
     if (!canAccess) throwError(MESSAGES.FEATURE_NOT_ALLOWED, STATUS_CODES.FORBIDDEN);
-
     const { teacherId, courseId, date, day, startTime, endTime, note } = req.body;
     if (!teacherId || !courseId || !date || !day || !startTime || !endTime)
       throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
-
     const result = await this._bookingService.lockingSlot(
       studentId, teacherId, courseId, date, day, startTime, endTime, note
     );
-
     return sendResponse(res, STATUS_CODES.CREATED, MESSAGES.BOOKING_CREATED, true, result);
   };
 

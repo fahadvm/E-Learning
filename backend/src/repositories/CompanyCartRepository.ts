@@ -20,7 +20,7 @@ export class CompanyCartRepository implements ICompanyCartRepository {
   async addToCart(
     userId: string,
     courseId: string,
-    accessType: "seats" | "unlimited",
+    accessType: 'seats' | 'unlimited',
     seats: number,
     price: number
   ): Promise<ICompanyCart> {

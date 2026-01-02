@@ -1,7 +1,8 @@
-import Redis from "ioredis";
+import Redis from 'ioredis';
+import logger from './logger';
 
 if (!process.env.REDIS_URL) {
-  throw new Error("REDIS_URL is not defined in environment variables");
+  throw new Error('REDIS_URL is not defined in environment variables');
 }
 
 export const redis = new Redis(process.env.REDIS_URL, {
@@ -10,10 +11,10 @@ export const redis = new Redis(process.env.REDIS_URL, {
   maxRetriesPerRequest: null,
 });
 
-redis.on("connect", () => {
-  console.log("✅ Redis connected");
+redis.on('connect', () => {
+  logger.info('✅ Redis connected');
 });
 
-redis.on("error", (err) => {
-  console.error("❌ Redis error:", err);
+redis.on('error', (err) => {
+  logger.error('❌ Redis error:', err);
 });

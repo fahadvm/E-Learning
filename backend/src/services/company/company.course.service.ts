@@ -6,10 +6,8 @@ import { TYPES } from '../../core/di/types';
 import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
-import { ICompanyOrder } from '../../models/CompanyOrder';
 import { ICompanyOrderRepository } from '../../core/interfaces/repositories/ICompanyOrderRepository';
 import { IEmployeeRepository } from '../../core/interfaces/repositories/IEmployeeRepository';
-import { IEmployee } from '../../models/Employee';
 import { ICourseResource } from '../../models/CourseResource';
 import { ICourseResourceRepository } from '../../core/interfaces/repositories/ICourseResourceRepository';
 import { ICompanyCoursePurchaseRepository } from '../../core/interfaces/repositories/ICompanyCoursePurchaseRepository';
@@ -49,10 +47,8 @@ export class CompanyCourseService implements ICompanyCourseService {
   }
 
   async assignCourseToEmployee(courseId: string, employeeId: string): Promise<void> {
-
-    const employee = await this._employeeRepo.findById(employeeId)
+    const employee = await this._employeeRepo.findById(employeeId);
     if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND);
-
 
     const course = await this._courseRepository.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND);
@@ -61,21 +57,20 @@ export class CompanyCourseService implements ICompanyCourseService {
       throwError('This course is blocked by admin and cannot be assigned to employees.', STATUS_CODES.FORBIDDEN);
     }
 
-    return await this._employeeRepo.assignCourseToEmployee(courseId, employeeId)
-
+    return await this._employeeRepo.assignCourseToEmployee(courseId, employeeId);
   }
 
   async getMycoursesById(companyId: string): Promise<ICompanyCoursePurchase[] | null> {
-    const companyIdObj = new mongoose.Types.ObjectId(companyId)
+    const companyIdObj = new mongoose.Types.ObjectId(companyId);
     const orders = await this._purchasedRepository.getAllPurchasesByCompany(companyIdObj);
-    console.log("orders in service", orders)
     return orders;
   }
+
   async getMycourseDetailsById(companyId: string, courseId: string): Promise<ICourse | null> {
     if (!courseId || !companyId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
 
     const orders = await this._companyOrderRepository.getOrdersByCompanyId(companyId);
-    const purchasedCourseIds = orders.flatMap((order) => order.courses.map((c) => c.toString()));
+    const purchasedCourseIds = orders.flatMap((order) => order.purchasedCourses.map((c) => c.courseId.toString()));
 
     if (!purchasedCourseIds.includes(courseId)) { throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND); }
 
@@ -95,6 +90,4 @@ export class CompanyCourseService implements ICompanyCourseService {
     }
     return this._resourceRepository.getResourcesByCourse(courseId);
   }
-
-
 }

@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface ICourseProgress {
-  courseId:  Types.ObjectId;
+  courseId: Types.ObjectId;
   completedLessons: string[];
   completedModules: string[];
   percentage: number;
@@ -36,8 +36,9 @@ export interface IStudent extends Document {
     leetCode?: string;
   };
   coursesProgress: ICourseProgress[];
-
-
+  createdAt: Date;
+  updatedAt: Date;
+  notes?: string;
 }
 
 const CourseProgressSchema: Schema = new Schema<ICourseProgress>({
@@ -46,7 +47,7 @@ const CourseProgressSchema: Schema = new Schema<ICourseProgress>({
   completedModules: [{ type: Schema.Types.ObjectId, ref: 'Module' }],
   percentage: { type: Number, default: 0 },
   lastVisitedLesson: { type: Schema.Types.ObjectId, ref: 'Lesson' },
-  notes:{type:String ,default:''}
+  notes: { type: String, default: '' }
 });
 
 const StudentSchema: Schema = new Schema<IStudent>({

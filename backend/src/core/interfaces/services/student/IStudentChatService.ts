@@ -1,5 +1,6 @@
 import { IMessage } from '../../../../models/message';
 import { IChat } from '../../../../models/chat';
+import { ICourse } from '../../../../models/Course';
 
 export interface IChatService {
   sendMessage(senderId: string, message: string, chatId: string, senderType: string, receiverId?: string, receiverType?: string, fileUrl?: string, messageType?: string): Promise<IMessage>;
@@ -19,6 +20,6 @@ export interface IChatService {
       courseCount: number;
       hasChat: boolean;
     }[];
-    courses: any[];
+    courses: ICourse[];
   }>;
 }

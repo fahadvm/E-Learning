@@ -42,9 +42,9 @@ export class EmployeeLearningPathRepository implements IEmployeeLearningPathRepo
     async listByCompany(companyId: string, skip: number, limit: number, search: string): Promise<IEmployeeLearningPath[]> {
         const query: Record<string, unknown> = { companyId: new Types.ObjectId(companyId) };
         if (search) {
-            query["$or"] = [
-                { title: { $regex: search, $options: "i" } },
-                { category: { $regex: search, $options: "i" } },
+            query['$or'] = [
+                { title: { $regex: search, $options: 'i' } },
+                { category: { $regex: search, $options: 'i' } },
             ];
         }
         return EmployeeLearningPath.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean().exec();
@@ -53,9 +53,9 @@ export class EmployeeLearningPathRepository implements IEmployeeLearningPathRepo
     async countByCompany(companyId: string, search: string): Promise<number> {
         const query: Record<string, unknown> = { companyId: new Types.ObjectId(companyId) };
         if (search) {
-            query["$or"] = [
-                { title: { $regex: search, $options: "i" } },
-                { category: { $regex: search, $options: "i" } },
+            query['$or'] = [
+                { title: { $regex: search, $options: 'i' } },
+                { category: { $regex: search, $options: 'i' } },
             ];
         }
         return EmployeeLearningPath.countDocuments(query).exec();

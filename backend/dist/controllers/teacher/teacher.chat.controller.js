@@ -33,9 +33,7 @@ let TeacherChatController = class TeacherChatController {
         this._chatService = _chatService;
         this.getMessages = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const { chatId } = req.params;
-            // console.log("input of getmessages")
             const messages = yield this._chatService.getMessages(chatId);
-            // console.log("output of getmessages", messages)
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_DETAILS_FETCHED, true, messages);
         });
         this.getChatDetails = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -46,7 +44,6 @@ let TeacherChatController = class TeacherChatController {
         this.getUserChats = (req, res) => __awaiter(this, void 0, void 0, function* () {
             var _a;
             const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
-            // console.log("this controller is working",userId)
             if (!userId) {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             }
@@ -55,7 +52,6 @@ let TeacherChatController = class TeacherChatController {
         });
         this.startChat = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const { studentId, teacherId } = req.body;
-            // console.log("input of chats", studentId, teacherId )
             let chat = yield chat_1.Chat.findOne({
                 participants: { $all: [studentId, teacherId] },
             });

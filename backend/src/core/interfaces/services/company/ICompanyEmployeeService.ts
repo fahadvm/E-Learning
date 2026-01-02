@@ -1,5 +1,5 @@
-import { IEmployee } from "../../../../models/Employee";
-import { PaginatedEmployeeDTO } from "../../../dtos/company/company.employee.Dto";
+import { IEmployee, ICourseProgress } from '../../../../models/Employee';
+import { PaginatedEmployeeDTO } from '../../../dtos/company/company.employee.Dto';
 
 export interface ICompanyEmployeeService {
   getAllEmployees(
@@ -40,5 +40,5 @@ export interface ICompanyEmployeeService {
 
   removeEmployee(companyId: string, employeeId: string): Promise<void>;
 
-  getEmployeeProgress(employeeId: string): Promise<any>;
+  getEmployeeProgress(employeeId: string): Promise<ICourseProgress[] | null>;
 }

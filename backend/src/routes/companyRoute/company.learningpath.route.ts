@@ -40,22 +40,22 @@ router.delete(
 );
 
 router.get(
-    "/assigned/:employeeId",
-    authMiddleware("company"),
+    '/assigned/:employeeId',
+    authMiddleware('company'),
     asyncHandler(controller.listAssigned.bind(controller))
 );
 
 // Assign LP to employee
 router.post(
-    "/assign",
-    authMiddleware("company"),
+    '/assign',
+    authMiddleware('company'),
     asyncHandler(controller.assign.bind(controller))
 );
 
 // Unassign LP from employee
 router.delete(
-    "/unassign/employee",
-    authMiddleware("company"),
+    '/unassign/employee',
+    authMiddleware('company'),
     asyncHandler(controller.unassign.bind(controller))
 );
 

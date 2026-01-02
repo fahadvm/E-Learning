@@ -1,6 +1,6 @@
-import { ITransactionRepository } from "../core/interfaces/repositories/ITransactionRepository";
-import { ITransaction, Transaction } from "../models/Transaction";
-import mongoose, { Types } from "mongoose";
+import { ITransactionRepository } from '../core/interfaces/repositories/ITransactionRepository';
+import { ITransaction, Transaction } from '../models/Transaction';
+import mongoose, { Types, FilterQuery } from 'mongoose';
 
 
 
@@ -15,8 +15,8 @@ export class TransactionRepository implements ITransactionRepository {
   }
 
   async find(
-    filter: any,
-    options: { skip?: number; limit?: number; sort?: any } = {}
+    filter: FilterQuery<ITransaction>,
+    options: { skip?: number; limit?: number; sort?: Record<string, 1 | -1> } = {}
   ): Promise<ITransaction[]> {
     const query = Transaction.find(filter);
 
@@ -28,9 +28,9 @@ export class TransactionRepository implements ITransactionRepository {
   }
 
   async findWithPopulation(
-    filter: any,
-    options: { skip?: number; limit?: number; sort?: any } = {},
-    populate?: any
+    filter: FilterQuery<ITransaction>,
+    options: { skip?: number; limit?: number; sort?: Record<string, 1 | -1> } = {},
+    populate?: string | string[]
   ): Promise<ITransaction[]> {
     const query = Transaction.find(filter);
 
@@ -47,15 +47,15 @@ export class TransactionRepository implements ITransactionRepository {
       {
         $match: {
           teacherId: new mongoose.Types.ObjectId(teacherId),
-          type: "TEACHER_EARNING",
-          txnNature: "CREDIT",
-          paymentStatus: "SUCCESS"
+          type: 'TEACHER_EARNING',
+          txnNature: 'CREDIT',
+          paymentStatus: 'SUCCESS'
         }
       },
       {
         $group: {
           _id: null,
-          totalEarnings: { $sum: "$amount" }
+          totalEarnings: { $sum: '$amount' }
         }
       }
     ]);
@@ -63,7 +63,7 @@ export class TransactionRepository implements ITransactionRepository {
     return result.length > 0 ? result[0].totalEarnings : 0;
   }
 
-  async count(filter: any): Promise<number> {
+  async count(filter: FilterQuery<ITransaction>): Promise<number> {
     return await Transaction.countDocuments(filter).exec();
   }
 }

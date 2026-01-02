@@ -25,6 +25,11 @@ export interface IAdminCompanyDto {
   updatedAt: Date;
 }
 
+export interface IAdminCompanyDetailsDto {
+  company: IAdminCompanyDto;
+  employees: IAdminCompanyEmployeeDto[];
+}
+
 export const adminCompanyDto = (company: ICompany): IAdminCompanyDto => ({
   _id: company._id.toString(),
   name: company.name,
@@ -38,7 +43,7 @@ export const adminCompanyDto = (company: ICompany): IAdminCompanyDto => ({
   isPremium: company.isPremium,
   isVerified: company.isVerified,
   employees:
-    company.employees?.map((emp: any) => ({
+    (company.employees as unknown as IEmployee[])?.map((emp) => ({
       _id: emp._id.toString(),
       name: emp.name,
       email: emp.email,

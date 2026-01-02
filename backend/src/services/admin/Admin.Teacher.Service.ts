@@ -11,11 +11,12 @@ import {
     adminTeacherDto,
     adminTeacherDetailsDto,
     IAdminTeacherDTO,
+    IAdminTeacherDetailsDTO,
     PaginatedTeacherDTO
 } from '../../core/dtos/admin/Admin.teacher.Dto';
-import { Transaction } from '../../models/Transaction';
 import { ITransactionRepository } from '../../core/interfaces/repositories/ITransactionRepository';
 import { INotificationService } from '../../core/interfaces/services/shared/INotificationService';
+import { ITeacher } from '../../models/Teacher';
 
 @injectable()
 export class AdminTeacherService implements IAdminTeacherService {
@@ -26,16 +27,12 @@ export class AdminTeacherService implements IAdminTeacherService {
         @inject(TYPES.NotificationService) private readonly _notificationService: INotificationService,
     ) { }
 
-    // ... (getAllTeachers, getVerificationRequests, getTeacherById, etc - skipped) 
-
-    // Skipping unchanged methods...
     async getAllTeachers(
         page: number,
         limit: number,
         search?: string,
         status?: string
     ): Promise<PaginatedTeacherDTO> {
-        // ... (implementation same as before)
         const skip = (page - 1) * limit;
         const teachers = await this._teacherRepo.findAll({ skip, limit, search, status });
         const total = await this._teacherRepo.count(search, status);
@@ -46,12 +43,17 @@ export class AdminTeacherService implements IAdminTeacherService {
                 const totalCourses = courses.length;
                 const totalStudents = courses.reduce((sum, c) => sum + (c.totalStudents || 0), 0);
                 const totalEarnings = await this._transactionRepo.teacherEarnings(teacher._id.toString());
-                return adminTeacherDto({ ...teacher, totalCourses, totalStudents, totalEarnings });
+                const teacherObj = (teacher.toObject ? teacher.toObject() : teacher) as ITeacher;
+                return adminTeacherDto({
+                    ...teacherObj,
+                    totalCourses,
+                    totalStudents,
+                    totalEarnings
+                } as unknown as ITeacher & { totalCourses?: number; totalStudents?: number; totalEarnings?: number });
             })
         );
         return { data, total, totalPages };
     }
-
 
     async getVerificationRequests(page: number, limit: number, search: string): Promise<PaginatedTeacherDTO> {
         const skip = (page - 1) * limit;
@@ -59,24 +61,29 @@ export class AdminTeacherService implements IAdminTeacherService {
         const total = await this._teacherRepo.countPendingRequests(search);
         const totalPages = Math.ceil(total / limit);
 
-        const data = teachers.map(adminTeacherDto);
+        const data = teachers.map(t => adminTeacherDto(t));
         return { data, total, totalPages };
     }
 
-    async getTeacherById(teacherId: string): Promise<any> {
+    async getTeacherById(teacherId: string): Promise<IAdminTeacherDetailsDTO> {
         const teacher = await this._teacherRepo.findById(teacherId);
         if (!teacher) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
         const courses = await this._courseRepo.findByTeacherId(teacherId);
-
         const totalStudents = courses.reduce((sum, c) => sum + (c.totalStudents || 0), 0);
         const totalEarnings = await this._transactionRepo.teacherEarnings(teacherId);
+
+        const teacherObj = (teacher.toObject ? teacher.toObject() : teacher) as ITeacher;
         const teacherWithStats = {
-            ...teacher,
+            ...teacherObj,
             totalStudents,
             totalEarnings
         };
-        return adminTeacherDetailsDto({ teacher: teacherWithStats, courses });
+
+        return adminTeacherDetailsDto({
+            teacher: teacherWithStats as unknown as ITeacher,
+            courses
+        });
     }
 
     async getUnverifiedTeachers(): Promise<IAdminTeacherDTO[]> {
@@ -121,7 +128,6 @@ export class AdminTeacherService implements IAdminTeacherService {
         const updated = await this._teacherRepo.updateStatus(teacherId, { isBlocked: true });
         if (!updated) throwError(MESSAGES.TEACHER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
-        // If teacher is blocked, all their courses should be auto-unpublished
         await this._courseRepo.unpublishByTeacherId(teacherId);
 
         return adminTeacherDto(updated);

@@ -44,7 +44,8 @@ let AdminStudentService = class AdminStudentService {
                 const orders = yield this._orderRepo.getOrdersByStudentId(student._id.toString());
                 const courseCount = orders.flatMap((o) => o.courses).length;
                 const totalSpent = orders.reduce((sum, o) => sum + o.amount, 0);
-                formatted.push((0, Admin_student_Dto_1.adminStudentListDto)(Object.assign(Object.assign({}, student), { courseCount,
+                const studentObj = (student.toObject ? student.toObject() : student);
+                formatted.push((0, Admin_student_Dto_1.adminStudentListDto)(Object.assign(Object.assign({}, studentObj), { courseCount,
                     totalSpent })));
             }
             return { data: formatted, total };
@@ -58,7 +59,6 @@ let AdminStudentService = class AdminStudentService {
             const orders = yield this._orderRepo.getOrdersByStudentId(studentId);
             const courses = orders.flatMap((o) => o.courses || []);
             const purchases = orders;
-            console.log();
             return (0, Admin_student_Dto_1.adminStudentDetailsDto)({
                 student,
                 courses,
@@ -69,12 +69,16 @@ let AdminStudentService = class AdminStudentService {
     blockStudent(studentId) {
         return __awaiter(this, void 0, void 0, function* () {
             const updated = yield this._studentRepo.update(studentId, { isBlocked: true });
+            if (!updated)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STUDENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             return (0, Admin_student_Dto_1.adminStudentListDto)(updated);
         });
     }
     unblockStudent(studentId) {
         return __awaiter(this, void 0, void 0, function* () {
             const updated = yield this._studentRepo.update(studentId, { isBlocked: false });
+            if (!updated)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STUDENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             return (0, Admin_student_Dto_1.adminStudentListDto)(updated);
         });
     }

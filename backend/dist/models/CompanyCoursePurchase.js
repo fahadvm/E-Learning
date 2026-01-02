@@ -35,9 +35,9 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const CompanyCoursePurchaseSchema = new mongoose_1.Schema({
-    companyId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Company", required: true },
-    courseId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Course", required: true },
+    companyId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Company', required: true },
+    courseId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Course', required: true },
     seatsPurchased: { type: Number, required: true },
     seatsUsed: { type: Number, default: 0 },
 }, { timestamps: true });
-exports.default = mongoose_1.default.model("CompanyCoursePurchase", CompanyCoursePurchaseSchema);
+exports.default = mongoose_1.default.model('CompanyCoursePurchase', CompanyCoursePurchaseSchema);

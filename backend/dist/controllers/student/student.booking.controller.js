@@ -43,8 +43,7 @@ let StudentBookingController = class StudentBookingController {
             const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
             if (!studentId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
-            const canAccess = yield this._subscriptionService.hasFeature(studentId, "Video Call");
-            console.log("can access:", canAccess);
+            const canAccess = yield this._subscriptionService.hasFeature(studentId, 'Video Call');
             if (!canAccess)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.FEATURE_NOT_ALLOWED, HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
             const { teacherId, courseId, date, day, startTime, endTime, note } = req.body;

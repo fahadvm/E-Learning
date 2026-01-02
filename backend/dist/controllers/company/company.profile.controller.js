@@ -45,10 +45,11 @@ let CompanyProfileController = class CompanyProfileController {
     }
     verify(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b, _c, _d;
+            var _a, _b;
             const { name, address, phone, companyId, pincode } = req.body;
-            const certificateFile = (_b = (_a = req.files) === null || _a === void 0 ? void 0 : _a.certificate) === null || _b === void 0 ? void 0 : _b[0];
-            const taxIdFile = (_d = (_c = req.files) === null || _c === void 0 ? void 0 : _c.taxId) === null || _d === void 0 ? void 0 : _d[0];
+            const files = req.files;
+            const certificateFile = (_a = files === null || files === void 0 ? void 0 : files.certificate) === null || _a === void 0 ? void 0 : _a[0];
+            const taxIdFile = (_b = files === null || files === void 0 ? void 0 : files.taxId) === null || _b === void 0 ? void 0 : _b[0];
             if (!certificateFile || !taxIdFile) {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.CERTIFICATE_AND_TAXID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             }

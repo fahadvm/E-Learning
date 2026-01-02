@@ -26,7 +26,7 @@ router.delete('/comment/:commentId', (0, authMiddleware_1.authMiddleware)('stude
 router.post('/course-review', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCourseReviewCtrl.addReview.bind(studentCourseReviewCtrl)));
 router.get('/course-reviews/:courseId', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCourseReviewCtrl.getReviews.bind(studentCourseReviewCtrl)));
 router.delete('/course-review/:reviewId', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCourseReviewCtrl.deleteReview.bind(studentCourseReviewCtrl)));
-router.get("/my/certificates", (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCourseCertCtrl.getMyCourseCertificates.bind(studentCourseCertCtrl)));
-router.get("/certificates/:courseId", (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCourseCertCtrl.getCourseCertificate.bind(studentCourseCertCtrl)));
-router.post("/generate/certificate", (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCourseCertCtrl.generateCourseCertificate.bind(studentCourseCertCtrl)));
+router.get('/my/certificates', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCourseCertCtrl.getMyCourseCertificates.bind(studentCourseCertCtrl)));
+router.get('/certificates/:courseId', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCourseCertCtrl.getCourseCertificate.bind(studentCourseCertCtrl)));
+router.post('/generate/certificate', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCourseCertCtrl.generateCourseCertificate.bind(studentCourseCertCtrl)));
 exports.default = router;

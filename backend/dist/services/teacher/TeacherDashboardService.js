@@ -46,36 +46,36 @@ let TeacherDashboardService = class TeacherDashboardService {
             const totalCourses = courses.length;
             // 2. Active Students (Unique students who bought courses)
             const studentStats = yield Order_1.OrderModel.aggregate([
-                { $match: { status: "paid" } },
-                { $unwind: "$courses" },
+                { $match: { status: 'paid' } },
+                { $unwind: '$courses' },
                 {
                     $lookup: {
-                        from: "courses",
-                        localField: "courses",
-                        foreignField: "_id",
-                        as: "courseDetails"
+                        from: 'courses',
+                        localField: 'courses',
+                        foreignField: '_id',
+                        as: 'courseDetails'
                     }
                 },
-                { $unwind: "$courseDetails" },
-                { $match: { "courseDetails.teacherId": tId } },
-                { $group: { _id: null, uniqueStudents: { $addToSet: "$studentId" } } }
+                { $unwind: '$courseDetails' },
+                { $match: { 'courseDetails.teacherId': tId } },
+                { $group: { _id: null, uniqueStudents: { $addToSet: '$studentId' } } }
             ]);
             const activeStudents = studentStats.length > 0 ? studentStats[0].uniqueStudents.length : 0;
             // 3. Active Companies
             const companyStats = yield CompanyOrder_1.CompanyOrderModel.aggregate([
-                { $match: { status: "paid" } },
-                { $unwind: "$purchasedCourses" },
+                { $match: { status: 'paid' } },
+                { $unwind: '$purchasedCourses' },
                 {
                     $lookup: {
-                        from: "courses",
-                        localField: "purchasedCourses.courseId",
-                        foreignField: "_id",
-                        as: "courseDetails"
+                        from: 'courses',
+                        localField: 'purchasedCourses.courseId',
+                        foreignField: '_id',
+                        as: 'courseDetails'
                     }
                 },
-                { $unwind: "$courseDetails" },
-                { $match: { "courseDetails.teacherId": tId } },
-                { $group: { _id: null, uniqueCompanies: { $addToSet: "$companyId" } } }
+                { $unwind: '$courseDetails' },
+                { $match: { 'courseDetails.teacherId': tId } },
+                { $group: { _id: null, uniqueCompanies: { $addToSet: '$companyId' } } }
             ]);
             const activeCompanies = companyStats.length > 0 ? companyStats[0].uniqueCompanies.length : 0;
             // 4. Earnings
@@ -88,11 +88,11 @@ let TeacherDashboardService = class TeacherDashboardService {
                 {
                     $match: {
                         teacherId: tId,
-                        type: "TEACHER_EARNING",
+                        type: 'TEACHER_EARNING',
                         createdAt: { $gte: startOfMonth }
                     }
                 },
-                { $group: { _id: null, total: { $sum: "$amount" } } }
+                { $group: { _id: null, total: { $sum: '$amount' } } }
             ]);
             const monthlyEarnings = monthlyStats.length > 0 ? monthlyStats[0].total : 0;
             return {
@@ -115,53 +115,53 @@ let TeacherDashboardService = class TeacherDashboardService {
                 {
                     $match: {
                         teacherId: tId,
-                        type: "TEACHER_EARNING",
+                        type: 'TEACHER_EARNING',
                         courseId: { $exists: true }
                     }
                 },
                 {
                     $group: {
-                        _id: "$courseId",
-                        earnings: { $sum: "$amount" }
+                        _id: '$courseId',
+                        earnings: { $sum: '$amount' }
                     }
                 },
                 { $sort: { earnings: -1 } },
                 { $limit: 3 },
                 {
                     $lookup: {
-                        from: "courses",
-                        localField: "_id",
-                        foreignField: "_id",
-                        as: "course"
+                        from: 'courses',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as: 'course'
                     }
                 },
-                { $unwind: "$course" },
+                { $unwind: '$course' },
                 // Count students for this course
                 {
                     $lookup: {
-                        from: "orders",
-                        let: { cId: "$_id" },
+                        from: 'orders',
+                        let: { cId: '$_id' },
                         pipeline: [
-                            { $match: { status: "paid" } },
-                            { $unwind: "$courses" },
-                            { $match: { $expr: { $eq: ["$courses", "$$cId"] } } }
+                            { $match: { status: 'paid' } },
+                            { $unwind: '$courses' },
+                            { $match: { $expr: { $eq: ['$courses', '$$cId'] } } }
                         ],
-                        as: "orders"
+                        as: 'orders'
                     }
                 },
                 {
                     $project: {
-                        courseId: "$_id",
-                        title: "$course.title",
+                        courseId: '$_id',
+                        title: '$course.title',
                         earnings: 1,
-                        studentsCount: { $size: "$orders" }
+                        studentsCount: { $size: '$orders' }
                     }
                 }
             ]);
             return topCourses;
         });
     }
-    getEarningsGraph(teacherId, timeframe) {
+    getEarningsGraph(teacherId) {
         return __awaiter(this, void 0, void 0, function* () {
             const tId = new mongoose_1.default.Types.ObjectId(teacherId);
             // Last 6 months
@@ -172,22 +172,22 @@ let TeacherDashboardService = class TeacherDashboardService {
                 {
                     $match: {
                         teacherId: tId,
-                        type: "TEACHER_EARNING",
+                        type: 'TEACHER_EARNING',
                         createdAt: { $gte: sixMonthsAgo }
                     }
                 },
                 {
                     $group: {
                         _id: {
-                            month: { $month: "$createdAt" },
-                            year: { $year: "$createdAt" }
+                            month: { $month: '$createdAt' },
+                            year: { $year: '$createdAt' }
                         },
-                        amount: { $sum: "$amount" }
+                        amount: { $sum: '$amount' }
                     }
                 },
-                { $sort: { "_id.year": 1, "_id.month": 1 } }
+                { $sort: { '_id.year': 1, '_id.month': 1 } }
             ]);
-            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
             return earnings.map(e => ({
                 month: months[e._id.month - 1],
                 year: e._id.year,
@@ -199,12 +199,12 @@ let TeacherDashboardService = class TeacherDashboardService {
         return __awaiter(this, void 0, void 0, function* () {
             const bookings = yield Booking_1.Booking.find({
                 teacherId: teacherId,
-                status: "booked", // or pending/booked
+                status: 'booked', // or pending/booked
                 date: { $gte: new Date().toISOString().split('T')[0] } // From today
             })
-                .sort({ date: 1, "slot.start": 1 })
+                .sort({ date: 1, 'slot.start': 1 })
                 .limit(4)
-                .populate("courseId", "title");
+                .populate('courseId', 'title');
             return bookings.map(b => {
                 var _a;
                 return ({
@@ -212,7 +212,7 @@ let TeacherDashboardService = class TeacherDashboardService {
                     day: b.day,
                     date: b.date,
                     timeRange: `${b.slot.start} - ${b.slot.end}`,
-                    title: ((_a = b.courseId) === null || _a === void 0 ? void 0 : _a.title) || "Mentorship Session",
+                    title: ((_a = b.courseId) === null || _a === void 0 ? void 0 : _a.title) || 'Mentorship Session',
                     type: 'class'
                 });
             });

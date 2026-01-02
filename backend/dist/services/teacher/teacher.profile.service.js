@@ -88,7 +88,7 @@ let TeacherProfileService = class TeacherProfileService {
             if (teacher.verificationStatus === Teacher_1.VerificationStatus.PENDING)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ALREADY_REQUESTED_VERIFICATION, HttpStatuscodes_1.STATUS_CODES.CONFLICT);
             // Check profile completeness (optional based on requirements, but user mentioned it)
-            const isComplete = yield this._teacherRepository.isProfileComplete(teacherId);
+            // const isComplete = await this._teacherRepository.isProfileComplete(teacherId);
             // if (!isComplete) throwError(MESSAGES.COMPLETE_PROFILE, STATUS_CODES.BAD_REQUEST);
             let resumeUrl = teacher.resumeUrl || '';
             if (file) {

@@ -1,6 +1,6 @@
-import { IWalletRepository } from "../core/interfaces/repositories/IwalletRepository";
-import { TeacherWallet, ITeacherWallet } from "../models/TeacherWallet";
-import { Types } from "mongoose";
+import { IWalletRepository } from '../core/interfaces/repositories/IwalletRepository';
+import { TeacherWallet, ITeacherWallet } from '../models/TeacherWallet';
+import { Types } from 'mongoose';
 
 
 
@@ -21,7 +21,7 @@ export class WalletRepository implements IWalletRepository {
     // atomic credit: upsert wallet if missing and increment fields
     async creditTeacherWallet(params: { teacherId: Types.ObjectId | string; amount: number; transactionId?: Types.ObjectId | string }): Promise<ITeacherWallet> {
         const { teacherId, amount } = params;
-        if (amount <= 0) throw new Error("Invalid credit amount");
+        if (amount <= 0) throw new Error('Invalid credit amount');
 
         const updated = await TeacherWallet.findOneAndUpdate(
             { teacherId },
@@ -37,12 +37,12 @@ export class WalletRepository implements IWalletRepository {
 
     async debitTeacherWallet(params: { teacherId: Types.ObjectId | string; amount: number; transactionId?: Types.ObjectId | string }): Promise<ITeacherWallet> {
         const { teacherId, amount } = params;
-        if (amount <= 0) throw new Error("Invalid debit amount");
+        if (amount <= 0) throw new Error('Invalid debit amount');
 
         // fetch and validate
         const wallet = await TeacherWallet.findOne({ teacherId }).exec();
-        if (!wallet) throw new Error("Wallet not found");
-        if (wallet.balance < amount) throw new Error("Insufficient wallet balance");
+        if (!wallet) throw new Error('Wallet not found');
+        if (wallet.balance < amount) throw new Error('Insufficient wallet balance');
 
         const updated = await TeacherWallet.findOneAndUpdate(
             { teacherId },
@@ -56,7 +56,7 @@ export class WalletRepository implements IWalletRepository {
     }
 
     async deductBalance(teacherId: string, amount: number): Promise<ITeacherWallet> {
-        if (amount <= 0) throw new Error("Invalid amount");
+        if (amount <= 0) throw new Error('Invalid amount');
         // Atomic check and update
         const updated = await TeacherWallet.findOneAndUpdate(
             { teacherId, balance: { $gte: amount } },
@@ -67,31 +67,31 @@ export class WalletRepository implements IWalletRepository {
         if (!updated) {
             // Check if it was existence or balance issue
             const exists = await TeacherWallet.exists({ teacherId });
-            if (!exists) throw new Error("Wallet not found");
-            throw new Error("Insufficient funds");
+            if (!exists) throw new Error('Wallet not found');
+            throw new Error('Insufficient funds');
         }
         return updated;
     }
 
     async refundBalance(teacherId: string, amount: number): Promise<ITeacherWallet> {
-        if (amount <= 0) throw new Error("Invalid amount");
+        if (amount <= 0) throw new Error('Invalid amount');
         const updated = await TeacherWallet.findOneAndUpdate(
             { teacherId },
             { $inc: { balance: amount } },
             { new: true }
         ).exec();
-        if (!updated) throw new Error("Wallet not found");
+        if (!updated) throw new Error('Wallet not found');
         return updated;
     }
 
     async recordSuccessfulWithdrawal(teacherId: string, amount: number): Promise<ITeacherWallet> {
-        if (amount <= 0) throw new Error("Invalid amount");
+        if (amount <= 0) throw new Error('Invalid amount');
         const updated = await TeacherWallet.findOneAndUpdate(
             { teacherId },
             { $inc: { totalWithdrawn: amount } },
             { new: true }
         ).exec();
-        if (!updated) throw new Error("Wallet not found");
+        if (!updated) throw new Error('Wallet not found');
         return updated;
     }
 }

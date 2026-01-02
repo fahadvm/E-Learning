@@ -39,7 +39,7 @@ let TeacherDashboardController = class TeacherDashboardController {
                 if (!teacherId)
                     (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
                 const stats = yield this._dashboardService.getDashboardStats(teacherId);
-                (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Dashboard stats fetched successfully", true, stats);
+                (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Dashboard stats fetched successfully', true, stats);
             }
             catch (error) {
                 (0, ResANDError_1.handleControllerError)(res, error);
@@ -54,7 +54,7 @@ let TeacherDashboardController = class TeacherDashboardController {
                 if (!teacherId)
                     (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
                 const courses = yield this._dashboardService.getTopCourses(teacherId);
-                (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Top courses fetched successfully", true, courses);
+                (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Top courses fetched successfully', true, courses);
             }
             catch (error) {
                 (0, ResANDError_1.handleControllerError)(res, error);
@@ -70,7 +70,7 @@ let TeacherDashboardController = class TeacherDashboardController {
                     (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
                 const { timeframe } = req.query;
                 const data = yield this._dashboardService.getEarningsGraph(teacherId, timeframe);
-                (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Earnings graph fetched successfully", true, data);
+                (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Earnings graph fetched successfully', true, data);
             }
             catch (error) {
                 (0, ResANDError_1.handleControllerError)(res, error);
@@ -85,7 +85,7 @@ let TeacherDashboardController = class TeacherDashboardController {
                 if (!teacherId)
                     (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
                 const schedule = yield this._dashboardService.getUpcomingSchedule(teacherId);
-                (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, "Schedule fetched successfully", true, schedule);
+                (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Schedule fetched successfully', true, schedule);
             }
             catch (error) {
                 (0, ResANDError_1.handleControllerError)(res, error);

@@ -54,7 +54,7 @@ let StudentSubscriptionService = class StudentSubscriptionService {
                     new Date(sub.endDate) > new Date());
                 if (isSamePlanActive) {
                     (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ACTIVE_SUBSCRIPTION_EXISTS ||
-                        "This plan is already active for the student");
+                        'This plan is already active for the student');
                 }
             }
             const razorpay = new razorpay_1.default({
@@ -103,9 +103,7 @@ let StudentSubscriptionService = class StudentSubscriptionService {
             const subscriptions = yield this._planRepo.findActiveSubscriptions(studentId);
             if (!subscriptions)
                 return false;
-            console.log("active subscriptions plans", subscriptions);
             const plans = yield Promise.all(subscriptions.map((sub) => this._planRepo.getById(sub.planId._id.toString())));
-            console.log("plans details", plans);
             return plans.some(plan => plan &&
                 plan.features.some((feature) => feature.name === featureName));
         });

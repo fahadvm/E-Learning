@@ -1,8 +1,8 @@
-import { Router } from "express";
-import container from "../../core/di/container";
-import { TYPES } from "../../core/di/types";
-import { CompanyChatController } from "../../controllers/company/company.chat.controller";
-import { CompanyAuthMiddleware } from "../../middleware/CompanyAuth";
+import { Router } from 'express';
+import container from '../../core/di/container';
+import { TYPES } from '../../core/di/types';
+import { CompanyChatController } from '../../controllers/company/company.chat.controller';
+import { CompanyAuthMiddleware } from '../../middleware/CompanyAuth';
 
 const companyChatRouter = Router();
 

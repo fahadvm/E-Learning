@@ -48,7 +48,7 @@ let EmployeeLearningPathService = class EmployeeLearningPathService {
             const progress = yield this._learningPathRepo.get(employeeId, learningPathId);
             const lp = yield EmployeeLearningPath_1.EmployeeLearningPath.findById(learningPathId).lean();
             if (!lp)
-                (0, ResANDError_1.throwError)("Learning Path Not Found", HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+                (0, ResANDError_1.throwError)('Learning Path Not Found', HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             return Object.assign(Object.assign({}, lp), { progress });
         });
     }
@@ -57,7 +57,7 @@ let EmployeeLearningPathService = class EmployeeLearningPathService {
             var _a, _b;
             const progress = yield this._learningPathRepo.get(employeeId, learningPathId);
             if (!progress)
-                (0, ResANDError_1.throwError)("Not Assigned", HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
+                (0, ResANDError_1.throwError)('Not Assigned', HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
             const courseIdObj = new mongoose_1.default.Types.ObjectId(courseId);
             // progress.currentCourseIndex = completedCourseIndex + 1;
             progress.completedCourses.push(courseIdObj);
@@ -65,14 +65,14 @@ let EmployeeLearningPathService = class EmployeeLearningPathService {
             const lp = yield EmployeeLearningPath_1.EmployeeLearningPath.findById(learningPathId);
             progress.percentage = Math.round((total / lp.courses.length) * 100);
             if (progress.percentage >= 100)
-                progress.status = "completed";
+                progress.status = 'completed';
             const updated = yield progress.save();
             const employee = yield this._employeeRepo.findById(employeeId);
             if (!employee)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMPLOYEE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             const companyId = (_a = employee === null || employee === void 0 ? void 0 : employee.companyId) === null || _a === void 0 ? void 0 : _a.toString();
             if (companyId) {
-                const completedCourses = ((_b = employee.coursesProgress) === null || _b === void 0 ? void 0 : _b.filter(c => c.percentage === 100).length) || 0;
+                const completedCourses = ((_b = employee.coursesProgress) === null || _b === void 0 ? void 0 : _b.filter((c) => c.percentage === 100).length) || 0;
                 const streakCount = employee.streakCount || 0;
                 const totalMinutes = yield this._employeeRepo.getTotalMinutes(employeeId, companyId);
                 yield (0, leaderboard_1.updateCompanyLeaderboard)(companyId, employeeId, totalMinutes, completedCourses, streakCount);
@@ -84,7 +84,7 @@ let EmployeeLearningPathService = class EmployeeLearningPathService {
         return __awaiter(this, void 0, void 0, function* () {
             const progress = yield this._learningPathRepo.get(employeeId, learningPathId);
             if (!progress)
-                (0, ResANDError_1.throwError)("Not Assigned", HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
+                (0, ResANDError_1.throwError)('Not Assigned', HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
             progress.status = status;
             return progress.save();
         });

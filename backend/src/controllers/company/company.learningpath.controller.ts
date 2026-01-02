@@ -8,7 +8,6 @@ import { AuthRequest } from '../../types/AuthenticatedRequest';
 import { sendResponse, throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
-import mongoose from 'mongoose';
 
 @injectable()
 export class CompanyLearningPathController implements ICompanyLearningPathController {
@@ -20,7 +19,6 @@ export class CompanyLearningPathController implements ICompanyLearningPathContro
     async create(req: AuthRequest, res: Response): Promise<void> {
         const companyId = req.user?.id;
         if (!companyId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
-        console.log(req.body)
         const created = await this._service.create(companyId, req.body);
         sendResponse(res, STATUS_CODES.CREATED, MESSAGES.CREATED_SUCCESS, true, created);
     }
@@ -67,12 +65,12 @@ export class CompanyLearningPathController implements ICompanyLearningPathContro
         const companyId = req.user?.id;
         if (!companyId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
-        const { page = "1", limit = "10", search = "" } = req.query;
+        const { page = '1', limit = '10', search = '' } = req.query;
         const data = await this._service.listCompanyLearningPaths(
             companyId,
             Number(page),
             Number(limit),
-            String(search || "")
+            String(search || '')
         );
         sendResponse(res, STATUS_CODES.OK, MESSAGES.LEARNING_PATHS_FETCHED, true, data);
     }
@@ -104,7 +102,6 @@ export class CompanyLearningPathController implements ICompanyLearningPathContro
 
     // DELETE /company/learning-paths/unassign
     async unassign(req: AuthRequest, res: Response): Promise<void> {
-        console.log("controller for delete is working")
 
         const companyId = req.user?.id;
         if (!companyId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);

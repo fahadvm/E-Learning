@@ -4,7 +4,6 @@ import { IStudentCartService } from '../../core/interfaces/services/student/IStu
 import { ICartRepository } from '../../core/interfaces/repositories/ICartRepository';
 import { TYPES } from '../../core/di/types';
 import { ICourse } from '../../models/Course';
-import { studentCartDto , IStudentCartDTO } from '../../core/dtos/student/Studnet.cart.Dto';
 import { IWishlistRepository } from '../../core/interfaces/repositories/IWishlistRepository';
 
 @injectable()

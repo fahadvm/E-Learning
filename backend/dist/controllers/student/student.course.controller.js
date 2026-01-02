@@ -78,7 +78,7 @@ let StudentCourseController = class StudentCourseController {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             if (!language || !code)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.LANGUAGE_AND_CODE_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            const canAccess = yield this._subscriptionService.hasFeature(studentId, "Compiler");
+            const canAccess = yield this._subscriptionService.hasFeature(studentId, 'Compiler');
             if (!canAccess)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.FEATURE_NOT_ALLOWED, HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
             const languageMap = {

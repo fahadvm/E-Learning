@@ -35,9 +35,9 @@ class CompanyCoursePurchaseRepository {
         return __awaiter(this, void 0, void 0, function* () {
             const record = yield CompanyCoursePurchase_1.default.findOne({ companyId, courseId });
             if (!record)
-                throw new Error("Course not purchased");
+                throw new Error('Course not purchased');
             if (record.seatsUsed >= record.seatsPurchased) {
-                throw new Error("No seats available");
+                throw new Error('No seats available');
             }
             record.seatsUsed += 1;
             return record.save();
@@ -63,12 +63,12 @@ class CompanyCoursePurchaseRepository {
     /*   Get All Company Purchases */
     getAllPurchasesByCompany(companyId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return CompanyCoursePurchase_1.default.find({ companyId }).populate("courseId");
+            return CompanyCoursePurchase_1.default.find({ companyId }).populate('courseId');
         });
     }
     getPaidPurchasesByCompany(companyId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return CompanyCoursePurchase_1.default.find({ companyId, status: 'paid' }).populate("courseId");
+            return CompanyCoursePurchase_1.default.find({ companyId, status: 'paid' }).populate('courseId');
         });
     }
 }

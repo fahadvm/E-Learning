@@ -15,31 +15,31 @@ router.get('/:teacherId', authMiddleware('student'), asyncHandler(studentTeacher
 router.get('/availability/:teacherId', authMiddleware('student'), asyncHandler(studentTeachercntrl.getAvailability.bind(studentTeachercntrl)));
 
 router.post(
-  "/review/add",
-  authMiddleware("student"),
+  '/review/add',
+  authMiddleware('student'),
   asyncHandler(studentTeacherReviewCtrl.addReview.bind(studentTeacherReviewCtrl))
 );
 
 router.put(
-  "/review/:reviewId",
-  authMiddleware("student"),
+  '/review/:reviewId',
+  authMiddleware('student'),
   asyncHandler(studentTeacherReviewCtrl.updateReview.bind(studentTeacherReviewCtrl))
 );
 
 router.delete(
-  "/review/:reviewId",
-  authMiddleware("student"),
+  '/review/:reviewId',
+  authMiddleware('student'),
   asyncHandler(studentTeacherReviewCtrl.deleteReview.bind(studentTeacherReviewCtrl))
 );
 
 router.get(
-  "/reviews/:teacherId",
+  '/reviews/:teacherId',
   authMiddleware('student'),
   asyncHandler(studentTeacherReviewCtrl.getTeacherReviews.bind(studentTeacherReviewCtrl))
 );
 
 router.get(
-  "/teacher/:teacherId/stats",
+  '/teacher/:teacherId/stats',
   authMiddleware('student'),
   asyncHandler(studentTeacherReviewCtrl.getRatingStats.bind(studentTeacherReviewCtrl))
 );

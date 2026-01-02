@@ -1,5 +1,4 @@
 import { getRequest, postRequest } from './api';
-import { IChat, IChatMessage } from '../types/shared/chat';
 
 export const companyChatService = {
     getCompanyGroup: async (companyId: string) => {

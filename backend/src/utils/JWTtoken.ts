@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import logger from './logger';
 dotenv.config();
 
 
@@ -38,7 +39,7 @@ export const verifyRefreshToken = (token: string): TokenPayload | null => {
 export const decodeToken = (token: string): TokenPayload | null => {
   try {
     const decoded = jwt.decode(token) as TokenPayload | null;
-    console.log("decoding details is ", decoded)
+    logger.info('decoding details is ', decoded);
     return decoded;
   } catch {
     return null;
@@ -59,7 +60,7 @@ export const setTokensInCookies = (
   refreshToken: string
 ) => {
   const isProduction = process.env.NODE_ENV === 'production';
-console.log("setting into cookie",isProduction)
+logger.info('setting into cookie',isProduction);
   // Cookie configuration based on environment
   const cookieOptions = {
     httpOnly: true,

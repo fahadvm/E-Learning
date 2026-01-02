@@ -11,7 +11,7 @@ export interface ICompanyProfileService {
     phone: string,
     certificateFile: Express.Multer.File,
     taxIdFile: Express.Multer.File
-  ): Promise<any>;
+  ): Promise<ICompany | null>;
   sendEmailChangeOTP(companyId: string, newEmail: string): Promise<void>;
   verifyEmailChangeOTP(companyId: string, newEmail: string, otp: string): Promise<ICompany>;
   changePassword(companyId: string, currentPassword: string, newPassword: string): Promise<void>;

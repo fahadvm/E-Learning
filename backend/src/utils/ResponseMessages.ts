@@ -1,56 +1,56 @@
 export enum MESSAGES {
   COMPANY_FETCHED = 'Company fetched',
-  LEARNING_PATHS_FETCHED = "Learning paths fetched",
-  LEARNING_PATH_ASSIGNED = "Learning path assigned",
-  LEARNING_PATH_UNASSIGNED = "Learning path unassigned",
+  LEARNING_PATHS_FETCHED = 'Learning paths fetched',
+  LEARNING_PATH_ASSIGNED = 'Learning path assigned',
+  LEARNING_PATH_UNASSIGNED = 'Learning path unassigned',
   COMPANY_FOUND = 'Company found',
   REQUEST_SENT = 'Request sent',
-  CONTRIBUTIONS_FETCHED = "Contributions fetched successfully",
-  AVAILABILITY_SAVED = "Availability saved successfully",
-  EARNINGS_HISTORY_FETCHED = "Earnings history fetched successfully",
-  EARNINGS_STATS_FETCHED = "Earnings stats fetched successfully",
-  COURSE_NOT_PURCHASED = "You have not purchased this course.",
+  CONTRIBUTIONS_FETCHED = 'Contributions fetched successfully',
+  AVAILABILITY_SAVED = 'Availability saved successfully',
+  EARNINGS_HISTORY_FETCHED = 'Earnings history fetched successfully',
+  EARNINGS_STATS_FETCHED = 'Earnings stats fetched successfully',
+  COURSE_NOT_PURCHASED = 'You have not purchased this course.',
 
 
-  COURSE_CERTIFICATE_FETCHED = "Course certificate fetched successfully",
-  RATING_COURSE_REQUIRED = "Rating and course ID are required",
+  COURSE_CERTIFICATE_FETCHED = 'Course certificate fetched successfully',
+  RATING_COURSE_REQUIRED = 'Rating and course ID are required',
   ICE_CONFIG_FETCHED = 'Ice config fetched successfully',
-  COURSE_REVIEW_SAVED = "Course review saved successfully",
-  COURSE_REVIEWS_FETCHED = "Course reviews fetched successfully",
-  COURSE_REVIEW_DELETED = "Course review deleted successfully",
+  COURSE_REVIEW_SAVED = 'Course review saved successfully',
+  COURSE_REVIEWS_FETCHED = 'Course reviews fetched successfully',
+  COURSE_REVIEW_DELETED = 'Course review deleted successfully',
 
   REQUEST_CANCELLED = 'Request cancelled',
-  FILE_UPLOADED_SUCCESSFULLY = "File uploaded successfully",
-  LEARNING_PATH_DETAILS_FETCHED = "Learning path details fetched successfully",
-  LEARNING_PATH_PROGRESS_UPDATED = "Learning path progress updated successfully",
-  LEARNING_PATH_STATUS_UPDATED = "Learning path status updated successfully",
-  CURRENT_NEW_PASSWORD_REQUIRED = "Current password and new password are required",
-  PASSWORD_UPDATED_SUCCESS = "Password updated successfully",
-  NEW_EMAIL_REQUIRED = "New email is required",
-  OTP_SENT_NEW_EMAIL = "OTP sent to new email",
-  FEATURE_NOT_ALLOWED = "You don't have access to this feature.",
-  BOOKING_DETAILS_FETCHED = "Booking details fetched successfully",
-  TOP_TEACHERS_FETCHED = "Top teachers fetched successfully",
+  FILE_UPLOADED_SUCCESSFULLY = 'File uploaded successfully',
+  LEARNING_PATH_DETAILS_FETCHED = 'Learning path details fetched successfully',
+  LEARNING_PATH_PROGRESS_UPDATED = 'Learning path progress updated successfully',
+  LEARNING_PATH_STATUS_UPDATED = 'Learning path status updated successfully',
+  CURRENT_NEW_PASSWORD_REQUIRED = 'Current password and new password are required',
+  PASSWORD_UPDATED_SUCCESS = 'Password updated successfully',
+  NEW_EMAIL_REQUIRED = 'New email is required',
+  OTP_SENT_NEW_EMAIL = 'OTP sent to new email',
+  FEATURE_NOT_ALLOWED = 'You don\'t have access to this feature.',
+  BOOKING_DETAILS_FETCHED = 'Booking details fetched successfully',
+  TOP_TEACHERS_FETCHED = 'Top teachers fetched successfully',
 
 
 
   LEFT_COMPANY = 'Left company',
-  CERTIFICATE_AND_TAXID_REQUIRED = "Both certificate and tax ID documents are required",
-  INVALID_EMAIL_FORMAT = "Invalid email format",
-  EMAIL_AND_OTP_REQUIRED = "Email and OTP are required",
-  EMAIL_UPDATED_SUCCESS = "Email updated successfully",
-  PASSWORDS_REQUIRED = "Current password and new password are required",
-  PASSWORD_CHANGED_SUCCESS = "Password changed successfully",
-  LESSON_ID_REQUIRED = "Lesson ID is required",
-  LEARNING_TIME_TRACKED = "Learning time tracked successfully",
-  LANGUAGE_AND_CODE_REQUIRED = "Language and code are required",
-  UNSUPPORTED_LANGUAGE = "Unsupported programming language",
+  CERTIFICATE_AND_TAXID_REQUIRED = 'Both certificate and tax ID documents are required',
+  INVALID_EMAIL_FORMAT = 'Invalid email format',
+  EMAIL_AND_OTP_REQUIRED = 'Email and OTP are required',
+  EMAIL_UPDATED_SUCCESS = 'Email updated successfully',
+  PASSWORDS_REQUIRED = 'Current password and new password are required',
+  PASSWORD_CHANGED_SUCCESS = 'Password changed successfully',
+  LESSON_ID_REQUIRED = 'Lesson ID is required',
+  LEARNING_TIME_TRACKED = 'Learning time tracked successfully',
+  LANGUAGE_AND_CODE_REQUIRED = 'Language and code are required',
+  UNSUPPORTED_LANGUAGE = 'Unsupported programming language',
 
 
 
-  INVITATION_FETCHED = "Invitation fetched successfully",
-  INVITATION_ACCEPTED = "Invitation accepted successfully",
-  INVITATION_REJECTED = "Invitation rejected successfully",
+  INVITATION_FETCHED = 'Invitation fetched successfully',
+  INVITATION_ACCEPTED = 'Invitation accepted successfully',
+  INVITATION_REJECTED = 'Invitation rejected successfully',
 
 
   REQUESTED_EMPLOYEES_FETCHED = 'Requested employees fetched successfully',
@@ -71,8 +71,8 @@ export enum MESSAGES {
   NO_REQUEST_FOUND = 'No request found',
   NOT_PART_OF_COMPANY = 'Not part of any company',
   ORDERS_NOT_FOUND = 'No orders found',
-  LEADERBOARD_FETCHED = "Leaderboard fetched successfully",
-  LEADERBOARD_SEARCH_SUCCESS = "Leaderboard search completed successfully",
+  LEADERBOARD_FETCHED = 'Leaderboard fetched successfully',
+  LEADERBOARD_SEARCH_SUCCESS = 'Leaderboard search completed successfully',
 
   DASHBOARD_STATS_FETCHED = '"Dashboard stats fetched successfully"',
   COMPANY_ORDERS_FETCHED = 'Company orders fetched successfully',
@@ -93,10 +93,10 @@ export enum MESSAGES {
   CODE_RUN_SUCCESSFULLY = 'Code completed run successfully.',
   NOTE_SAVED_SUCCESSFULLY = 'Note saved successfully.',
   ORDER_FETCHED_SUCCESSFULLY = 'Order Details fetched successfully.',
-  RECORD_CREATION_FAILED = "Failed to update or create learning record",
+  RECORD_CREATION_FAILED = 'Failed to update or create learning record',
 
-  COMPANY_VERIFICATION_SUBMITTED = "company verification submitted successfully",
-  STREAK_FAILED = "Failed to update or create streak",
+  COMPANY_VERIFICATION_SUBMITTED = 'company verification submitted successfully',
+  STREAK_FAILED = 'Failed to update or create streak',
 
   NOTIFICATION_MARKED_AS_READ = 'Notification marked as read successfully.',
   NOTIFICATION_ID_REQUIRED = 'Notification ID is required.',
@@ -106,10 +106,10 @@ export enum MESSAGES {
   UPDATED_SUCCESS = 'Learning Path updated successfully.',
   PROFILE_UPDATE_FAILED = 'Profile updatation failed.',
   DELETED_SUCCESS = 'Learning Path deleted successfully.',
-  LEARNING_PATH_ALREADY_ASSIGNED = "Learning Path already assigned",
-  LEARNING_PATH_ASSIGNMENT_NOT_FOUND = "Learning Path Assignment not found",
-  LEARNING_PATH_NOT_FOUND = "Learning Path not found",
-  COURSES_ALREADY_PURCHASED = "Some courses are already purchased by this company.",
+  LEARNING_PATH_ALREADY_ASSIGNED = 'Learning Path already assigned',
+  LEARNING_PATH_ASSIGNMENT_NOT_FOUND = 'Learning Path Assignment not found',
+  LEARNING_PATH_NOT_FOUND = 'Learning Path not found',
+  COURSES_ALREADY_PURCHASED = 'Some courses are already purchased by this company.',
 
 
 
@@ -117,14 +117,14 @@ export enum MESSAGES {
 
 
 
-  REVIEW_ADDED = "Review added successfully",
-  REVIEW_UPDATED = "Review updated successfully",
-  REVIEW_DELETED = "Review deleted successfully",
-  REVIEW_LIST_FETCHED = "Teacher reviews fetched successfully",
-  RATING_STATS_FETCHED = "Teacher rating statistics fetched successfully",
+  REVIEW_ADDED = 'Review added successfully',
+  REVIEW_UPDATED = 'Review updated successfully',
+  REVIEW_DELETED = 'Review deleted successfully',
+  REVIEW_LIST_FETCHED = 'Teacher reviews fetched successfully',
+  RATING_STATS_FETCHED = 'Teacher rating statistics fetched successfully',
 
-  ALREADY_REVIEWED = "You have already reviewed this teacher",
-  REVIEW_NOT_FOUND = "Review not found",
+  ALREADY_REVIEWED = 'You have already reviewed this teacher',
+  REVIEW_NOT_FOUND = 'Review not found',
 
 
 
@@ -155,6 +155,8 @@ export enum MESSAGES {
   ACCOUNT_BLOCKED = 'Account is blocked',
   ALL_FIELDS_REQUIRED = 'All fields are required',
   ID_REQUIRED = 'Id is required',
+  MESSAGE_EDIT_FAILED = 'Editing message failed',
+  MESSAGE_DELETE_FAILED = 'Delete message failed',
   FILE_REQUIRED = 'File is required',
   ALREADY_EXISTS = 'Resource already exists',
   BAD_REQUEST = 'Bad request',
@@ -389,18 +391,18 @@ export enum MESSAGES {
 
 
   // Invite
-  INVITATION_SENT = "Invitation sent to employee",
-  INVITE_LINK_CREATED = "Employee not found. Invitation link created.",
+  INVITATION_SENT = 'Invitation sent to employee',
+  INVITE_LINK_CREATED = 'Employee not found. Invitation link created.',
 
   // Search
-  SEARCH_QUERY_REQUIRED = "Search query is required",
-  EMPLOYEES_FOUND = "Employees found",
+  SEARCH_QUERY_REQUIRED = 'Search query is required',
+  EMPLOYEES_FOUND = 'Employees found',
 
   // Removal
-  EMPLOYEE_REMOVED = "Employee removed from company",
+  EMPLOYEE_REMOVED = 'Employee removed from company',
 
   // Required Fields
-  REJECTION_REASON_REQUIRED = "Rejection reason is required",
+  REJECTION_REASON_REQUIRED = 'Rejection reason is required',
 };
 
 

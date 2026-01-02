@@ -45,13 +45,13 @@ let AdminPayoutService = class AdminPayoutService {
         return __awaiter(this, void 0, void 0, function* () {
             const payout = yield this._payoutRepo.findById(payoutId);
             if (!payout)
-                (0, ResANDError_1.throwError)("Payout not found", HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+                (0, ResANDError_1.throwError)('Payout not found', HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             if (payout.status !== Payout_1.PayoutStatus.PENDING)
-                (0, ResANDError_1.throwError)("Payout is not pending", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)('Payout is not pending', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             // 1. Update Payout Status
             const updatedPayout = yield this._payoutRepo.updateStatus(payoutId, Payout_1.PayoutStatus.APPROVED);
             if (!updatedPayout)
-                (0, ResANDError_1.throwError)("Failed to update payout", HttpStatuscodes_1.STATUS_CODES.INTERNAL_SERVER_ERROR);
+                (0, ResANDError_1.throwError)('Failed to update payout', HttpStatuscodes_1.STATUS_CODES.INTERNAL_SERVER_ERROR);
             // 2. Commit Withdrawal in Wallet (Update totalWithdrawn)
             yield this._walletRepo.recordSuccessfulWithdrawal(updatedPayout.teacherId.toString(), updatedPayout.amount);
             // 3. Update Transaction to SUCCESS if it exists, or create new one
@@ -72,13 +72,13 @@ let AdminPayoutService = class AdminPayoutService {
         return __awaiter(this, void 0, void 0, function* () {
             const payout = yield this._payoutRepo.findById(payoutId);
             if (!payout)
-                (0, ResANDError_1.throwError)("Payout not found", HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+                (0, ResANDError_1.throwError)('Payout not found', HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             if (payout.status !== Payout_1.PayoutStatus.PENDING)
-                (0, ResANDError_1.throwError)("Payout is not pending", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)('Payout is not pending', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             // 1. Update Payout Status
             const updatedPayout = yield this._payoutRepo.updateStatus(payoutId, Payout_1.PayoutStatus.REJECTED, reason);
             if (!updatedPayout)
-                (0, ResANDError_1.throwError)("Failed to update payout", HttpStatuscodes_1.STATUS_CODES.INTERNAL_SERVER_ERROR);
+                (0, ResANDError_1.throwError)('Failed to update payout', HttpStatuscodes_1.STATUS_CODES.INTERNAL_SERVER_ERROR);
             // 2. Refund Balance
             yield this._walletRepo.refundBalance(updatedPayout.teacherId.toString(), updatedPayout.amount);
             return updatedPayout;

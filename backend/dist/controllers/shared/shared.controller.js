@@ -50,6 +50,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SharedController = void 0;
 const inversify_1 = require("inversify");
@@ -57,6 +60,7 @@ const ResANDError_1 = require("../../utils/ResANDError");
 const JWTtoken_1 = require("../../utils/JWTtoken");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
+const logger_1 = __importDefault(require("../../utils/logger"));
 let SharedController = class SharedController {
     constructor() {
         this.refreshToken = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -75,6 +79,7 @@ let SharedController = class SharedController {
                 (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.FILE_UPLOADED_SUCCESSFULLY, true, { url });
             }
             catch (error) {
+                logger_1.default.error(error);
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.FILE_UPLOAD_FAILED, HttpStatuscodes_1.STATUS_CODES.INTERNAL_SERVER_ERROR);
             }
         });
@@ -82,10 +87,9 @@ let SharedController = class SharedController {
             try {
                 // Default to public STUN server
                 const iceServers = [
-                    { urls: "stun:stun.l.google.com:19302" },
+                    { urls: 'stun:stun.l.google.com:19302' },
                 ];
                 // If TURN credentials are in environment variables, add them
-                // This allows the user to easily add a TURN server effectively fixing the issue
                 if (process.env.TURN_URL && process.env.TURN_USERNAME && process.env.TURN_CREDENTIAL) {
                     iceServers.push({
                         urls: process.env.TURN_URL,
@@ -96,6 +100,7 @@ let SharedController = class SharedController {
                 (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.ICE_CONFIG_FETCHED, true, iceServers);
             }
             catch (error) {
+                logger_1.default.error(error);
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.FAILED, HttpStatuscodes_1.STATUS_CODES.INTERNAL_SERVER_ERROR);
             }
         });

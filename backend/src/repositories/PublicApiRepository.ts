@@ -1,5 +1,5 @@
-import { injectable } from "inversify";
-import fetch from "node-fetch";
+import { injectable } from 'inversify';
+import fetch from 'node-fetch';
 
 import {
   IGithubContribution,
@@ -7,9 +7,10 @@ import {
   IContribution,
   IGithubApiResponse,
   ILeetCodeGraphQLResponse,
-} from "../types/common/contribution";
+} from '../types/common/contribution';
 
-import { IPublicApiRepository } from "../core/interfaces/repositories/IPublicApiRepository";
+import { IPublicApiRepository } from '../core/interfaces/repositories/IPublicApiRepository';
+import logger from '../utils/logger';
 
 @injectable()
 export class PublicApiRepository implements IPublicApiRepository {
@@ -23,7 +24,7 @@ export class PublicApiRepository implements IPublicApiRepository {
       // Fixed: Proper type checking
       return Array.isArray(json?.contributions) ? json.contributions : [];
     } catch (error) {
-      console.error("GitHub fetch failed:", error);
+      logger.error('GitHub fetch failed:', error);
       return [];
     }
   }
@@ -43,9 +44,9 @@ export class PublicApiRepository implements IPublicApiRepository {
     `;
 
     try {
-      const response = await fetch("https://leetcode.com/graphql", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('https://leetcode.com/graphql', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query, variables: { username } }),
       });
 
@@ -60,7 +61,7 @@ export class PublicApiRepository implements IPublicApiRepository {
       const map: Record<string, number> = { All: 0, Easy: 0, Medium: 0, Hard: 0 };
       stats.forEach((item) => {
         map[item.difficulty] = item.count;
-        if (item.difficulty !== "All") map.All += item.count;
+        if (item.difficulty !== 'All') map.All += item.count;
       });
 
       return {
@@ -70,7 +71,7 @@ export class PublicApiRepository implements IPublicApiRepository {
         hardSolved: map.Hard,
       };
     } catch (error) {
-      console.error("LeetCode stats fetch failed:", error);
+      logger.error('LeetCode stats fetch failed:', error);
       return { totalSolved: 0, easySolved: 0, mediumSolved: 0, hardSolved: 0 };
     }
   }
