@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { adminApiMethods } from "@/services/APIservices/adminApiService";
 import { showInfoToast, showSuccessToast } from "@/utils/Toast";
+import { SubscriptionFeatureWithDescription, ValidationErrors } from "@/types/admin/adminTypes";
 
 const builtInFeatures: Record<string, string> = {
   Compiler: "Write and run code directly on the platform.",
@@ -48,7 +49,7 @@ const EditSubscriptionPlan = () => {
             name: plan.name,
             price: plan.price,
             description: plan.description,
-            features: plan.features?.map((f: any) => f.name) || [],
+            features: plan.features?.map((f: SubscriptionFeatureWithDescription) => f.name) || [],
             popular: plan.popular,
             planFor: plan.planFor,
           });
@@ -91,7 +92,7 @@ const EditSubscriptionPlan = () => {
 
   // Validation
   const validateForm = () => {
-    const newErrors: any = {};
+    const newErrors: ValidationErrors = {};
 
     if (!form.name.trim()) newErrors.name = "Name is required";
     if (!form.price) newErrors.price = "Price is required";

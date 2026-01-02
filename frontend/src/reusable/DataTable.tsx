@@ -22,7 +22,7 @@ interface DataTableProps<T> {
   className?: string;
 }
 
-export default function DataTable<T extends Record<string, any>>({
+export default function DataTable<T>({
   data,
   columns,
   onDetailClick,
@@ -42,7 +42,7 @@ export default function DataTable<T extends Record<string, any>>({
 
   return (
     <div className={`bg-white shadow-lg rounded-lg p-4 sm:p-6 ${className}`}>
-      
+
       {/* Search Bar */}
       <div className="mb-4 sm:mb-6 flex items-center gap-3 bg-gray-100 rounded-full px-4 py-2 transition-all duration-200 hover:ring-2 hover:ring-blue-500/50">
         <Search className="text-gray-500 w-4 sm:w-5 h-4 sm:h-5" aria-hidden="true" />
@@ -139,11 +139,10 @@ export default function DataTable<T extends Record<string, any>>({
               <button
                 key={page}
                 onClick={() => onPageChange && onPageChange(page)}
-                className={`px-3 sm:px-4 py-2 rounded-full text-sm sm:text-base font-medium transition-all duration-200 ${
-                  currentPage === page
-                    ? 'bg-blue-500 text-white border border-blue-400'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-800'
-                }`}
+                className={`px-3 sm:px-4 py-2 rounded-full text-sm sm:text-base font-medium transition-all duration-200 ${currentPage === page
+                  ? 'bg-blue-500 text-white border border-blue-400'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-800'
+                  }`}
                 aria-label={`Go to page ${page}`}
                 aria-current={currentPage === page ? 'page' : undefined}
               >

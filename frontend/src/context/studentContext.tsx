@@ -11,6 +11,7 @@ import {
 import { useRouter, usePathname } from 'next/navigation';
 import { StudentApiMethods } from '@/services/APImethods';
 import { initSocket } from '@/lib/socket';
+import { Socket } from 'socket.io-client';
 
 interface NotificationType {
   title: string;
@@ -25,7 +26,7 @@ export interface IStudent {
   isBlocked: boolean;
   role: string;
   about: string;
-  plans: [];
+  plans: unknown[];
   profilePicture: string;
   location: string;
   phone: string;
@@ -42,13 +43,13 @@ export interface IStudent {
   isPremium: boolean;
   createdAt: Date;
   updatedAt: Date;
-  coursesProgress: any[];
+  coursesProgress: { courseId: string; progress: number }[];
 }
 
 interface StudentContextType {
   student: IStudent | null;
   setStudent: React.Dispatch<React.SetStateAction<IStudent | null>>;
-  socket: any | null;
+  socket: Socket | null;
   notifications: NotificationType[];
   setNotifications: React.Dispatch<React.SetStateAction<NotificationType[]>>;
 }
@@ -57,7 +58,7 @@ const StudentContext = createContext<StudentContextType | null>(null);
 
 export const StudentContextProvider = ({ children }: { children: ReactNode }) => {
   const [student, setStudent] = useState<IStudent | null>(null);
-  const [socket, setSocket] = useState<any | null>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
   const [notifications, setNotifications] = useState<NotificationType[]>([]);
 
   const router = useRouter();

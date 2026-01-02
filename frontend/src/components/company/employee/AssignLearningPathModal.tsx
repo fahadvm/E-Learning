@@ -9,11 +9,7 @@ import { Loader2, BookOpen, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";
 
-interface LearningPath {
-    _id: string;
-    title: string;
-    courses: any[];
-}
+import { LearningPath } from "@/types/employee/employeeTypes";
 
 interface AssignLearningPathModalProps {
     isOpen: boolean;
@@ -119,8 +115,8 @@ export default function AssignLearningPathModal({
                                     <div
                                         key={path._id}
                                         className={`flex items-center justify-between p-4 rounded-lg border transition-all ${isAssigned
-                                                ? "bg-white/5 border-white/5 opacity-50 cursor-not-allowed"
-                                                : "bg-white/5 border-white/10 hover:border-primary/50"
+                                            ? "bg-white/5 border-white/5 opacity-50 cursor-not-allowed"
+                                            : "bg-white/5 border-white/10 hover:border-primary/50"
                                             }`}
                                     >
                                         <div className="flex items-center gap-4">

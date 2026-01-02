@@ -1,6 +1,12 @@
 
+interface ActiveTeacher {
+    name: string;
+    transactions: number;
+    revenue: number;
+}
+
 interface ActiveTeachersProps {
-    data: any[];
+    data: ActiveTeacher[];
 }
 
 export default function ActiveTeachers({ data }: ActiveTeachersProps) {

@@ -27,27 +27,7 @@ import { cn } from "@/lib/utils";
 import { timeAgo } from "@/utils/timeConverter";
 
 /* ──────────────────────── Interfaces ──────────────────────── */
-export interface ILearningCourse {
-  courseId: string;
-  minutes: number;
-}
-export interface IEmployeeLearningRecord {
-  employeeId: string;
-  companyId?: string;
-  date: string;
-  totalMinutes: number;
-  courses: ILearningCourse[];
-}
-export interface ICourseProgress {
-  courseId: {
-    _id: string,
-    title: string
-  };
-  percentage: number;
-  completedLessons?: string[];
-  totalLesson?: number;
-  lastVisitedTime?: string;
-}
+import { IEmployeeLearningRecord, ICourseProgress } from "@/types/employee/employeeTypes";
 
 interface CustomTooltipProps {
   active?: boolean;
@@ -192,9 +172,20 @@ export default function ProgressPage() {
           employeeApiMethods.getLearningRecord(),
           employeeApiMethods.getProgression(),
         ]);
-        setRecords(recRes.data?.records ?? recRes.data ?? []);
-        console.log("set Records:", recRes.data)
-        setProgress(progRes.data?.progress ?? progRes.data ?? []);
+
+        if (recRes?.ok && recRes.data) {
+          const recordsData = Array.isArray(recRes.data)
+            ? recRes.data
+            : (recRes.data as { records: IEmployeeLearningRecord[] }).records || [];
+          setRecords(recordsData);
+        }
+
+        if (progRes?.ok && progRes.data) {
+          const progressData = Array.isArray(progRes.data)
+            ? progRes.data
+            : (progRes.data as { progress: ICourseProgress[] }).progress || [];
+          setProgress(progressData);
+        }
       } catch (err) {
         console.error(err);
       } finally {

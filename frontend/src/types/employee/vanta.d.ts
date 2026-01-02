@@ -1,7 +1,7 @@
 declare module 'vanta/dist/vanta.waves.min' {
   interface VantaOptions {
     el: HTMLElement | null;
-    THREE: any;
+    THREE: unknown;
     mouseControls?: boolean;
     touchControls?: boolean;
     gyroControls?: boolean;
@@ -16,6 +16,6 @@ declare module 'vanta/dist/vanta.waves.min' {
     zoom?: number;
   }
 
-  const VANTA: (options: VantaOptions) => any;
+  const VANTA: (options: VantaOptions) => { destroy: () => void };
   export default VANTA;
 }

@@ -277,7 +277,7 @@ export default function EditCompanyProfile() {
                     onChange={handleChange}
                     className={`border rounded-md p-2 w-full ${errors.name ? "border-red-500" : ""}`}
                   />
-                  {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+                  {typeof errors.name === "string" && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
                 </div>
 
                 <div>
@@ -302,7 +302,7 @@ export default function EditCompanyProfile() {
                     onChange={handleChange}
                     className={`border rounded-md p-2 w-full ${errors.address ? "border-red-500" : ""}`}
                   />
-                  {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+                  {typeof errors.address === "string" && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
                 </div>
 
                 <div>
@@ -315,7 +315,7 @@ export default function EditCompanyProfile() {
                     onChange={handleChange}
                     className={`border rounded-md p-2 w-full ${errors.pincode ? "border-red-500" : ""}`}
                   />
-                  {errors.pincode && <p className="text-red-500 text-sm mt-1">{errors.pincode}</p>}
+                  {typeof errors.pincode === "string" && <p className="text-red-500 text-sm mt-1">{errors.pincode}</p>}
                 </div>
               </div>
 
@@ -329,7 +329,7 @@ export default function EditCompanyProfile() {
                     onChange={handleChange}
                     className={`border rounded-md p-2 w-full ${errors.phone ? "border-red-500" : ""}`}
                   />
-                  {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+                  {typeof errors.phone === "string" && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
                 </div>
 
                 <div>
@@ -341,7 +341,7 @@ export default function EditCompanyProfile() {
                     onChange={handleChange}
                     className={`border rounded-md p-2 w-full ${errors.website ? "border-red-500" : ""}`}
                   />
-                  {errors.website && <p className="text-red-500 text-sm mt-1">{errors.website}</p>}
+                  {typeof errors.website === "string" && <p className="text-red-500 text-sm mt-1">{errors.website}</p>}
                 </div>
               </div>
 
@@ -367,11 +367,11 @@ export default function EditCompanyProfile() {
                         placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
                         value={formData.social_links[key as keyof typeof formData.social_links]}
                         onChange={handleChange}
-                        className={`border rounded-md p-2 w-full ${errors.social_links?.[key] ? "border-red-500" : ""
+                        className={`border rounded-md p-2 w-full ${errors.social_links && typeof errors.social_links === "object" && (errors.social_links as FormErrors)[key] ? "border-red-500" : ""
                           }`}
                       />
-                      {errors.social_links?.[key] && (
-                        <p className="text-red-500 text-sm mt-1">{errors.social_links[key]}</p>
+                      {errors.social_links && typeof errors.social_links === "object" && typeof (errors.social_links as FormErrors)[key] === "string" && (
+                        <p className="text-red-500 text-sm mt-1">{(errors.social_links as FormErrors)[key] as string}</p>
                       )}
                     </div>
                   ))}

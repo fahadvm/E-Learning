@@ -44,11 +44,14 @@ export interface ICompany {
     name: string;
     email: string;
     password: string;
-    courses: string
+    courses: Course[]
     employees: IEmployee[];
     isPremium: boolean;
     createdAt: Date;
     updatedAt: Date;
+}
+interface Course{
+    title:string
 }
 
 interface CompanyContextType {

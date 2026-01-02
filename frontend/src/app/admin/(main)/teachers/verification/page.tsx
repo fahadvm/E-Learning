@@ -21,9 +21,10 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, FileText, CheckCircle, XCircle } from "lucide-react";
 import { showSuccessToast } from "@/utils/Toast";
+import { VerificationRequest } from "@/types/admin/adminTypes";
 
 export default function GenericVerificationPage() {
-  const [teachers, setTeachers] = useState<any[]>([]);
+  const [teachers, setTeachers] = useState<VerificationRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");

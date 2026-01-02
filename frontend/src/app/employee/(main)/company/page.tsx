@@ -29,6 +29,8 @@ import {
 
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";
+import { EmployeeProfile, CompanyInvitation, CompanySearchResult, RequestedCompany } from "@/types/employee/employeeTypes";
+import { CompanyProfile } from "@/types/company/companyTypes";
 
 // ---------------- Shared UI Components ----------------
 
@@ -40,6 +42,11 @@ const Card = ({ children, className = "" }: { children: React.ReactNode, classNa
   </div>
 );
 
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "primary" | "secondary" | "success" | "danger" | "outline";
+  loading?: boolean;
+}
+
 const Button = ({
   children,
   onClick,
@@ -47,11 +54,11 @@ const Button = ({
   className = "",
   disabled = false,
   loading = false,
-}: any) => {
+}: ButtonProps) => {
   const base =
     "px-4 py-2 rounded-lg font-semibold transition duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg disabled:opacity-50";
 
-  const variants: any = {
+  const variants: Record<string, string> = {
     primary:
       "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2",
     secondary: "bg-gray-100 text-gray-700 hover:bg-gray-200",
@@ -71,7 +78,11 @@ const Button = ({
   );
 };
 
-const Input = ({ icon: Icon, ...props }: any) => (
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  icon?: React.ElementType;
+}
+
+const Input = ({ icon: Icon, ...props }: InputProps) => (
   <div className="relative w-full">
     {Icon && (
       <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -84,15 +95,21 @@ const Input = ({ icon: Icon, ...props }: any) => (
   </div>
 );
 
-const Badge = ({ children, variant = "default" }: any) => {
-  const styles: any = {
+interface BadgeProps {
+  children: React.ReactNode;
+  variant?: "success" | "warning" | "danger" | "default";
+  className?: string;
+}
+
+const Badge = ({ children, variant = "default", className = "" }: BadgeProps) => {
+  const styles: Record<string, string> = {
     success: "bg-green-100 text-green-800",
     warning: "bg-yellow-100 text-yellow-800",
     danger: "bg-red-100 text-red-800",
     default: "bg-indigo-100 text-indigo-800",
   };
   return (
-    <span className={`px-3 py-1 text-xs font-semibold rounded-full ${styles[variant]}`}>
+    <span className={`px-3 py-1 text-xs font-semibold rounded-full ${styles[variant === 'default' && !styles[variant] ? 'default' : variant]} ${className}`}>
       {children}
     </span>
   );
@@ -100,7 +117,13 @@ const Badge = ({ children, variant = "default" }: any) => {
 
 // ---------------- Components ----------------
 
-const EmployeeProfileCard = ({ profile, company, status }: any) => (
+interface EmployeeProfileCardProps {
+  profile: EmployeeProfile | null;
+  company: CompanyProfile | null;
+  status: string;
+}
+
+const EmployeeProfileCard = ({ profile, company, status }: EmployeeProfileCardProps) => (
   <Card>
     <div className="flex items-center space-x-4 mb-4">
       <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 overflow-hidden">
@@ -136,7 +159,14 @@ const EmployeeProfileCard = ({ profile, company, status }: any) => (
   </Card>
 );
 
-const CompanyInvitationRequests = ({ invitation, onAccept, onReject, loading }: any) => {
+interface CompanyInvitationRequestsProps {
+  invitation: CompanyInvitation | null;
+  onAccept: () => void;
+  onReject: () => void;
+  loading: boolean;
+}
+
+const CompanyInvitationRequests = ({ invitation, onAccept, onReject, loading }: CompanyInvitationRequestsProps) => {
   if (!invitation) return null;
 
   return (
@@ -147,9 +177,9 @@ const CompanyInvitationRequests = ({ invitation, onAccept, onReject, loading }: 
       </h2>
       <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg shadow-sm hover:bg-gray-100 transition">
         <div>
-          <p className="font-semibold text-gray-800">{invitation.name}</p>
+          <p className="font-semibold text-gray-800">{invitation.companyId.name}</p>
           <p className="text-sm text-gray-500 flex items-center">
-            <Mail className="w-3 h-3 mr-1" /> {invitation.email}
+            <Mail className="w-3 h-3 mr-1" /> {invitation.companyId.email || "No Email"}
           </p>
         </div>
         <div className="flex items-center space-x-3">
@@ -166,7 +196,15 @@ const CompanyInvitationRequests = ({ invitation, onAccept, onReject, loading }: 
   );
 };
 
-const CompanySearchCard = ({ onSearch, searching, searchResult, onSendRequest, requestLoading }: any) => {
+interface CompanySearchCardProps {
+  onSearch: (code: string) => void;
+  searching: boolean;
+  searchResult: CompanySearchResult | null;
+  onSendRequest: (companyId: string) => void;
+  requestLoading: boolean;
+}
+
+const CompanySearchCard = ({ onSearch, searching, searchResult, onSendRequest, requestLoading }: CompanySearchCardProps) => {
   const [code, setCode] = useState("");
 
   return (
@@ -182,8 +220,8 @@ const CompanySearchCard = ({ onSearch, searching, searchResult, onSendRequest, r
           placeholder="e.g., DEVNEXT102"
           icon={Code}
           value={code}
-          onChange={(e: any) => setCode(e.target.value)}
-          onKeyPress={(e: any) => e.key === 'Enter' && onSearch(code)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCode(e.target.value)}
+          onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && onSearch(code)}
         />
         <Button onClick={() => onSearch(code)} loading={searching}>
           <Search className="w-4 h-4" />
@@ -206,7 +244,12 @@ const CompanySearchCard = ({ onSearch, searching, searchResult, onSendRequest, r
   );
 }
 
-const CurrentCompanyDetails = ({ company }: any) => (
+interface CurrentCompanyDetailsProps {
+  company: CompanyProfile;
+  onLeave: () => void;
+}
+
+const CurrentCompanyDetails = ({ company, onLeave }: CurrentCompanyDetailsProps) => (
   <Card className="!p-0 overflow-hidden">
 
     {/* Top Banner */}
@@ -216,7 +259,7 @@ const CurrentCompanyDetails = ({ company }: any) => (
     <div className="p-6 -mt-12 flex items-center gap-4">
       <div className="w-20 h-20 rounded-xl overflow-hidden shadow-lg border border-white bg-white">
         <img
-          src={company.profilePicture ?? "/gallery/company-logo.jpg"}
+          src={company.logo ?? "/gallery/company-logo.jpg"}
           alt={company.name}
           className="w-full h-full object-cover"
         />
@@ -239,7 +282,7 @@ const CurrentCompanyDetails = ({ company }: any) => (
     <div className="px-6 pb-6">
       <div className="flex items-center gap-2 mb-5">
         <Badge variant="default" className="text-xs py-1 px-3">
-          {company.activePlan || "Standard Plan"}
+          {company.subscription?.plan || "Standard Plan"}
         </Badge>
       </div>
 
@@ -257,7 +300,7 @@ const CurrentCompanyDetails = ({ company }: any) => (
         <div className="space-y-2">
           <p className="text-xs uppercase font-semibold text-gray-500">Location</p>
           <p className="text-gray-800 font-medium flex items-center gap-1">
-            <MapPin className="w-4 h-4 text-indigo-500" /> {company.address || "N/A"}
+            <MapPin className="w-4 h-4 text-indigo-500" /> {company.location || company.address || "N/A"}
           </p>
         </div>
       </div>
@@ -286,13 +329,7 @@ const CurrentCompanyDetails = ({ company }: any) => (
             <AlertDialogCancel className="text-xs">Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="text-xs bg-red-600 hover:bg-red-700"
-              onClick={async () => {
-                try {
-                  await employeeApiMethods.leaveCompany();
-                } catch {
-                  alert("Failed to leave company");
-                }
-              }}
+              onClick={onLeave}
             >
               Yes, Leave
             </AlertDialogAction>
@@ -304,7 +341,12 @@ const CurrentCompanyDetails = ({ company }: any) => (
 );
 
 
-const RequestStatusCard = ({ requestedCompany, onCancel }: any) => (
+interface RequestStatusCardProps {
+  requestedCompany: RequestedCompany;
+  onCancel: () => void;
+}
+
+const RequestStatusCard = ({ requestedCompany, onCancel }: RequestStatusCardProps) => (
   <Card>
     <h2 className="text-xl font-semibold mb-4 text-gray-800">Pending Request</h2>
     <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg mb-4">
@@ -323,18 +365,18 @@ const RequestStatusCard = ({ requestedCompany, onCancel }: any) => (
 
 export default function EmployeeCompanyPage() {
   const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<EmployeeProfile | null>(null);
 
   // States: 'active', 'requested', 'invited', 'none'
   const [status, setStatus] = useState<string>("none");
 
-  const [company, setCompany] = useState<any>(null);
-  const [requestedCompany, setRequestedCompany] = useState<any>(null);
-  const [invitation, setInvitation] = useState<any>(null);
+  const [company, setCompany] = useState<CompanyProfile | null>(null);
+  const [requestedCompany, setRequestedCompany] = useState<RequestedCompany | null>(null);
+  const [invitation, setInvitation] = useState<CompanyInvitation | null>(null);
 
   // Search State
   const [searching, setSearching] = useState(false);
-  const [searchResult, setSearchResult] = useState<any>(null);
+  const [searchResult, setSearchResult] = useState<CompanySearchResult | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
@@ -345,19 +387,17 @@ export default function EmployeeCompanyPage() {
     setLoading(true);
     try {
       const profileRes = await employeeApiMethods.getProfile();
-      // @ts-ignore
-      const p = profileRes.data;
+      const p = profileRes?.data;
       console.log("profile:", p)
+      if (!p) return;
       console.log("profileof invitedBy:", p.invitedBy)
-      setProfile(p);
+      setProfile(p as unknown as EmployeeProfile);
 
       // Check for Company
       if (p.companyId) {
         const companyRes = await employeeApiMethods.getMyCompany();
-        // @ts-ignore
-        if (companyRes.data) {
-          // @ts-ignore
-          setCompany(companyRes.data.companyId); // Populate puts it in companyId field usually, or assumes structure
+        if (companyRes?.data) {
+          setCompany(companyRes.data.companyId);
           setStatus("active");
           setLoading(false);
           return;
@@ -367,9 +407,7 @@ export default function EmployeeCompanyPage() {
       // Check for Request
       if (p.requestedCompanyId) {
         const reqRes = await employeeApiMethods.getRequestedCompany();
-        // @ts-ignore
-        if (reqRes.data && reqRes.data.requestedCompanyId) {
-          // @ts-ignore
+        if (reqRes?.data?.requestedCompanyId) {
           setRequestedCompany(reqRes.data.requestedCompanyId);
           setStatus("requested");
           setLoading(false);
@@ -379,11 +417,8 @@ export default function EmployeeCompanyPage() {
 
       // Check for Invitation
       if (p.invitedBy) {
-
         const inviteRes = await employeeApiMethods.getInvitation();
-        // @ts-ignore
-        if (inviteRes.data) {
-          // @ts-ignore
+        if (inviteRes?.data) {
           setInvitation(inviteRes.data);
           setStatus("invited");
           setLoading(false);
@@ -407,13 +442,11 @@ export default function EmployeeCompanyPage() {
     setSearchResult(null);
     try {
       const res = await employeeApiMethods.findCompany({ companycode: code });
-      // @ts-ignore
-      if (res.data) {
-        // @ts-ignore
-        setSearchResult(res.data);
+      if (res?.data) {
+        setSearchResult(res.data as CompanySearchResult);
       }
-    } catch (error: any) {
-      showErrorToast(error?.response?.data?.message || "Company not found");
+    } catch (error) {
+      showErrorToast((error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Company not found");
     } finally {
       setSearching(false);
     }
@@ -425,8 +458,8 @@ export default function EmployeeCompanyPage() {
       await employeeApiMethods.sendCompanyRequest({ companyId });
       showSuccessToast("Request sent successfully");
       fetchData(); // Refresh state
-    } catch (error: any) {
-      showErrorToast(error?.response?.data?.message || "Failed to send request");
+    } catch (error) {
+      showErrorToast((error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to send request");
     } finally {
       setActionLoading(false);
     }
@@ -438,8 +471,8 @@ export default function EmployeeCompanyPage() {
       await employeeApiMethods.acceptInvite();
       showSuccessToast("Invitation accepted!");
       fetchData();
-    } catch (error: any) {
-      showErrorToast(error?.response?.data?.message || "Failed to accept");
+    } catch (error) {
+      showErrorToast((error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to accept");
     } finally {
       setActionLoading(false);
     }
@@ -451,8 +484,8 @@ export default function EmployeeCompanyPage() {
       await employeeApiMethods.rejectInvite();
       showSuccessToast("Invitation rejected");
       fetchData();
-    } catch (error: any) {
-      showErrorToast(error?.response?.data?.message || "Failed to reject");
+    } catch (error) {
+      showErrorToast((error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to reject");
     } finally {
       setActionLoading(false);
     }
@@ -464,8 +497,8 @@ export default function EmployeeCompanyPage() {
       await employeeApiMethods.cancelCompanyRequest();
       showSuccessToast("Request cancelled");
       fetchData();
-    } catch (error: any) {
-      showErrorToast(error?.response?.data?.message || "Failed to cancel");
+    } catch (error) {
+      showErrorToast((error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to cancel");
     }
   }
 
@@ -475,8 +508,8 @@ export default function EmployeeCompanyPage() {
       await employeeApiMethods.leaveCompany();
       showSuccessToast("You have left the company");
       fetchData();
-    } catch (error: any) {
-      showErrorToast(error?.response?.data?.message || "Failed to leave");
+    } catch (error) {
+      showErrorToast((error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to leave");
     }
   }
 

@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 interface EmployeeProfileModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  employee: any;
+  employee: Record<string, string> | null;
   missingFields?: string[];
-  onSubmit: (updatedData: any) => Promise<void>;
+  onSubmit: (updatedData: Record<string, string>) => Promise<void>;
 }
 
 export function EmployeeProfileModal({
@@ -73,7 +73,7 @@ export function EmployeeProfileModal({
             <input
               key={field}
               name={field}
-              value={(formData as any)[field]}
+              value={(formData as Record<string, string>)[field]}
               onChange={handleChange}
               placeholder={field[0].toUpperCase() + field.slice(1)}
               className="w-full border rounded px-3 py-2"

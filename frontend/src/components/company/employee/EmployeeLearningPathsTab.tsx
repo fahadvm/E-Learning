@@ -5,19 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Plus, BookOpen, Clock, CheckCircle2, Circle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-interface LearningPath {
-    _id: string;
-    learningPathId: {
-        _id: string;
-        title: string;
-        courses: any[];
-    } | null;
-    percentage: number;
-    status: "active" | "paused" | "completed";
-}
+import { AssignedLearningPath } from "@/types/employee/employeeTypes";
 
 interface EmployeeLearningPathsTabProps {
-    assignedPaths: LearningPath[];
+    assignedPaths: AssignedLearningPath[];
     onAssignClick: () => void;
 }
 

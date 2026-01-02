@@ -10,10 +10,25 @@ import TopCoursesTable from '@/components/admin/reports/TopCoursesTable';
 import ActiveTeachers from '@/components/admin/reports/ActiveTeachers';
 import { Download, DollarSign, Users, Briefcase, GraduationCap, FileText } from 'lucide-react';
 import { showErrorToast, showSuccessToast } from '@/utils/Toast';
+import { DashboardData, MonthlyRevenueItem, TopCourse } from '@/types/admin/adminTypes';
+
+interface AutoTableOptions {
+    startY: number;
+    head: string[][];
+    body: (string | number)[][];
+}
+
+interface JsPDFDoc {
+    setFontSize: (size: number) => void;
+    text: (text: string, x: number, y: number) => void;
+    save: (filename: string) => void;
+    autoTable: (options: AutoTableOptions) => void;
+    lastAutoTable: { finalY: number };
+}
 
 export default function AdminReportsPage() {
     const [loading, setLoading] = useState(true);
-    const [data, setData] = useState<any>(null);
+    const [data, setData] = useState<DashboardData | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -38,7 +53,7 @@ export default function AdminReportsPage() {
         if (type === 'csv') {
             const csvContent = [
                 'Month,Revenue',
-                ...data.monthlyRevenue.map((item: any) => {
+                ...data.monthlyRevenue.map((item: MonthlyRevenueItem) => {
                     const month = new Date(0, item._id - 1).toLocaleString('default', { month: 'long' });
                     return `${month},${item.revenue}`;
                 })
@@ -50,7 +65,7 @@ export default function AdminReportsPage() {
             a.href = url;
             a.download = `revenue_report_${new Date().toISOString()}.csv`;
             a.click();
-           showSuccessToast('Revenue Report Downloaded');
+            showSuccessToast('Revenue Report Downloaded');
         } else if (type === 'pdf') {
             import('jspdf').then(jsPDF => {
                 import('jspdf-autotable').then(() => {
@@ -72,19 +87,19 @@ export default function AdminReportsPage() {
                         ['Companies', data.stats.totalCompanies]
                     ];
 
-                    (doc as any).autoTable({
+                    (doc as unknown as JsPDFDoc).autoTable({
                         startY: 50,
                         head: [['Metric', 'Value']],
                         body: statsData,
                     });
 
                     // Top Courses
-                    let finalY = (doc as any).lastAutoTable.finalY + 15;
+                    const finalY = (doc as unknown as JsPDFDoc).lastAutoTable.finalY + 15;
                     doc.text('Top Selling Courses', 14, finalY);
 
-                    const coursesData = data.topCourses.map((c: any) => [c.title, c.sales, `Rs. ${c.revenue}`]);
+                    const coursesData = (data.topCourses || []).map((c: TopCourse) => [c.title, c.sales, `Rs. ${c.revenue}`]);
 
-                    (doc as any).autoTable({
+                    (doc as unknown as JsPDFDoc).autoTable({
                         startY: finalY + 5,
                         head: [['Course', 'Sales', 'Revenue']],
                         body: coursesData,
@@ -132,13 +147,13 @@ export default function AdminReportsPage() {
                     <RevenueChart data={data.monthlyRevenue} />
                 </div>
                 <div>
-                    <UserDistribution data={data.userDistribution} />
+                    <UserDistribution data={data.userDistribution || []} />
                 </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <TopCoursesTable data={data.topCourses} />
-                <ActiveTeachers data={data.activeTeachers} />
+                <TopCoursesTable data={data.topCourses || []} />
+                <ActiveTeachers data={data.activeTeachers || []} />
             </div>
         </div>
     );

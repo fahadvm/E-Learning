@@ -28,7 +28,7 @@ interface ICompany {
     twitter?: string
     instagram?: string
   }
-  employees?: any[]
+  employees?: unknown[]
 }
 
 interface CompanyProfileModalProps {

@@ -5,10 +5,10 @@ import { showInfoToast, showSuccessToast } from "@/utils/Toast";
 import { GoogleLoginButton } from "@/components/student/googleLogin";
 
 
-interface LoginPageProps<TData = { email: string; password: string }, TResult = any> {
+interface LoginPageProps<TData = { email: string; password: string }, TResult = { ok: boolean; message?: string; data?: unknown } | null> {
   role: "student" | "company" | "employee" | "teacher";
   apiEndpoint: (data: TData) => Promise<TResult>;
-  googleSignup?: (userData: any) => Promise<any>;
+  googleSignup?: (userData: { tokenId: string }) => Promise<{ ok: boolean; data: unknown; message?: string } | null>;
   redirectPath: string;
   signupPath: string;
   forgotPasswordPath: string;
@@ -91,7 +91,7 @@ export default function ReusableLoginPage({
   };
 
 
-  const handleGoogleError = (error: any) => {
+  const handleGoogleError = (error: unknown) => {
     console.error("Google login error:", error);
     showInfoToast("Google login failed. Please try again.");
   };
@@ -105,14 +105,14 @@ export default function ReusableLoginPage({
 
     try {
       const res = await apiEndpoint({ email, password });
-      showSuccessToast(res?.message);
+      showSuccessToast(res?.message || "Login successful");
 
       // Small delay to ensure cookies are set before redirect
       setTimeout(() => {
         router.push(redirectPath);
       }, 100);
-    } catch (err: any) {
-      const msg = err?.response?.data?.message || "Login failed.";
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Login failed.";
       setMessage(msg);
     } finally {
       setLoading(false);

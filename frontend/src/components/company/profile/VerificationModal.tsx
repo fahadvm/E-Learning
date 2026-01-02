@@ -41,7 +41,12 @@ interface VerificationModalProps {
         certificate: File | null;
         taxId: File | null;
     }) => Promise<void>;
-    company: any;
+    company: {
+        name?: string;
+        address?: string;
+        pincode?: string;
+        phone?: string;
+    } | null;
 }
 
 /* =======================================================

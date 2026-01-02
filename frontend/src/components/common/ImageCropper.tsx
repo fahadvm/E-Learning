@@ -11,16 +11,24 @@ interface CropperModalProps {
   onCropComplete: (croppedImage: string) => void;
 }
 
+interface Area {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 const CropperModal: React.FC<CropperModalProps> = ({ image, onClose, onCropComplete }) => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
-  const handleCropComplete = useCallback((_: any, croppedAreaPixels: any) => {
+  const handleCropComplete = useCallback((_: Area, croppedAreaPixels: Area) => {
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
   const handleDone = async () => {
+    if (!croppedAreaPixels) return;
     try {
       const croppedImage = await getCroppedImg(image, croppedAreaPixels);
       onCropComplete(croppedImage as string);
@@ -51,7 +59,7 @@ const CropperModal: React.FC<CropperModalProps> = ({ image, onClose, onCropCompl
         />
       </div>
       <div className="flex justify-end gap-4 mt-4">
-        <button  onClick={onClose}>Cancel</button>
+        <button onClick={onClose}>Cancel</button>
         <button onClick={handleDone}>Crop & Save</button>
       </div>
     </Modal>

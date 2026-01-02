@@ -70,7 +70,7 @@ export default function EmployeesPage() {
     } catch (err) {
       const errorMessage =
         err instanceof AxiosError
-          ? (err.response?.data as any)?.message || err.message
+          ? (err.response?.data as { message: string })?.message || err.message
           : "Failed to fetch employees";
       showErrorToast(errorMessage);
     } finally {
@@ -82,8 +82,8 @@ export default function EmployeesPage() {
     setActionLoading(employeeId);
     try {
       const res = await companyApiMethods.blockEmployee(employeeId, { status: !isBlocked });
-      if ((res as any)?.ok) {
-        showSuccessToast((res as any)?.message || `Employee ${!isBlocked ? "blocked" : "unblocked"}`);
+      if ((res as { ok: boolean }).ok) {
+        showSuccessToast((res as { message: string }).message || `Employee ${!isBlocked ? "blocked" : "unblocked"}`);
         await fetchEmployees();
       }
     } catch (err) {
@@ -97,7 +97,7 @@ export default function EmployeesPage() {
     setActionLoading(employeeId);
     try {
       const res = await companyApiMethods.removeEmployee(employeeId);
-      if ((res as any)?.ok) {
+      if ((res as { ok: boolean }).ok) {
         showSuccessToast("Employee removed from company");
         await fetchEmployees();
       }

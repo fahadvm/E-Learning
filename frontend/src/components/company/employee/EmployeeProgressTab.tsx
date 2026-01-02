@@ -5,7 +5,9 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { PlayCircle, CheckCircle, Clock, Trophy, BarChart3 } from "lucide-react";
 
-interface CourseProgress {
+import { AssignedLearningPath } from "@/types/employee/employeeTypes";
+
+export interface CourseProgress {
     courseId: {
         _id: string;
         title: string;
@@ -18,14 +20,14 @@ interface CourseProgress {
 
 interface EmployeeProgressTabProps {
     progress: CourseProgress[];
-    assignedPaths: any[];
+    assignedPaths: AssignedLearningPath[];
 }
 
 export default function EmployeeProgressTab({ progress, assignedPaths }: EmployeeProgressTabProps) {
     // Calculate unique courses from all assigned learning paths
     const uniqueAssignedCourseIds = new Set<string>();
     assignedPaths.forEach((path) => {
-        path.learningPathId?.courses?.forEach((course: any) => {
+        path.learningPathId?.courses?.forEach((course) => {
             if (course.courseId) uniqueAssignedCourseIds.add(course.courseId.toString());
         });
     });

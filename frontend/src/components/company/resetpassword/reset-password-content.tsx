@@ -32,8 +32,9 @@ export default function ResetPasswordContent() {
         setMessage(res.data.message);
         router.push("/company/login");
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Reset failed");
+    } catch (err: unknown) {
+      const errorMsg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Reset failed";
+      setError(errorMsg);
     }
   };
 

@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { showSuccessToast } from '@/utils/Toast';
 import VerificationModal from '@/components/company/profile/VerificationModal';
 import { companyApiMethods } from '@/services/APIservices/companyApiService';
+import { Employee } from '@/types/company/companyTypes';
 
 export default function CompanyProfilePage() {
   const { company, setCompany } = useCompany();
@@ -183,15 +184,14 @@ export default function CompanyProfilePage() {
               <h3 className="text-xl font-semibold mb-3">About Us</h3>
               <p className="text-gray-700 text-sm leading-relaxed">{company.about || 'No description provided.'}</p>
             </section>
-
             {/* Courses Section */}
             <section className="bg-white rounded-xl shadow-md p-6">
               <h3 className="text-xl font-semibold mb-3">My Courses</h3>
               {company.courses && company.courses.length > 0 ? (
                 <ul className="list-disc pl-6 space-y-2 text-sm text-gray-700">
-                  {/* {company.courses.map((course: any, index: number) => (
+                  {company.courses.map((course, index) => (
                     <li key={index}>{course.title || 'Untitled Course'}</li>
-                  ))} */}
+                  ))}
                 </ul>
               ) : (
                 <p className="text-sm text-gray-500">No courses specified.</p>
@@ -203,7 +203,7 @@ export default function CompanyProfilePage() {
               <h3 className="text-xl font-semibold mb-3">Employees</h3>
               {company.employees && company.employees.length > 0 ? (
                 <ul className="list-disc pl-6 space-y-2 text-sm text-gray-700">
-                  {company.employees.map((employee: any, index: number) => (
+                  {company.employees.map((employee, index) => (
                     <li key={index}>
                       {employee?.name || 'Unnamed Employee'} - {employee?.position || 'Position not set'}
                     </li>

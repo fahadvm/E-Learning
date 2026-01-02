@@ -38,8 +38,8 @@ export default function EmployeeRequestsTab() {
       setLoading(true);
       const res = await companyApiMethods.getRequestedEmployees();
       setRequests(res?.data || []);
-    } catch (error: any) {
-      showErrorToast(error?.response?.data?.message || "Failed to fetch requests");
+    } catch (error) {
+      showErrorToast((error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to fetch requests");
     } finally {
       setLoading(false);
     }
@@ -49,12 +49,12 @@ export default function EmployeeRequestsTab() {
     try {
       setActionLoading(employeeId);
       const res = await companyApiMethods.approveEmployeeRequest(employeeId);
-      if ((res as any)?.ok) {
-        showSuccessToast((res as any)?.message || "Employee request approved");
+      if ((res as { ok: boolean }).ok) {
+        showSuccessToast((res as { message: string }).message || "Employee request approved");
         await fetchRequests();
       }
-    } catch (error: any) {
-      showErrorToast(error?.response?.data?.message || "Failed to approve request");
+    } catch (error) {
+      showErrorToast((error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to approve request");
     } finally {
       setActionLoading(null);
     }
@@ -71,14 +71,14 @@ export default function EmployeeRequestsTab() {
     try {
       setActionLoading(selectedEmployee._id);
       const res = await companyApiMethods.rejectEmployeeRequest(selectedEmployee._id, reason);
-      if ((res as any)?.ok) {
-        showSuccessToast((res as any)?.message || "Employee request rejected");
+      if ((res as { ok: boolean }).ok) {
+        showSuccessToast((res as { message: string }).message || "Employee request rejected");
         setShowRejectModal(false);
         setSelectedEmployee(null);
         await fetchRequests();
       }
-    } catch (error: any) {
-      showErrorToast(error?.response?.data?.message || "Failed to reject request");
+    } catch (error) {
+      showErrorToast((error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to reject request");
     } finally {
       setActionLoading(null);
     }

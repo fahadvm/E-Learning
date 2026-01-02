@@ -32,76 +32,19 @@ import React from "react";
 import AiTutorChat from "@/components/student/aiBot/AiTutorChat";
 import { studentCourseApi } from "@/services/APIservices/studentApiservice";
 
-interface Lesson {
-  _id: string;
-  title: string;
-  duration: number;
-  videoFile?: string;
-  completed: boolean;
-}
-
-interface Module {
-  _id: string;
-  title: string;
-  description: string;
-  lessons: Lesson[];
-}
-
-interface Comment {
-  _id: string;
-  content: string;
-  userId: {
-    _id: string;
-    name: string;
-    profilePicture?: string;
-  };
-  createdAt: string;
-}
-
-interface CourseProgress {
-  courseId: string;
-  completedLessons: string[];
-  completedModules: string[];
-  percentage: number;
-  lastVisitedLesson?: string;
-  notes: string;
-}
-
-interface Course {
-  _id: string;
-  title: string;
-  category: string;
-  coverImage?: string;
-  totalDuration: number;
-  teacherId?: {
-    _id: string;
-    name: string;
-    email: string;
-    about: string;
-    profilePicture: string;
-  };
-  totalStudents?: number;
-  reviews?: { rating: number }[];
-  description?: string;
-  modules?: Module[];
-}
-
-interface StudentCourseResponse {
-  course: Course;
-  progress: CourseProgress;
-}
-
-interface Resource {
-  _id: string;
-  title: string;
-  fileUrl: string;
-  fileType: string;
-  fileSize?: number;
-}
+import {
+  ICourse,
+  IEmployeeCourseProgress as CourseProgress,
+  ILesson as Lesson,
+  IModule as Module,
+  ICourseComment as Comment,
+  ICourseResource as Resource,
+  ICourseDetailsResponse as StudentCourseResponse
+} from "@/types/employee/employeeTypes";
 
 export default function CoursePage({ params }: { params: Promise<{ id: string }> }) {
   const [courseId, setCourseId] = useState<string>("");
-  const [course, setCourse] = useState<Course | null>(null);
+  const [course, setCourse] = useState<ICourse | null>(null);
   const [progress, setProgress] = useState<CourseProgress | null>(null);
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
   const [pendingLesson, setPendingLesson] = useState<Lesson | null>(null);
@@ -149,8 +92,8 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     const fetchComments = async () => {
       try {
         const res = await employeeApiMethods.getCourseComments(courseId);
-        if (res.ok) setComments(res.data);
-        else showErrorToast(res.message);
+        if (res?.ok && res.data) setComments(res.data);
+        else if (res) showErrorToast(res.message);
       } catch {
         showErrorToast("Failed to load comments");
       }
@@ -163,11 +106,11 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     if (!newComment.trim()) return;
     try {
       const res = await employeeApiMethods.addCourseComment(courseId, { content: newComment });
-      if (res.ok) {
+      if (res?.ok && res.data) {
         setComments((prev) => [...prev, res.data]);
         setNewComment("");
         showSuccessToast("Comment added");
-      } else {
+      } else if (res) {
         showErrorToast(res.message);
       }
     } catch {
@@ -179,10 +122,10 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
   const handleDeleteComment = async (commentId: string) => {
     try {
       const res = await employeeApiMethods.deleteCourseComment(commentId);
-      if (res.ok) {
+      if (res?.ok) {
         setComments((prev) => prev.filter((c) => c._id !== commentId));
         showSuccessToast("Comment deleted");
-      } else {
+      } else if (res) {
         showErrorToast(res.message);
       }
     } catch {
@@ -200,13 +143,18 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
       setLoading(true);
       const res = await employeeApiMethods.getMyCourseDetails(courseId);
       console.log("course details:", res)
-      if (res.ok) {
-        const { course: courseData, progress: progressData }: StudentCourseResponse = res.data;
+      if (res?.ok && res.data) {
+        const { course: courseData, progress: progressData } = res.data;
 
-        const updatedModules = courseData.modules?.map((module) => ({
+        if (!courseData) {
+          showErrorToast("Course data not found");
+          return;
+        }
+
+        const updatedModules = courseData.modules?.map((module:Module) => ({
           ...module,
           completed: progressData.completedModules?.includes(module._id) || false,
-          lessons: module.lessons.map((lesson) => ({
+          lessons: module.lessons.map((lesson: Lesson) => ({
             ...lesson,
             completed: progressData.completedLessons?.includes(lesson._id) || false,
           })),
@@ -214,15 +162,15 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
 
         setCourse({ ...courseData, modules: updatedModules });
         setProgress(progressData);
-        setNotes(progressData.notes);
+        setNotes(progressData.notes || "");
 
         const lastVisitedLessonId = progressData.lastVisitedLesson;
         const firstLesson = updatedModules?.[0]?.lessons?.[0] || null;
         const lastVisitedLesson = lastVisitedLessonId
-          ? updatedModules?.flatMap((m) => m.lessons).find((l) => l._id === lastVisitedLessonId) || firstLesson
+          ? updatedModules?.flatMap((m : Module) => m.lessons).find((l:Lesson) => l._id === lastVisitedLessonId) || firstLesson
           : firstLesson;
         setCurrentLesson(lastVisitedLesson);
-      } else {
+      } else if (res) {
         showErrorToast(res.message);
       }
     } catch (err) {
@@ -775,13 +723,13 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                           <div>
                             <p className="font-medium">{res.title}</p>
                             <p className="text-sm text-muted-foreground">
-                              {res.fileType.toUpperCase()}
+                              {res.type.toUpperCase()}
                             </p>
                           </div>
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleDownload(res.fileUrl)}
+                            onClick={() => handleDownload(res.url)}
                           >
                             <Download className="w-4 h-4 mr-1" />
                             Download

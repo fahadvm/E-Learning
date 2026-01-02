@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { adminApiMethods } from '@/services/APIservices/adminApiService';
 import { formatDistanceToNow } from 'date-fns';
+import { DashboardMetric, RevenueChartData, MappedActivity, MonthlyRevenueItem, RecentActivityItem } from '@/types/admin/adminTypes';
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 /* -------------------- Animations -------------------- */
@@ -46,9 +47,9 @@ const item = {
 /* -------------------- Component -------------------- */
 export default function WelcomePage() {
   const [displayText, setDisplayText] = useState('');
-  const [metrics, setMetrics] = useState<any[]>([]);
-  const [revenueChartData, setRevenueChartData] = useState<any[]>([]);
-  const [activities, setActivities] = useState<any[]>([]);
+  const [metrics, setMetrics] = useState<DashboardMetric[]>([]);
+  const [revenueChartData, setRevenueChartData] = useState<RevenueChartData[]>([]);
+  const [activities, setActivities] = useState<MappedActivity[]>([]);
   const [loading, setLoading] = useState(true);
   const fullText = 'Your ultimate e-learning platform';
 
@@ -118,7 +119,7 @@ export default function WelcomePage() {
 
         // Map chart data
         if (monthlyRevenue) {
-          const chartData = monthlyRevenue.map((item: any) => ({
+          const chartData = monthlyRevenue.map((item: MonthlyRevenueItem) => ({
             name: monthNames[item._id - 1],
             revenue: item.revenue
           }));
@@ -127,7 +128,7 @@ export default function WelcomePage() {
 
         // Map activities
         if (recentActivity) {
-          const mappedActivities = recentActivity.map((act: any, idx: number) => {
+          const mappedActivities = recentActivity.map((act: RecentActivityItem, idx: number) => {
             let icon = CheckCircle;
             let color = "text-green-600 bg-green-100";
 
@@ -210,7 +211,7 @@ export default function WelcomePage() {
                 <Card key={i} className="animate-pulse bg-slate-50 h-32 border-none" />
               ))
             ) : (
-              metrics.map((metric: any, index: number) => (
+              metrics.map((metric: DashboardMetric, index: number) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 20 }}
@@ -283,7 +284,7 @@ export default function WelcomePage() {
 
                           <Tooltip
                             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                            formatter={(value: any) => [`₹${value.toLocaleString()}`, "Revenue"]}
+                            formatter={(value: number) => [`₹${value.toLocaleString()}`, "Revenue"]}
                           />
 
                           <Area
@@ -329,7 +330,7 @@ export default function WelcomePage() {
                     ) : activities.length === 0 ? (
                       <div className="text-center py-10 text-slate-400">No recent activity</div>
                     ) : (
-                      activities.map((activity: any, idx: number) => (
+                      activities.map((activity: MappedActivity, idx: number) => (
                         <div key={idx} className="flex items-start group">
                           <div
                             className={cn(

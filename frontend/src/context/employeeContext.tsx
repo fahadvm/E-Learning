@@ -14,51 +14,7 @@ import { initSocket, disconnectSocket } from '@/lib/socket';
 
 // ---------------------- Interfaces ----------------------
 
-export interface SocialLinks {
-  linkedin?: string;
-  github?: string;
-  portfolio?: string;
-}
-
-export interface ICourseProgress {
-  _id?: string;
-  courseId: string;
-  completedLessons: string[];
-  completedModules: string[];
-  percentage: number;
-  lastVisitedLesson?: string;
-  notes?: string;
-}
-
-export interface IEmployee {
-  _id: string;
-  name: string;
-  email: string;
-  employeeID: string;
-  companyId: string;
-  requestedCompanyId?: string;
-  password?: string;
-  profilePicture?: string;
-  coursesAssigned: string[];
-  position?: string;
-  department?: string;
-  isBlocked: boolean;
-  status: string;
-  role: string;
-  isVerified: boolean;
-  subscription: boolean;
-  location?: string;
-  googleId?: string;
-  about?: string;
-  phone?: string;
-  social_links?: SocialLinks;
-  coursesProgress: ICourseProgress[];
-  createdAt?: Date;
-  updatedAt?: Date;
-  streakCount: number;
-  lastLoginDate: Date;
-  longestStreak: number;
-}
+import { EmployeeProfile as IEmployee, SocialLinks, IEmployeeCourseProgress as ICourseProgress } from '@/types/employee/employeeTypes';
 // ---------------------- Context Type ----------------------
 
 interface EmployeeContextType {

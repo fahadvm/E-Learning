@@ -71,17 +71,17 @@ export default function TeacherDashboard() {
 
       const baseMonths = getLast6Months();
       const mergedMonths = baseMonths.map(m => {
-        const found = earningsRes.data.find(
+        const found = earningsRes?.data?.find(
           (e: IEarningsData) =>
             e.month.toUpperCase() === m.month
         );
         return found ? { ...m, amount: found.amount } : m;
       });
 
-      setStats(statsRes.data);
-      setTopCourses(topCoursesRes.data);
+      if (statsRes?.data) setStats(statsRes.data);
+      if (topCoursesRes?.data) setTopCourses(topCoursesRes.data);
       setEarningsGraph(mergedMonths);
-      setSchedule(scheduleRes.data);
+      if (scheduleRes?.data) setSchedule(scheduleRes.data);
     } catch (err) {
       console.error("Dashboard error:", err);
     } finally {

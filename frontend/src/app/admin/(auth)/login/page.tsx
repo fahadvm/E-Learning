@@ -10,7 +10,7 @@ export default function AdminLogin() {
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [showPassword, setShowPassword] = useState(false); 
+  const [showPassword, setShowPassword] = useState(false);
 
   const validateEmail = (email: string): string => {
     if (!email) return "Email is required";
@@ -35,8 +35,8 @@ export default function AdminLogin() {
 
     try {
       const res = await adminApiMethods.login({ email, password });
-      if (res.ok) {
-        showSuccessToast(res.message);
+      if (res && res.ok) {
+        showSuccessToast(res.message || "Logged in successfully");
         router.push("/admin/dashboard");
       }
     } catch (err) {
@@ -136,7 +136,7 @@ export default function AdminLogin() {
           </button>
         </form>
 
-        
+
 
         <p className="mt-6 text-center text-gray-600">
           Not a Admin?{" "}

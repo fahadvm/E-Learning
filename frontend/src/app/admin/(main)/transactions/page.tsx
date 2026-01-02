@@ -6,9 +6,10 @@ import DataTable from '@/reusable/DataTable';
 import { adminApiMethods } from '@/services/APIservices/adminApiService';
 import { toast } from 'react-toastify';
 import { Download } from 'lucide-react';
+import { TransactionRow, TransactionQuery } from '@/types/admin/adminTypes';
 
 export default function AdminTransactionsPage() {
-    const [data, setData] = useState<any[]>([]);
+    const [data, setData] = useState<TransactionRow[]>([]);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -20,7 +21,7 @@ export default function AdminTransactionsPage() {
     const fetchTransactions = async () => {
         try {
             setLoading(true);
-            const query: any = { page, limit: 10 };
+            const query: TransactionQuery = { page, limit: 10 };
             if (search) query.search = search;
             if (startDate) query.startDate = startDate;
             if (endDate) query.endDate = endDate;
@@ -31,7 +32,7 @@ export default function AdminTransactionsPage() {
                 setData(res.data.transactions);
                 setTotalPages(res.data.totalPages);
             }
-        } catch (error: any) {
+        } catch (error) {
             console.error(error);
             toast.error('Failed to fetch transactions');
         } finally {
@@ -74,11 +75,11 @@ export default function AdminTransactionsPage() {
     };
 
     const columns = [
-        { key: '_id', label: 'Transaction ID' },
+        { key: '_id' as keyof TransactionRow, label: 'Transaction ID' },
         {
-            key: 'user',
+            key: 'userId' as keyof TransactionRow,
             label: 'User Name',
-            render: (row: any) => {
+            render: (row: TransactionRow) => {
                 const user = row.userId || row.teacherId || row.companyId;
                 return (
                     <div className="flex items-center gap-2">
@@ -88,29 +89,29 @@ export default function AdminTransactionsPage() {
                 );
             }
         },
-        { key: 'type', label: 'Type' },
+        { key: 'type' as keyof TransactionRow, label: 'Type' },
         {
-            key: 'amount',
+            key: 'amount' as keyof TransactionRow,
             label: 'Amount',
-            render: (row: any) => `₹${row.amount}`
+            render: (row: TransactionRow) => `₹${row.amount}`
         },
-        { key: 'paymentMethod', label: 'Method' },
+        { key: 'paymentMethod' as keyof TransactionRow, label: 'Method' },
         {
-            key: 'paymentStatus',
+            key: 'paymentStatus' as keyof TransactionRow,
             label: 'Status',
-            render: (row: any) => (
+            render: (row: TransactionRow) => (
                 <span className={`px-2 py-1 rounded-full text-xs font-semibold ${row.paymentStatus === 'SUCCESS' ? 'bg-green-100 text-green-700' :
-                        row.paymentStatus === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-red-100 text-red-700'
+                    row.paymentStatus === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-red-100 text-red-700'
                     }`}>
                     {row.paymentStatus}
                 </span>
             )
         },
         {
-            key: 'createdAt',
+            key: 'createdAt' as keyof TransactionRow,
             label: 'Date',
-            render: (row: any) => new Date(row.createdAt).toLocaleDateString()
+            render: (row: TransactionRow) => new Date(row.createdAt).toLocaleDateString()
         },
     ];
 

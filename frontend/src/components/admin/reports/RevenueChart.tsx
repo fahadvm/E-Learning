@@ -2,8 +2,13 @@
 'use client';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
+interface RevenueData {
+    _id: number;
+    revenue: number;
+}
+
 interface RevenueChartProps {
-    data: any[];
+    data: RevenueData[];
 }
 
 export default function RevenueChart({ data }: RevenueChartProps) {

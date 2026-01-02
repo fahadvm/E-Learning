@@ -40,7 +40,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 
     const callPeerIdRef = useRef<string | null>(null);
     const callStateRef = useRef<CallState>("idle");
-    const pendingOfferRef = useRef<any>(null);
+    const pendingOfferRef = useRef<RTCSessionDescriptionInit | null>(null);
 
     // Audio Refs
     const ringtoneRef = useRef<HTMLAudioElement | null>(null);
@@ -113,9 +113,9 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 
     // ---------------- WEBRTC HELPERS ----------------
     const createPeerConnection = async () => {
-        let iceServers = [{ urls: "stun:stun.l.google.com:19302" }];
+        let iceServers: RTCIceServer[] = [{ urls: "stun:stun.l.google.com:19302" }];
         try {
-            const res: any = await sharedWebRTCApi.getIceConfig();
+            const res: { data?: RTCIceServer[] } = await sharedWebRTCApi.getIceConfig();
             if (res?.data) iceServers = res.data;
         } catch (e) {
             console.error("Using default STUN", e);
@@ -142,7 +142,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     // ---------------- LISTENERS ----------------
     useEffect(() => {
         // Incoming Call
-        const cleanupIncoming = attachSocketListener("incoming-call", async (data: { signal: any; from: string; name: string }) => {
+        const cleanupIncoming = attachSocketListener("incoming-call", async (data: { signal: RTCSessionDescriptionInit; from: string; name: string }) => {
             console.log("Incoming call from", data.name);
             if (callStateRef.current !== "idle") {
                 // Busy
@@ -156,7 +156,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         });
 
         // Call Accepted (By the other person when WE are the caller)
-        const cleanupAccepted = attachSocketListener("call-accepted", async (signal: any) => {
+        const cleanupAccepted = attachSocketListener("call-accepted", async (signal: RTCSessionDescriptionInit) => {
             console.log("Call accepted!");
             setCallState("connected");
             if (peerConnectionRef.current) {
@@ -185,7 +185,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         });
 
         // ICE Candidate
-        const cleanupIce = attachSocketListener("ice-candidate", async (data: { candidate: any; from: string }) => {
+        const cleanupIce = attachSocketListener("ice-candidate", async (data: { candidate: RTCIceCandidateInit; from: string }) => {
             if (peerConnectionRef.current && data.candidate) {
                 try {
                     await peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(data.candidate));
@@ -281,7 +281,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         setCallState("idle");
         setCallerInfo(null);
         callPeerIdRef.current = null;
-        (window as any).pendingOffer = null;
+        (window as unknown as { pendingOffer: unknown }).pendingOffer = null;
     };
 
     const toggleVideo = () => {

@@ -16,7 +16,10 @@ export interface IPayout {
     amount: number;
     status: PayoutStatus;
     method: PayoutMethod;
-    details: Record<string, any>;
+    details: {
+        info?: string;
+        [key: string]: any;
+    };
     adminNote?: string;
     transactionId?: string;
     createdAt: string;

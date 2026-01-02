@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react';
 interface GoogleLoginButtonProps {
   onLoginSuccess: (user: unknown) => void;
   onLoginError?: (error: unknown) => void;
-  apiRouter: (data: { tokenId: string }) => Promise<{ ok: boolean; data: unknown; message?: string }>;
+  apiRouter: (data: { tokenId: string }) => Promise<{ ok: boolean; data: unknown; message?: string } | null>;
 }
 
 interface GoogleCredentialResponse {
@@ -89,10 +89,10 @@ export const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
       console.log("res  in google signup", res)
 
 
-      if (res.ok) {
+      if (res?.ok) {
         onLoginSuccess(res.data); // pass user object
       } else {
-        const errorMsg = res.message || (res.data as { message?: string })?.message || 'Login failed';
+        const errorMsg = res?.message || (res?.data as { message?: string })?.message || 'Login failed';
         throw new Error(errorMsg);
       }
     } catch (error) {

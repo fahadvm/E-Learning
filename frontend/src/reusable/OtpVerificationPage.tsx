@@ -5,8 +5,8 @@ import { showInfoToast, showSuccessToast } from "@/utils/Toast";
 
 interface Props {
   localStorageKey: string;
-  verifyUrl: any;
-  resendUrl: any;
+  verifyUrl: (data: { email: string; otp: string }) => Promise<{ ok: boolean; message: string }>;
+  resendUrl: (data: { email: string; purpose: string }) => Promise<{ ok: boolean; message: string }>;
   redirectPath: string;
   purpose: string;
   backToPath?: string;
@@ -58,20 +58,20 @@ export default function OtpVerificationPage({
 
     try {
       const res = await verifyUrl({ email, otp });
-      console.log("response form verify otp",res)
+      console.log("response form verify otp", res)
       if (res?.ok) {
         showSuccessToast(res.message);
         if (localStorageKey !== "tempforgetEmail") {
           localStorage.removeItem(localStorageKey);
         }
         router.push(redirectPath);
-      }else{
+      } else {
         setMessage(res?.message)
       }
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.log(err)
-      setMessage(err?.response?.data?.message || "Verification failed");
+      setMessage((err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Verification failed");
     }
   }
 
@@ -81,18 +81,18 @@ export default function OtpVerificationPage({
 
     try {
       const res = await resendUrl({ email, purpose });
-      if(res?.ok){
+      if (res?.ok) {
         showSuccessToast(res?.message)
         setTimer(1);
         setIsButtonDisabled(true);
-      }else{
+      } else {
         showInfoToast(res?.message)
       }
 
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.log("response:", err)
-      setMessage(err?.response?.data?.message || "Failed to resend OTP");
+      setMessage((err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to resend OTP");
     } finally {
       setIsResending(false);
     }

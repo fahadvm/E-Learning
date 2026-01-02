@@ -1,26 +1,23 @@
+import { IChat, IChatMessage } from '@/types/shared/chat';
 import { getRequest, postRequest } from './api';
+import { ApiResponse } from '@/types/shared/api';
 
 export const companyChatService = {
-    getCompanyGroup: async (companyId: string) => {
-        const response = await getRequest<any>(`/company/chat/${companyId}`);
-        return response?.data;
+    getCompanyGroup: async (companyId: string): Promise<IChat | null> => {
+        const response = await getRequest<ApiResponse<IChat>>(`/company/chat/${companyId}`);
+        return response?.data || null;
     },
 
-    getMessages: async (chatId: string) => {
-        const response = await getRequest<any>(`/company/chat/messages/${chatId}`);
-        return response?.data;
+    getMessages: async (chatId: string): Promise<IChatMessage[]> => {
+        const response = await getRequest<ApiResponse<IChatMessage[]>>(`/company/chat/messages/${chatId}`);
+        return response?.data || [];
     },
 
-    // Note: Sending messages is largely handled via Socket.io, 
-    // but if we need an HTTP fallback or for file uploads, we might add it here.
-    // For file uploads:
-    uploadFile: async (file: File) => {
+    uploadFile: async (file: File): Promise<string | undefined> => {
         const formData = new FormData();
         formData.append('file', file);
-        const response = await postRequest<any>('/shared/upload', formData, {
+        const response = await postRequest<ApiResponse<{ url: string }>>('/shared/upload', formData, {
             showToast: true
-            // Headers are handled by api/axios usually, but for FormData we might need to let browser set boundary
-            // The api wrapper properly handles FormData check to set/unset Content-Type
         });
         return response?.data?.url;
     }

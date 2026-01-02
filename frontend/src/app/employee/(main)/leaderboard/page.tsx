@@ -19,47 +19,43 @@ export default function LeaderboardPage() {
   const router = useRouter();
 
   useEffect(() => {
+    const fetchAllTime = async () => {
+      const companyId = typeof employee?.companyId === 'object' ? employee.companyId._id : employee?.companyId;
+      if (!companyId) {
+        console.log("there is no company id ")
+        return
+      }
+      const res = await employeeApiMethods.getAllTimeLeaderBoard({ companyId })
+      console.log("iam trying for fetch all time leaderboard", res)
+      if (res?.ok && res.data) {
+        setAllTimeData(res.data.leaderboard);
+      }
+    };
+
+    const fetchWeekly = async () => {
+      const companyId = typeof employee?.companyId === 'object' ? employee.companyId._id : employee?.companyId;
+      if (!companyId) return
+      const res = await employeeApiMethods.getWeeklyLeaderBoard({ companyId })
+      console.log("weekly :", res)
+      if (res?.ok && res.data) {
+        setWeeklyData(res.data.leaderboard);
+      }
+    };
+
+    const fetchMonthly = async () => {
+      const companyId = typeof employee?.companyId === 'object' ? employee.companyId._id : employee?.companyId;
+      if (!companyId) return
+      const res = await employeeApiMethods.getMonthlyLeaderBoard({ companyId })
+      console.log("monthly :", res)
+      if (res?.ok && res.data) {
+        setMonthlyData(res.data.leaderboard);
+      }
+    };
+
     fetchAllTime();
     fetchWeekly();
     fetchMonthly();
   }, [employee]);
-
-
-  const fetchAllTime = async () => {
-    const companyId = (employee?.companyId as any)?._id || employee?.companyId;
-    if (!companyId) {
-      console.log("there is no company id ")
-      return
-    }
-    const res = await employeeApiMethods.getAllTimeLeaderBoard({ companyId })
-    console.log("iam trying for fetch all time leaderboard", res)
-    if (res?.ok && res.data) {
-      const data: LeaderboardResponse = res.data;
-      setAllTimeData(data.leaderboard);
-    }
-  };
-
-  const fetchWeekly = async () => {
-    const companyId = (employee?.companyId as any)?._id || employee?.companyId;
-    if (!companyId) return
-    const res = await employeeApiMethods.getWeeklyLeaderBoard({ companyId })
-    console.log("weekly :", res)
-    if (res?.ok && res.data) {
-      const data: LeaderboardResponse = res.data;
-      setWeeklyData(data.leaderboard);
-    }
-  };
-
-  const fetchMonthly = async () => {
-    const companyId = (employee?.companyId as any)?._id || employee?.companyId;
-    if (!companyId) return
-    const res = await employeeApiMethods.getMonthlyLeaderBoard({ companyId })
-    console.log("monthly :", res)
-    if (res?.ok && res.data) {
-      const data: LeaderboardResponse = res.data;
-      setMonthlyData(data.leaderboard);
-    }
-  };
 
   const getRankIcon = (rank: number) => {
     if (rank === 1) return <Trophy className="h-5 w-5 text-yellow-500" />;
@@ -209,7 +205,7 @@ export default function LeaderboardPage() {
       )}
 
       {/* Tabs */}
-      <Tabs value={selectedTab} onValueChange={(v) => setSelectedTab(v as any)} className="w-full space-y-6">
+      <Tabs value={selectedTab} onValueChange={(v) => setSelectedTab(v as "all-time" | "weekly" | "monthly")} className="w-full space-y-6">
         <TabsList className="p-1 bg-muted/50 rounded-xl inline-flex w-auto border border-primary/5">
           <TabsTrigger value="all-time" className="rounded-lg px-8 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all grayscale data-[state=active]:grayscale-0">All Time</TabsTrigger>
           <TabsTrigger value="monthly" className="rounded-lg px-8 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all grayscale data-[state=active]:grayscale-0">Monthly</TabsTrigger>

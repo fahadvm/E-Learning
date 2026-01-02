@@ -57,9 +57,11 @@ export default function CoursesPage() {
         order: sortOrder,
         page,
         limit: ITEMS_PER_PAGE,
-      })
-      setCourses(res.data.data)
-      setTotalPages(res.data.totalPages)
+      }) as { ok: boolean; data: { data: ICourse[]; totalPages: number } } | null;
+      if (res?.ok && res.data) {
+        setCourses(res.data.data)
+        setTotalPages(res.data.totalPages)
+      }
     } catch (err) {
       console.error('Failed to fetch courses', err)
     } finally {
@@ -166,7 +168,7 @@ export default function CoursesPage() {
                 value={`${sortField}-${sortOrder}`}
                 onChange={(e) => {
                   setPage(1)
-                  const [field, order] = e.target.value.split('-') as any
+                  const [field, order] = e.target.value.split('-') as ['createdAt' | 'price', 'asc' | 'desc']
                   setSortField(field)
                   setSortOrder(order)
                 }}

@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import SlotsTab from "@/components/teacher/slots/slots-tab"
 import UpcomingTab from "@/components/teacher/slots/upcoming-tab"
-import HistoryTab from "@/components/teacher/slots/history-tab"
+import HistoryTab, { HistoryRecord } from "@/components/teacher/slots/history-tab"
 import Header from "@/components/teacher/header"
 import { teacherCallRequestApi } from "@/services/APIservices/teacherApiService"
 
@@ -51,7 +51,7 @@ type BackendSlot = {
 export default function Page() {
   const [allSlots, setAllSlots] = useState<Slot[]>([])
   const [loading, setLoading] = useState(true)
-  const [history, setHistory] = useState<any[]>([])
+  const [history, setHistory] = useState<HistoryRecord[]>([])
   const [page, setPage] = useState(1)
   const [limit] = useState(9)
   const [totalPages, setTotalPages] = useState(1)

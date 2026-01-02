@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { formatChatTime } from "@/utils/timeConverter"
 
 interface Conversation {
   _id: string
@@ -19,21 +20,6 @@ interface Conversation {
 interface ChatListProps {
   conversations: Conversation[]
   selectedChatId?: string
-
-}
-
-export function formatTimeDifference(updatedAt: string | Date): string {
-  const updatedTime = new Date(updatedAt)
-  const now = new Date()
-  const diffMs = now.getTime() - updatedTime.getTime()
-  const diffMin = Math.floor(diffMs / 60000)
-  const diffHr = Math.floor(diffMin / 60)
-  const diffDay = Math.floor(diffHr / 24)
-
-  if (diffMin < 1) return "Just now"
-  if (diffMin < 60) return `${diffMin} min ago`
-  if (diffHr < 24) return `${diffHr} hr ago`
-  return `${diffDay} day${diffDay > 1 ? "s" : ""} ago`
 }
 
 export function ChatLists({ conversations, selectedChatId }: ChatListProps) {
@@ -84,7 +70,7 @@ export function ChatLists({ conversations, selectedChatId }: ChatListProps) {
                     {teacher.name.length > 20 ? teacher.name.slice(0, 17) + "..." : teacher.name}
                   </h3>
                   <span className="text-xs text-muted-foreground">
-                    {formatTimeDifference(conversation.updatedAt)}
+                    {formatChatTime(conversation.updatedAt)}
                   </span>
                 </div>
 

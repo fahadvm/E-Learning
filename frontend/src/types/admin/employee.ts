@@ -10,6 +10,7 @@ export interface IAdminEmployee {
     isBlocked: boolean;
     profilePicture?: string;
     createdAt: string;
+    coursesAssigned?: string[];
 }
 
 export interface IAdminEmployeeDTO {

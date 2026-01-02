@@ -24,7 +24,8 @@ export default function PaymentPageContent() {
       try {
         const res = await studentBookingApi.getBookingDetails(bookingId);
         setBooking(res.data);
-      } catch {
+      } catch (error) {
+        console.error("Error fetching booking details:", error);
       } finally {
         setLoading(false);
       }

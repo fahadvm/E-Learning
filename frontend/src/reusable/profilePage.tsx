@@ -18,7 +18,7 @@ interface ProfilePageProps<T> {
   tabs: TabConfig[];
 }
 
-export function ProfilePage<T extends Record<string, any>>({
+export function ProfilePage<T extends Record<string, unknown>>({
   profileType,
   profileData,
   editableFields,
@@ -51,7 +51,7 @@ export function ProfilePage<T extends Record<string, any>>({
         <div className="h-48 bg-gradient-to-r from-purple-400 to-indigo-500 relative">
           <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2">
             <img
-              src={formData.logo || "https://via.placeholder.com/150"}
+              src={(formData as { logo?: string }).logo || "https://via.placeholder.com/150"}
               alt="Profile"
               className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover"
             />
@@ -60,7 +60,7 @@ export function ProfilePage<T extends Record<string, any>>({
 
         {/* Name + Info */}
         <div className="pt-20 pb-4 text-center">
-          <h1 className="text-xl font-bold">{formData.name}</h1>
+          <h1 className="text-xl font-bold">{(formData as { name?: string }).name}</h1>
           <p className="text-gray-500 capitalize">{profileType} profile</p>
         </div>
 
@@ -70,11 +70,10 @@ export function ProfilePage<T extends Record<string, any>>({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`py-3 px-4 text-sm font-medium ${
-                activeTab === tab.id
-                  ? "border-b-2 border-purple-500 text-purple-500"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={`py-3 px-4 text-sm font-medium ${activeTab === tab.id
+                ? "border-b-2 border-purple-500 text-purple-500"
+                : "text-gray-500 hover:text-gray-700"
+                }`}
             >
               {tab.label}
             </button>
@@ -96,7 +95,7 @@ export function ProfilePage<T extends Record<string, any>>({
                       key={String(field)}
                       type="text"
                       name={String(field)}
-                      value={formData[field] || ""}
+                      value={(formData[field] as string | number | undefined) ?? ""}
                       onChange={handleInputChange}
                       className="w-full border rounded p-2"
                     />
@@ -120,12 +119,12 @@ export function ProfilePage<T extends Record<string, any>>({
                 <div>
                   {editableFields.map((field) => (
                     <p key={String(field)}>
-                      <strong>{String(field)}:</strong> {formData[field]}
+                      <strong>{String(field)}:</strong> {String(formData[field])}
                     </p>
                   ))}
-                 
 
-                 
+
+
                 </div>
               )}
             </div>

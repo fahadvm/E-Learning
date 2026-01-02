@@ -9,6 +9,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
 
+interface OrderCourse {
+  title: string;
+  price: number;
+}
+
 export default function PurchaseSuccessContent() {
   const params = useSearchParams();
   const router = useRouter();
@@ -16,7 +21,7 @@ export default function PurchaseSuccessContent() {
 
   const [orderId, setOrderId] = useState<string | null>(null);
   const [amount, setAmount] = useState<number | null>(null);
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<OrderCourse[]>([]);
   const [isVerifying, setIsVerifying] = useState(true);
 
   useEffect(() => {
@@ -30,7 +35,7 @@ export default function PurchaseSuccessContent() {
       try {
         const res = await companyApiMethods.verifyPayment({ sessionId });
 
-        if (res.data.success) {
+        if (res && res.data.success) {
           showSuccessToast("Payment verified successfully");
           setOrderId(res.data.order._id || sessionId);
           setAmount(res.data.amount || 0);
@@ -55,6 +60,7 @@ export default function PurchaseSuccessContent() {
 
     try {
       const res = await companyApiMethods.downloadReciept(orderId);
+      if (!res) throw new Error("No data");
       const blob = new Blob([res.data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
 

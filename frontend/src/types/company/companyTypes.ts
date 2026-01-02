@@ -12,6 +12,12 @@ export interface CompanyProfile {
     email: string;
     phone?: string;
     location?: string;
+    address?: string; // Added to match usage
+    companyCode?: string; // Added to match usage
+    isVerified?: boolean; // Added match usage
+    website?: string;
+    pincode?: string;
+    about?: string;
     industry?: string;
     size?: string;
     description?: string;
@@ -38,6 +44,7 @@ export interface Employee {
     joinedAt: Date;
     profilePicture?: string;
     isActive: boolean;
+    position?: string;
 }
 
 export interface EmployeeRequest {
@@ -103,5 +110,5 @@ export interface LeaderboardUser {
 
 // Form Error Types
 export interface FormErrors {
-    [key: string]: string;
+    [key: string]: string | FormErrors;
 }

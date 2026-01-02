@@ -9,15 +9,7 @@ import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { showErrorToast } from "@/utils/Toast";
 
-interface Notification {
-  _id: string;
-  title: string;
-  message: string;
-  type: string;
-  isRead: boolean;
-  link?: string;
-  createdAt: string;
-}
+import { INotification as Notification } from "@/types/employee/employeeTypes";
 
 import { createPortal } from "react-dom";
 
@@ -96,10 +88,10 @@ export default function EmployeeNotificationModal({
           {["unread", "all"].map(t => (
             <button
               key={t}
-              onClick={() => setTab(t as any)}
+              onClick={() => setTab(t as "unread" | "all")}
               className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${tab === t
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground hover:bg-background/50"
                 }`}
             >
               {t === "unread" ? "Unread" : "All"}

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { adminApiMethods } from "@/services/APIservices/adminApiService";
+import { CompanyOrderResponse, PurchasedCourse } from "@/types/admin/adminTypes";
 
 // Updated CompanyOrder type to include the mapped 'courses' field
 type CompanyOrder = {
@@ -43,9 +44,9 @@ export default function OrdersPage() {
         try {
             if (activeTab === "company") {
                 const res = await adminApiMethods.getCompanyOrders();
-                const mapped: CompanyOrder[] = (res?.data || []).map((order: any) => ({
+                const mapped: CompanyOrder[] = (res?.data || []).map((order: CompanyOrderResponse) => ({
                     ...order,
-                    courses: order.purchasedCourses.map((c: any) => ({
+                    courses: order.purchasedCourses.map((c: PurchasedCourse) => ({
                         title: c.courseId?.title || "Unknown Course",
                         _id: c.courseId?._id || "",
                         seats: c.seats || 0
@@ -88,21 +89,19 @@ export default function OrdersPage() {
                 <div className="flex space-x-4 border-b mb-6">
                     <button
                         onClick={() => setActiveTab("company")}
-                        className={`px-4 py-2 font-medium border-b-2 transition-colors ${
-                            activeTab === "company"
+                        className={`px-4 py-2 font-medium border-b-2 transition-colors ${activeTab === "company"
                                 ? "border-blue-600 text-blue-600"
                                 : "border-transparent text-gray-600 hover:text-blue-600"
-                        }`}
+                            }`}
                     >
                         Company Purchased
                     </button>
                     <button
                         onClick={() => setActiveTab("student")}
-                        className={`px-4 py-2 font-medium border-b-2 transition-colors ${
-                            activeTab === "student"
+                        className={`px-4 py-2 font-medium border-b-2 transition-colors ${activeTab === "student"
                                 ? "border-blue-600 text-blue-600"
                                 : "border-transparent text-gray-600 hover:text-blue-600"
-                        }`}
+                            }`}
                     >
                         Student Purchased
                     </button>

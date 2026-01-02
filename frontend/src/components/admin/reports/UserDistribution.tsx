@@ -2,8 +2,13 @@
 'use client';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
+interface UserStatistics {
+    name: string;
+    value: number;
+}
+
 interface UserDistributionProps {
-    data: any[];
+    data: UserStatistics[];
 }
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];

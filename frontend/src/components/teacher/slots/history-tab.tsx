@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 
 import { convertTo12Hour, formatDateToDDMMYYYY } from "@/utils/timeConverter";
 
-interface HistoryRecord {
+export interface HistoryRecord {
   _id: string;
   date: string;
   day: string;

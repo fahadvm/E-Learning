@@ -12,7 +12,12 @@ import { Loader2 } from "lucide-react";
 interface EditEmployeeModalProps {
     isOpen: boolean;
     onClose: () => void;
-    employee: any;
+    employee: {
+        _id: string;
+        position?: string;
+        department?: string;
+        location?: string;
+    } | null;
     onSuccess: () => void;
 }
 
@@ -42,6 +47,7 @@ export default function EditEmployeeModal({
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!employee) return;
         setLoading(true);
         try {
             await companyApiMethods.updateEmployee(employee._id, formData);
@@ -62,7 +68,7 @@ export default function EditEmployeeModal({
                     <DialogTitle className="text-xl font-bold">Edit Employee Details</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4 py-4">
-                    
+
 
                     <div className="space-y-2">
                         <Label htmlFor="position">Position</Label>
@@ -82,7 +88,7 @@ export default function EditEmployeeModal({
                             className="bg-white/5 border-white/10"
                         />
                     </div>
-               
+
                     <div className="space-y-2">
                         <Label htmlFor="location">Location</Label>
                         <Input

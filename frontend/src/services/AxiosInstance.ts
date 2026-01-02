@@ -1,23 +1,26 @@
-import axios from "axios";
+import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { useLoading } from "@/hooks/useLoading";
 import { showInfoToast } from "@/utils/Toast";
 
-export const baseURL = `${process.env.NEXT_PUBLIC_API_URL}`
+export const baseURL = `${process.env.NEXT_PUBLIC_API_URL}`;
+
+interface CustomInternalAxiosRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
 
 const axiosInstance = axios.create({
   baseURL,
-  withCredentials: true
+  withCredentials: true,
+});
 
-})
+let activeRequests = 0;
+const { start, stop } = useLoading.getState();
 
-let activeRequests = 0
-const { start, stop } = useLoading.getState()
-
-axiosInstance.interceptors.request.use(config => {
-  if (activeRequests === 0) start()
+axiosInstance.interceptors.request.use((config) => {
+  if (activeRequests === 0) start();
   activeRequests++;
-  return config
-})
+  return config;
+});
 
 const handleResponseCompletion = () => {
   activeRequests--;
@@ -31,11 +34,11 @@ const handleResponseCompletion = () => {
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (value: unknown) => void;
-  reject: (reason?: any) => void;
+  reject: (reason?: unknown) => void;
 }> = [];
 
-const processQueue = (error: any) => {
-  failedQueue.forEach(prom => {
+const processQueue = (error: unknown) => {
+  failedQueue.forEach((prom) => {
     error ? prom.reject(error) : prom.resolve(null);
   });
   failedQueue = [];
@@ -46,12 +49,17 @@ axiosInstance.interceptors.response.use(
     handleResponseCompletion();
     return response;
   },
-  async (error) => {
+  async (error: unknown) => {
     handleResponseCompletion();
-    const originalRequest = error.config;
-    if (error.response?.status === 403) {
 
-      const msg = error.response.data?.message || "";
+    if (!axios.isAxiosError(error)) {
+      return Promise.reject(error);
+    }
+
+    const originalRequest = error.config as CustomInternalAxiosRequestConfig;
+
+    if (error.response?.status === 403) {
+      const msg = (error.response.data as { message?: string })?.message || "";
       if (msg.toLowerCase().includes("blocked")) {
         // Cleanup all auth data
         localStorage.clear();
@@ -60,10 +68,10 @@ axiosInstance.interceptors.response.use(
         // Specific redirection for each app section
         if (typeof window !== "undefined") {
           const path = window.location.pathname;
-          if (path.startsWith('/student')) window.location.href = "/student/login";
-          else if (path.startsWith('/teacher')) window.location.href = "/teacher/login";
-          else if (path.startsWith('/company')) window.location.href = "/company/login";
-          else if (path.startsWith('/employee')) window.location.href = "/employee/login";
+          if (path.startsWith("/student")) window.location.href = "/student/login";
+          else if (path.startsWith("/teacher")) window.location.href = "/teacher/login";
+          else if (path.startsWith("/company")) window.location.href = "/company/login";
+          else if (path.startsWith("/employee")) window.location.href = "/employee/login";
           else window.location.href = "/";
         }
       }
@@ -71,13 +79,13 @@ axiosInstance.interceptors.response.use(
     }
 
     // Only handle 401 errors here
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
           .then(() => axiosInstance(originalRequest))
-          .catch(err => Promise.reject(err));
+          .catch((err) => Promise.reject(err));
       }
 
       originalRequest._retry = true;

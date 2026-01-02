@@ -245,7 +245,7 @@ export default function EmployeeDetailsPage() {
                                         <p className="text-sm text-slate-500 font-medium">Assigned Courses</p>
                                         <h3 className="text-2xl font-black text-slate-900">
                                             {/* We'll assume courses list exists in full object */}
-                                            {(employee as any).coursesAssigned?.length || 0}
+                                            {employee.coursesAssigned?.length || 0}
                                         </h3>
                                     </div>
                                 </div>
@@ -275,9 +275,9 @@ export default function EmployeeDetailsPage() {
                             <CardTitle className="text-lg font-bold text-slate-800 tracking-tight">Assigned Learning Content</CardTitle>
                         </CardHeader>
                         <CardContent className="p-0">
-                            {(employee as any).coursesAssigned?.length > 0 ? (
+                            {(employee.coursesAssigned?.length || 0) > 0 ? (
                                 <div className="divide-y divide-slate-100">
-                                    {(employee as any).coursesAssigned.map((courseId: string, idx: number) => (
+                                    {(employee.coursesAssigned || []).map((courseId: string, idx: number) => (
                                         <div key={idx} className="p-6 hover:bg-slate-50/50 transition-colors flex items-center justify-between">
                                             <div className="flex items-center gap-4">
                                                 <div className="h-10 w-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 font-bold">

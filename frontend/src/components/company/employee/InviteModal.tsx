@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mail, Loader2,  XCircle } from "lucide-react";
+import { Mail, Loader2, XCircle } from "lucide-react";
 
 interface InviteModalProps {
     isOpen: boolean;
@@ -40,8 +40,8 @@ export default function InviteModal({ isOpen, onClose, onInvite }: InviteModalPr
             await onInvite(email);
             setEmail("");
             onClose();
-        } catch (err: any) {
-            setError(err?.response?.data?.message || "Failed to send invitation");
+        } catch (err: unknown) {
+            setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to send invitation");
         } finally {
             setLoading(false);
         }

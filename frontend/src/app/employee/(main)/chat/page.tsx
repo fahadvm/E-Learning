@@ -15,11 +15,13 @@ const EmployeeChatPage = () => {
         return <div className="p-4">You are not associated with any company yet.</div>;
     }
 
+    const companyId = typeof employee.companyId === 'object' ? employee.companyId._id : employee.companyId;
+
     return (
         <div className="p-6 h-full">
             <h1 className="text-2xl font-bold mb-4">Company Group Chat</h1>
             <CompanyChatWindow
-                companyId={employee.companyId}
+                companyId={companyId}
                 currentUserId={employee._id}
                 currentUserType="Employee"
             />

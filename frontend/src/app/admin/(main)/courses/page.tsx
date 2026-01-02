@@ -3,10 +3,11 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { adminApiMethods } from '@/services/APIservices/adminApiService';
+import { IAdminCourse } from '@/types/admin/adminTypes';
 
 
 export default function MyCoursesPage() {
-  const [courses, setCourses] = useState<any[]>([]);
+  const [courses, setCourses] = useState<IAdminCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [limit] = useState(6);
@@ -40,7 +41,7 @@ export default function MyCoursesPage() {
     fetchCourses();
   }, [page, debouncedSearch]);
 
-  const formatDate = (date: string) =>
+  const formatDate = (date: string | Date) =>
     new Date(date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 
   return (

@@ -5,6 +5,7 @@ import { Star, Tag, ChevronLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { adminApiMethods } from '@/services/APIservices/adminApiService'
 import { showSuccessToast } from '@/utils/Toast'
+import { FormFieldValue } from '@/types/admin/adminTypes'
 
 export default function AddSubscriptionPlanPage() {
   const router = useRouter()
@@ -30,24 +31,24 @@ export default function AddSubscriptionPlanPage() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
   const [submitting, setSubmitting] = useState(false)
 
-  const validateField = (field: string, value: any) => {
+  const validateField = (field: string, value: FormFieldValue) => {
     let error = ''
     switch (field) {
       case 'name':
-        if (!value.trim()) error = 'Plan name is required'
+        if (typeof value !== 'string' || !value.trim()) error = 'Plan name is required'
         else if (value.trim().length < 3) error = 'Name must be at least 3 characters'
         break
       case 'price':
-        if (!value.trim()) error = 'Price is required'
+        if (typeof value !== 'string' || !value.trim()) error = 'Price is required'
         else if (!/^(Free|Custom|\d+(\.\d{1,2})?)$/.test(value.trim()))
           error = 'Enter a valid price, "Free" or "Custom"'
         break
       case 'description':
-        if (!value.trim()) error = 'Description is required'
+        if (typeof value !== 'string' || !value.trim()) error = 'Description is required'
         else if (value.trim().length < 10) error = 'Description must be at least 10 characters'
         break
       case 'features':
-        if (value.length === 0) error = 'At least one feature must be selected'
+        if (Array.isArray(value) && value.length === 0) error = 'At least one feature must be selected'
         break
       default:
         break
@@ -59,14 +60,14 @@ export default function AddSubscriptionPlanPage() {
     const newErrors: { [key: string]: string } = {}
     Object.keys(form).forEach((key) => {
       if (key === 'popular' || key === 'planFor') return
-      const error = validateField(key, (form as any)[key])
+      const error = validateField(key, form[key as keyof typeof form])
       if (error) newErrors[key] = error
     })
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = (field: string, value: FormFieldValue) => {
     setForm((prev) => ({ ...prev, [field]: value }))
     setErrors((prev) => ({ ...prev, [field]: validateField(field, value) }))
   }
@@ -227,9 +228,8 @@ export default function AddSubscriptionPlanPage() {
           <button
             type="submit"
             disabled={submitting}
-            className={`${
-              submitting ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'
-            } text-white px-5 py-2.5 rounded-xl text-sm shadow-md`}
+            className={`${submitting ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'
+              } text-white px-5 py-2.5 rounded-xl text-sm shadow-md`}
           >
             {submitting ? 'Saving...' : 'Save Plan'}
           </button>

@@ -71,7 +71,7 @@ export default function CreateCoursePage() {
           courseData.coverImage
         );
 
-      case 2:
+      case 2: {
         // Enforce exactly 7 modules (days)
         if (modules.length !== 7) {
           showErrorToast('You must create exactly 7 days in the curriculum.');
@@ -96,6 +96,7 @@ export default function CreateCoursePage() {
         }
 
         return true;
+      }
 
       case 3:
         return courseData.price >= 0;

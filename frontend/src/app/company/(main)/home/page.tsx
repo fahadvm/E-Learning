@@ -12,15 +12,21 @@ import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
+interface LeaderboardEntry {
+  name: string;
+  avatar?: string;
+  hours: number;
+}
+
 export default function Home() {
   const { company } = useCompany()
   const router = useRouter()
-  const [leaderboard, setLeaderboard] = useState<any[]>([])
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const res = await companyApiMethods.getCompanyLeaderboard()
+        const res = await companyApiMethods.getCompanyLeaderboard() as { ok: boolean; data: { leaderboard: LeaderboardEntry[] } } | null;
         if (res?.ok && res.data) {
           setLeaderboard(res.data.leaderboard.slice(0, 3))
         }
@@ -95,19 +101,19 @@ export default function Home() {
               transition={{ delay: 0.6 }}
               className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center"
             >
-                <Link href="/company/courses">
+              <Link href="/company/courses">
 
-              <Button size="lg" className="w-full sm:w-auto text-base sm:text-lg px-10 sm:px-12 py-6 sm:py-8 bg-primary hover:bg-primary/90 font-semibold shadow-xl">
-                 Explore Courses
-              </Button>
-                </Link>
+                <Button size="lg" className="w-full sm:w-auto text-base sm:text-lg px-10 sm:px-12 py-6 sm:py-8 bg-primary hover:bg-primary/90 font-semibold shadow-xl">
+                  Explore Courses
+                </Button>
+              </Link>
 
-                <Link href="/company/learningpath">
+              <Link href="/company/learningpath">
 
-              <Button size="lg" variant="outline" className="w-full sm:w-auto text-base sm:text-lg px-10 sm:px-12 py-6 sm:py-8 border-white/30 text-white bg-white/5 hover:bg-white/10">
-                Create Learning path
-              </Button> 
-                </Link>
+                <Button size="lg" variant="outline" className="w-full sm:w-auto text-base sm:text-lg px-10 sm:px-12 py-6 sm:py-8 border-white/30 text-white bg-white/5 hover:bg-white/10">
+                  Create Learning path
+                </Button>
+              </Link>
 
             </motion.div>
           </div>
@@ -331,9 +337,9 @@ export default function Home() {
               Join 500+ leading enterprises already using EduPlatform
             </p>
             <Link href="/company/employees">
-            <Button
-              size="lg"
-              className="
+              <Button
+                size="lg"
+                className="
     w-full 
     max-w-md 
     mx-auto 
@@ -353,9 +359,9 @@ export default function Home() {
     transition-all 
     duration-300
   "
-            >
-              Add Employees
-            </Button>
+              >
+                Add Employees
+              </Button>
             </Link>
           </motion.div>
         </section>

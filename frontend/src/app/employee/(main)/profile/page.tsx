@@ -41,40 +41,18 @@ import {
 } from "lucide-react";
 
 // Import centralized types
-import { StatCardProps, InfoCardProps, ContactFieldProps, SocialFieldProps, SettingsButtonProps } from "@/types/employee/employeeTypes";
+import {
+  StatCardProps, InfoCardProps, ContactFieldProps, SocialFieldProps, SettingsButtonProps,
+  EmployeeProfile, SocialLinks
+} from "@/types/employee/employeeTypes";
+import { CompanyProfile } from "@/types/company/companyTypes";
+
+// Alias to avoid breaking local code that expects these names
+type IEmployee = EmployeeProfile;
+type Company = CompanyProfile;
 
 // Dynamically imported component
 const CropperModal = dynamic(() => import("@/components/common/ImageCropper"), { ssr: false });
-
-// --- Interface Definitions ---
-interface SocialLinks {
-  linkedin?: string;
-  github?: string;
-  portfolio?: string;
-}
-
-interface EmployeeProfile {
-  name: string;
-  email: string;
-  phone?: string;
-  location?: string;
-  about?: string;
-  position?: string;
-  department?: string;
-  profilePicture?: string;
-  social_links?: SocialLinks;
-  joinDate?: string;
-  employeeID?: string;
-  streakCount?: number;
-  longestStreak?: number;
-  role?: string;
-}
-
-interface Company {
-  name: string;
-  about?: string;
-  website?: string;
-}
 
 // --- Helper Components ---
 function SectionTitle({ title }: { title: string }) {
@@ -120,7 +98,7 @@ function ContactField({ icon, label, value, editable, onChange, error }: Contact
       </Label>
       {editable ? (
         <>
-          <Input value={value || ""} onChange={(e) => onChange(e.target.value)} className="mt-1" />
+          <Input value={value || ""} onChange={(e) => onChange?.(e.target.value)} className="mt-1" />
           {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
         </>
       ) : (
@@ -140,7 +118,7 @@ function SocialField({ icon, platform, url, editable, onChange, error }: SocialF
         <>
           <Input
             value={url || ""}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => onChange?.(e.target.value)}
             placeholder={`https://${platform.toLowerCase()}.com/in/yourname`}
             className="mt-1"
           />
@@ -220,11 +198,13 @@ export default function EmployeeProfilePage() {
           employeeApiMethods.getMyCompany(),
         ]);
 
-        const companyData = companyRes.data.companyId as Company | null;
-
+        const companyData = companyRes?.data?.companyId as Company | null;
         setCompany(companyData || null);
-        setProfile(profileRes.data);
-        setEditedProfile(profileRes.data);
+
+        if (profileRes?.data) {
+          setProfile(profileRes.data);
+          setEditedProfile(profileRes.data);
+        }
       } catch (err) {
         showErrorToast("Failed to load profile");
       } finally {
@@ -272,11 +252,13 @@ export default function EmployeeProfilePage() {
     if (!editedProfile || !validate()) return;
 
     try {
-      const res = await employeeApiMethods.editProfile(editedProfile);
-      setProfile(res.data);
-      setEditedProfile(res.data);
-      setIsEditing(false);
-      showSuccessToast("Profile updated!");
+      const res = await employeeApiMethods.editProfile(editedProfile as unknown as Record<string, unknown>);
+      if (res?.data) {
+        setProfile(res.data);
+        setEditedProfile(res.data);
+        setIsEditing(false);
+        showSuccessToast("Profile updated!");
+      }
     } catch (err: unknown) {
       const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to update";
       showErrorToast(errorMessage);
@@ -534,12 +516,12 @@ export default function EmployeeProfilePage() {
                 <TabsContent value="contact" className="mt-6 space-y-6">
                   <SectionTitle title="Contact & Social Links" />
                   <div className="grid gap-4 md:grid-cols-2">
-                    <ContactField icon={<Phone />} label="Phone" value={editedProfile.phone} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, phone: v })} error={errors.phone} />
-                    <ContactField icon={<MapPin />} label="Location" value={editedProfile.location} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, location: v })} />
+                    <ContactField icon={<Phone />} label="Phone" value={editedProfile.phone || ""} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, phone: v })} error={errors.phone} />
+                    <ContactField icon={<MapPin />} label="Location" value={editedProfile.location || ""} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, location: v })} />
 
-                    <SocialField icon={<Linkedin />} platform="LinkedIn" url={editedProfile.social_links?.linkedin} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, social_links: { ...editedProfile.social_links, linkedin: v } })} error={errors.linkedin} />
-                    <SocialField icon={<Github />} platform="GitHub" url={editedProfile.social_links?.github} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, social_links: { ...editedProfile.social_links, github: v } })} error={errors.github} />
-                    <SocialField icon={<Globe />} platform="Portfolio" url={editedProfile.social_links?.portfolio} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, social_links: { ...editedProfile.social_links, portfolio: v } })} error={errors.portfolio} />
+                    <SocialField icon={<Linkedin />} platform="LinkedIn" url={editedProfile.social_links?.linkedin || ""} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, social_links: { ...editedProfile.social_links, linkedin: v } })} error={errors.linkedin} />
+                    <SocialField icon={<Github />} platform="GitHub" url={editedProfile.social_links?.github || ""} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, social_links: { ...editedProfile.social_links, github: v } })} error={errors.github} />
+                    <SocialField icon={<Globe />} platform="Portfolio" url={editedProfile.social_links?.portfolio || ""} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, social_links: { ...editedProfile.social_links, portfolio: v } })} error={errors.portfolio} />
                   </div>
                 </TabsContent>
 

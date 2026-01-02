@@ -1,18 +1,19 @@
+import { ChatMessage } from "@/types/student/chat";
 import { showSuccessToast } from "@/utils/Toast";
 import { io, Socket } from "socket.io-client";
 
 let socket: Socket | null = null;
-const eventListeners: Record<string, Function[]> = {};
+const eventListeners: Record<string, ((...args: unknown[]) => void)[]> = {};
 
 export const getSocket = () => socket;
 
-const notifyListeners = (event: string, ...args: any[]) => {
+const notifyListeners = (event: string, ...args: unknown[]) => {
   if (eventListeners[event]) {
     eventListeners[event].forEach(cb => cb(...args));
   }
 };
 
-export const on = (event: string, callback: Function) => {
+export const on = (event: string, callback: (...args: unknown[]) => void) => {
   if (!eventListeners[event]) {
     eventListeners[event] = [];
   }
@@ -21,32 +22,31 @@ export const on = (event: string, callback: Function) => {
   // If socket exists, attach immediately (for robustness)
   if (socket && !socket.hasListeners(event)) {
     // Pass all arguments to the notification system
-    socket.on(event, (...args) => notifyListeners(event, ...args));
+    socket.on(event, (...args: unknown[]) => notifyListeners(event, ...args));
   }
 };
 
-export const off = (event: string, callback: Function) => {
+export const off = (event: string, callback: (...args: unknown[]) => void) => {
   if (eventListeners[event]) {
     eventListeners[event] = eventListeners[event].filter(cb => cb !== callback);
   }
 };
 
 // Helper for call context to attach internal listeners
-// Helper for call context to attach internal listeners
-export const attachSocketListener = (event: string, callback: (data: any) => void) => {
+export const attachSocketListener = <T>(event: string, callback: (data: T) => void) => {
   // Use the internal 'on' function so we register interest even if socket is null
-  on(event, callback);
+  on(event, callback as (...args: unknown[]) => void);
 
   return () => {
     // Use the internal 'off' function to cleanup
-    off(event, callback);
+    off(event, callback as (...args: unknown[]) => void);
   }
 };
 
 
 export const initSocket = (
   userId: string,
-  onMessageReceived: (data: any) => void = () => { },
+  onMessageReceived: (data: ChatMessage) => void = () => { },
   onTypingReceived: (data: { senderId: string }) => void = () => { },
   onMessageRead: (data: { messageId: string; chatId: string }) => void = () => { },
   onMessageReaction: (data: { messageId: string; chatId: string; userId: string; reaction: string }) => void = () => { },
@@ -73,7 +73,7 @@ export const initSocket = (
   socket.on("receive_message", onMessageReceived);
 
   // Listen for chat list updates (WhatsApp style)
-  socket.on("chat-list-update", (...args) => {
+  socket.on("chat-list-update", (...args: unknown[]) => {
     notifyListeners("chat-list-update", ...args);
   });
 
@@ -92,36 +92,36 @@ export const initSocket = (
   // Listen for message edit events
   socket.on("message_edited", onMessageEdited);
 
-  socket.on("receive_notification", (data) => {
+  socket.on("receive_notification", (data: { title: string; message: string }) => {
     console.log("🔔 Notification received:", data);
     showSuccessToast(`🔔 ${data.title}: ${data.message}`);
   });
 
   // ---------------- CALL EVENTS ----------------
-  socket.on("incoming-call", (...args) => {
+  socket.on("incoming-call", (...args: unknown[]) => {
     notifyListeners("incoming-call", ...args);
   });
 
-  socket.on("call-accepted", (...args) => {
+  socket.on("call-accepted", (...args: unknown[]) => {
     notifyListeners("call-accepted", ...args);
   });
 
-  socket.on("call-rejected", (...args) => {
+  socket.on("call-rejected", (...args: unknown[]) => {
     notifyListeners("call-rejected", ...args);
   });
 
-  socket.on("call-ended", (...args) => {
+  socket.on("call-ended", (...args: unknown[]) => {
     notifyListeners("call-ended", ...args);
   });
 
-  socket.on("ice-candidate", (...args) => {
+  socket.on("ice-candidate", (...args: unknown[]) => {
     // We might need to handle this globally or pass to specific handler
     // Usually PeerConnection handles this.
     notifyListeners("ice-candidate", ...args);
   });
 
 
-  socket.on("accountBlocked", (data) => {
+  socket.on("accountBlocked", (data: unknown) => {
     console.log("🚫 Account blocked event received:", data);
     alert("Your account has been blocked by the admin. You will be logged out shortly.");
 
@@ -217,11 +217,11 @@ export const sendNotification = (data: { receiverId: string; title: string; mess
 };
 
 // -------- CALL FUNCTIONS --------
-export const initiateCall = (data: { userToCall: string; signalData: any; from: string; name: string }) => {
+export const initiateCall = (data: { userToCall: string; signalData: unknown; from: string; name: string }) => {
   if (socket) socket.emit("call-user", data);
 };
 
-export const answerCall = (data: { signal: any; to: string }) => {
+export const answerCall = (data: { signal: unknown; to: string }) => {
   if (socket) socket.emit("answer-call", data);
 };
 

@@ -1,6 +1,12 @@
 
+interface TopCourse {
+    title: string;
+    sales: number;
+    revenue: number;
+}
+
 interface TopCoursesTableProps {
-    data: any[];
+    data: TopCourse[];
 }
 
 export default function TopCoursesTable({ data }: TopCoursesTableProps) {

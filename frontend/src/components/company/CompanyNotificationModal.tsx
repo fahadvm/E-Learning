@@ -11,10 +11,11 @@ import { useCompany } from "@/context/companyContext";
 import { showErrorToast } from "@/utils/Toast";
 
 import { createPortal } from "react-dom";
+import { INotification } from "@/types/shared/notification";
 
 export default function CompanyNotificationModal({ onClose }: { onClose: () => void }) {
   const { company } = useCompany();
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<INotification[]>([]);
   const [tab, setTab] = useState<"unread" | "all">("unread");
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
@@ -23,7 +24,9 @@ export default function CompanyNotificationModal({ onClose }: { onClose: () => v
     setMounted(true);
     if (!company?._id) return;
     companyApiMethods.getNotifications(company._id)
-      .then(res => setNotifications(res.data || []))
+      .then(res => {
+        if (res) setNotifications(res.data || []);
+      })
       .catch(() => showErrorToast("Failed to fetch notifications"))
       .finally(() => setLoading(false));
   }, [company?._id]);
@@ -35,10 +38,19 @@ export default function CompanyNotificationModal({ onClose }: { onClose: () => v
   }, [notifications, tab]);
 
   const markRead = async (id: string) => {
-    await companyApiMethods.markNotificationRead(id);
-    setNotifications(prev =>
-      prev.map(n => n._id === id ? { ...n, isRead: true } : n)
-    );
+    try {
+      const res = await companyApiMethods.markNotificationRead(id);
+      if (res) { // Assuming a truthy response indicates success
+        setNotifications(prev =>
+          prev.map(n => n._id === id ? { ...n, isRead: true } : n)
+        );
+      } else {
+        showErrorToast("Failed to mark notification as read.");
+      }
+    } catch (error) {
+      showErrorToast("Failed to mark notification as read.");
+      console.error("Error marking notification as read:", error);
+    }
   };
 
   if (!mounted) return null;
@@ -76,10 +88,10 @@ export default function CompanyNotificationModal({ onClose }: { onClose: () => v
           {["unread", "all"].map(t => (
             <button
               key={t}
-              onClick={() => setTab(t as any)}
+              onClick={() => setTab(t as "unread" | "all")}
               className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${tab === t
-                  ? "bg-primary text-white shadow-lg"
-                  : "text-gray-400 hover:text-white hover:bg-white/5"
+                ? "bg-primary text-white shadow-lg"
+                : "text-gray-400 hover:text-white hover:bg-white/5"
                 }`}
             >
               {t === "unread" ? "Unread" : "All"}

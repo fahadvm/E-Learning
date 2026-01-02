@@ -5,6 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import Header from "@/components/company/Header";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
 import { Loader2, ArrowLeft, User, BookOpen, BarChart3 } from "lucide-react";
+import { Employee } from "@/types/company/companyTypes";
+import { AssignedLearningPath } from "@/types/employee/employeeTypes";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { showErrorToast } from "@/utils/Toast";
@@ -12,16 +14,16 @@ import { showErrorToast } from "@/utils/Toast";
 // Components
 import EmployeeProfileTab from "@/components/company/employee/EmployeeProfileTab";
 import EmployeeLearningPathsTab from "@/components/company/employee/EmployeeLearningPathsTab";
-import EmployeeProgressTab from "@/components/company/employee/EmployeeProgressTab";
+import EmployeeProgressTab, { CourseProgress } from "@/components/company/employee/EmployeeProgressTab";
 import AssignLearningPathModal from "@/components/company/employee/AssignLearningPathModal";
 
 export default function EmployeeDetailsPage() {
     const { id } = useParams() as { id: string };
     const router = useRouter();
 
-    const [employee, setEmployee] = useState<any>(null);
-    const [assignedPaths, setAssignedPaths] = useState<any[]>([]);
-    const [progress, setProgress] = useState<any[]>([]);
+    const [employee, setEmployee] = useState<Employee | null>(null);
+    const [assignedPaths, setAssignedPaths] = useState<AssignedLearningPath[]>([]);
+    const [progress, setProgress] = useState<CourseProgress[]>([]);
     const [loading, setLoading] = useState(true);
     const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
 

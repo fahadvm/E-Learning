@@ -11,19 +11,11 @@ import { Badge } from "@/components/ui/badge";
 import { showErrorToast } from "@/utils/Toast";
 import Link from "next/link";
 
-interface Notification {
-    _id: string;
-    title: string;
-    message: string;
-    type: string;
-    isRead: boolean;
-    link?: string;
-    createdAt: string;
-}
+import { INotification } from "@/types/employee/employeeTypes";
 
 export default function EmployeeNotificationsPage() {
     const { employee } = useEmployee();
-    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [notifications, setNotifications] = useState<INotification[]>([]);
     const [loading, setLoading] = useState(true);
 
     const fetchNotifications = async () => {

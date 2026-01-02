@@ -3,8 +3,8 @@ import { employeeApiMethods } from '@/services/APIservices/employeeApiService';
 import React, { useEffect, useRef } from 'react';
 
 interface GoogleLoginButtonProps {
-  onLoginSuccess: (user: any) => void; // can also include token if needed
-  onLoginError?: (error: any) => void;
+  onLoginSuccess: (user: unknown) => void; // can also include token if needed
+  onLoginError?: (error: unknown) => void;
 }
 
 declare global {
@@ -19,6 +19,11 @@ declare global {
       }
     };
   }
+}
+
+interface GoogleCredentialResponse {
+  credential: string;
+  select_by: string;
 }
 
 const CLIENT_ID = '1009449170165-l51vq71vru9hqefmkl570nf782455uf1.apps.googleusercontent.com';
@@ -71,9 +76,9 @@ export const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
     };
   }, []);
 
-  const handleCredentialResponse = async (response: any) => {
+  const handleCredentialResponse = async (response: unknown) => {
     try {
-      const idToken = response.credential;
+      const idToken = (response as GoogleCredentialResponse).credential;
 
       // Correct API call: send { tokenId } object
       const res = await employeeApiMethods.googleSignup({ tokenId: idToken });

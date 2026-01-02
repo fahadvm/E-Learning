@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { formatMinutesToHours } from '@/utils/timeConverter';
 import { employeeApiMethods } from '@/services/APIservices/employeeApiService';
-import type { LeaderboardUser } from '@/types/employee/leaderboard';
+import type { LeaderboardUser, LeaderboardResponse } from '@/types/employee/leaderboard';
 
 export default function EmployeeHome() {
   const { employee } = useEmployee();
@@ -27,14 +27,17 @@ export default function EmployeeHome() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const companyId = (employee?.companyId as any)?._id || employee?.companyId;
+      const companyId = typeof employee?.companyId === 'object'
+        ? (employee.companyId as { _id: string })._id
+        : employee?.companyId;
+
       if (companyId) {
         try {
           const res = await employeeApiMethods.getAllTimeLeaderBoard({ companyId });
           if (res?.ok && res.data) {
             setLeaderboard(res.data.leaderboard.slice(0, 3));
 
-            const userRank = res.data.leaderboard.findIndex((u: LeaderboardUser) => u._id === employee?._id) + 1;
+            const userRank = res.data.leaderboard.findIndex((u:any) => u._id === employee?._id) + 1;
             setStats({
               coursesCompleted: employee?.coursesProgress?.filter(c => c.percentage === 100).length || 0,
               hoursLearned: Math.floor((employee?.coursesProgress?.reduce((acc, c) => acc + (c.percentage || 0), 0) || 0) / 60),

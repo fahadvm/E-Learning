@@ -14,7 +14,7 @@ interface CompanyCourse {
   coverImage?: string;
   totalDuration?: number;
   language?: string;
-  modules?: any[];
+  modules?: unknown[];
   // extras from purchase
   seats?: number;
   accessType?: string;

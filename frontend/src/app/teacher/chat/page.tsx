@@ -1,6 +1,6 @@
 "use client"
 
-import { ChatLists } from "@/components/teacher/chat/chat-lists";
+import { ChatLists, Conversation } from "@/components/teacher/chat/chat-lists";
 import Header from "@/components/teacher/header";
 import { Input } from "@/components/ui/input";
 import { teacherChatApi } from "@/services/APIservices/teacherApiService";
@@ -10,16 +10,18 @@ import { useEffect, useState } from "react";
 
 
 
+
+
 export default function MessagesPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [conversations, setConversations] = useState<any[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchConversations = async () => {
       try {
         setLoading(true);
-        const response = await teacherChatApi.getuserchat(); 
+        const response = await teacherChatApi.getuserchat();
         console.log("chat page listing", response.data)
         setConversations(response.data);
       } catch (error) {
@@ -38,7 +40,7 @@ export default function MessagesPage() {
 
   return (
     <div className="h-screen bg-background flex flex-col">
-        <Header/>
+      <Header />
       {/* Header */}
       <div className="border-b border-border bg-card p-4">
         <div className="flex items-center justify-between mb-4">

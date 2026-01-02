@@ -96,7 +96,7 @@ export default function Header() {
       setNotifications((prev) => [newNotif, ...prev]);
       setUnreadCount((prev) => prev + 1);
     });
-    return () => socket.off("receive_notification");
+    return () => {socket.off("receive_notification")}
   }, [socket]);
 
   // Click outside to close dropdowns

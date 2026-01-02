@@ -22,44 +22,11 @@ import {
 } from "lucide-react";
 import { useEmployee } from "@/context/employeeContext";
 import { useRouter } from "next/navigation";
-
-/* ---------- Types ---------- */
-interface Course {
-  _id: string;
-  courseId: string;
-  title: string;
-  description?: string;
-  duration?: string;
-  difficulty: string;
-  icon?: string;
-  order: number;
-}
-
-interface LearningPathProgress {
-  currentCourse: {
-    index: number;
-    courseId: string;
-    percentage: number;
-  };
-  completedCourses: string[];
-  percentage: number;
-  status: "active" | "paused" | "completed" | string;
-}
-
-interface LearningPathDetail {
-  _id: string;
-  title: string;
-  description: string;
-  difficulty: string;
-  category?: string;
-  icon?: string;
-  courses: Course[];
-  progress: LearningPathProgress;
-}
+import { AssignedLearningPath, LearningPathDetail, LearningPathProgress, PathCourse as Course } from "@/types/employee/employeeTypes";
 
 export default function EmployeeLearningPathsPage() {
   const [view, setView] = useState<"list" | "detail">("list");
-  const [paths, setPaths] = useState<any[]>([]);
+  const [paths, setPaths] = useState<AssignedLearningPath[]>([]);
   const [selectedPath, setSelectedPath] = useState<LearningPathDetail | null>(
     null
   );
@@ -75,7 +42,7 @@ export default function EmployeeLearningPathsPage() {
     setPaths(res?.data || []);
   };
 
-  const openDetail = async (lp: any) => {
+  const openDetail = async (lp: AssignedLearningPath) => {
     const lpDetail = await employeeApiMethods.getLearningPathById(
       lp.learningPathId._id
     );
@@ -200,8 +167,8 @@ export default function EmployeeLearningPathsPage() {
 
 /* ---------- LIST VIEW ---------- */
 interface ListViewProps {
-  paths: any[];
-  onOpenDetail: (path: any) => void;
+  paths: AssignedLearningPath[];
+  onOpenDetail: (path: AssignedLearningPath) => void;
   getDifficultyColor: (difficulty: string) => string;
 }
 
@@ -475,18 +442,18 @@ function DetailView({
                 <div
                   key={course._id ?? `${course.courseId}-${index}`}
                   className={`p-6 rounded-2xl border bg-white shadow-lg transition-all ${locked
-                      ? "opacity-60"
-                      : "hover:shadow-xl hover:scale-[1.02]"
+                    ? "opacity-60"
+                    : "hover:shadow-xl hover:scale-[1.02]"
                     }`}
                 >
                   <div className="flex items-start gap-4">
                     {/* Course Number */}
                     <div
                       className={`flex items-center justify-center w-12 h-12 rounded-xl font-bold text-lg flex-shrink-0 ${isCompleted
-                          ? "bg-green-100 text-green-600"
-                          : isCurrent
-                            ? "bg-blue-100 text-blue-600"
-                            : "bg-gray-100 text-gray-600"
+                        ? "bg-green-100 text-green-600"
+                        : isCurrent
+                          ? "bg-blue-100 text-blue-600"
+                          : "bg-gray-100 text-gray-600"
                         }`}
                     >
                       {isCompleted ? (

@@ -42,7 +42,7 @@ export default function EmployeeProfileTab({ employee, onUpdate }: EmployeeProfi
         setActionLoading(true);
         try {
             const res = await companyApiMethods.blockEmployee(employee._id, { status: !employee.isBlocked });
-            if ((res as any)?.ok) {
+            if ((res as { ok: boolean })?.ok) {
                 showSuccessToast(`Employee ${!employee.isBlocked ? "blocked" : "unblocked"} successfully`);
                 onUpdate();
             }
@@ -57,7 +57,7 @@ export default function EmployeeProfileTab({ employee, onUpdate }: EmployeeProfi
         setActionLoading(true);
         try {
             const res = await companyApiMethods.removeEmployee(employee._id);
-            if ((res as any)?.ok) {
+            if ((res as { ok: boolean })?.ok) {
                 showSuccessToast("Employee removed from company");
                 router.push("/company/employees");
             }
