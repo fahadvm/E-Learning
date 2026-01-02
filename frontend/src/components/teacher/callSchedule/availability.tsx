@@ -86,14 +86,14 @@ export default function AvailabilityScheduler() {
 
         if (apiWeek.length) {
           const mapped = DAYS.map((day) => {
-            const dayData = apiWeek.find((d: any) => d.day === day);
+            const dayData = apiWeek.find((d: DayAvailability) => d.day === day);
             return {
               day,
               enabled: dayData?.enabled || false,
               slots: dayData
-                ? dayData.slots.map((s: any) => ({
-                  id: crypto.randomUUID(),
+                ? dayData.slots.map((s: TimeSlot) => ({
                   ...s,
+                  id: s.id || crypto.randomUUID(),
                 }))
                 : [],
             };
@@ -250,7 +250,7 @@ export default function AvailabilityScheduler() {
                   <span className="font-medium">{d.day}</span>
                 </div>
 
-               
+
 
                 <div className="md:col-span-9">
                   {d.enabled ? (

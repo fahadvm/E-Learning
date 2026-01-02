@@ -1,5 +1,5 @@
 export interface IReaction {
-  userId: string;           
+  userId: string;
   reaction: string;
 }
 
@@ -14,27 +14,30 @@ export interface ChatMessage {
   type?: MessageType;
   fileUrl?: string;
   isRead?: boolean;
+  read?: boolean; // alias for compatibility
   delivered?: boolean;
-  createdAt: string;         
+  createdAt: string;
   updatedAt?: string;
   reaction?: IReaction[];
+  reactions?: IReaction[]; // alias for compatibility
+  edited?: boolean;
 }
 
 export interface Teacher {
-    _id: string;
-    name: string;
-    profilePicture?: string;
-    about?: string;
-    courseCount?: number;
+  _id: string;
+  name: string;
+  profilePicture?: string;
+  about?: string;
+  courseCount?: number;
 }
 
 export interface PurchasedCourse {
-    _id: string;
-    title: string;
-    coverImage?: string;
-    teacherId: Teacher;
-    purchasedAt: string;
-    progress?: number;
+  _id: string;
+  title: string;
+  coverImage?: string;
+  teacherId: Teacher;
+  purchasedAt: string;
+  progress?: number;
 }
 
 export type TabType = "instructors" | "courses";

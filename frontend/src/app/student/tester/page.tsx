@@ -170,8 +170,8 @@ export default function StartNewChatPage() {
                   setSearchQuery("");
                 }}
                 className={`px-8 py-3 rounded-lg font-medium transition-all duration-200 capitalize ${activeTab === tab
-                    ? "bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow-md"
-                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                  ? "bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow-md"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                   }`}
               >
                 {tab === "instructors" ? "Instructors" : "My Courses"} (
@@ -209,7 +209,7 @@ export default function StartNewChatPage() {
 }
 
 // Reusable Components
-function InstructorCard({ teacher }: { teacher: any }) {
+function InstructorCard({ teacher }: { teacher: Teacher & { courseCount: number } }) {
   return (
     <div className="group bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-md hover:shadow-xl transition-all duration-300">
       <div className="flex items-center gap-6 p-6">

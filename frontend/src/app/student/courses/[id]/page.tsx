@@ -17,7 +17,7 @@ import { useParams } from "next/navigation"
 import { studentWishlistApi } from "@/services/APIservices/studentApiservice"
 import { showSuccessToast } from "@/utils/Toast"
 import { formatMinutesToHours } from "@/utils/timeConverter"
-import { ICourse, Module } from "@/types/student/studentTypes"
+import { ICourse, Module, Lesson } from "@/types/student/studentTypes"
 import RecommendedCourses from "@/components/student/course/RecommendedCourses"
 import ReviewListModal from "@/components/student/course/ReviewList"
 
@@ -55,7 +55,7 @@ export default function CourseDetailPage() {
   useEffect(() => {
     const fetchReviews = async () => {
       const res = await studentCourseApi.getCourseReviews(id);
-      console.log("response of reviews:",res)
+      console.log("response of reviews:", res)
       setReviews(res.data);
     };
     fetchReviews();
@@ -72,7 +72,7 @@ export default function CourseDetailPage() {
     }
   };
 
-  const getTotalLessons = (modules: any[]) => {
+  const getTotalLessons = (modules: Module[]) => {
     return modules.reduce((total, module) => total + (module.lessons?.length || 0), 0);
   };
 
@@ -225,7 +225,7 @@ export default function CourseDetailPage() {
 
                         {expandedModules.includes(moduleIndex) && (
                           <div className="border-t border-border bg-muted/20">
-                            {module.lessons.map((lesson: any, lessonIndex: any) => (
+                            {module.lessons.map((lesson: Lesson, lessonIndex: number) => (
                               <div
                                 key={lessonIndex}
                                 className="flex items-center justify-between p-4 border-b border-border last:border-b-0"

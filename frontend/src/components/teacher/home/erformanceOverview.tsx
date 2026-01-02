@@ -11,11 +11,11 @@ import {
   Upload,
   Plus,
   Trash2,
-//   DragHandle,
+  //   DragHandle,
   FileText,
   Video,
   Code,
-//   Quiz,
+  //   Quiz,
   Save,
   Eye,
   ArrowLeft,
@@ -61,7 +61,7 @@ export default function CreateCoursePage() {
     isPublished: false,
     allowDiscounts: true,
   });
-  
+
   const [sections, setSections] = useState<CourseSection[]>([
     {
       id: '1',
@@ -84,7 +84,7 @@ export default function CreateCoursePage() {
 
   const categories = [
     'Web Development',
-    'Mobile Development', 
+    'Mobile Development',
     'Data Science',
     'Machine Learning',
     'Backend Development',
@@ -154,9 +154,9 @@ export default function CreateCoursePage() {
       duration: 10,
       isFree: false
     };
-    
-    setSections(prev => prev.map(section => 
-      section.id === sectionId 
+
+    setSections(prev => prev.map(section =>
+      section.id === sectionId
         ? { ...section, lessons: [...section.lessons, newLesson] }
         : section
     ));
@@ -165,7 +165,7 @@ export default function CreateCoursePage() {
   const updateLearningOutcome = (index: number, value: string) => {
     setCourseData(prev => ({
       ...prev,
-      learningOutcomes: prev.learningOutcomes.map((outcome, i) => 
+      learningOutcomes: prev.learningOutcomes.map((outcome, i) =>
         i === index ? value : outcome
       )
     }));
@@ -174,15 +174,15 @@ export default function CreateCoursePage() {
   const updateRequirement = (index: number, value: string) => {
     setCourseData(prev => ({
       ...prev,
-      requirements: prev.requirements.map((req, i) => 
+      requirements: prev.requirements.map((req, i) =>
         i === index ? value : req
       )
     }));
   };
 
   const getTotalDuration = () => {
-    return sections.reduce((total, section) => 
-      total + section.lessons.reduce((sectionTotal, lesson) => 
+    return sections.reduce((total, section) =>
+      total + section.lessons.reduce((sectionTotal, lesson) =>
         sectionTotal + lesson.duration, 0
       ), 0
     );
@@ -194,14 +194,14 @@ export default function CreateCoursePage() {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    
+
     // Simulate course creation
     await new Promise(resolve => setTimeout(resolve, 2000));
-    
+
     // In a real app, this would make an API call to create the course
     console.log('Course Data:', courseData);
     console.log('Course Sections:', sections);
-    
+
     setIsSubmitting(false);
     router.push('/teacher/my-courses');
   };
@@ -431,7 +431,7 @@ export default function CreateCoursePage() {
               <div className="flex items-center justify-between">
                 <Input
                   value={section.title}
-                  onChange={(e) => setSections(prev => prev.map(s => 
+                  onChange={(e) => setSections(prev => prev.map(s =>
                     s.id === section.id ? { ...s, title: e.target.value } : s
                   ))}
                   className="text-lg font-medium border-0 p-0 h-auto bg-transparent"
@@ -461,7 +461,7 @@ export default function CreateCoursePage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {section.lessons.map((lesson, ) => (
+                {section.lessons.map((lesson,) => (
                   <div
                     key={lesson.id}
                     className="flex items-center space-x-3 p-3 border rounded-lg"
@@ -476,14 +476,14 @@ export default function CreateCoursePage() {
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-2">
                       <Input
                         value={lesson.title}
-                        onChange={(e) => setSections(prev => prev.map(s => 
-                          s.id === section.id 
+                        onChange={(e) => setSections(prev => prev.map(s =>
+                          s.id === section.id
                             ? {
-                                ...s,
-                                lessons: s.lessons.map(l => 
-                                  l.id === lesson.id ? { ...l, title: e.target.value } : l
-                                )
-                              }
+                              ...s,
+                              lessons: s.lessons.map(l =>
+                                l.id === lesson.id ? { ...l, title: e.target.value } : l
+                              )
+                            }
                             : s
                         ))}
                         placeholder="Lesson title"
@@ -491,14 +491,14 @@ export default function CreateCoursePage() {
                       />
                       <select
                         value={lesson.type}
-                        onChange={(e) => setSections(prev => prev.map(s => 
-                          s.id === section.id 
+                        onChange={(e) => setSections(prev => prev.map(s =>
+                          s.id === section.id
                             ? {
-                                ...s,
-                                lessons: s.lessons.map(l => 
-                                  l.id === lesson.id ? { ...l, type: e.target.value as any } : l
-                                )
-                              }
+                              ...s,
+                              lessons: s.lessons.map(l =>
+                                l.id === lesson.id ? { ...l, type: e.target.value as 'video' | 'text' | 'code' | 'quiz' } : l
+                              )
+                            }
                             : s
                         ))}
                         className="h-10 px-3 rounded-md border border-input bg-background text-sm"
@@ -512,14 +512,14 @@ export default function CreateCoursePage() {
                         <Input
                           type="number"
                           value={lesson.duration}
-                          onChange={(e) => setSections(prev => prev.map(s => 
-                            s.id === section.id 
+                          onChange={(e) => setSections(prev => prev.map(s =>
+                            s.id === section.id
                               ? {
-                                  ...s,
-                                  lessons: s.lessons.map(l => 
-                                    l.id === lesson.id ? { ...l, duration: parseInt(e.target.value) || 0 } : l
-                                  )
-                                }
+                                ...s,
+                                lessons: s.lessons.map(l =>
+                                  l.id === lesson.id ? { ...l, duration: parseInt(e.target.value) || 0 } : l
+                                )
+                              }
                               : s
                           ))}
                           placeholder="Duration"
@@ -533,14 +533,14 @@ export default function CreateCoursePage() {
                         <input
                           type="checkbox"
                           checked={lesson.isFree}
-                          onChange={(e) => setSections(prev => prev.map(s => 
-                            s.id === section.id 
+                          onChange={(e) => setSections(prev => prev.map(s =>
+                            s.id === section.id
                               ? {
-                                  ...s,
-                                  lessons: s.lessons.map(l => 
-                                    l.id === lesson.id ? { ...l, isFree: e.target.checked } : l
-                                  )
-                                }
+                                ...s,
+                                lessons: s.lessons.map(l =>
+                                  l.id === lesson.id ? { ...l, isFree: e.target.checked } : l
+                                )
+                              }
                               : s
                           ))}
                         />
@@ -549,8 +549,8 @@ export default function CreateCoursePage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setSections(prev => prev.map(s => 
-                          s.id === section.id 
+                        onClick={() => setSections(prev => prev.map(s =>
+                          s.id === section.id
                             ? { ...s, lessons: s.lessons.filter(l => l.id !== lesson.id) }
                             : s
                         ))}
@@ -560,7 +560,7 @@ export default function CreateCoursePage() {
                     </div>
                   </div>
                 ))}
-                
+
                 {section.lessons.length === 0 && (
                   <div className="text-center py-8 text-muted-foreground">
                     <BookOpen className="h-12 w-12 mx-auto mb-2 opacity-50" />
@@ -651,7 +651,7 @@ export default function CreateCoursePage() {
               </Label>
             </div>
             <div className="text-sm text-muted-foreground">
-              {courseData.isPublished 
+              {courseData.isPublished
                 ? "Your course will be live and visible to students immediately"
                 : "Your course will be saved as a draft"
               }
@@ -767,12 +767,12 @@ export default function CreateCoursePage() {
                 </ul>
               </div>
             </div>
-            
+
             <div className="border-t pt-4">
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                 <Globe className="h-4 w-4" />
                 <span>
-                  {courseData.isPublished 
+                  {courseData.isPublished
                     ? 'This course will be published immediately and visible to all students'
                     : 'This course will be saved as a draft and can be published later'
                   }
@@ -802,7 +802,7 @@ export default function CreateCoursePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      
+
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -816,7 +816,7 @@ export default function CreateCoursePage() {
               <p className="text-muted-foreground">Step {currentStep} of 4: {steps[currentStep - 1].title}</p>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <Button variant="outline" data-testid="button-save-draft">
               <Save className="h-4 w-4 mr-2" />
@@ -833,25 +833,22 @@ export default function CreateCoursePage() {
         <div className="flex items-center justify-between mb-8 max-w-4xl">
           {steps.map((step, index) => (
             <div key={step.number} className="flex items-center">
-              <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
-                currentStep >= step.number 
-                  ? 'bg-primary border-primary text-primary-foreground' 
+              <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${currentStep >= step.number
+                  ? 'bg-primary border-primary text-primary-foreground'
                   : 'border-muted-foreground text-muted-foreground'
-              }`}>
+                }`}>
                 {step.number}
               </div>
               <div className="ml-3 hidden md:block">
-                <div className={`text-sm font-medium ${
-                  currentStep >= step.number ? 'text-primary' : 'text-muted-foreground'
-                }`}>
+                <div className={`text-sm font-medium ${currentStep >= step.number ? 'text-primary' : 'text-muted-foreground'
+                  }`}>
                   {step.title}
                 </div>
                 <div className="text-xs text-muted-foreground">{step.description}</div>
               </div>
               {index < steps.length - 1 && (
-                <div className={`hidden md:block w-24 h-0.5 ml-8 ${
-                  currentStep > step.number ? 'bg-primary' : 'bg-muted'
-                }`} />
+                <div className={`hidden md:block w-24 h-0.5 ml-8 ${currentStep > step.number ? 'bg-primary' : 'bg-muted'
+                  }`} />
               )}
             </div>
           ))}
@@ -877,7 +874,7 @@ export default function CreateCoursePage() {
           >
             Previous
           </Button>
-          
+
           <div className="flex items-center space-x-2">
             {currentStep < 4 ? (
               <Button
@@ -893,8 +890,8 @@ export default function CreateCoursePage() {
                 disabled={isSubmitting || !canProceed()}
                 data-testid="button-create-course"
               >
-                {isSubmitting ? 'Creating Course...' : 
-                 courseData.isPublished ? 'Create & Publish Course' : 'Create Course Draft'}
+                {isSubmitting ? 'Creating Course...' :
+                  courseData.isPublished ? 'Create & Publish Course' : 'Create Course Draft'}
               </Button>
             )}
           </div>

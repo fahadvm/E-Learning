@@ -21,6 +21,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import RequestPayoutDialog from '@/components/teacher/wallet/RequestPayoutDialog';
 import Link from 'next/link';
+import { DateRange } from 'react-day-picker';
 
 type TransactionType = 'ALL' | 'COURSE' | 'CALL';
 
@@ -28,7 +29,7 @@ export default function EarningsPage() {
   const { teacher } = useTeacher();
 
   const [stats, setStats] = useState({ balance: 0, totalEarned: 0, totalWithdrawn: 0 });
-  const [transactions, setTransactions] = useState<any[]>([]);
+  const [transactions, setTransactions] = useState<{ _id: string; amount: number; type: string; createdAt: string; description?: string; courseId?: { title: string }; meetingId?: { title: string } }[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -103,7 +104,7 @@ export default function EarningsPage() {
             <p className="text-gray-500 mt-1">Track your revenue from courses and 1:1 calls</p>
           </div>
           <RequestPayoutDialog balance={stats.balance} onSuccess={fetchEarnings} />
-               </div>
+        </div>
 
 
         <EarningsStats stats={stats} />
@@ -147,7 +148,7 @@ export default function EarningsPage() {
                   <Calendar
                     mode="range"
                     selected={{ from: dateRange.from, to: dateRange.to }}
-                    onSelect={(range: any) => setDateRange({ from: range?.from, to: range?.to })}
+                    onSelect={(range: DateRange | undefined) => setDateRange({ from: range?.from, to: range?.to })}
                     numberOfMonths={2}
                   />
                 </PopoverContent>

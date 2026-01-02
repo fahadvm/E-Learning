@@ -40,7 +40,7 @@ import { format } from 'date-fns';
 // }
 
 interface TransactionTableProps {
-    transactions: any[]; // Using any to be flexible with backend response for now
+    transactions: { _id: string; amount: number; type: string; createdAt: string; description?: string; courseId?: { title: string }; meetingId?: { title: string } }[];
     loading: boolean;
 }
 

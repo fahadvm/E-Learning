@@ -19,6 +19,47 @@ import {
 import { studentTeacherApi } from "@/services/APIservices/studentApiservice";
 import Header from "@/components/student/header";
 
+interface Experience {
+  title: string;
+  company: string;
+  from: string;
+  to: string;
+  description: string;
+  duration?: string;
+}
+
+interface Education {
+  degree: string;
+  institution: string;
+  from: string;
+  to: string;
+  description: string;
+}
+
+interface ITeacherProfile {
+  name: string;
+  email: string;
+  phone: string;
+  profilePicture: string;
+  about: string;
+  website: string;
+  skills: string[];
+  social_links: {
+    linkedin?: string;
+    instagram?: string;
+    twitter?: string;
+  };
+  experiences: Experience[];
+  education: Education[];
+}
+
+interface Review {
+  studentId: { name: string };
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
 export default function StudentTeacherProfileContent() {
   const router = useRouter();
   const params = useParams();
@@ -27,8 +68,8 @@ export default function StudentTeacherProfileContent() {
   const teacherId = params?.id as string;
   const courseId = searchParams.get("courseId");
 
-  const [teacher, setTeacher] = useState<any>(null);
-  const [reviews, setReviews] = useState<any[]>([]);
+  const [teacher, setTeacher] = useState<ITeacherProfile | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Review modal states
@@ -50,7 +91,7 @@ export default function StudentTeacherProfileContent() {
         const profileRes = await studentTeacherApi.getTeacherDetails(teacherId);
         setTeacher(profileRes.data);
 
-      
+
 
         const reviewRes = await studentTeacherApi.getTeacherReviews(teacherId);
         setReviews(reviewRes.data || []);
@@ -253,7 +294,7 @@ export default function StudentTeacherProfileContent() {
                   <Briefcase size={18} /> Experience
                 </h3>
                 {teacher.experiences?.length > 0 ? (
-                  teacher.experiences.map((exp: any, i: number) => (
+                  teacher.experiences.map((exp, i) => (
                     <div key={i} className="mb-6 border-b pb-4 last:border-0">
                       <p className="font-medium text-gray-800">
                         {exp.title} at {exp.company}
@@ -275,7 +316,7 @@ export default function StudentTeacherProfileContent() {
                   <GraduationCap size={18} /> Education
                 </h3>
                 {teacher.education?.length > 0 ? (
-                  teacher.education.map((edu: any, i: number) => (
+                  teacher.education.map((edu, i) => (
                     <div key={i} className="mb-6 border-b pb-4 last:border-0">
                       <p className="font-medium text-gray-800">
                         {edu.degree} at {edu.institution}
@@ -307,7 +348,7 @@ export default function StudentTeacherProfileContent() {
                 </div>
 
                 {reviews.length > 0 ? (
-                  reviews.map((rev: any, i: number) => (
+                  reviews.map((rev, i) => (
                     <div key={i} className="border-b pb-4 last:border-0">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="font-medium text-gray-800">
@@ -358,11 +399,10 @@ export default function StudentTeacherProfileContent() {
                   key={num}
                   size={24}
                   onClick={() => setRating(num)}
-                  className={`cursor-pointer transition ${
-                    num <= rating
+                  className={`cursor-pointer transition ${num <= rating
                       ? "text-yellow-400 fill-yellow-400"
                       : "text-gray-300"
-                  }`}
+                    }`}
                 />
               ))}
             </div>

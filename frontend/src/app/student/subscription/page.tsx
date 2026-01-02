@@ -25,6 +25,35 @@ interface Plan {
     popular?: boolean;
 }
 
+interface RazorpayResponse {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+}
+
+interface RazorpayInstance {
+    open: () => void;
+    on: (event: string, callback: () => void) => void;
+}
+
+interface RazorpayOptions {
+    key: string | undefined;
+    amount: number;
+    currency: string;
+    name: string;
+    description: string;
+    order_id: string;
+    handler: (response: RazorpayResponse) => Promise<void>;
+    prefill: {
+        name?: string;
+        email?: string;
+        contact?: string;
+    };
+    theme: {
+        color: string;
+    };
+}
+
 interface Subscription {
     _id: string;
     planId: string | Plan;
@@ -129,7 +158,7 @@ export default function SubscriptionPlansPage() {
                     name: 'DevNext',
                     description: plan.name,
                     order_id: order.id,
-                    handler: async (resp: any) => {
+                    handler: async (resp: RazorpayResponse) => {
                         try {
                             await studentSubscriptionApi.verifyPayment({
                                 planId: plan._id!,
@@ -152,7 +181,8 @@ export default function SubscriptionPlansPage() {
                     theme: { color: '#176B87' },
                 };
 
-                const rzp = new (window as any).Razorpay(options);
+                const Razorpay = (window as unknown as { Razorpay: new (options: RazorpayOptions) => RazorpayInstance }).Razorpay;
+                const rzp = new Razorpay(options);
                 rzp.on('payment.failed', () => showErrorToast('Payment failed'));
                 rzp.open();
             } catch (err) {
@@ -194,10 +224,10 @@ export default function SubscriptionPlansPage() {
                 ) : (
                     <div
                         className={`max-w-3xl mx-auto gap-6 pb-10 ${plans.length === 1
-                                ? 'flex justify-center'
-                                : plans.length === 2
-                                    ? 'grid grid-cols-1 md:grid-cols-2'
-                                    : 'grid grid-cols-1 md:grid-cols-3'
+                            ? 'flex justify-center'
+                            : plans.length === 2
+                                ? 'grid grid-cols-1 md:grid-cols-2'
+                                : 'grid grid-cols-1 md:grid-cols-3'
                             }`}
                     >            {plans.map((plan, index) => {
                         const isPurchased = purchasedPlanIds.includes(plan._id!);
@@ -242,8 +272,8 @@ export default function SubscriptionPlansPage() {
                                     disabled={isDisabled}
                                     onClick={() => handleCompletePurchase(plan)}
                                     className={`w-full py-3 rounded-lg font-semibold ${isDisabled
-                                            ? 'bg-gray-400 cursor-not-allowed'
-                                            : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                                        ? 'bg-gray-400 cursor-not-allowed'
+                                        : 'bg-indigo-600 hover:bg-indigo-700 text-white'
                                         }`}
                                 >
                                     {buttonText}

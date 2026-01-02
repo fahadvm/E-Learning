@@ -73,7 +73,7 @@ export default function TeacherWalletPage() {
         totalWithdrawn: 0,
     });
 
-    const [transactions, setTransactions] = useState<any[]>([]);
+    const [transactions, setTransactions] = useState<{ _id: string; amount: number; type: string; createdAt: string; description?: string; courseId?: { title: string }; meetingId?: { title: string } }[]>([]);
     const [earningLoading, setEarningLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -175,7 +175,7 @@ export default function TeacherWalletPage() {
                     <p className="text-gray-500">Manage earnings & withdrawals</p>
                 </div>
 
-                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
+                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'earnings' | 'withdrawals')}>
                     <TabsList className="mb-6 w-full grid grid-cols-2 h-11">
                         <TabsTrigger
                             value="earnings"
@@ -301,7 +301,7 @@ export default function TeacherWalletPage() {
                         </div>
 
                         <div className="grid md:grid-cols-3 gap-4 mb-8">
-                            
+
 
                             <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg">
                                 <CardHeader className="flex flex-row items-center justify-between pb-2">

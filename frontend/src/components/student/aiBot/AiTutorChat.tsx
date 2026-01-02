@@ -50,7 +50,7 @@ export default function AiTutorChat({ courseId }: AiTutorChatProps) {
           : "I'm sorry, I couldn't process that.",
       };
       setMessages((prev) => [...prev, aiMessage]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("AI API error:", error);
       const aiMessage: Message = {
         role: "ai",
@@ -115,15 +115,14 @@ export default function AiTutorChat({ courseId }: AiTutorChatProps) {
                 <div
                   key={index}
                   className={`p-2 rounded-lg max-w-[85%] sm:max-w-[70%] whitespace-pre-wrap break-words leading-relaxed text-sm ${msg.role === "user"
-                      ? "bg-purple-600 text-white self-end ml-auto"
-                      : "bg-white border text-gray-800"
+                    ? "bg-purple-600 text-white self-end ml-auto"
+                    : "bg-white border text-gray-800"
                     }`}
                 >
                   <ReactMarkdown
                     rehypePlugins={[rehypeSanitize]}
                     components={{
-                      code: ({ node, inline, className, children, ...props }: {
-                        node: any;
+                      code: ({ inline, className, children, ...props }: {
                         inline?: boolean;
                         className?: string;
                         children: React.ReactNode;

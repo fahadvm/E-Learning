@@ -9,7 +9,15 @@ interface GoogleLoginButtonProps {
 
 declare global {
   interface Window {
-    google: any;
+    google: {
+      accounts: {
+        id: {
+          initialize: (config: unknown) => void;
+          renderButton: (parent: HTMLElement, options: unknown) => void;
+          prompt: () => void;
+        }
+      }
+    };
   }
 }
 
@@ -69,8 +77,8 @@ export const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
 
       // Correct API call: send { tokenId } object
       const res = await employeeApiMethods.googleSignup({ tokenId: idToken });
-      console.log("res  in google signup",res)
-      
+      console.log("res  in google signup", res)
+
 
       if (res.ok) {
         onLoginSuccess(res.data); // pass user object

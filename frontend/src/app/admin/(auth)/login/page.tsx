@@ -10,7 +10,6 @@ export default function AdminLogin() {
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
   const [showPassword, setShowPassword] = useState(false); 
 
   const validateEmail = (email: string): string => {
@@ -42,7 +41,6 @@ export default function AdminLogin() {
       }
     } catch (err) {
       console.error(err);
-      setMessageType("error");
     }
   };
 

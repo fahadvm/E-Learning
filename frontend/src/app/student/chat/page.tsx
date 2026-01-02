@@ -36,7 +36,7 @@ export default function MessagesPage() {
 
   // Real-time Chat List Update (WhatsApp Style)
   useEffect(() => {
-    const cleanup = attachSocketListener("chat-list-update", (data: { chatId: string, lastMessage: any }) => {
+    const cleanup = attachSocketListener("chat-list-update", (data: { chatId: string, lastMessage: { message: string } }) => {
       setConversations(prev => {
         const index = prev.findIndex(c => c._id === data.chatId);
         if (index !== -1) {

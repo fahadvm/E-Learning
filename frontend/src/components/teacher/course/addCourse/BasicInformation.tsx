@@ -8,24 +8,7 @@ import { Upload, Plus, Trash2, X } from 'lucide-react';
 import Cropper, { Area } from 'react-easy-crop';
 import 'react-easy-crop/react-easy-crop.css';
 
-interface CourseData {
-  title: string;
-  subtitle: string;
-  description: string;
-  category: string;
-  level: string;
-  language: string;
-  price: number;
-  currency: string;
-  isTechnicalCourse: boolean;
-  coverImage: File | null;
-  tags: string[];
-  learningOutcomes: string[];
-  requirements: string[];
-  isPublished: boolean;
-  allowDiscounts: boolean;
-  totalDuration: number;
-}
+import { CourseData } from '@/types/teacher/course';
 
 interface BasicInformationProps {
   courseData: CourseData;
@@ -314,7 +297,9 @@ export default function BasicInformation({ courseData, setCourseData }: BasicInf
               />
               {courseData.coverImage && (
                 <div className="mt-4">
-                  <p className="text-sm text-muted-foreground">Selected: {courseData.coverImage.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Selected: {typeof courseData.coverImage === 'string' ? 'Current Image' : courseData.coverImage.name}
+                  </p>
                   <img
                     src={courseData.coverImage}
                     alt="Cropped coverImage preview"

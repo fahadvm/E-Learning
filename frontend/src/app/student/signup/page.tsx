@@ -95,12 +95,12 @@ export default function StudentSignupPage() {
     }
   };
 
-  const handleGoogleSuccess = (user: any) => {
+  const handleGoogleSuccess = (user: unknown) => {
     showSuccessToast("Google signup successful!");
     router.push("/student/home");
   };
 
-  const handleGoogleError = (error: any) => {
+  const handleGoogleError = (error: unknown) => {
     console.error("Google login error:", error);
     showInfoToast("Google login failed. Please try again.");
   };

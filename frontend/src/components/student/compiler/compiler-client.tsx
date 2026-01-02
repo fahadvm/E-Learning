@@ -200,7 +200,7 @@ export default function CompilerClient() {
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       if (!iframeRef.current || e.source !== iframeRef.current.contentWindow) return
-      const data = e.data || {}
+      const data = (e.data as { type?: string; text?: string }) || {}
       switch (data.type) {
         case "ready":
           setSandboxReady(true)

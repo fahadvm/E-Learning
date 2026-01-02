@@ -8,13 +8,22 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { paymentApi } from "@/services/APIservices/studentApiservice"
 import { formatMinutesToHours } from "@/utils/timeConverter"
+import { ICourse } from "@/types/student/studentTypes"
+
+interface OrderDetails {
+  orderId: string;
+  updatedAt: string;
+  payment_method: string;
+  amount: number;
+  courses: ICourse[];
+}
 
 export default function PurchaseSuccessContent() {
   const params = useSearchParams()
   const orderId = params.get("orderId")
 
   const [loading, setLoading] = useState(true)
-  const [order, setOrder] = useState<any>(null)
+  const [order, setOrder] = useState<OrderDetails | null>(null)
 
   useEffect(() => {
     if (!orderId) return
@@ -22,7 +31,7 @@ export default function PurchaseSuccessContent() {
     const fetchOrder = async () => {
       try {
         const res = await paymentApi.getOrderDetails(orderId)
-        console.log("response is",res.data)
+        console.log("response is", res.data)
         setOrder(res.data)
       } catch (error) {
         console.error("Failed to fetch order:", error)
@@ -95,7 +104,7 @@ export default function PurchaseSuccessContent() {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Purchased Courses</h2>
 
             <div className="space-y-6">
-              {order.courses.map((course: any) => (
+              {order.courses.map((course) => (
                 <div
                   key={course._id}
                   className="flex gap-4 bg-white p-4 rounded-lg border border-gray-200 hover:shadow"

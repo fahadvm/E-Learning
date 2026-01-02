@@ -44,7 +44,12 @@ interface AnalyticsData {
         _id: number;
         count: number;
     }[];
-    courseStructure: any[];
+    courseStructure: {
+        lessons: {
+            _id: string;
+            title: string;
+        }[];
+    }[];
 }
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -92,9 +97,9 @@ export default function CourseAnalyticsPage() {
 
     const lessonRetentionData = useMemo(() => {
         if (!data?.courseStructure || !data?.lessonStats) return [];
-        const allLessons: any[] = [];
+        const allLessons: { id: string; title: string; completions: number; shortTitle: string }[] = [];
         data.courseStructure.forEach(mod => {
-            mod.lessons.forEach((les: any) => {
+            mod.lessons.forEach((les) => {
                 const stat = data.lessonStats.find(s => s._id === les._id);
                 allLessons.push({
                     id: les._id,
@@ -159,7 +164,7 @@ export default function CourseAnalyticsPage() {
                             {data.overview.title}
                         </p>
                     </div>
-                    
+
                 </div>
             </div>
 
@@ -313,7 +318,7 @@ export default function CourseAnalyticsPage() {
                                         <Tooltip
                                             cursor={{ fill: 'transparent' }}
                                             contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                                            formatter={(value: any) => [`${value} Students`, 'Completed']}
+                                            formatter={(value: unknown) => [`${value} Students`, 'Completed']}
                                         />
                                         <Bar dataKey="completions" fill="#000" radius={[0, 4, 4, 0]} barSize={20} />
                                     </BarChart>

@@ -33,7 +33,7 @@ export const TopNavBar = () => {
               href={item.href}
               className="flex items-center text-gray-600 hover:text-primary transition-colors"
             >
-              <FontAwesomeIcon icon={item.icon as any} className="w-4 mr-1" />
+              <FontAwesomeIcon icon={item.icon as "home" | "book" | "users" | "tasks" | "chart-line" | "calendar" | "comments"} className="w-4 mr-1" />
               {item.label}
             </Link>
           ))}

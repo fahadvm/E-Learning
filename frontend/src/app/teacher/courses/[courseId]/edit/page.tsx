@@ -14,43 +14,7 @@ import { showErrorToast, showSuccessToast } from "@/utils/Toast";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { teacherCourseApi } from "@/services/APIservices/teacherApiService";
 
-// --- Types reuse ---
-type CourseLesson = {
-    id: string;
-    title: string;
-    description: string;
-    type: "video";
-    duration: number;
-    isFree: boolean;
-    videoFile: File | string | null; // Allow string for existing URL
-    thumbnail: File | string | null; // Allow string for existing URL
-};
-
-type CourseModule = {
-    id: string;
-    title: string;
-    description: string;
-    lessons: CourseLesson[];
-};
-
-type CourseData = {
-    title: string;
-    subtitle: string;
-    description: string;
-    category: string;
-    level: string;
-    language: string;
-    price: number;
-    isTechnicalCourse: boolean;
-    currency: string;
-    coverImage: File | string | null;  // Allow string for existing URL
-    tags: string[];
-    learningOutcomes: string[];
-    requirements: string[];
-    isPublished: boolean;
-    allowDiscounts: boolean;
-    totalDuration: number;
-};
+import { CourseData, CourseModule, CourseLesson } from "@/types/teacher/course";
 
 const steps = [
     { number: 1, title: "Basic Information", description: "Course details and metadata" },
@@ -116,16 +80,20 @@ export default function EditCoursePage() {
                     });
 
                     // Transform modules
-                    const transformModules = (course.modules || []).map((mod: any, i: number) => ({
+                    interface BackendLesson { _id: string; title: string; description: string; duration: number; videoFile: string; thumbnail: string }
+                    interface BackendModule { _id: string; title: string; description: string; lessons: BackendLesson[] }
+
+                    const transformModules = ((course.modules as BackendModule[]) || []).map((mod, i) => ({
                         id: mod._id || `temp-mod-${i}`,
                         title: mod.title,
                         description: mod.description,
-                        lessons: (mod.lessons || []).map((les: any, j: number) => ({
+                        lessons: (mod.lessons || []).map((les, j) => ({
                             id: les._id || `temp-les-${i}-${j}`,
                             title: les.title,
                             description: les.description,
-                            type: "video",
+                            type: "video" as const,
                             duration: les.duration,
+                            isFree: false, // Defaulting as specific field wasn't in backend struct shown, adjust if needed
                             videoFile: les.videoFile, // URL
                             thumbnail: les.thumbnail, // URL
                         }))
@@ -237,14 +205,15 @@ export default function EditCoursePage() {
             });
 
             const res = await teacherCourseApi.editCourse(courseId, formData);
-            if ((res as any).ok) {
+            if (res.ok) {
                 showSuccessToast("Course updated successfully!");
                 router.push("/teacher/courses");
             } else {
                 showErrorToast("Failed to update course");
             }
-        } catch (error: any) {
-            showErrorToast(error?.response?.data?.message || "Error updating course");
+        } catch (error: unknown) {
+            const errMsg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Error updating course";
+            showErrorToast(errMsg);
         } finally {
             setIsSubmitting(false);
         }
@@ -281,23 +250,23 @@ export default function EditCoursePage() {
 
                 <div className="mb-8">
                     {currentStep === 1 && (
-                        <BasicInformation courseData={courseData as any} setCourseData={setCourseData as any} />
+                        <BasicInformation courseData={courseData} setCourseData={setCourseData} />
                     )}
                     {currentStep === 2 && (
-                        <Curriculum modules={modules as any} setModules={setModules as any} />
+                        <Curriculum modules={modules} setModules={setModules} />
                     )}
                     {currentStep === 3 && (
                         <PricingSettings
-                            courseData={courseData as any}
-                            setCourseData={setCourseData as any}
+                            courseData={courseData}
+                            setCourseData={setCourseData}
                             totalDuration={getTotalDuration()}
                             totalLessons={getTotalLessons()}
                         />
                     )}
                     {currentStep === 4 && (
                         <ReviewPublish
-                            courseData={courseData as any}
-                            modules={modules as any}
+                            courseData={courseData}
+                            modules={modules}
                             totalDuration={getTotalDuration()}
                             totalLessons={getTotalLessons()}
                         />

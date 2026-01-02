@@ -18,6 +18,14 @@ interface Notification {
   isRead: boolean;
 }
 
+interface NotificationResponse {
+  data: Notification[];
+}
+
+interface MarkReadResponse {
+  ok: boolean;
+}
+
 export default function TeacherNotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +38,7 @@ export default function TeacherNotificationsPage() {
       if (!userId) return;
       setLoading(true);
 
-      const res: any = await teacherCallRequestApi.tester(userId)
+      const res: NotificationResponse = await teacherCallRequestApi.tester(userId)
 
       console.log("Fetched notifications:", res);
 
@@ -50,7 +58,7 @@ export default function TeacherNotificationsPage() {
   // Mark notification as read
   const markAsRead = async (id: string) => {
     try {
-      const res: any = await teacherCallRequestApi.testerMark({ notificationId: id });
+      const res: MarkReadResponse = await teacherCallRequestApi.testerMark({ notificationId: id });
       if (res?.ok) {
         showSuccessToast("Marked as read");
         setNotifications((prev) =>

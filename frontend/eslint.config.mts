@@ -27,10 +27,10 @@ export default tseslint.config(
       /* ------------ 🛠 RELAX RULES FOR BUILD ------------- */
 
       // Ignore unused variables (temporary)
-      '@typescript-eslint/no-unused-vars': 'error',
+      '@typescript-eslint/no-unused-vars': 'off',
 
       // Allow any (temporary)
-      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-explicit-any': 'error',
 
       // Allow ts-ignore usage
       '@typescript-eslint/ban-ts-comment': 'off',

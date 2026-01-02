@@ -7,24 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { IndianRupee, Settings, Clock, BookOpen, Users, Tags } from 'lucide-react';
 
-interface CourseData {
-  title: string;
-  subtitle: string;
-  description: string;
-  category: string;
-  level: string;
-  language: string;
-  price: number;
-  currency: string;
-  isTechnicalCourse: boolean;
-  coverImage: File | null;
-  tags: string[];
-  learningOutcomes: string[];
-  requirements: string[];
-  isPublished: boolean;
-  allowDiscounts: boolean;
-  totalDuration: number;
-}
+import { CourseData } from '@/types/teacher/course';
 
 interface PricingSettingsProps {
   courseData: CourseData;

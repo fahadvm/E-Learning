@@ -5,40 +5,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Globe } from 'lucide-react';
 
-interface CourseLesson {
-  id: string;
-  title: string;
-  description: string;
-  type: 'video';
-  duration: number;
-  isFree: boolean;
-  videoFile: File | null;
-  thumbnail: File | null;
-}
-
-interface CourseModule {
-  id: string;
-  title: string;
-  description: string;
-  lessons: CourseLesson[];
-}
-
-interface CourseData {
-  title: string;
-  subtitle: string;
-  description: string;
-  category: string;
-  level: string;
-  language: string;
-  price: number;
-  currency: string;
-  coverImage: File | null;
-  tags: string[];
-  learningOutcomes: string[];
-  requirements: string[];
-  isPublished: boolean;
-  allowDiscounts: boolean;
-}
+import { CourseData, CourseModule, CourseLesson } from '@/types/teacher/course';
 
 interface ReviewPublishProps {
   courseData: CourseData;
@@ -86,7 +53,7 @@ export default function ReviewPublish({ courseData, modules, totalDuration, tota
                   <div className="text-2xl font-bold">
                     {courseData.price > 0 ? `${courseData.currency} ${courseData.price}` : 'Free'}
                   </div>
-                 
+
                 </div>
               </div>
             </div>

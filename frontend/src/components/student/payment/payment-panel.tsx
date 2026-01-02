@@ -18,6 +18,35 @@ interface PaymentPanelProps {
   bookingId: string
 }
 
+interface RazorpayResponse {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}
+
+interface RazorpayOptions {
+  key: string | undefined;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  order_id: string;
+  handler: (response: RazorpayResponse) => Promise<void>;
+  prefill: {
+    name: string;
+    email: string;
+    contact: string;
+  };
+  theme: {
+    color: string;
+  };
+}
+
+interface RazorpayInstance {
+  open: () => void;
+  on: (event: string, callback: (err?: unknown) => void) => void;
+}
+
 export default function PaymentPanel({
   paymentMethods,
   fee,
@@ -29,123 +58,124 @@ export default function PaymentPanel({
   const [selected, setSelected] = React.useState(paymentMethods[0]?.id ?? "")
 
   const handleCompletePurchase = () => {
-  const { isProcessing, startPayment, endPayment } = usePaymentStore.getState();
+    const { isProcessing, startPayment, endPayment } = usePaymentStore.getState();
 
-  if (isProcessing) {
-    showErrorToast("A payment is already being processed. Please wait...");
-    return;
-  }
-
-  if (selected !== "upi" && selected !== "net-banking") {
-    showErrorToast("Please select UPI / NetBanking to continue with Razorpay");
-    return;
-  }
-
-  startPayment();
-
-  const script = document.createElement("script");
-  script.src = "https://checkout.razorpay.com/v1/checkout.js";
-  script.async = true;
-  document.body.appendChild(script);
-
-  const safeRemoveScript = () => {
-    try {
-      if (document.body.contains(script)) document.body.removeChild(script);
-    } catch (e) {
-      console.warn("Could not remove razorpay script", e);
+    if (isProcessing) {
+      showErrorToast("A payment is already being processed. Please wait...");
+      return;
     }
-  };
 
-  script.onload = async () => {
-    try {
-      // Create order on backend (returns the booking with paymentOrderId)
-      const response = await paymentApi.bookingPayment({
-        amount: fee,
-        bookingId,
-      });
-      console.log("response of bookingPayment",response)
+    if (selected !== "upi" && selected !== "net-banking") {
+      showErrorToast("Please select UPI / NetBanking to continue with Razorpay");
+      return;
+    }
 
-      const orderResp = response.data;
+    startPayment();
 
-      // order id on booking is paymentOrderId per your repo/schema
-      const razorpayOrderId =
-        orderResp?.paymentOrderId ?? orderResp?.razorpayOrderId ?? null;
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
 
-      if (!razorpayOrderId) {
-        console.error("No order id returned from backend:", orderResp);
-        showErrorToast("Order creation failed (no order id)");
-        endPayment();
-        safeRemoveScript();
-        return;
+    const safeRemoveScript = () => {
+      try {
+        if (document.body.contains(script)) document.body.removeChild(script);
+      } catch (e) {
+        console.warn("Could not remove razorpay script", e);
       }
+    };
 
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
-        amount: fee * 100, // ensure amount matches what's created on server (in paise)
-        currency: "INR",
-        name: "DevNext",
-        description: "Booking Payment",
-        order_id: razorpayOrderId, // <-- use backend's paymentOrderId
-        handler: async (response: any) => {
-          try {
-            // verify on backend
-            const verifyResponse = await paymentApi.verifyBookingPayment({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-            });
+    script.onload = async () => {
+      try {
+        // Create order on backend (returns the booking with paymentOrderId)
+        const response = await paymentApi.bookingPayment({
+          amount: fee,
+          bookingId,
+        });
+        console.log("response of bookingPayment", response)
 
-            // adjust based on your API client's shape
-            if (verifyResponse?.ok || verifyResponse?.data) {
-              showSuccessToast("Payment successful!");
-              router.push(
-                `/student/booking/payment/success?orderId=${response.razorpay_order_id}&paymentId=${response.razorpay_payment_id}&amount=${fee}`
-              );
-            } else {
-              console.error("Verification failed", verifyResponse);
-              showErrorToast("Payment verification failed");
+        const orderResp = response.data;
+
+        // order id on booking is paymentOrderId per your repo/schema
+        const razorpayOrderId =
+          orderResp?.paymentOrderId ?? orderResp?.razorpayOrderId ?? null;
+
+        if (!razorpayOrderId) {
+          console.error("No order id returned from backend:", orderResp);
+          showErrorToast("Order creation failed (no order id)");
+          endPayment();
+          safeRemoveScript();
+          return;
+        }
+
+        const options = {
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
+          amount: fee * 100, // ensure amount matches what's created on server (in paise)
+          currency: "INR",
+          name: "DevNext",
+          description: "Booking Payment",
+          order_id: razorpayOrderId, // <-- use backend's paymentOrderId
+          handler: async (response: RazorpayResponse) => {
+            try {
+              // verify on backend
+              const verifyResponse = await paymentApi.verifyBookingPayment({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              });
+
+              // adjust based on your API client's shape
+              if (verifyResponse?.ok || verifyResponse?.data) {
+                showSuccessToast("Payment successful!");
+                router.push(
+                  `/student/booking/payment/success?orderId=${response.razorpay_order_id}&paymentId=${response.razorpay_payment_id}&amount=${fee}`
+                );
+              } else {
+                console.error("Verification failed", verifyResponse);
+                showErrorToast("Payment verification failed");
+              }
+            } catch (err) {
+              console.error("Verification error:", err);
+              showErrorToast("Payment verification error");
+            } finally {
+              endPayment();
             }
-          } catch (err) {
-            console.error("Verification error:", err);
-            showErrorToast("Payment verification error");
-          } finally {
-            endPayment();
-          }
-        },
-        prefill: {
-          name: student?.name ?? "Student",
-          email: student?.email ?? "no-reply@example.com",
-          contact: `${student?.phone ?? ""}`,
-        },
-        theme: { color: "#176B87" },
-      };
+          },
+          prefill: {
+            name: student?.name ?? "Student",
+            email: student?.email ?? "no-reply@example.com",
+            contact: `${student?.phone ?? ""}`,
+          },
+          theme: { color: "#176B87" },
+        };
 
-      const rzp = new (window as any).Razorpay(options);
+        const Razorpay = (window as unknown as { Razorpay: new (options: RazorpayOptions) => RazorpayInstance }).Razorpay;
+        const rzp = new Razorpay(options);
 
-      rzp.on("payment.failed", (err: any) => {
-        console.error("Payment failed:", err);
-        showErrorToast("Payment failed");
+        rzp.on("payment.failed", (err: unknown) => {
+          console.error("Payment failed:", err);
+          showErrorToast("Payment failed");
+          endPayment();
+        });
+
+        rzp.open();
+      } catch (err) {
+        console.error("Order creation failed:", err);
+        showErrorToast("Order creation failed");
         endPayment();
-      });
+      } finally {
+        // safely remove script after open attempt; don't rely on exact timing
+        setTimeout(safeRemoveScript, 5000);
+      }
+    };
 
-      rzp.open();
-    } catch (err) {
-      console.error("Order creation failed:", err);
-      showErrorToast("Order creation failed");
+    script.onerror = () => {
+      console.error("Failed to load Razorpay SDK");
+      showErrorToast("Payment SDK failed to load");
       endPayment();
-    } finally {
-      // safely remove script after open attempt; don't rely on exact timing
-      setTimeout(safeRemoveScript, 5000);
-    }
+      safeRemoveScript();
+    };
   };
-
-  script.onerror = () => {
-    console.error("Failed to load Razorpay SDK");
-    showErrorToast("Payment SDK failed to load");
-    endPayment();
-    safeRemoveScript();
-  };
-};
 
 
   return (

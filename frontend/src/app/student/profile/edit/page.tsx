@@ -19,6 +19,27 @@ const CropperModal = dynamic(() => import("@/components/common/ImageCropper"), {
   ssr: false,
 });
 
+interface ProfileErrors {
+  name?: string;
+  phone?: string;
+  about?: string;
+  linkedin?: string;
+  gitHub?: string;
+  leetCode?: string;
+  [key: string]: string | undefined;
+}
+
+interface PasswordErrors {
+  current?: string;
+  new?: string;
+  confirm?: string;
+}
+
+interface EmailErrors {
+  email?: string;
+  otp?: string;
+}
+
 const fadeIn = {
   initial: { opacity: 0, y: 18 },
   animate: { opacity: 1, y: 0 },
@@ -92,9 +113,9 @@ export default function EditProfilePage() {
   const [showCropper, setShowCropper] = useState(false);
 
   // Errors & Loading
-  const [errors, setErrors] = useState<any>({});
-  const [pwErrors, setPwErrors] = useState<any>({});
-  const [emailErrors, setEmailErrors] = useState<any>({});
+  const [errors, setErrors] = useState<ProfileErrors>({});
+  const [pwErrors, setPwErrors] = useState<PasswordErrors>({});
+  const [emailErrors, setEmailErrors] = useState<EmailErrors>({});
   const [saving, setSaving] = useState(false);
   const [pwSaving, setPwSaving] = useState(false);
   const [emailSaving, setEmailSaving] = useState(false);
@@ -137,7 +158,7 @@ export default function EditProfilePage() {
       setFormData((p) => ({ ...p, [name]: value }));
     }
     // Clear error on change
-    setErrors((prev: any) => ({ ...prev, [name]: "" }));
+    setErrors((prev: ProfileErrors) => ({ ...prev, [name]: "" }));
   };
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
@@ -168,7 +189,7 @@ export default function EditProfilePage() {
 
   /* ---------------------- Validation Functions ---------------------- */
   const validateProfile = () => {
-    const newErrors: any = {};
+    const newErrors: ProfileErrors = {};
 
     if (!formData.name.trim()) newErrors.name = "Name is required";
     else if (formData.name.trim().length < 2) newErrors.name = "Name must be at least 2 characters";
@@ -204,7 +225,7 @@ export default function EditProfilePage() {
   };
 
   const validatePassword = () => {
-    const err: any = {};
+    const err: PasswordErrors = {};
     if (!currentPassword) err.current = "Current password is required";
     if (!newPassword) err.new = "New password is required";
     else if (newPassword.length < 8) err.new = "Password must be at least 8 characters";
@@ -218,7 +239,7 @@ export default function EditProfilePage() {
   };
 
   const validateEmail = () => {
-    const err: any = {};
+    const err: EmailErrors = {};
     if (!newEmail) err.email = "Email is required";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) err.email = "Invalid email address";
     setEmailErrors(err);
@@ -262,7 +283,7 @@ export default function EditProfilePage() {
         showErrorToast(res?.message || "Failed to update profile");
       }
     } catch (err) {
-       console.log(err)
+      console.log(err)
       showErrorToast("Something went wrong");
     } finally {
       setSaving(false);
@@ -287,7 +308,7 @@ export default function EditProfilePage() {
         showErrorToast(res?.message || "Failed to change password");
       }
     } catch (err) {
-       console.log(err)
+      console.log(err)
       showErrorToast("Something went wrong");
     } finally {
       setPwSaving(false);
@@ -339,7 +360,7 @@ export default function EditProfilePage() {
         showErrorToast(res?.message || "Invalid or expired OTP");
       }
     } catch (err) {
-       console.log(err)
+      console.log(err)
       showErrorToast("Verification failed");
     } finally {
       setEmailSaving(false);
@@ -402,7 +423,7 @@ export default function EditProfilePage() {
                 onChange={(e) => {
                   const value = e.target.value.replace(/\D/g, "").slice(0, 10); // Only digits, max 10
                   setFormData((p) => ({ ...p, phone: value }));
-                  setErrors((prev: any) => ({ ...prev, phone: "" })); // Clear error on typing
+                  setErrors((prev: ProfileErrors) => ({ ...prev, phone: "" })); // Clear error on typing
                 }}
                 placeholder="e.g. 9876543210"
                 maxLength={10}

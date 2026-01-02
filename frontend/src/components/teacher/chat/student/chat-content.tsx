@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useTeacher } from "@/context/teacherContext";
 import { initSocket, sendMessage, sendTyping, sendReadMessage, sendMessageReaction, sendDeleteMessage, sendEditMessage, disconnectSocket, joinChat } from "@/lib/socket";
 import { teacherChatApi } from "@/services/APIservices/teacherApiService";
+import { ChatMessage } from "@/types/student/chat";
 
 // ---------- ConfirmationDialog Component ----------
 const ConfirmationDialog = ({
@@ -92,11 +93,11 @@ const ChatMessages = ({
   setConfirmDeleteMessageId,
   setEditingMessageId,
 }: {
-  messages: any[];
+  messages: ChatMessage[];
   teacherId: string;
   studentAvatar?: string;
   isTyping: boolean;
-  markMessagesAsRead: (messages: any[]) => void;
+  markMessagesAsRead: (messages: ChatMessage[]) => void;
   handleReaction: (messageId: string, reaction: string) => void;
   handleDelete: (messageId: string) => void;
   handleEdit: (messageId: string, message: string) => void;
@@ -203,7 +204,7 @@ const ChatMessages = ({
                       </span>
                     )}
                   </div>
-                  {msg.reactions?.length > 0 && (
+                  {msg.reactions && msg.reactions.length > 0 && (
                     <div className="flex gap-1 mt-2">
                       {msg.reactions.map((reaction: { userId: string; reaction: string }, idx: number) => (
                         <span key={idx} className="text-base bg-white border border-slate-200 px-2 py-0.5 rounded-full shadow-sm">
@@ -344,7 +345,7 @@ const ChatInput = ({ input, setInput, handleSend, handleTyping }: { input: strin
 
 // --- Main TeacherChat Page ---
 export default function TeacherChatContent() {
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [studentInfo, setStudentInfo] = useState<{ name: string; profilePicture?: string } | null>(null);
   const { teacher } = useTeacher();
@@ -419,7 +420,7 @@ export default function TeacherChatContent() {
 
     const socket = initSocket(
       teacherId,
-      (data) => {
+      (data: ChatMessage) => {
         setMessages((prev) => [...prev, data]);
         setIsTyping(false);
       },
@@ -535,7 +536,7 @@ export default function TeacherChatContent() {
     setConfirmEditMessageId(null);
   };
 
-  const markMessagesAsRead = (messages: any[]) => {
+  const markMessagesAsRead = (messages: ChatMessage[]) => {
     if (!teacherId || !studentId || !chatId) return;
 
     messages.forEach((msg) => {

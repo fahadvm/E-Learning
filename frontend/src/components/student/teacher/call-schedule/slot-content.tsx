@@ -54,6 +54,13 @@ interface SelectedSlot {
   end: string;
 }
 
+interface AvailabilitySlot {
+  date: string;
+  day: string;
+  start: string;
+  end: string;
+}
+
 // Convert 24-hour to 12-hour format
 function formatTime12Hour(time24: string) {
   const [hourStr, min] = time24.split(":");
@@ -91,7 +98,7 @@ export default function StudentTeacherSlotPageContent() {
         const res = await studentBookingApi.getAvailableSlots(teacherId);
 
         const grouped: DayAvailability[] = res.data.reduce(
-          (acc: DayAvailability[], curr: any) => {
+          (acc: DayAvailability[], curr: AvailabilitySlot) => {
             const existing = acc.find((d) => d.date === curr.date);
             if (existing) {
               existing.slots.push({ start: curr.start, end: curr.end });
@@ -171,7 +178,7 @@ export default function StudentTeacherSlotPageContent() {
       };
 
       const res = await studentBookingApi.slotLocking(bookingPayload);
-      console.log("res of locking confirmation ",res)
+      console.log("res of locking confirmation ", res)
       if (res.ok) {
         setIsModalOpen(false);
         setSelectedSlot(null);

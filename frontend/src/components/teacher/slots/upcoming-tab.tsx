@@ -57,8 +57,8 @@ export default function UpcomingTab({
         try {
           const res = await teacherCallRequestApi.getslotsList();
           const available = res.data
-            .filter((s: any) => s.status === "available")
-            .map((item: any) => ({
+            .filter((s: { status: string; _id: string; date: string; day: string; slot: { start: string; end: string } }) => s.status === "available")
+            .map((item: { _id: string; date: string; day: string; slot: { start: string; end: string }; status: string }) => ({
               _id: item._id,
               dateKey: item.date,
               day: item.day,

@@ -15,6 +15,35 @@ import { useStudent } from "@/context/studentContext"
 import { usePaymentStore } from "@/hooks/usePaymentStore"
 import { PaymentStatus } from "@/components/student/checkout/paymentStatus"
 
+interface RazorpayResponse {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}
+
+interface RazorpayInstance {
+  open: () => void;
+  on: (event: string, callback: () => void) => void;
+}
+
+interface RazorpayOptions {
+  key: string | undefined;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  order_id: string;
+  handler: (response: RazorpayResponse) => Promise<void>;
+  prefill: {
+    name?: string;
+    email?: string;
+    contact?: string;
+  };
+  theme: {
+    color: string;
+  };
+}
+
 
 export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState("card")
@@ -87,7 +116,7 @@ export default function CheckoutPage() {
         });
 
         const order = response.data;
-        console.log("data pritned",order)
+        console.log("data pritned", order)
 
         const options = {
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
@@ -96,7 +125,7 @@ export default function CheckoutPage() {
           name: "DevNext",
           description: "Course Purchase",
           order_id: order.razorpayOrderId,
-          handler: async (response: any) => {
+          handler: async (response: RazorpayResponse) => {
             try {
               const verifyResponse = await paymentApi.verifyPayment({
                 razorpay_order_id: response.razorpay_order_id,
@@ -126,7 +155,8 @@ export default function CheckoutPage() {
           theme: { color: "#176B87" },
         };
 
-        const rzp = new (window as any).Razorpay(options);
+        const Razorpay = (window as unknown as { Razorpay: new (options: RazorpayOptions) => RazorpayInstance }).Razorpay;
+        const rzp = new Razorpay(options);
         rzp.on("payment.failed", () => {
           console.error("Payment failed");
           endPayment();
@@ -286,12 +316,12 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* Complete Purchase Button */}
-                <PaymentStatus />   
+                <PaymentStatus />
                 <Button
                   className="w-full h-12 text-base font-medium"
                   size="lg"
                   onClick={handleCompletePurchase}
-                  disabled={usePaymentStore.getState().isProcessing}  
+                  disabled={usePaymentStore.getState().isProcessing}
                 >
                   <Lock className="h-4 w-4 mr-2" />
                   Complete Purchase

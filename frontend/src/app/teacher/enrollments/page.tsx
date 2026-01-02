@@ -38,7 +38,7 @@ export default function TeacherEnrollmentsPage() {
     const fetchEnrollments = async () => {
         setLoading(true);
         const response = await teacherEnrollmentApi.getEnrollments();
-        console.log("response",response)
+        console.log("response", response)
         if (response && response.data) {
             setEnrollments(response.data);
         }
@@ -68,7 +68,7 @@ export default function TeacherEnrollmentsPage() {
     const paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     // Seat Progress Bar for Companies
-    const SeatUsageBar = ({ purchased, assigned =  0}: { purchased: number; assigned: number }) => {
+    const SeatUsageBar = ({ purchased, assigned = 0 }: { purchased: number; assigned: number }) => {
         const percentage = (assigned / purchased) * 100;
         const isFull = assigned >= purchased;
 
@@ -149,7 +149,7 @@ export default function TeacherEnrollmentsPage() {
 
                                 <select
                                     value={sourceFilter}
-                                    onChange={(e) => setSourceFilter(e.target.value as any)}
+                                    onChange={(e) => setSourceFilter(e.target.value as 'All' | 'company' | 'individual')}
                                     className="px-4 py-3 border border-gray-300 rounded-lg"
                                 >
                                     <option value="All">All Sources</option>
@@ -212,8 +212,8 @@ export default function TeacherEnrollmentsPage() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 {enrollment.source === 'company' ? (
-                                                    enrollment.purchasedSeats  ? (
-                                                        <SeatUsageBar purchased={enrollment.purchasedSeats} assigned={enrollment.assignedSeats??0} />
+                                                    enrollment.purchasedSeats ? (
+                                                        <SeatUsageBar purchased={enrollment.purchasedSeats} assigned={enrollment.assignedSeats ?? 0} />
                                                     ) : null
                                                 ) : (
                                                     enrollment.progress !== undefined && <ProgressBar progress={enrollment.progress} status={enrollment.status || 'Not Started'} />

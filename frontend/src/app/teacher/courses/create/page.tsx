@@ -14,42 +14,7 @@ import { showErrorToast, showSuccessToast } from '@/utils/Toast';
 import { ArrowLeft } from 'lucide-react';
 import { teacherCourseApi } from '@/services/APIservices/teacherApiService';
 
-interface CourseLesson {
-  id: string;
-  title: string;
-  description: string;
-  type: 'video';
-  duration: number;
-  isFree: boolean;
-  videoFile: File | null;
-  thumbnail: File | null;
-}
-
-interface CourseModule {
-  id: string;
-  title: string;
-  description: string;
-  lessons: CourseLesson[];
-}
-
-interface CourseData {
-  title: string;
-  subtitle: string;
-  description: string;
-  category: string;
-  level: string;
-  language: string;
-  price: number;
-  isTechnicalCourse: boolean;
-  currency: string;
-  coverImage: File | null;
-  tags: string[];
-  learningOutcomes: string[];
-  requirements: string[];
-  isPublished: boolean;
-  allowDiscounts: boolean;
-  totalDuration: number;
-}
+import { CourseData, CourseModule, CourseLesson } from '@/types/teacher/course';
 
 const steps = [
   { number: 1, title: 'Basic Information', description: 'Course details and metadata' },
@@ -220,11 +185,10 @@ export default function CreateCoursePage() {
       } else {
         showErrorToast(res.data?.message || 'Failed to create course');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating course:', error);
-      showErrorToast(
-        error.response?.data?.message || 'Something went wrong. Please try again.'
-      );
+      const errMsg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Something went wrong. Please try again.";
+      showErrorToast(errMsg);
     } finally {
       setIsSubmitting(false);
     }

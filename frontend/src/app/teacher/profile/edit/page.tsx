@@ -7,6 +7,7 @@ import Header from '@/components/teacher/header';
 import dynamic from 'next/dynamic';
 import { showInfoToast, showSuccessToast } from '@/utils/Toast';
 import { teacherProfileApi } from '@/services/APIservices/teacherApiService';
+import { TeacherProfile } from '@/types/teacher/profile';
 
 const CropperModal = dynamic(() => import('@/components/common/ImageCropper'), { ssr: false });
 
@@ -14,23 +15,7 @@ export default function EditProfilePage() {
   const { teacher, setTeacher } = useTeacher();
   const router = useRouter();
 
-  interface Education {
-    degree: string;
-    institution: string;
-    from: string;
-    to: string;
-    description: string;
-  }
-
-  interface Experience {
-    title: string;
-    company: string;
-    from: string;
-    to: string;
-    description: string;
-  }
-
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<TeacherProfile>({
     name: '',
     about: '',
     phone: '',
@@ -41,9 +26,9 @@ export default function EditProfilePage() {
       twitter: '',
       instagram: ''
     },
-    skills: [] as string[],
-    education: [] as Education[],
-    experiences: [] as Experience[],
+    skills: [],
+    education: [],
+    experiences: [],
     profilePicture: ''
   });
 
@@ -65,7 +50,7 @@ export default function EditProfilePage() {
     }
   }, [teacher]);
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     if (name.includes('social_links')) {
       const key = name.split('.')[1];
@@ -154,7 +139,7 @@ export default function EditProfilePage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) {
       showInfoToast('Please fix the errors before submitting');
@@ -170,7 +155,7 @@ export default function EditProfilePage() {
       } else {
         showInfoToast(res.message);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Profile update failed:', err);
     }
   };

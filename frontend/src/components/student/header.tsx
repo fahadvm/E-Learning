@@ -28,7 +28,7 @@ interface Notification {
   isRead: boolean;
 }
 
-export default function   Header() {
+export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -53,7 +53,7 @@ export default function   Header() {
       // as it uses `teacherCallRequestApi.tester`. Assuming it works for now.
       const response = await teacherCallRequestApi.tester(student._id);
       if (response.ok && Array.isArray(response.data)) {
-        const formatted = response.data.map((n: any) => ({
+        const formatted = response.data.map((n: { _id: string; message: string; createdAt: string; type?: string; isRead?: boolean }) => ({
           id: n._id,
           message: n.message,
           createdAt: n.createdAt,
@@ -65,7 +65,7 @@ export default function   Header() {
           isRead: n.isRead ?? false,
         }));
         setNotifications(formatted);
-        setUnreadCount(formatted.filter((n: any) => !n.isRead).length);
+        setUnreadCount(formatted.filter((n: Notification) => !n.isRead).length);
       }
     } catch {
       showErrorToast("Failed to load notifications");
@@ -81,7 +81,7 @@ export default function   Header() {
   // Real-time notifications
   useEffect(() => {
     if (!socket) return;
-    socket.on("receive_notification", (data: any) => {
+    socket.on("receive_notification", (data: { message: string, type?: string }) => {
       const newNotif: Notification = {
         id: Date.now().toString(),
         message: data.message,

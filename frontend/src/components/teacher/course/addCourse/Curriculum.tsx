@@ -11,23 +11,7 @@ import 'react-easy-crop/react-easy-crop.css';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { showErrorToast } from '@/utils/Toast';
 
-interface CourseLesson {
-  id: string;
-  title: string;
-  description: string;
-  type: 'video';
-  duration: number;
-  isFree: boolean;
-  videoFile: File | null;
-  thumbnail: File | null;
-}
-
-interface CourseModule {
-  id: string;
-  title: string;
-  description: string;
-  lessons: CourseLesson[];
-}
+import { CourseModule, CourseLesson } from '@/types/teacher/course';
 
 interface CurriculumProps {
   modules: CourseModule[];
@@ -105,11 +89,11 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
         prev.map(module =>
           module.id === moduleId
             ? {
-                ...module,
-                lessons: module.lessons.map(lesson =>
-                  lesson.id === lessonId ? { ...lesson, videoFile: file } : lesson
-                ),
-              }
+              ...module,
+              lessons: module.lessons.map(lesson =>
+                lesson.id === lessonId ? { ...lesson, videoFile: file } : lesson
+              ),
+            }
             : module
         )
       );
@@ -190,11 +174,11 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
           prev.map(module =>
             module.id === currentModuleId
               ? {
-                  ...module,
-                  lessons: module.lessons.map(lesson =>
-                    lesson.id === currentLessonId ? { ...lesson, thumbnail: croppedFile } : lesson
-                  ),
-                }
+                ...module,
+                lessons: module.lessons.map(lesson =>
+                  lesson.id === currentLessonId ? { ...lesson, thumbnail: croppedFile } : lesson
+                ),
+              }
               : module
           )
         );
@@ -296,11 +280,11 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
                                 prev.map((s) =>
                                   s.id === module.id
                                     ? {
-                                        ...s,
-                                        lessons: s.lessons.map((l) =>
-                                          l.id === lesson.id ? { ...l, title: e.target.value } : l
-                                        ),
-                                      }
+                                      ...s,
+                                      lessons: s.lessons.map((l) =>
+                                        l.id === lesson.id ? { ...l, title: e.target.value } : l
+                                      ),
+                                    }
                                     : s
                                 )
                               )
@@ -314,11 +298,11 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
                                 prev.map((s) =>
                                   s.id === module.id
                                     ? {
-                                        ...s,
-                                        lessons: s.lessons.map((l) =>
-                                          l.id === lesson.id ? { ...l, description: e.target.value } : l
-                                        ),
-                                      }
+                                      ...s,
+                                      lessons: s.lessons.map((l) =>
+                                        l.id === lesson.id ? { ...l, description: e.target.value } : l
+                                      ),
+                                    }
                                     : s
                                 )
                               )
@@ -329,14 +313,20 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
                         <div className="space-y-2">
                           <Label>Video File</Label>
                           <Input type="file" accept="video/*" onChange={(e) => handleVideoUpload(module.id, lesson.id, e)} />
-                          {lesson.videoFile && <p className="text-sm text-muted-foreground">{lesson.videoFile.name}</p>}
+                          {lesson.videoFile && (
+                            <p className="text-sm text-muted-foreground">
+                              {typeof lesson.videoFile === 'string'
+                                ? lesson.videoFile.split('/').pop()
+                                : lesson.videoFile.name}
+                            </p>
+                          )}
                         </div>
                         <div className="space-y-2">
                           <Label>Thumbnail</Label>
                           <Input type="file" accept="image/*" onChange={(e) => handleThumbnailUpload(module.id, lesson.id, e)} />
                           {lesson.thumbnail && (
                             <img
-                              src={URL.createObjectURL(lesson.thumbnail)}
+                              src={typeof lesson.thumbnail === 'string' ? lesson.thumbnail : URL.createObjectURL(lesson.thumbnail)}
                               alt="Lesson thumbnail"
                               className="max-w-[100px] rounded-md object-cover"
                               style={{ aspectRatio: '16/9' }}
@@ -352,13 +342,13 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
                                 prev.map((s) =>
                                   s.id === module.id
                                     ? {
-                                        ...s,
-                                        lessons: s.lessons.map((l) =>
-                                          l.id === lesson.id
-                                            ? { ...l, duration: parseInt(e.target.value) || 0 }
-                                            : l
-                                        ),
-                                      }
+                                      ...s,
+                                      lessons: s.lessons.map((l) =>
+                                        l.id === lesson.id
+                                          ? { ...l, duration: parseInt(e.target.value) || 0 }
+                                          : l
+                                      ),
+                                    }
                                     : s
                                 )
                               )
@@ -379,11 +369,11 @@ export default function Curriculum({ modules, setModules }: CurriculumProps) {
                                 prev.map((s) =>
                                   s.id === module.id
                                     ? {
-                                        ...s,
-                                        lessons: s.lessons.map((l) =>
-                                          l.id === lesson.id ? { ...l, isFree: e.target.checked } : l
-                                        ),
-                                      }
+                                      ...s,
+                                      lessons: s.lessons.map((l) =>
+                                        l.id === lesson.id ? { ...l, isFree: e.target.checked } : l
+                                      ),
+                                    }
                                     : s
                                 )
                               )

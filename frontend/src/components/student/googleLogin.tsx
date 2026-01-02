@@ -2,14 +2,27 @@
 import React, { useEffect, useRef } from 'react';
 
 interface GoogleLoginButtonProps {
-  onLoginSuccess: (user: any) => void; // can also include token if needed
-  onLoginError?: (error: any) => void;
-  apiRouter: (data: { tokenId: string }) => Promise<any>;
+  onLoginSuccess: (user: unknown) => void;
+  onLoginError?: (error: unknown) => void;
+  apiRouter: (data: { tokenId: string }) => Promise<{ ok: boolean; data: unknown; message?: string }>;
+}
+
+interface GoogleCredentialResponse {
+  credential: string;
+  select_by: string;
 }
 
 declare global {
   interface Window {
-    google: any;
+    google: {
+      accounts: {
+        id: {
+          initialize: (config: unknown) => void;
+          renderButton: (parent: HTMLElement, options: unknown) => void;
+          prompt: () => void;
+        }
+      }
+    };
   }
 }
 
@@ -65,21 +78,22 @@ export const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
     };
   }, []);
 
-  const handleCredentialResponse = async (response: any) => {
+  const handleCredentialResponse = async (response: unknown) => {
     try {
-      const idToken = response.credential;
+      const idToken = (response as GoogleCredentialResponse).credential;
 
       // Correct API call: send { tokenId } object
-            console.log("res  in google signup",apiRouter)
+      console.log("res  in google signup", apiRouter)
 
       const res = await apiRouter({ tokenId: idToken });
-      console.log("res  in google signup",res)
-      
+      console.log("res  in google signup", res)
+
 
       if (res.ok) {
         onLoginSuccess(res.data); // pass user object
       } else {
-        throw new Error(res.data.message || 'Login failed');
+        const errorMsg = res.message || (res.data as { message?: string })?.message || 'Login failed';
+        throw new Error(errorMsg);
       }
     } catch (error) {
       console.error('Google login failed', error);

@@ -14,6 +14,10 @@ interface UserConnectedData {
   userId: string;
 }
 
+interface IceConfigResponse {
+  data: RTCIceServer[];
+}
+
 export default function StudentPage() {
   /* ------------------- STATE ------------------- */
   const [roomId, setRoomId] = useState<string>("");
@@ -28,10 +32,10 @@ export default function StudentPage() {
   /* ------------------- WebRTC / Socket ------------------- */
   useEffect(() => {
     const initWebRTC = async () => {
-      let iceServers = [{ urls: "stun:stun.l.google.com:19302" }];
+      let iceServers: RTCIceServer[] = [{ urls: "stun:stun.l.google.com:19302" }];
 
       try {
-        const res: any = await sharedWebRTCApi.getIceConfig();
+        const res: IceConfigResponse = await sharedWebRTCApi.getIceConfig();
         if (res?.data) {
           iceServers = res.data;
         }

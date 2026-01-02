@@ -13,12 +13,23 @@ import { convertTo12Hour, formatDateToDDMMYYYY } from "@/utils/timeConverter"
 import { useLoading } from "@/hooks/useLoading"
 import Loader from "@/components/common/Loader"
 
+
+interface CallRequest {
+  _id: string;
+  studentId: { name: string };
+  courseId: { title: string };
+  slot: { start: string; end: string };
+  date: string;
+  status: string;
+  note?: string;
+}
+
 export default function TeacherRequestDetails() {
   const router = useRouter()
   const params = useParams()
   const requestId = params?.id as string
 
-  const [requestData, setRequestData] = useState<any | null>(null)
+  const [requestData, setRequestData] = useState<CallRequest | null>(null)
   const { isLoading } = useLoading();
   const [isRejecting, setIsRejecting] = useState(false)
   const [rejectionReason, setRejectionReason] = useState("")
@@ -33,10 +44,10 @@ export default function TeacherRequestDetails() {
         const res = await teacherCallRequestApi.getRequestDetails(requestId)
         console.log("comming response is:= ", res)
         setRequestData(res.data)
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error(err)
         setError("Failed to fetch request data.")
-      } 
+      }
     }
 
     fetchRequest()
@@ -50,8 +61,12 @@ export default function TeacherRequestDetails() {
       await teacherCallRequestApi.approveRequests(requestData._id)
       showSuccessToast("Request approved successfully")
       router.push("/teacher/callSchedule")
-    } catch (err: any) {
-      setError(err?.message || "Failed to approve the request.")
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || "Failed to approve the request.")
+      } else {
+        setError("Failed to approve the request.")
+      }
     } finally {
       setIsSubmitting(false)
     }
@@ -62,6 +77,7 @@ export default function TeacherRequestDetails() {
       setError("Please provide a reason for rejection.")
       return
     }
+    if (!requestData) return;
 
     setIsSubmitting(true)
     setError(null)
@@ -73,9 +89,14 @@ export default function TeacherRequestDetails() {
       })
       showSuccessToast("Request rejected successfully")
       router.push("/teacher/callSchedule")
-    } catch (err: any) {
-      setError(err?.message || "Failed to reject the request.")
-    } finally {
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || "Failed to reject the request.")
+      } else {
+        setError("Failed to reject the request.")
+      }
+    }
+    finally {
       setIsSubmitting(false)
       setIsRejecting(false)
       setRejectionReason("")
