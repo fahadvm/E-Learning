@@ -3,11 +3,12 @@
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useCompany } from "@/context/companyContext";
 import { useRouter } from "next/navigation";
-import { Mail,  Upload, Lock,  Clock } from "lucide-react";
+import { Mail, Upload, Lock, Clock } from "lucide-react";
 import Header from "@/components/company/Header";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";
 import dynamic from "next/dynamic";
+import { FormErrors } from "@/types/company/companyTypes";
 
 const CropperModal = dynamic(() => import("@/components/common/ImageCropper"), { ssr: false });
 
@@ -43,7 +44,7 @@ export default function EditCompanyProfile() {
   });
   const [changingPassword, setChangingPassword] = useState(false);
 
-  const [errors, setErrors] = useState<{ [key: string]: string | any }>({});
+  const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
 
   const [rawImage, setRawImage] = useState<string>("");
@@ -110,7 +111,7 @@ export default function EditCompanyProfile() {
   };
 
   const validate = () => {
-    const newErrors: any = {};
+    const newErrors: FormErrors = {};
     if (!formData.name.trim()) newErrors.name = "Company name is required.";
     if (!formData.email.trim()) newErrors.email = "Email is required.";
     if (!formData.address.trim()) newErrors.address = "Address is required.";
@@ -123,7 +124,7 @@ export default function EditCompanyProfile() {
     if (formData.website && !/^https?:\/\/.+\..+/.test(formData.website))
       newErrors.website = "Invalid website URL.";
 
-    const socialErrors: any = {};
+    const socialErrors: FormErrors = {};
     if (formData.social_links.linkedin && !/^https?:\/\/(www\.)?linkedin\.com\/.+$/.test(formData.social_links.linkedin))
       socialErrors.linkedin = "Enter a valid LinkedIn URL";
     if (formData.social_links.twitter && !/^https?:\/\/(www\.)?twitter\.com\/.+$/.test(formData.social_links.twitter))
@@ -149,8 +150,9 @@ export default function EditCompanyProfile() {
         showSuccessToast(res.message);
         router.push("/company/profile");
       }
-    } catch (err: any) {
-      showErrorToast(err?.response?.data?.message || "Failed to update profile");
+    } catch (err: unknown) {
+      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to update profile";
+      showErrorToast(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -169,8 +171,9 @@ export default function EditCompanyProfile() {
       showSuccessToast("OTP sent to your new email address");
       setOtpSent(true);
       setTimer(60); // 60 seconds timer
-    } catch (err: any) {
-      showErrorToast(err?.response?.data?.message || "Failed to send OTP");
+    } catch (err: unknown) {
+      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to send OTP";
+      showErrorToast(errorMessage);
     } finally {
       setSendingOtp(false);
     }
@@ -193,8 +196,9 @@ export default function EditCompanyProfile() {
       setOtp("");
       setOtpSent(false);
       setTimer(0);
-    } catch (err: any) {
-      showErrorToast(err?.response?.data?.message || "Invalid OTP");
+    } catch (err: unknown) {
+      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Invalid OTP";
+      showErrorToast(errorMessage);
     } finally {
       setVerifyingOtp(false);
     }
@@ -227,8 +231,9 @@ export default function EditCompanyProfile() {
         newPassword: "",
         confirmPassword: "",
       });
-    } catch (err: any) {
-      showErrorToast(err?.response?.data?.message || "Failed to change password");
+    } catch (err: unknown) {
+      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to change password";
+      showErrorToast(errorMessage);
     } finally {
       setChangingPassword(false);
     }

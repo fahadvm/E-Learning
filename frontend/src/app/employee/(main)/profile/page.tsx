@@ -40,6 +40,9 @@ import {
   Shield, Key, AtSign, Award, Calendar, Loader2
 } from "lucide-react";
 
+// Import centralized types
+import { StatCardProps, InfoCardProps, ContactFieldProps, SocialFieldProps, SettingsButtonProps } from "@/types/employee/employeeTypes";
+
 // Dynamically imported component
 const CropperModal = dynamic(() => import("@/components/common/ImageCropper"), { ssr: false });
 
@@ -78,7 +81,7 @@ function SectionTitle({ title }: { title: string }) {
   return <h3 className="text-lg font-semibold border-b pb-2">{title}</h3>;
 }
 
-function StatCard({ icon, label, value }: any) {
+function StatCard({ icon, label, value }: StatCardProps) {
   return (
     <div className="bg-slate-50 rounded-lg p-4 text-center">
       <div className="flex justify-center mb-2">{icon}</div>
@@ -88,7 +91,7 @@ function StatCard({ icon, label, value }: any) {
   );
 }
 
-function InfoCard({ icon, title, value, subtitle, link }: any) {
+function InfoCard({ icon, title, value, subtitle, link }: InfoCardProps) {
   const content = (
     <div className="flex items-center gap-3">
       <div className="p-2 bg-slate-100 rounded-lg">{icon}</div>
@@ -109,7 +112,7 @@ function InfoCard({ icon, title, value, subtitle, link }: any) {
   );
 }
 
-function ContactField({ icon, label, value, editable, onChange, error }: any) {
+function ContactField({ icon, label, value, editable, onChange, error }: ContactFieldProps) {
   return (
     <div>
       <Label className="flex items-center gap-2 text-sm">
@@ -127,7 +130,7 @@ function ContactField({ icon, label, value, editable, onChange, error }: any) {
   );
 }
 
-function SocialField({ icon, platform, url, editable, onChange, error }: any) {
+function SocialField({ icon, platform, url, editable, onChange, error }: SocialFieldProps) {
   return (
     <div>
       <Label className="flex items-center gap-2 text-sm">
@@ -154,7 +157,7 @@ function SocialField({ icon, platform, url, editable, onChange, error }: any) {
   );
 }
 
-function SettingsButton({ icon, label, description, onClick }: any) {
+function SettingsButton({ icon, label, description, onClick }: SettingsButtonProps) {
   return (
     <button
       onClick={onClick}
@@ -274,8 +277,9 @@ export default function EmployeeProfilePage() {
       setEditedProfile(res.data);
       setIsEditing(false);
       showSuccessToast("Profile updated!");
-    } catch (err: any) {
-      showErrorToast(err.response?.data?.message || "Failed to update");
+    } catch (err: unknown) {
+      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to update";
+      showErrorToast(errorMessage);
     }
   };
 
@@ -290,8 +294,9 @@ export default function EmployeeProfilePage() {
         showSuccessToast("OTP sent!");
         setShowOtpField(true);
         setTimer(60);
-      } catch (err: any) {
-        showErrorToast(err.response?.data?.message || "Failed to send OTP");
+      } catch (err: unknown) {
+        const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to send OTP";
+        showErrorToast(errorMessage);
       } finally {
         setModalLoading(false);
       }
@@ -308,7 +313,7 @@ export default function EmployeeProfilePage() {
           showSuccessToast("Email updated!");
           setEmailModal(false);
           setProfile((prev) => {
-            if (!prev) return prev; 
+            if (!prev) return prev;
             return {
               ...prev,
               email: emailForm.newEmail,
@@ -317,8 +322,9 @@ export default function EmployeeProfilePage() {
           setEmailForm({ newEmail: "", otp: "" });
           setShowOtpField(false);
         }
-      } catch (err: any) {
-        showErrorToast(err.response?.data?.message || "OTP verification failed");
+      } catch (err: unknown) {
+        const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "OTP verification failed";
+        showErrorToast(errorMessage);
       } finally {
         setModalLoading(false);
       }
@@ -331,8 +337,9 @@ export default function EmployeeProfilePage() {
       await employeeApiMethods.sendEmailOtp({ newEmail: emailForm.newEmail });
       showSuccessToast("OTP resent!");
       setTimer(60);
-    } catch (err: any) {
-      showErrorToast(err.response?.data?.message || "Failed to resend OTP");
+    } catch (err: unknown) {
+      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to resend OTP";
+      showErrorToast(errorMessage);
     } finally {
       setResendLoading(false);
     }
@@ -360,8 +367,9 @@ export default function EmployeeProfilePage() {
       }
       setPasswordModal(false);
       setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
-    } catch (err: any) {
-      showErrorToast(err.response?.data?.message || "Failed to change");
+    } catch (err: unknown) {
+      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to change";
+      showErrorToast(errorMessage);
     } finally {
       setModalLoading(false);
     }

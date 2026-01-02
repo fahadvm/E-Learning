@@ -6,13 +6,14 @@ import Header from "@/components/company/Header";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
 import { useCompany } from "@/context/companyContext";
 import { formatMinutesToHours } from "@/utils/timeConverter";
+import { LeaderboardUser } from "@/types/company/companyTypes";
 
 export default function CompanyLeaderboardPage() {
   const { company } = useCompany();
 
-  const [topList, setTopList] = useState<any[]>([]);
+  const [topList, setTopList] = useState<LeaderboardUser[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchResult, setSearchResult] = useState<any | null>(null);
+  const [searchResult, setSearchResult] = useState<LeaderboardUser | null>(null);
 
   useEffect(() => {
     if (company?._id) fetchTop50();
@@ -117,7 +118,7 @@ export default function CompanyLeaderboardPage() {
                 </h2>
 
                 <div className="space-y-4 sm:space-y-6">
-                  {topList.map((user: any) => (
+                  {topList.map((user: LeaderboardUser) => (
                     <div
                       key={user._id}
                       className="

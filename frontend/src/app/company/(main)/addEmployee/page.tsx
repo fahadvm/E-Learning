@@ -73,8 +73,9 @@ export default function AddEmployeePage() {
                 // fallback message
                 showErrorToast((res)?.message || "Failed to send invitation");
             }
-        } catch (error: any) {
-            showErrorToast(error?.response?.data?.message || "Failed to send invitation");
+        } catch (error: unknown) {
+            const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to send invitation";
+            showErrorToast(errorMessage);
         } finally {
             setInviteLoading(false);
         }
@@ -102,8 +103,9 @@ export default function AddEmployeePage() {
             } else {
                 showErrorToast((res)?.message || "Search failed");
             }
-        } catch (error: any) {
-            showErrorToast(error?.response?.data?.message || "Search failed");
+        } catch (error: unknown) {
+            const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Search failed";
+            showErrorToast(errorMessage);
         } finally {
             setSearchLoading(false);
         }
@@ -121,8 +123,9 @@ export default function AddEmployeePage() {
             } else {
                 showErrorToast((res)?.message || "Failed to send invitation");
             }
-        } catch (error: any) {
-            showErrorToast(error?.response?.data?.message || "Failed to send invitation");
+        } catch (error: unknown) {
+            const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to send invitation";
+            showErrorToast(errorMessage);
         }
     };
 

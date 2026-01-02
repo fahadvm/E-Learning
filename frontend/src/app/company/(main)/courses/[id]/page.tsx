@@ -35,7 +35,7 @@ export default function CourseDetailPage() {
       if (res.ok) {
         showSuccessToast(res.message);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Add to wishlist failed:", err);
     } finally {
       setLoading(false);
@@ -44,7 +44,7 @@ export default function CourseDetailPage() {
 
   const handleAddToCart = async () => {
     try {
-      const res = await companyApiMethods.addToCart({ courseId: id  })
+      const res = await companyApiMethods.addToCart({ courseId: id })
       if (res.ok) {
         showSuccessToast(res.message)
       }
@@ -53,7 +53,7 @@ export default function CourseDetailPage() {
     }
   };
 
-  const getTotalLessons = (modules: any[]) => {
+  const getTotalLessons = (modules: Module[]) => {
     return modules.reduce((total, module) => total + (module.lessons?.length || 0), 0);
   };
 
@@ -67,7 +67,7 @@ export default function CourseDetailPage() {
 
 
       const purchased = await companyApiMethods.getPurchasedCourseIds();
-      console.log("purchased:",purchased)
+      console.log("purchased:", purchased)
       if (purchased.ok && purchased.data.includes(id)) {
         setAlreadyPurchased(true);
       }
@@ -111,7 +111,7 @@ export default function CourseDetailPage() {
                     alt={courseData.teacherId.name}
                     className="w-10 h-10 rounded-full"
                   />
-                  <div> 
+                  <div>
                     <Link href={`/student/teacher/${courseData.teacherId._id}`}>
                       <p className="font-semibold text-foreground hover:underline cursor-pointer">
                         {courseData.teacherId.name}
@@ -151,7 +151,7 @@ export default function CourseDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid md:grid-cols-2 gap-4">
-                    {courseData.learningOutcomes.map((outcome:any, index:any) => (
+                    {courseData.learningOutcomes.map((outcome: string, index: number) => (
                       <div key={index} className="flex items-start gap-2">
                         <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                         <span className="text-foreground">{outcome}</span>
@@ -192,7 +192,7 @@ export default function CourseDetailPage() {
 
                         {expandedModules.includes(moduleIndex) && (
                           <div className="border-t border-border bg-muted/20">
-                            {module.lessons.map((lesson: any, lessonIndex: any) => (
+                            {module.lessons.map((lesson, lessonIndex: number) => (
                               <div
                                 key={lessonIndex}
                                 className="flex items-center justify-between p-4 border-b border-border last:border-b-0"
@@ -229,7 +229,7 @@ export default function CourseDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid md:grid-cols-2 gap-4">
-                    {courseData.requirements.map((outcome:any, index:any) => (
+                    {courseData.requirements.map((outcome: string, index: number) => (
                       <div key={index} className="flex items-start gap-2">
                         <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                         <span className="text-foreground">{outcome}</span>

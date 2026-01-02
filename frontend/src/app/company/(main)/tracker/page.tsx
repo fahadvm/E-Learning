@@ -14,10 +14,11 @@ import {
 } from "recharts";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
 import { showErrorToast } from "@/utils/Toast";
+import { TrackerStats, LearnerActivity } from "@/types/company/companyTypes";
 
 export default function TrackerPage() {
   const [range, setRange] = useState<"week" | "month" | "year">("month");
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<TrackerStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,9 +30,10 @@ export default function TrackerPage() {
       setLoading(true);
       const res = await companyApiMethods.getTrackerStats(range);
       setStats(res.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to fetch tracker stats:", error);
-      showErrorToast(error?.response?.data?.message || "Failed to load tracker data");
+      const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to load tracker data";
+      showErrorToast(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -115,11 +117,10 @@ export default function TrackerPage() {
                   <button
                     key={r}
                     onClick={() => setRange(r)}
-                    className={`px-5 py-2 rounded-lg transition-all font-semibold ${
-                      range === r
-                        ? "bg-primary text-white shadow-lg shadow-primary/30"
-                        : "text-gray-300 hover:bg-white/10"
-                    }`}
+                    className={`px-5 py-2 rounded-lg transition-all font-semibold ${range === r
+                      ? "bg-primary text-white shadow-lg shadow-primary/30"
+                      : "text-gray-300 hover:bg-white/10"
+                      }`}
                   >
                     {r.toUpperCase()}
                   </button>
@@ -181,7 +182,7 @@ export default function TrackerPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {stats.mostActive?.length ? (
-                  stats.mostActive.map((u: any) => (
+                  stats.mostActive.map((u: LearnerActivity) => (
                     <div
                       key={u.id}
                       className="flex justify-between p-4 bg-white/5 rounded-xl border border-white/10"
@@ -205,7 +206,7 @@ export default function TrackerPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {stats.leastActive?.length ? (
-                  stats.leastActive.map((u: any) => (
+                  stats.leastActive.map((u: LearnerActivity) => (
                     <div
                       key={u.id}
                       className="flex justify-between p-4 bg-white/5 rounded-xl border border-white/10"

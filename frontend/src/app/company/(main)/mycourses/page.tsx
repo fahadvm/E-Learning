@@ -41,18 +41,24 @@ const MyCoursesPage = () => {
   const fetchCourses = async () => {
     try {
       setLoading(true);
-      const res: any = await companyApiMethods.getmycourses();
+      const res = await companyApiMethods.getmycourses();
       console.log("API Response My Courses:", res.data);
 
-      const mappedCourses = res?.data?.map((item: any) => ({
-        ...item.courseId,                
+      interface CourseEnrollment {
+        courseId: Partial<Course>;
+        seatsPurchased: number;
+        seatsUsed: number;
+      }
+
+      const mappedCourses = (res?.data as CourseEnrollment[])?.map((item) => ({
+        ...item.courseId,
         seatsPurchased: item.seatsPurchased,
         seatsUsed: item.seatsUsed,
         remainingSeats: item.seatsPurchased - item.seatsUsed
-      }));
+      })) as Course[];
 
       setCourses(mappedCourses);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Failed to fetch courses:", error);
       showErrorToast("Failed to load courses");
     } finally {
@@ -76,8 +82,9 @@ const MyCoursesPage = () => {
 
       // Redirect to cart
       router.push("/company/cart");
-    } catch (error: any) {
-      showErrorToast(error?.response?.data?.message || "Failed to add to cart");
+    } catch (error: unknown) {
+      const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to add to cart";
+      showErrorToast(errorMessage);
     }
   };
 
@@ -93,7 +100,7 @@ const MyCoursesPage = () => {
 
   return (
     <>
-    <Header/>
+      <Header />
 
       <div className="min-h-screen bg-gradient-hero">
 

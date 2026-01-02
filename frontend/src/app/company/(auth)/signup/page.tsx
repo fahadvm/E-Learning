@@ -77,8 +77,9 @@ export default function CompanySignupPage() {
         localStorage.setItem("tempComSignupEmail", email);
         router.push("/company/verify-otp");
       }
-    } catch (err: any) {
-      setMessage(` ${err?.response?.data?.message || "Signup failed"}`);
+    } catch (err: unknown) {
+      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Signup failed";
+      setMessage(` ${errorMessage}`);
     }
   };
 
@@ -105,9 +106,8 @@ export default function CompanySignupPage() {
               placeholder="Company Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className={`p-3 border border-gray-300 text-gray-800 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 shadow-sm ${
-                errors.name ? "border-red-500" : ""
-              }`}
+              className={`p-3 border border-gray-300 text-gray-800 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 shadow-sm ${errors.name ? "border-red-500" : ""
+                }`}
               required
             />
             {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name}</p>}
@@ -120,9 +120,8 @@ export default function CompanySignupPage() {
               placeholder="Email Address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={`p-3 border border-gray-300 text-gray-800 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 shadow-sm ${
-                errors.email ? "border-red-500" : ""
-              }`}
+              className={`p-3 border border-gray-300 text-gray-800 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 shadow-sm ${errors.email ? "border-red-500" : ""
+                }`}
               required
             />
             {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
@@ -135,9 +134,8 @@ export default function CompanySignupPage() {
               placeholder="Create Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className={`p-3 pr-10 border border-gray-300 text-gray-800 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 shadow-sm ${
-                errors.password ? "border-red-500" : ""
-              }`}
+              className={`p-3 pr-10 border border-gray-300 text-gray-800 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 shadow-sm ${errors.password ? "border-red-500" : ""
+                }`}
               required
             />
             <button
@@ -195,9 +193,8 @@ export default function CompanySignupPage() {
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className={`p-3 pr-10 border border-gray-300 text-gray-800 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 shadow-sm ${
-                errors.confirmPassword ? "border-red-500" : ""
-              }`}
+              className={`p-3 pr-10 border border-gray-300 text-gray-800 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 shadow-sm ${errors.confirmPassword ? "border-red-500" : ""
+                }`}
               required
             />
             <button

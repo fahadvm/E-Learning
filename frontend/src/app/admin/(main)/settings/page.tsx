@@ -95,8 +95,9 @@ export default function AdminSettingsPage() {
                     bio: response.data.bio || ''
                 });
             }
-        } catch (error: any) {
-            showErrorToast(error.response?.data?.message || 'Failed to fetch profile');
+        } catch (error: unknown) {
+            const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to fetch profile';
+            showErrorToast(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -110,8 +111,9 @@ export default function AdminSettingsPage() {
                 setProfile(response.data);
                 setEditMode(false);
             }
-        } catch (error: any) {
-            showErrorToast(error.response?.data?.message || 'Failed to update profile');
+        } catch (error: unknown) {
+            const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to update profile';
+            showErrorToast(errorMessage);
         }
     };
 
@@ -137,8 +139,9 @@ export default function AdminSettingsPage() {
                 showSuccessToast('Password changed successfully');
                 setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
             }
-        } catch (error: any) {
-            showErrorToast(error.response?.data?.message || 'Failed to change password');
+        } catch (error: unknown) {
+            const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to change password';
+            showErrorToast(errorMessage);
         } finally {
             setPasswordLoading(false);
         }
@@ -164,8 +167,9 @@ export default function AdminSettingsPage() {
                 setOtpSent(true);
                 setResendTimer(60);
             }
-        } catch (error: any) {
-            showErrorToast(error.response?.data?.message || 'Failed to send OTP');
+        } catch (error: unknown) {
+            const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to send OTP';
+            showErrorToast(errorMessage);
         } finally {
             setEmailLoading(false);
         }
@@ -191,8 +195,9 @@ export default function AdminSettingsPage() {
                 setOtpSent(false);
                 fetchProfile(); // Refresh profile
             }
-        } catch (error: any) {
-            showErrorToast(error.response?.data?.message || 'Failed to verify OTP');
+        } catch (error: unknown) {
+            const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to verify OTP';
+            showErrorToast(errorMessage);
         } finally {
             setEmailLoading(false);
         }
@@ -219,8 +224,10 @@ export default function AdminSettingsPage() {
                 showSuccessToast('Admin created successfully');
                 setAddAdminForm({ email: '', password: '', name: '' });
             }
-        } catch (error: any) {
-            console.log(error)
+        } catch (error: unknown) {
+            console.log(error);
+            const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to add admin';
+            showErrorToast(errorMessage);
         } finally {
             setAddAdminLoading(false);
         }
@@ -319,7 +326,7 @@ export default function AdminSettingsPage() {
                 </CardContent>
             </Card>
 
-                {/* ================= ADD ADMIN (Super Admin Only) ================= */}
+            {/* ================= ADD ADMIN (Super Admin Only) ================= */}
             {profile?.isSuperAdmin && (
                 <Card>
                     <CardHeader className="flex flex-row items-center gap-3">

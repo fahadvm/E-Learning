@@ -34,7 +34,7 @@ export default function EmployeeHome() {
           if (res?.ok && res.data) {
             setLeaderboard(res.data.leaderboard.slice(0, 3));
 
-            const userRank = res.data.leaderboard.findIndex((u: any) => u._id === employee?._id) + 1;
+            const userRank = res.data.leaderboard.findIndex((u: LeaderboardUser) => u._id === employee?._id) + 1;
             setStats({
               coursesCompleted: employee?.coursesProgress?.filter(c => c.percentage === 100).length || 0,
               hoursLearned: Math.floor((employee?.coursesProgress?.reduce((acc, c) => acc + (c.percentage || 0), 0) || 0) / 60),
@@ -63,7 +63,7 @@ export default function EmployeeHome() {
 
         <div className="relative max-w-7xl mx-auto">
           <div className="text-center mb-16">
-         
+
             <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-gray-900 mb-6 leading-tight">
               Unlock Your
               <br />
