@@ -132,7 +132,7 @@ export default function Header() {
             </Link>
 
             {/* Notifications */}
-            <div className="relative">
+            <div className="relative z-[200]">
               <button
                 onClick={() => setIsNotificationOpen((p) => !p)}
                 className="p-2 md:p-2.5 rounded-xl border bg-zinc-50 relative"
@@ -149,17 +149,17 @@ export default function Header() {
                 <>
                   {/* Mobile Backdrop */}
                   <div
-                    className="fixed inset-0 bg-black/40 z-[105] lg:hidden"
+                    className="fixed inset-0 z-[150]"
                     onClick={() => setIsNotificationOpen(false)}
                   />
+
 
                   <div
                     className="
                       fixed lg:absolute
-                      bottom-0 lg:top-full
-                      left-0 lg:left-auto
-                      right-0
-                      mt-0 lg:mt-4
+                      bottom-0 lg:top-12
+                      left-0 lg:right-0
+                      lg:left-auto
                       w-full lg:w-80
                       max-h-[85vh]
                       bg-white
@@ -167,7 +167,7 @@ export default function Header() {
                       rounded-t-3xl lg:rounded-2xl
                       shadow-2xl
                       overflow-hidden
-                      z-[110]
+                      z-[999]
                     "
                   >
                     <div className="p-4 border-b font-bold flex justify-between">
@@ -266,22 +266,26 @@ export default function Header() {
 
       {/* Logout Modal */}
       {showLogoutModal && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setShowLogoutModal(false)} />
-          <div className="bg-slate-900 p-8 rounded-2xl text-white max-w-sm w-full">
-            <h3 className="text-xl font-bold mb-4 text-center">Sign Out?</h3>
-            <div className="flex gap-3">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-6 w-80 animate-scaleIn border border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+              Logout Confirmation
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
+              Are you sure you want to logout?
+            </p>
+            <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowLogoutModal(false)}
-                className="flex-1 py-2 rounded-xl bg-white/10"
+                className="px-4 py-2 rounded-lg text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
               >
                 Cancel
               </button>
               <button
                 onClick={handleLogout}
-                className="flex-1 py-2 rounded-xl bg-red-600"
+                className="px-4 py-2 rounded-lg text-sm bg-red-600 text-white hover:bg-red-700"
               >
-                Logout
+                Yes, Logout
               </button>
             </div>
           </div>

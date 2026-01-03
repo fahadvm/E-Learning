@@ -13,6 +13,7 @@ import { ICourseResourceRepository } from '../../core/interfaces/repositories/IC
 import { ICompanyCoursePurchaseRepository } from '../../core/interfaces/repositories/ICompanyCoursePurchaseRepository';
 import mongoose from 'mongoose';
 import { ICompanyCoursePurchase } from '../../models/CompanyCoursePurchase';
+import { CompanyCourseDTO, PaginatedCourseDTO } from '../../core/dtos/company/Company.course.Dto';
 
 @injectable()
 export class CompanyCourseService implements ICompanyCourseService {
@@ -35,10 +36,20 @@ export class CompanyCourseService implements ICompanyCourseService {
     limit?: number;
     isBlocked?: boolean;
     isPublished?: boolean;
-  }): Promise<{ data: ICourse[]; totalPages: number; totalCount: number }> {
-    const courses = await this._courseRepository.getFilteredCourses({ ...filters, isBlocked: false });
-    return courses;
-  }
+  }): Promise<PaginatedCourseDTO>  {
+    const { data, totalCount, totalPages } =
+    await this._courseRepository.getFilteredCourses({
+      ...filters,
+      isBlocked: false,
+      isPublished: true,
+    });
+
+  return {
+    data: data.map(CompanyCourseDTO),
+    totalCount,
+    totalPages,
+  };
+}
 
   async getCourseDetail(courseId: string): Promise<ICourse | null> {
     const course = await this._courseRepository.findById(courseId);

@@ -51,6 +51,7 @@ export default function EditEmployeeModal({
         setLoading(true);
         try {
             await companyApiMethods.updateEmployee(employee._id, formData);
+            console.log(formData)
             showSuccessToast("Employee updated successfully");
             onSuccess();
             onClose();

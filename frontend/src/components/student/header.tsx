@@ -96,7 +96,7 @@ export default function Header() {
       setNotifications((prev) => [newNotif, ...prev]);
       setUnreadCount((prev) => prev + 1);
     });
-    return () => {socket.off("receive_notification")}
+    return () => { socket.off("receive_notification") }
   }, [socket]);
 
   // Click outside to close dropdowns
@@ -189,31 +189,29 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Main header container */}
           <div className="flex items-center justify-between h-16 lg:h-20">
-            {/* Left Side (Mobile Menu Button) */}
-            <div className="flex items-center lg:hidden">
+
+            {/* LEFT */}
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 rounded-lg hover:bg-white/10 transition"
+                className="p-2 rounded-lg hover:bg-white/10 transition lg:hidden"
               >
                 {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
+
+              {/* LOGO */}
+              <div
+                onClick={() => router.push("/student/home")}
+                className="cursor-pointer flex items-center"
+              >
+                <h1 className="text-2xl lg:text-3xl font-black tracking-tighter text-white">
+                  DevNext
+                </h1>
+              </div>
             </div>
 
-            {/* Center (Logo - Adjusted for mobile centering) */}
-            <div
-              onClick={() => router.push("/student/home")}
-              // Removed absolute positioning for mobile screens
-              className="flex-shrink-0 flex items-center gap-2 cursor-pointer 
-                         absolute left-1/2 -translate-x-1/2 
-                         lg:static lg:transform-none lg:flex"
-            >
-              <h1 className="text-2xl lg:text-3xl font-black tracking-tighter text-white">
-                DevNext
-              </h1>
-            </div>
-
-            {/* Navigation (Desktop Only) */}
-            <nav className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+            {/* CENTER NAV (Desktop only) */}
+            <nav className="hidden lg:flex items-center gap-8">
               {[
                 "Home",
                 "Subscription",
@@ -223,8 +221,7 @@ export default function Header() {
               ].map((item) => (
                 <Link
                   key={item}
-                  href={`/student/${item.toLowerCase().replace(" ", "") || "home"
-                    }`}
+                  href={`/student/${item.toLowerCase().replace(" ", "") || "home"}`}
                   className="font-medium text-white/90 hover:text-white transition"
                 >
                   {item}
@@ -232,8 +229,8 @@ export default function Header() {
               ))}
             </nav>
 
-            {/* Right Icons (Bell and User) */}
-            <div className="flex items-center gap-1 sm:gap-3">
+            {/* RIGHT ICONS */}
+            <div className="flex items-center gap-2 sm:gap-3">
               {/* Desktop Icons (Hidden on Mobile, now in Mobile Menu) */}
               <DesktopIcon href="/student/wishlist">
                 <Heart size={20} />

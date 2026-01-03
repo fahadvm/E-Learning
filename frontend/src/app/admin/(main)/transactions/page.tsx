@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import DataTable from '@/reusable/DataTable';
 import { adminApiMethods } from '@/services/APIservices/adminApiService';
-import { toast } from 'react-toastify';
+import { showErrorToast } from '@/utils/Toast';
 import { Download } from 'lucide-react';
 import { TransactionRow, TransactionQuery } from '@/types/admin/adminTypes';
 
@@ -34,7 +34,7 @@ export default function AdminTransactionsPage() {
             }
         } catch (error) {
             console.error(error);
-            toast.error('Failed to fetch transactions');
+         showErrorToast('Failed to fetch transactions');
         } finally {
             setLoading(false);
         }

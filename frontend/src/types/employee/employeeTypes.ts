@@ -150,15 +150,10 @@ export interface LearningPathDetail {
 // Company Types
 export interface CompanyInvitation {
     _id: string;
-    companyId: {
-        _id: string;
-        name: string;
-        logo?: string;
-        industry?: string;
-        email?: string;
-    };
-    status: 'pending' | 'accepted' | 'rejected';
-    createdAt: Date;
+    name: string;
+    logo?: string;
+    industry?: string;
+    email?: string;
 }
 
 export interface CompanySearchResult {

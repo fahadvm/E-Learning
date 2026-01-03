@@ -24,8 +24,7 @@ export class ChatService implements IChatService {
   }
 
   async getMessages(chatId: string, limit: number, before: string): Promise<IMessage[]> {
-    const beforeDate = new Date(before);
-
+    const beforeDate = before ? new Date(before) : undefined;
 
     return this._chatRepository.getStudentMessages(chatId, limit, beforeDate);
   }

@@ -16,7 +16,7 @@ import { teacherCourseApi } from '@/services/APIservices/teacherApiService';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { toast } from 'react-toastify';
+import { showErrorToast } from '@/utils/Toast';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 
@@ -73,7 +73,7 @@ export default function CourseAnalyticsPage() {
             }
         } catch (error) {
             console.error('Error fetching analytics:', error);
-            toast.error('Failed to load course analytics');
+            showErrorToast('Failed to load course analytics');
         } finally {
             setLoading(false);
         }

@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+import { employeeProfileSchema ,changePasswordSchema ,changeEmailSchema  } from "@/validator/auth/employee";
+import { ZodError } from "zod";
 
 // External Services/Utilities
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
@@ -237,15 +239,30 @@ export default function EmployeeProfilePage() {
   // SAVE PROFILE
   const validate = () => {
     if (!editedProfile) return false;
-    const newErrors: Record<string, string> = {};
+    try {
+      employeeProfileSchema.parse({
+        name: editedProfile.name,
+        phone: editedProfile.phone,
+        location: editedProfile.location,
+        about: editedProfile.about,
+        social_links: editedProfile.social_links,
+      });
 
-    if (!editedProfile.name?.trim()) newErrors.name = "Name is required";
-    if (editedProfile.phone && !/^\d{10}$/.test(editedProfile.phone)) {
-      newErrors.phone = "Enter valid 10-digit phone";
+      setErrors({});
+      return true;
+    } catch (err) {
+      if (err instanceof ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        err.issues.forEach((e) => {
+          fieldErrors[e.path.join(".")] = e.message;
+          console.log(e.path.join("."))
+          console.log("hello ")
+        });
+        setErrors(fieldErrors);
+      }
+      console.log(err)
+      return false;
     }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSave = async () => {
@@ -267,6 +284,11 @@ export default function EmployeeProfilePage() {
 
   // CHANGE EMAIL HANDLER
   const handleChangeEmail = async () => {
+    try {
+      changeEmailSchema.parse(emailForm);
+    } catch (err: any) {
+      return showErrorToast(err.errors?.[0]?.message || "Invalid input");
+    }
     if (!showOtpField) {
       if (!emailForm.newEmail) return showErrorToast("Enter new email");
 
@@ -329,14 +351,11 @@ export default function EmployeeProfilePage() {
 
   // CHANGE PASSWORD
   const handleChangePassword = async () => {
-    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword)
-      return showErrorToast("All fields required");
-
-    if (passwordForm.newPassword !== passwordForm.confirmPassword)
-      return showErrorToast("Passwords mismatch");
-
-    if (passwordForm.newPassword.length < 6)
-      return showErrorToast("Password must be ≥ 6 characters");
+    try {
+      changePasswordSchema.parse(passwordForm);
+    } catch (err: any) {
+      return showErrorToast(err.errors?.[0]?.message || "Invalid password");
+    }
 
     setModalLoading(true);
     try {
@@ -519,9 +538,9 @@ export default function EmployeeProfilePage() {
                     <ContactField icon={<Phone />} label="Phone" value={editedProfile.phone || ""} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, phone: v })} error={errors.phone} />
                     <ContactField icon={<MapPin />} label="Location" value={editedProfile.location || ""} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, location: v })} />
 
-                    <SocialField icon={<Linkedin />} platform="LinkedIn" url={editedProfile.social_links?.linkedin || ""} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, social_links: { ...editedProfile.social_links, linkedin: v } })} error={errors.linkedin} />
-                    <SocialField icon={<Github />} platform="GitHub" url={editedProfile.social_links?.github || ""} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, social_links: { ...editedProfile.social_links, github: v } })} error={errors.github} />
-                    <SocialField icon={<Globe />} platform="Portfolio" url={editedProfile.social_links?.portfolio || ""} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, social_links: { ...editedProfile.social_links, portfolio: v } })} error={errors.portfolio} />
+                    <SocialField icon={<Linkedin />} platform="LinkedIn" url={editedProfile.social_links?.linkedin || ""} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, social_links: { ...editedProfile.social_links, linkedin: v } })} error={errors["social_links.linkedin"]} />
+                    <SocialField icon={<Github />} platform="GitHub" url={editedProfile.social_links?.github || ""} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, social_links: { ...editedProfile.social_links, github: v } })} error={errors["social_links.github"]} />
+                    <SocialField icon={<Globe />} platform="Portfolio" url={editedProfile.social_links?.portfolio || ""} editable={isEditing} onChange={(v: string) => setEditedProfile({ ...editedProfile, social_links: { ...editedProfile.social_links, portfolio: v } })} error={errors["social_links.portfolio"]} />
                   </div>
                 </TabsContent>
 

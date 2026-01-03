@@ -20,10 +20,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { toast } from 'react-toastify';
 import { Check, X } from 'lucide-react';
 import RejectPayoutDialog from '@/components/admin/payouts/RejectPayoutDialog';
 import { format } from 'date-fns';
+import { showErrorToast ,showSuccessToast} from '@/utils/Toast';
 
 export default function AdminPayoutsPage() {
     const [payouts, setPayouts] = useState<IPayout[]>([]);
@@ -46,7 +46,7 @@ export default function AdminPayoutsPage() {
             }
         } catch (error) {
             console.error(error);
-            toast.error('Failed to fetch payouts');
+            showErrorToast('Failed to fetch payouts');
         } finally {
             setLoading(false);
         }
@@ -60,11 +60,11 @@ export default function AdminPayoutsPage() {
         try {
             if (!confirm('Are you sure you want to approve this payout? This action cannot be undone.')) return;
             await adminApiMethods.approvePayout(id);
-            toast.success('Payout approved successfully');
+           showSuccessToast('Payout approved successfully');
             fetchPayouts();
         } catch (error) {
             console.error(error);
-            toast.error('Failed to approve payout');
+           showErrorToast('Failed to approve payout');
         }
     };
 

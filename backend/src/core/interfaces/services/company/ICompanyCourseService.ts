@@ -1,6 +1,7 @@
 import { ICourse } from '../../../../models/Course';
 import { ICourseResource } from '../../../../models/CourseResource';
 import { ICompanyCoursePurchase } from '../../../../models/CompanyCoursePurchase';
+import { PaginatedCourseDTO } from '../../../dtos/company/Company.course.Dto';
 
 export interface ICompanyCourseService {
   getAllCourses(filters: {
@@ -14,7 +15,7 @@ export interface ICompanyCourseService {
     limit?: number;
     isBlocked?: boolean;
     isPublished?: boolean;
-  }): Promise<{ data: ICourse[]; totalPages: number; totalCount: number }>;
+  }):Promise<PaginatedCourseDTO> ;
   getCourseDetail(courseId: string): Promise<ICourse | null>;
   getMycoursesById(companyId: string): Promise<ICompanyCoursePurchase[] | null>;
   getMycourseDetailsById(companyId: string, courseId: string): Promise<ICourse | null>

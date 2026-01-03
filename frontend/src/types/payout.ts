@@ -7,7 +7,6 @@ export enum PayoutStatus {
 export enum PayoutMethod {
     BANK_TRANSFER = 'BANK_TRANSFER',
     UPI = 'UPI',
-    PAYPAL = 'PAYPAL',
 }
 
 export interface IPayout {

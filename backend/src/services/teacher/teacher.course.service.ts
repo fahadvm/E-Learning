@@ -22,6 +22,7 @@ import { CompanyOrderModel } from '../../models/CompanyOrder';
 import { Transaction } from '../../models/Transaction';
 import { Student } from '../../models/Student';
 import { CourseReview } from '../../models/CourseReview';
+import { VerificationStatus } from '../../models/Teacher';
 
 @injectable()
 export class TeacherCourseService implements ITeacherCourseService {
@@ -58,7 +59,7 @@ export class TeacherCourseService implements ITeacherCourseService {
     // "Teacher clicks 'Submit for Review'" - implies creation might typically be a draft first.
     // However, if the teacher isn't verified, they shouldn't be engaging in course creation flows usually.
     // Let's enforce strict: Must be verified to create any course (Draft or otherwise) logic from requirement "Only verified teachers can create courses".
-    if (!teacher.isVerified) {
+    if (teacher.verificationStatus !== VerificationStatus.VERIFIED) {
       throwError('You must be a verified teacher to create courses.', STATUS_CODES.FORBIDDEN);
     }
 

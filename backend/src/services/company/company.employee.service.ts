@@ -93,6 +93,7 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
 
 
     async updateEmployee(employeeId: string, data: Partial<IEmployee>): Promise<IEmployee | null> {
+        console.log("here updating employee profile:",data)
         return await this._employeeRepo.updateById(employeeId, data);
     }
 
@@ -174,7 +175,7 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
             }
 
             const updated = await this._employeeRepo.updateById(employee._id.toString(), {
-                requestedCompanyId: null, // Clear any previous request
+                requestedCompanyId: null, 
                 status: 'invited',
                 invitedBy: new mongoose.Types.ObjectId(companyId),
                 invitedAt: new Date()

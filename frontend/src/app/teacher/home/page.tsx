@@ -238,7 +238,7 @@ export default function TeacherDashboard() {
         </div>
 
         {/* Schedule & Recent Activity Grid */}
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className=" gap-8">
           {/* Weekly Schedule */}
           <Card className="lg:col-span-2 border-0 shadow-sm ring-1 ring-zinc-200 rounded-3xl overflow-hidden bg-white">
             <CardHeader className="border-b border-zinc-50 pb-6 flex flex-row items-center justify-between">
@@ -251,7 +251,7 @@ export default function TeacherDashboard() {
               </Button>
             </CardHeader>
             <CardContent className="pt-8">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                 {schedule.length > 0 ? (
                   schedule.map((item) => (
                     <div key={item.id} className="p-5 rounded-2xl border border-zinc-500 bg-zinc-50/50 hover:bg-zinc-50 transition-colors">
@@ -279,37 +279,7 @@ export default function TeacherDashboard() {
           </Card>
 
           {/* Quick Actions / Tips Card */}
-          <Card className="border-0 shadow-sm ring-1 ring-zinc-200 rounded-3xl overflow-hidden bg-black text-white">
-            <CardHeader>
-              <CardTitle className="text-xl font-black">Performance Insights</CardTitle>
-              <CardDescription className="text-zinc-400 font-medium">Growth tips for educators</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6 pt-0">
-              <div className="p-4 bg-zinc-900 rounded-2xl border border-zinc-800">
-                <p className="text-xs font-bold mb-2 flex items-center">
-                  <TrendingUp className="w-3.5 h-3.5 mr-2 text-indigo-400" />
-                  Engagement Tip
-                </p>
-                <p className="text-xs text-zinc-400 font-medium leading-relaxed">
-                  Adding interactive resources to "Module 3" could increase completion rates by up to 15% based on student feedback.
-                </p>
-              </div>
-
-              <div className="p-4 bg-zinc-900 rounded-2xl border border-zinc-800">
-                <p className="text-xs font-bold mb-2 flex items-center">
-                  <Star className="w-3.5 h-3.5 mr-2 text-yellow-500" />
-                  Recent Feedback
-                </p>
-                <p className="text-xs text-zinc-400 font-medium leading-relaxed">
-                  "Best course on React patterns I've taken." - Student from Apple Inc.
-                </p>
-              </div>
-
-              <Button className="w-full bg-white text-black hover:bg-zinc-200 rounded-xl font-bold h-12 shadow-lg">
-                Check Analytics
-              </Button>
-            </CardContent>
-          </Card>
+       
         </div>
       </main>
     </div>

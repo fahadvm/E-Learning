@@ -31,6 +31,7 @@ import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";
 import { EmployeeProfile, CompanyInvitation, CompanySearchResult, RequestedCompany } from "@/types/employee/employeeTypes";
 import { CompanyProfile } from "@/types/company/companyTypes";
+import ConfirmationDialog from "@/reusable/ConfirmationDialog";
 
 // ---------------- Shared UI Components ----------------
 
@@ -177,9 +178,9 @@ const CompanyInvitationRequests = ({ invitation, onAccept, onReject, loading }: 
       </h2>
       <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg shadow-sm hover:bg-gray-100 transition">
         <div>
-          <p className="font-semibold text-gray-800">{invitation.companyId.name}</p>
+          <p className="font-semibold text-gray-800">{invitation.name || "No Name"}</p>
           <p className="text-sm text-gray-500 flex items-center">
-            <Mail className="w-3 h-3 mr-1" /> {invitation.companyId.email || "No Email"}
+            <Mail className="w-3 h-3 mr-1" /> {invitation.email || "No Email"}
           </p>
         </div>
         <div className="flex items-center space-x-3">
@@ -308,34 +309,21 @@ const CurrentCompanyDetails = ({ company, onLeave }: CurrentCompanyDetailsProps)
 
     {/* Leave Button */}
     <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-xl">
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
+      <ConfirmationDialog
+        title="Leave Company?"
+        description="You will lose access to company learning programs and tracking."
+        confirmText="Yes, Leave"
+        cancelText="Cancel"
+        onConfirm={onLeave}
+        triggerButton={
           <button
             className="text-xs text-red-600 border border-red-200 px-3 py-1.5 rounded-md hover:bg-red-50 transition"
           >
             <LogOut className="inline w-3 h-3 mr-1" /> Leave Company
           </button>
-        </AlertDialogTrigger>
+        }
+      />
 
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-slate-900">Are you sure you want to leave?</AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-600">
-              You will lose access to your company learning programs and tracking.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-
-          <AlertDialogFooter>
-            <AlertDialogCancel className="text-xs">Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className="text-xs bg-red-600 hover:bg-red-700"
-              onClick={onLeave}
-            >
-              Yes, Leave
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   </Card>
 );
@@ -355,9 +343,19 @@ const RequestStatusCard = ({ requestedCompany, onCancel }: RequestStatusCardProp
         Waiting for approval.
       </p>
     </div>
-    <Button variant="danger" onClick={onCancel}>
-      Cancel Request
-    </Button>
+    <ConfirmationDialog
+      title="Cancel Request?"
+      description="Are you sure you want to cancel your company join request?"
+      confirmText="Yes, Cancel"
+      cancelText="No"
+      onConfirm={onCancel}
+      triggerButton={
+        <Button variant="danger">
+          Cancel Request
+        </Button>
+      }
+    />
+
   </Card>
 )
 
@@ -407,6 +405,7 @@ export default function EmployeeCompanyPage() {
       // Check for Request
       if (p.requestedCompanyId) {
         const reqRes = await employeeApiMethods.getRequestedCompany();
+        console.log("reqres", reqRes)
         if (reqRes?.data?.requestedCompanyId) {
           setRequestedCompany(reqRes.data.requestedCompanyId);
           setStatus("requested");
@@ -418,6 +417,7 @@ export default function EmployeeCompanyPage() {
       // Check for Invitation
       if (p.invitedBy) {
         const inviteRes = await employeeApiMethods.getInvitation();
+        console.log("invited :", inviteRes)
         if (inviteRes?.data) {
           setInvitation(inviteRes.data);
           setStatus("invited");
@@ -492,7 +492,6 @@ export default function EmployeeCompanyPage() {
   }
 
   const handleCancelRequest = async () => {
-    if (!confirm("Are you sure you want to cancel the request?")) return;
     try {
       await employeeApiMethods.cancelCompanyRequest();
       showSuccessToast("Request cancelled");
@@ -503,7 +502,6 @@ export default function EmployeeCompanyPage() {
   }
 
   const handleLeaveCompany = async () => {
-    if (!confirm("Are you sure you want to leave this company?")) return;
     try {
       await employeeApiMethods.leaveCompany();
       showSuccessToast("You have left the company");

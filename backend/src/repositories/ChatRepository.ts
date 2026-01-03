@@ -47,7 +47,7 @@ export class ChatRepository implements IChatRepository {
 
   async getStudentMessages(chatId: string, limit: number, before?: Date): Promise<IMessage[]> {
     const query: FilterQuery<IMessage> = { chatId: new Types.ObjectId(chatId) };
-    if (before) {
+    if (before && !isNaN(before.getTime())) {
       query.createdAt = { $lt: before };
     }
     return Message.find(query)
@@ -58,7 +58,7 @@ export class ChatRepository implements IChatRepository {
 
   async getTeacherMessages(chatId: string, limit?: number, before?: Date): Promise<IMessage[]> {
     const query: FilterQuery<IMessage> = { chatId: new Types.ObjectId(chatId) };
-    if (before) {
+    if (before && !isNaN(before.getTime())) {
       query.createdAt = { $lt: before };
     }
     return Message.find(query).populate('receiverId', 'name email profilePicture').sort({ createdAt: 1 });

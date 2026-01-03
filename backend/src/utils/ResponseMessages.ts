@@ -392,7 +392,7 @@ export enum MESSAGES {
 
   // Invite
   INVITATION_SENT = 'Invitation sent to employee',
-  INVITE_LINK_CREATED = 'Employee not found. Invitation link created.',
+  INVITE_LINK_CREATED = 'Employee not exist.',
 
   // Search
   SEARCH_QUERY_REQUIRED = 'Search query is required',

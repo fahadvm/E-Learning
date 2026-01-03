@@ -19,9 +19,8 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { PayoutMethod } from '@/types/payout';
-import { toast } from 'react-toastify';
+import { showErrorToast, showSuccessToast } from '@/utils/Toast';
 import { teacherPayoutApi } from '@/services/APIservices/teacherApiService';
-import { Textarea } from '@/components/ui/textarea';
 
 interface RequestPayoutDialogProps {
     balance: number;
@@ -32,21 +31,35 @@ export default function RequestPayoutDialog({ balance, onSuccess }: RequestPayou
     const [open, setOpen] = useState(false);
     const [amount, setAmount] = useState('');
     const [method, setMethod] = useState<PayoutMethod>(PayoutMethod.BANK_TRANSFER);
-    const [details, setDetails] = useState('');
+    const [bankDetails, setBankDetails] = useState({
+        bankName: '',
+        accountName: '',
+        ifscCode: '',
+    });
+
+    const [upiId, setUpiId] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!amount || Number(amount) <= 0) {
-            toast.error('Please enter a valid amount');
+            showErrorToast('Please enter a valid amount');
             return;
         }
         if (Number(amount) > balance) {
-            toast.error('Insufficient balance');
+            showErrorToast('Insufficient balance');
             return;
         }
-        if (!details) {
-            toast.error('Please provide payment details');
+        if (method === PayoutMethod.BANK_TRANSFER) {
+            const { bankName, accountName, ifscCode } = bankDetails;
+            if (!bankName || !accountName || !ifscCode) {
+                showErrorToast("Please fill all bank details");
+                return;
+            }
+        }
+
+        if (method === PayoutMethod.UPI && !upiId) {
+            showErrorToast("Please enter UPI ID");
             return;
         }
 
@@ -55,10 +68,17 @@ export default function RequestPayoutDialog({ balance, onSuccess }: RequestPayou
             // Parse details
             // Ideally this should be structured JSON or form fields based on method.
             // For simplicity, we just send object with `accountDetails`.
-            const payloadDetails = {
-                info: details,
-                // We could expand this to specific fields like IBAN, IFSC etc.
-            };
+            const payloadDetails =
+                method === PayoutMethod.BANK_TRANSFER
+                    ? {
+                        bankName: bankDetails.bankName,
+                        accountName: bankDetails.accountName,
+                        ifscCode: bankDetails.ifscCode,
+                    }
+                    : {
+                        upiId,
+                    };
+
 
             await teacherPayoutApi.requestPayout({
                 amount: Number(amount),
@@ -66,14 +86,19 @@ export default function RequestPayoutDialog({ balance, onSuccess }: RequestPayou
                 details: payloadDetails,
             });
 
-            toast.success('Withdrawal request submitted!');
+            showSuccessToast    ('Withdrawal request submitted!');
             setOpen(false);
             onSuccess();
             setAmount('');
-            setDetails('');
+            setBankDetails({
+                bankName: '',
+                accountName: '',
+                ifscCode: '',
+            });
+            setUpiId('');
         } catch (error) {
             console.error(error);
-            toast.error('Failed to submit request');
+            showErrorToast('Failed to submit request');
         } finally {
             setSubmitting(false);
         }
@@ -108,7 +133,7 @@ export default function RequestPayoutDialog({ balance, onSuccess }: RequestPayou
                                 placeholder="0.00"
                                 max={balance}
                             />
-                            <p className="text-xs text-gray-500 mt-1">Available: ${balance.toFixed(2)}</p>
+                            <p className="text-xs text-gray-500 mt-1">Available: ₹{balance.toFixed(2)}</p>
                         </div>
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
@@ -122,28 +147,52 @@ export default function RequestPayoutDialog({ balance, onSuccess }: RequestPayou
                             <SelectContent>
                                 <SelectItem value={PayoutMethod.BANK_TRANSFER}>Bank Transfer</SelectItem>
                                 <SelectItem value={PayoutMethod.UPI}>UPI</SelectItem>
-                                <SelectItem value={PayoutMethod.PAYPAL}>PayPal</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
+                    {/* ================= PAYMENT DETAILS ================= */}
                     <div className="grid grid-cols-4 items-start gap-4">
-                        <Label htmlFor="details" className="text-right pt-2">
-                            Details
-                        </Label>
-                        <Textarea
-                            id="details"
-                            value={details}
-                            onChange={(e) => setDetails(e.target.value)}
-                            className="col-span-3"
-                            placeholder={
-                                method === PayoutMethod.BANK_TRANSFER
-                                    ? "Bank Name, Account Number, IFSC/Sort Code"
-                                    : method === PayoutMethod.UPI
-                                        ? "UPI ID (e.g. name@upi)"
-                                        : "PayPal Email"
-                            }
-                        />
+                        <Label className="text-right pt-2">Details</Label>
+
+                        <div className="col-span-3 space-y-3">
+                            {method === PayoutMethod.BANK_TRANSFER && (
+                                <>
+                                    <Input
+                                        placeholder="Bank Name"
+                                        value={bankDetails.bankName}
+                                        onChange={(e) =>
+                                            setBankDetails({ ...bankDetails, bankName: e.target.value })
+                                        }
+                                    />
+
+                                    <Input
+                                        placeholder="Account Holder Name"
+                                        value={bankDetails.accountName}
+                                        onChange={(e) =>
+                                            setBankDetails({ ...bankDetails, accountName: e.target.value })
+                                        }
+                                    />
+
+                                    <Input
+                                        placeholder="IFSC Code"
+                                        value={bankDetails.ifscCode}
+                                        onChange={(e) =>
+                                            setBankDetails({ ...bankDetails, ifscCode: e.target.value })
+                                        }
+                                    />
+                                </>
+                            )}
+
+                            {method === PayoutMethod.UPI && (
+                                <Input
+                                    placeholder="UPI ID (e.g. name@upi)"
+                                    value={upiId}
+                                    onChange={(e) => setUpiId(e.target.value)}
+                                />
+                            )}
+                        </div>
                     </div>
+
                     <DialogFooter>
                         <Button variant="dark" type="submit" disabled={submitting}>
                             {submitting ? 'Submitting...' : 'Submit Request'}

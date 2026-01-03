@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from 'react-toastify';
+import { showErrorToast ,showSuccessToast} from '@/utils/Toast';
 import { adminApiMethods } from '@/services/APIservices/adminApiService';
 
 interface RejectPayoutDialogProps {
@@ -26,20 +26,20 @@ export default function RejectPayoutDialog({ open, onOpenChange, payoutId, onSuc
     const handleReject = async () => {
         if (!payoutId) return;
         if (!reason) {
-            toast.error('Please provide a reason for rejection.');
+            showErrorToast('Please provide a reason for rejection.');
             return;
         }
 
         setLoading(true);
         try {
             await adminApiMethods.rejectPayout(payoutId, reason);
-            toast.success('Payout rejected.');
+            showSuccessToast('Payout rejected.');
             onSuccess();
             onOpenChange(false);
             setReason('');
         } catch (error) {
             console.error(error);
-            toast.error('Failed to reject payout.');
+            showErrorToast('Failed to reject payout.');
         } finally {
             setLoading(false);
         }

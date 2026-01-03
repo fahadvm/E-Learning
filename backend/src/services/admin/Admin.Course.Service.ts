@@ -39,7 +39,7 @@ export class AdminCourseService implements IAdminCourseService {
 
   async verifyCourse(courseId: string): Promise<IAdminCourseDTO | null> {
     const course = await this._courseRepo.updateStatus(courseId, {
-      status: CourseStatus.APPROVED,
+      status: CourseStatus.PUBLISHED,
       isVerified: true,
       isPublished: true
     });

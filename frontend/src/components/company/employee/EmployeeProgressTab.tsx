@@ -86,7 +86,7 @@ export default function EmployeeProgressTab({ progress, assignedPaths }: Employe
                                                 </p>
                                             </div>
                                             <Badge className="bg-primary/20 text-primary border-primary/30">
-                                                {course.percentage}%
+                                                {Math.floor(course.percentage)}%
                                             </Badge>
                                         </div>
                                         <div className="space-y-2">

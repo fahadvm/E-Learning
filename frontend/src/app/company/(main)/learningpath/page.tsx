@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
 import { showErrorToast, showSuccessToast } from "@/utils/Toast";
+import { formatMinutesToHours } from "@/utils/timeConverter";
 
 /* ------------------------- Types ------------------------- */
 type Difficulty = "Beginner" | "Intermediate" | "Advanced";
@@ -828,7 +829,7 @@ function CreateOrEditView({
                           {c.totalDuration && (
                             <span className="text-xs px-2 py-1 bg-white/10 text-gray-300 rounded flex items-center gap-1">
                               <Clock size={12} />
-                              {c.totalDuration}h
+                              {formatMinutesToHours(c.totalDuration)}
                             </span>
                           )}
                         </div>
@@ -1006,7 +1007,7 @@ function CreateOrEditView({
               <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
                 <Clock className="w-8 h-8 mx-auto mb-2 text-green-400" />
                 <p className="text-2xl font-bold">
-                  {selectedCourses.reduce((acc, c) => acc + (Number(c.duration) || 0), 0)}h
+                  {formatMinutesToHours(selectedCourses.reduce((acc, c) => acc + (Number(c.duration) || 0), 0))}
                 </p>
                 <p className="text-sm text-gray-400">Total Duration</p>
               </div>

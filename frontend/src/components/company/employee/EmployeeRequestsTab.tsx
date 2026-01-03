@@ -145,7 +145,7 @@ export default function EmployeeRequestsTab() {
               {/* Actions */}
               <div className="flex items-center gap-2">
                 <Button
-                  variant="outline"
+                  variant="default"
                   size="sm"
                   onClick={() => handleViewProfile(employee)}
                 >

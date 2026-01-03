@@ -7,6 +7,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
+import { useRouter } from "next/navigation";
 
 
 
@@ -37,6 +38,8 @@ export default function HeroSection() {
 
     const [recommendedCourses, setRecommendedCourses] = useState<ICourse[]>([]);
     const [teachers, setTeachers] = useState<ITeacher[]>([])
+    const [searchQuery, setSearchQuery] = useState("");
+    const router = useRouter();
 
     const getTeachersForSlider = (list: ITeacher[]) => {
         if (!list || list.length === 0) return [];
@@ -84,6 +87,15 @@ export default function HeroSection() {
 
     }, []);
 
+    const handleSearch = () => {
+        if (!searchQuery.trim()) return;
+
+        router.push(
+            `/student/courses?search=${encodeURIComponent(searchQuery.trim())}`
+        );
+    };
+
+
 
     const sliderTeachers = getTeachersForSlider(teachers);
 
@@ -128,13 +140,24 @@ export default function HeroSection() {
                     <div className="flex w-full max-w-md mb-4">
                         <input
                             type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Search course, event or author"
                             className="flex-1 p-3 rounded-l-md bg-white text-gray-900 outline-none"
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    handleSearch();
+                                }
+                            }}
                         />
-                        <button className="p-3 bg-indigo-500 rounded-r-md hover:bg-indigo-600 transition">
+                        <button
+                            onClick={handleSearch}
+                            className="p-3 bg-indigo-500 rounded-r-md hover:bg-indigo-600 transition"
+                        >
                             Search
                         </button>
                     </div>
+
 
                     <div className="text-xs sm:text-sm">
                         Popular:{" "}

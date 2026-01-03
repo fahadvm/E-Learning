@@ -48,8 +48,8 @@ export class CompanyEmployeeController implements ICompanyEmployeeController {
     const employeeId = req.params.employeeId;
     if (!employeeId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
 
-    const { name, email, position } = req.body;
-    const updatedEmployee = await this._employeeService.updateEmployee(employeeId, { name, email, position });
+    const { position, department, location } = req.body;
+    const updatedEmployee = await this._employeeService.updateEmployee(employeeId, { position, department, location });
     sendResponse(res, STATUS_CODES.OK, MESSAGES.EMPLOYEE_UPDATED, true, updatedEmployee);
   }
 
