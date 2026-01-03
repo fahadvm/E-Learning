@@ -55,41 +55,45 @@ export const initSocket = (
 ) => {
   if (!socket) {
     const rawUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.devnext.online";
-    // Remove /api suffix if present, as socket.io defaults to root + /socket.io
     const socketUrl = rawUrl.replace(/\/api\/?$/, "");
 
     socket = io(socketUrl, {
       withCredentials: true,
       transports: ["websocket", "polling"],
+      reconnectionAttempts: 5,
     });
 
     console.log("Global Socket Initialized");
   }
 
+  // Remove existing listeners to avoid duplicates if initSocket is called multiple times
+  socket.removeAllListeners("receive_message");
+  socket.removeAllListeners("chat-list-update");
+  socket.removeAllListeners("typing");
+  socket.removeAllListeners("message_read");
+  socket.removeAllListeners("message_reaction");
+  socket.removeAllListeners("message_deleted");
+  socket.removeAllListeners("message_edited");
+  socket.removeAllListeners("receive_notification");
+  socket.removeAllListeners("incoming-call");
+  socket.removeAllListeners("call-accepted");
+  socket.removeAllListeners("call-rejected");
+  socket.removeAllListeners("call-ended");
+  socket.removeAllListeners("ice-candidate");
+  socket.removeAllListeners("onlineUsers");
+  socket.removeAllListeners("accountBlocked");
+  socket.removeAllListeners("courseBlocked");
+
   // Join with userId
   socket.emit("join", userId);
 
-  // Listen for incoming messages
+  // Re-attach listeners
   socket.on("receive_message", onMessageReceived);
-
-  // Listen for chat list updates (WhatsApp style)
-  socket.on("chat-list-update", (...args: unknown[]) => {
-    notifyListeners("chat-list-update", ...args);
-  });
-
-  // Listen for typing events
+  socket.on("chat-list-update", (...args: unknown[]) => notifyListeners("chat-list-update", ...args));
   socket.on("typing", onTypingReceived);
-
-  // Listen for message read events
   socket.on("message_read", onMessageRead);
-
-  // Listen for message reaction events
   socket.on("message_reaction", onMessageReaction);
-
-  // Listen for message deletion events
   socket.on("message_deleted", onMessageDeleted);
-
-  // Listen for message edit events
   socket.on("message_edited", onMessageEdited);
 
   socket.on("receive_notification", (data: { title: string; message: string }) => {
@@ -98,61 +102,31 @@ export const initSocket = (
   });
 
   // ---------------- CALL EVENTS ----------------
-  socket.on("incoming-call", (...args: unknown[]) => {
-    notifyListeners("incoming-call", ...args);
-  });
+  socket.on("incoming-call", (data: any) => notifyListeners("incoming-call", data));
+  socket.on("call-accepted", (data: any) => notifyListeners("call-accepted", data));
+  socket.on("call-rejected", (data: any) => notifyListeners("call-rejected", data));
+  socket.on("call-ended", (data: any) => notifyListeners("call-ended", data));
+  socket.on("ice-candidate", (data: any) => notifyListeners("ice-candidate", data));
 
-  socket.on("call-accepted", (...args: unknown[]) => {
-    notifyListeners("call-accepted", ...args);
-  });
-
-  socket.on("call-rejected", (...args: unknown[]) => {
-    notifyListeners("call-rejected", ...args);
-  });
-
-  socket.on("call-ended", (...args: unknown[]) => {
-    notifyListeners("call-ended", ...args);
-  });
-
-  socket.on("ice-candidate", (...args: unknown[]) => {
-    // We might need to handle this globally or pass to specific handler
-    // Usually PeerConnection handles this.
-    notifyListeners("ice-candidate", ...args);
-  });
-
+  socket.on("onlineUsers", (users: string[]) => notifyListeners("onlineUsers", users));
 
   socket.on("accountBlocked", (data: unknown) => {
     console.log("🚫 Account blocked event received:", data);
     alert("Your account has been blocked by the admin. You will be logged out shortly.");
-
-    // Cleanup
     localStorage.clear();
     sessionStorage.clear();
-
-    // Cross-role redirection logic
     const currentPath = window.location.pathname;
-    if (currentPath.startsWith('/student')) {
-      window.location.href = "/student/login";
-    } else if (currentPath.startsWith('/teacher')) {
-      window.location.href = "/teacher/login";
-    } else if (currentPath.startsWith('/company')) {
-      window.location.href = "/company/login";
-    } else if (currentPath.startsWith('/employee')) {
-      window.location.href = "/employee/login";
-    } else {
-      window.location.href = "/";
-    }
+    if (currentPath.startsWith('/student')) window.location.href = "/student/login";
+    else if (currentPath.startsWith('/teacher')) window.location.href = "/teacher/login";
+    else if (currentPath.startsWith('/company')) window.location.href = "/company/login";
+    else if (currentPath.startsWith('/employee')) window.location.href = "/employee/login";
+    else window.location.href = "/";
   });
 
   socket.on("courseBlocked", (data: { courseId: string; reason: string; message: string }) => {
-    console.log("🚫 Course blocked event received:", data);
-
     const currentPath = window.location.pathname;
-    // Check if user is on this course's detail/learning page
-    // Patterns: /student/courses/[id], /employee/courses/[id], /teacher/courses/[id], /company/courses/[id]
     if (currentPath.includes(data.courseId)) {
       alert(`⚠️ This course has been blocked by the admin. Redirecting you to the course list.\nReason: ${data.reason}`);
-
       if (currentPath.startsWith('/student')) window.location.href = "/student/courses";
       else if (currentPath.startsWith('/teacher')) window.location.href = "/teacher/courses";
       else if (currentPath.startsWith('/employee')) window.location.href = "/employee/my-courses";

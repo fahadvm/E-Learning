@@ -143,9 +143,9 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     useEffect(() => {
         // Incoming Call
         const cleanupIncoming = attachSocketListener("incoming-call", async (data: { signal: RTCSessionDescriptionInit; from: string; name: string }) => {
-            console.log("Incoming call from", data.name);
+            console.log("Incoming call from", data.name, "ID:", data.from);
             if (callStateRef.current !== "idle") {
-                // Busy
+                console.log("Busy, ignoring incoming call");
                 return;
             }
             setCallerInfo({ name: data.name, from: data.from });
@@ -160,7 +160,11 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
             console.log("Call accepted!");
             setCallState("connected");
             if (peerConnectionRef.current) {
-                await peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(signal));
+                try {
+                    await peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(signal));
+                } catch (e) {
+                    console.error("Error setting remote description on accept", e);
+                }
             }
             stopAllSounds();
         });
@@ -202,15 +206,21 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
             cleanupEnded();
             cleanupIce();
         };
-    }, []); // Empty dependency array ensures listeners are attached ONCE and stable
+    }, []);
 
 
     // ---------------- ACTIONS ----------------
 
-    const startCall = async (userId: string, userName: string) => {
+    const startCall = async (userId: string, userName: string, callerName: string = "User", callerId?: string) => {
+        const socket = getSocket();
+        if (!socket || !socket.connected) {
+            showErrorToast("Socket not connected. Please wait or refresh.");
+            return;
+        }
+
         setCallState("calling");
         callPeerIdRef.current = userId;
-        setCallerInfo({ name: userName, from: userId }); // displaying who we are calling
+        setCallerInfo({ name: userName, from: userId });
 
         const stream = await getMediaStream();
         if (!stream) {
@@ -221,19 +231,24 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         const pc = await createPeerConnection();
         stream.getTracks().forEach(track => pc.addTrack(track, stream));
 
-        const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
+        try {
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
 
-        const socket = getSocket();
+            initiateCall({
+                userToCall: userId,
+                signalData: offer,
+                from: callerId || socket.id, // Use userId if available for robustness
+                name: callerName
+            });
 
-        initiateCall({
-            userToCall: userId,
-            signalData: offer,
-            from: socket?.id || "",
-            name: "User"
-        });
-
-        callingToneRef.current?.play().catch(e => console.log("Audio play blocked", e));
+            callingToneRef.current?.play().catch(e => console.log("Audio play blocked", e));
+        } catch (err) {
+            console.error("Failed to start call", err);
+            showErrorToast("Failed to initialize call");
+            cleanupMedia();
+            setCallState("idle");
+        }
     };
 
     const acceptCall = async () => {
@@ -248,17 +263,23 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 
         const pendingOffer = pendingOfferRef.current;
         if (pendingOffer) {
-            await pc.setRemoteDescription(new RTCSessionDescription(pendingOffer));
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
+            try {
+                await pc.setRemoteDescription(new RTCSessionDescription(pendingOffer));
+                const answer = await pc.createAnswer();
+                await pc.setLocalDescription(answer);
 
-            socketAnswerCall({
-                signal: answer,
-                to: callPeerIdRef.current || ""
-            });
+                socketAnswerCall({
+                    signal: answer,
+                    to: callPeerIdRef.current || ""
+                });
 
-            setCallState("connected");
-            stopAllSounds();
+                setCallState("connected");
+                stopAllSounds();
+            } catch (err) {
+                console.error("Failed to accept call", err);
+                showErrorToast("Connection failed");
+                endCall();
+            }
         }
     };
 

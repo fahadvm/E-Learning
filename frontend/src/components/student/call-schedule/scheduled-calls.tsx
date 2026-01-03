@@ -45,6 +45,7 @@ import { studentBookingApi } from "@/services/APIservices/studentApiservice";
 import { showInfoToast, showSuccessToast } from "@/utils/Toast";
 import { useRouter } from "next/navigation";
 import { useCall } from "@/context/CallContext";
+import { useStudent } from "@/context/studentContext";
 
 interface Booking {
   _id: string;
@@ -92,6 +93,7 @@ export function ScheduledCalls() {
 
   const router = useRouter();
   const { startCall } = useCall();
+  const { student } = useStudent();
 
   const fetchScheduledCalls = async () => {
     try {
@@ -155,7 +157,7 @@ export function ScheduledCalls() {
 
     // Direct call integration
     if (call.teacherId && call.teacherId._id) {
-      startCall(call.teacherId._id, call.teacherId.name);
+      startCall(call.teacherId._id, call.teacherId.name, student?.name, student?._id);
     } else {
       showInfoToast("Teacher details missing");
     }

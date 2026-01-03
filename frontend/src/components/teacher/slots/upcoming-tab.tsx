@@ -12,6 +12,7 @@ import { showSuccessToast } from "@/utils/Toast";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useCall } from "@/context/CallContext";
+import { useTeacher } from "@/context/teacherContext";
 
 export default function UpcomingTab({
   slots,
@@ -40,10 +41,11 @@ export default function UpcomingTab({
 
   const router = useRouter();
   const { startCall } = useCall();
+  const { teacher } = useTeacher();
 
   const initiateVideoCall = (slot: Slot) => {
     if (slot.student && slot.student._id) {
-      startCall(slot.student._id, slot.student.name);
+      startCall(slot.student._id, slot.student.name, teacher?.name, teacher?._id);
     } else {
       showSuccessToast("Student details missing");
     }
