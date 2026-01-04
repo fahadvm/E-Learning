@@ -7,13 +7,19 @@ export interface IAdminEmployeeDTO {
   email: string;
   companyId?: string;
   companyName?: string;
-  coursesAssigned: string[];
+  coursesAssigned: { _id: string; title: string }[];
   position?: string;
   department?: string;
   isBlocked: boolean;
   subscription: boolean;
   profilePicture?: string;
   createdAt?: Date;
+  learningPaths?: {
+    _id: string;
+    title: string;
+    percentage: number;
+    status: string;
+  }[];
 }
 
 export interface PaginatedEmployeeDTO {
@@ -29,7 +35,10 @@ export const adminEmployeeDto = (employee: IEmployee): IAdminEmployeeDTO => ({
   email: employee.email,
   companyId: (employee.companyId as unknown as ICompany)?._id?.toString() || employee.companyId?.toString(),
   companyName: (employee.companyId as unknown as ICompany)?.name,
-  coursesAssigned: employee.coursesAssigned?.map((id) => id.toString()) || [],
+  coursesAssigned: (employee.coursesAssigned || []).map((c: any) => ({
+    _id: c._id?.toString() || c.toString(),
+    title: c.title || "Unknown Course"
+  })),
   position: employee.position,
   department: employee.department,
   isBlocked: employee.isBlocked,

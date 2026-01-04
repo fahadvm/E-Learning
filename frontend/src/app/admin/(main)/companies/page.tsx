@@ -63,11 +63,7 @@ export default function CompanyListPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Link href={`/admin/companies/verification`}>
-            <Button>Verify</Button>
-          </Link>
-        </div>
+       
       </div>
 
       <Card>

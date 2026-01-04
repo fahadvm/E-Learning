@@ -38,6 +38,7 @@ const CompanyOrder_1 = require("../../models/CompanyOrder");
 const Transaction_1 = require("../../models/Transaction");
 const Student_1 = require("../../models/Student");
 const CourseReview_1 = require("../../models/CourseReview");
+const Teacher_1 = require("../../models/Teacher");
 let TeacherCourseService = class TeacherCourseService {
     constructor(_courseRepository, _resourceRepository, _notificationService, _companyRepository, _employeeRepository, _teacherRepository) {
         this._courseRepository = _courseRepository;
@@ -76,7 +77,7 @@ let TeacherCourseService = class TeacherCourseService {
             // "Teacher clicks 'Submit for Review'" - implies creation might typically be a draft first.
             // However, if the teacher isn't verified, they shouldn't be engaging in course creation flows usually.
             // Let's enforce strict: Must be verified to create any course (Draft or otherwise) logic from requirement "Only verified teachers can create courses".
-            if (!teacher.isVerified) {
+            if (teacher.verificationStatus !== Teacher_1.VerificationStatus.VERIFIED) {
                 (0, ResANDError_1.throwError)('You must be a verified teacher to create courses.', HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
             }
             // Map files by fieldname

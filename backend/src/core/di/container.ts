@@ -199,6 +199,16 @@ import { CompanyLeaderboardService } from '../../services/company/company.leader
 import { CompanyLeaderboardController } from '../../controllers/company/company.leaderboard.controller';
 import { CompanyAnalyticsService } from '../../services/company/company.analytics.service';
 import { CompanyAnalyticsController } from '../../controllers/company/company.analytics.controller';
+import { IEmployeeCourseReviewService } from '../interfaces/services/employee/IEmployeeCourseReviewService';
+import { EmployeeCourseReviewService } from '../../services/employee/employee.courseReview.service';
+import { EmployeeCourseReviewController } from '../../controllers/employee/employee.courseReview.controller';
+import { IEmployeeTeacherReviewService } from '../interfaces/services/employee/IEmployeeTeacherReviewService';
+import { EmployeeTeacherService } from '../../services/employee/employee.teacher.service';
+import { EmployeeTeacherController } from '../../controllers/employee/employee.teacher.controller';
+import { IEmployeeTeacherService } from '../interfaces/services/employee/IEmployeeTeacherService';
+import { IEmployeeTeacherController } from '../interfaces/controllers/employee/IEmployeeTeacherController';
+import { EmployeeTeacherReviewService } from '../../services/employee/employee.teacherReview.service';
+import { EmployeeTeacherReviewController } from '../../controllers/employee/employee.teacherReview.controller';
 import { IAdminProfileService } from '../interfaces/services/admin/IAdminProfileService';
 import { AdminProfileService } from '../../services/admin/Admin.Profile.Service';
 import { AdminProfileController } from '../../controllers/admin/admin.profile.controller';
@@ -437,6 +447,14 @@ container.bind<IEmployeeLeaderboardService>(TYPES.EmployeeLeaderboardService).to
 container.bind<ICompanyLeaderboardService>(TYPES.CompanyLeaderboardService).to(CompanyLeaderboardService);
 container.bind<CompanyLeaderboardController>(TYPES.CompanyLeaderboardController).to(CompanyLeaderboardController);
 container.bind<CompanyAnalyticsService>(TYPES.CompanyAnalyticsService).to(CompanyAnalyticsService);
+container.bind<IEmployeeCourseReviewService>(TYPES.EmployeeCourseReviewService).to(EmployeeCourseReviewService);
+container.bind<EmployeeCourseReviewController>(TYPES.EmployeeCourseReviewController).to(EmployeeCourseReviewController);
+container.bind<IEmployeeTeacherReviewService>(TYPES.EmployeeTeacherReviewService).to(EmployeeTeacherReviewService);
+container.bind<EmployeeTeacherReviewController>(TYPES.EmployeeTeacherReviewController).to(EmployeeTeacherReviewController);
+
+container.bind<IEmployeeTeacherService>(TYPES.EmployeeTeacherService).to(EmployeeTeacherService);
+container.bind<EmployeeTeacherController>(TYPES.EmployeeTeacherController).to(EmployeeTeacherController);
+
 container.bind<CompanyAnalyticsController>(TYPES.CompanyAnalyticsController).to(CompanyAnalyticsController);
 container.bind<IAdminProfileService>(TYPES.AdminProfileService).to(AdminProfileService);
 container.bind<ICompanyCartRepository>(TYPES.CompanyCartRepository).to(CompanyCartRepository);

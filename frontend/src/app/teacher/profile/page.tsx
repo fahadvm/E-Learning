@@ -577,9 +577,11 @@ export default function TeacherProfilePage() {
                   </div>
                 ))}
               </div>
+              <Link href="/teacher/callSchedule">
               <button className="w-full mt-10 py-4 bg-zinc-950 hover:bg-zinc-800 text-white border border-zinc-900 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-black/10">
                 Manage Availability
               </button>
+              </Link>
             </div>
           </aside>
         </div>

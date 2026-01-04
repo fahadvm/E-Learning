@@ -74,3 +74,10 @@ export interface ICompanyVerificationResponse {
     total: number;
     totalPages: number;
 }
+
+export interface ICompanyCourse {
+    _id: string;
+    title: string;
+    seatsPurchased: number;
+    seatsUsed: number;
+}

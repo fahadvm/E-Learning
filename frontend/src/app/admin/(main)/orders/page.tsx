@@ -26,6 +26,8 @@ type StudentOrder = {
     createdAt: string;
 };
 
+
+
 export default function OrdersPage() {
     const [activeTab, setActiveTab] = useState<"company" | "student">("company");
     const [companyOrders, setCompanyOrders] = useState<CompanyOrder[]>([]);
@@ -79,6 +81,8 @@ export default function OrdersPage() {
             setPage(newPage);
         }
     };
+    const formatOrderId = (id: string) => `ord_${id.slice(0, 6)}`;
+
 
     return (
         <div className="flex min-h-screen bg-gray-50 p-6">
@@ -90,8 +94,8 @@ export default function OrdersPage() {
                     <button
                         onClick={() => setActiveTab("company")}
                         className={`px-4 py-2 font-medium border-b-2 transition-colors ${activeTab === "company"
-                                ? "border-blue-600 text-blue-600"
-                                : "border-transparent text-gray-600 hover:text-blue-600"
+                            ? "border-blue-600 text-blue-600"
+                            : "border-transparent text-gray-600 hover:text-blue-600"
                             }`}
                     >
                         Company Purchased
@@ -99,8 +103,8 @@ export default function OrdersPage() {
                     <button
                         onClick={() => setActiveTab("student")}
                         className={`px-4 py-2 font-medium border-b-2 transition-colors ${activeTab === "student"
-                                ? "border-blue-600 text-blue-600"
-                                : "border-transparent text-gray-600 hover:text-blue-600"
+                            ? "border-blue-600 text-blue-600"
+                            : "border-transparent text-gray-600 hover:text-blue-600"
                             }`}
                     >
                         Student Purchased
@@ -128,7 +132,7 @@ export default function OrdersPage() {
                                         {activeTab === "company" ? (
                                             getPaginatedData(companyOrders).map((order) => (
                                                 <tr key={order._id} className="border-b hover:bg-gray-50 transition">
-                                                    <td className="p-4 font-mono text-xs">{order._id}</td>
+                                                    <td className="p-4 font-mono text-xs">{formatOrderId(order._id)}</td>
                                                     <td className="p-4">
                                                         <div>
                                                             <p className="font-medium">{order.companyId.name}</p>
@@ -153,7 +157,7 @@ export default function OrdersPage() {
                                         ) : (
                                             getPaginatedData(studentOrders).map((order) => (
                                                 <tr key={order._id} className="border-b hover:bg-gray-50 transition">
-                                                    <td className="p-4 font-mono text-xs">{order._id}</td>
+                                                    <td className="p-4 font-mono text-xs">{formatOrderId(order._id)}</td>
                                                     <td className="p-4">
                                                         <div>
                                                             <p className="font-medium">{order.studentId?.name || "N/A"}</p>

@@ -26,7 +26,7 @@ export class CompanyRepository implements ICompanyRepository {
     return Company.findById(id)
       .populate({
         path: 'employees',
-        select: 'name email position isBlocked _id ',
+        select: 'name email position isBlocked _id coursesAssigned',
       })
       .exec();
   }

@@ -12,7 +12,7 @@ interface CallContextType {
     callerInfo: { name: string; from: string } | null;
     remoteStream: MediaStream | null;
     localStream: MediaStream | null;
-    startCall: (userId: string, userName: string) => void;
+    startCall: (userId: string, userName: string, callerName?: string, callerId?: string) => void;
     acceptCall: () => void;
     rejectCall: () => void;
     endCall: () => void;
@@ -238,7 +238,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
             initiateCall({
                 userToCall: userId,
                 signalData: offer,
-                from: callerId || socket.id, // Use userId if available for robustness
+                from: callerId || socket.id || "", // Use userId if available for robustness
                 name: callerName
             });
 

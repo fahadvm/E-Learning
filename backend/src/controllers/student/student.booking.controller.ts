@@ -17,7 +17,7 @@ export class StudentBookingController implements IStudentBookingController {
 
     @inject(TYPES.StudentSubscriptionService)
     private readonly _subscriptionService: IStudentSubscriptionService
-  ) {}
+  ) { }
 
   getAvailability = async (req: AuthRequest, res: Response) => {
     const { teacherId } = req.params;
@@ -72,6 +72,13 @@ export class StudentBookingController implements IStudentBookingController {
 
     const result = await this._bookingService.approveReschedule(bookingId);
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.BOOKING_APPROVED, true, result);
+  };
+  rejectBooking = async (req: AuthRequest, res: Response) => {
+    const { bookingId } = req.params;
+    const { reason } = req.body;
+    if (!bookingId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
+    const result = await this._bookingService.rejectReschedule(bookingId, reason || "Rejected by student");
+    return sendResponse(res, STATUS_CODES.OK, MESSAGES.BOOKING_RESCHEDULE_REJECT, true, result);
   };
 
   payBooking = async (req: AuthRequest, res: Response) => {

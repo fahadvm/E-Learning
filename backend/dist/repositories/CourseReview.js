@@ -28,25 +28,35 @@ let CourseReviewRepository = class CourseReviewRepository {
             return yield CourseReview_1.CourseReview.create(data);
         });
     }
-    findStudentReview(studentId, courseId) {
+    findStudentReview(userId, courseId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield CourseReview_1.CourseReview.findOne({ studentId, courseId });
+            return yield CourseReview_1.CourseReview.findOne({ studentId: userId, courseId });
         });
     }
-    updateReview(studentId, courseId, data) {
+    findEmployeeReview(userId, courseId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield CourseReview_1.CourseReview.findOneAndUpdate({ studentId, courseId }, data, { new: true });
+            return yield CourseReview_1.CourseReview.findOne({ employeeId: userId, courseId });
         });
     }
-    deleteReview(studentId, reviewId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield CourseReview_1.CourseReview.findOneAndDelete({ _id: reviewId, studentId });
+    updateReview(userId_1, courseId_1, data_1) {
+        return __awaiter(this, arguments, void 0, function* (userId, courseId, data, isEmployee = false) {
+            const query = isEmployee ? { employeeId: userId, courseId } : { studentId: userId, courseId };
+            return yield CourseReview_1.CourseReview.findOneAndUpdate(query, data, { new: true });
+        });
+    }
+    deleteReview(userId_1, reviewId_1) {
+        return __awaiter(this, arguments, void 0, function* (userId, reviewId, isEmployee = false) {
+            const query = isEmployee
+                ? { _id: reviewId, employeeId: userId }
+                : { _id: reviewId, studentId: userId };
+            return yield CourseReview_1.CourseReview.findOneAndDelete(query);
         });
     }
     getReviews(courseId) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield CourseReview_1.CourseReview.find({ courseId })
                 .populate('studentId', 'name profilePicture')
+                .populate('employeeId', 'name profilePicture')
                 .sort({ createdAt: -1 });
         });
     }

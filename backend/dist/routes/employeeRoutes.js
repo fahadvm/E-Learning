@@ -11,6 +11,7 @@ const employee_courses_route_1 = __importDefault(require("./employeeRoute/employ
 const employee_learningpath_route_1 = __importDefault(require("./employeeRoute/employee.learningpath.route"));
 const employee_leaderboard_route_1 = __importDefault(require("./employeeRoute/employee.leaderboard.route"));
 const employee_chat_route_1 = __importDefault(require("./employeeRoute/employee.chat.route"));
+const employee_teacher_route_1 = __importDefault(require("./employeeRoute/employee.teacher.route"));
 const employeeRouter = (0, express_1.Router)();
 employeeRouter.use('/auth', employee_auth_route_1.default);
 employeeRouter.use('/profile', employee_profile_route_1.default);
@@ -22,4 +23,5 @@ employeeRouter.use('/progress', employee_courses_route_1.default);
 employeeRouter.use('/learning-paths', employee_learningpath_route_1.default);
 employeeRouter.use('/leaderboard', employee_leaderboard_route_1.default);
 employeeRouter.use('/chat', employee_chat_route_1.default);
+employeeRouter.use('/teachers', employee_teacher_route_1.default);
 exports.default = employeeRouter;

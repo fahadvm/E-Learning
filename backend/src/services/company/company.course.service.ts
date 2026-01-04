@@ -36,20 +36,20 @@ export class CompanyCourseService implements ICompanyCourseService {
     limit?: number;
     isBlocked?: boolean;
     isPublished?: boolean;
-  }): Promise<PaginatedCourseDTO>  {
+  }): Promise<PaginatedCourseDTO> {
     const { data, totalCount, totalPages } =
-    await this._courseRepository.getFilteredCourses({
-      ...filters,
-      isBlocked: false,
-      isPublished: true,
-    });
+      await this._courseRepository.getFilteredCourses({
+        ...filters,
+        isBlocked: false,
+        isPublished: true,
+      });
 
-  return {
-    data: data.map(CompanyCourseDTO),
-    totalCount,
-    totalPages,
-  };
-}
+    return {
+      data: data.map(CompanyCourseDTO),
+      totalCount,
+      totalPages,
+    };
+  }
 
   async getCourseDetail(courseId: string): Promise<ICourse | null> {
     const course = await this._courseRepository.findById(courseId);
@@ -61,12 +61,27 @@ export class CompanyCourseService implements ICompanyCourseService {
     const employee = await this._employeeRepo.findById(employeeId);
     if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND);
 
+    const companyId = (employee.companyId as any)?._id?.toString() || employee.companyId?.toString();
+    if (!companyId) throwError("Employee is not associated with any company", STATUS_CODES.BAD_REQUEST);
+
     const course = await this._courseRepository.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND);
 
     if (course.isBlocked) {
       throwError('This course is blocked by admin and cannot be assigned to employees.', STATUS_CODES.FORBIDDEN);
     }
+
+    const alreadyAssigned = employee.coursesAssigned?.some(
+      (c: any) => (c._id?.toString() || c.toString()) === courseId
+    );
+
+    if (alreadyAssigned) return;
+
+    // Increase seat usage in the purchase record
+    await this._purchasedRepository.increaseSeatUsage(
+      new mongoose.Types.ObjectId(companyId),
+      new mongoose.Types.ObjectId(courseId)
+    );
 
     return await this._employeeRepo.assignCourseToEmployee(courseId, employeeId);
   }

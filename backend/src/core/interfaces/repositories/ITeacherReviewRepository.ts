@@ -12,5 +12,6 @@ export interface ITeacherReviewRepository {
   delete(id: string): Promise<ITeacherReview | null>;
   getTeacherReviews(teacherId: string): Promise<ITeacherReview[]>;
   getReviewByStudent(teacherId: string, studentId: string): Promise<ITeacherReview | null>;
+  getReviewByEmployee(teacherId: string, employeeId: string): Promise<ITeacherReview | null>;
   getTeacherRatingStats(teacherId: string): Promise<ITeacherRatingStats[]>;
 }

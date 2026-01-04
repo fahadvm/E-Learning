@@ -52,6 +52,14 @@ export const employeeApiMethods = {
   getLearningRecord: () => get(EMPLOYEE_ROUTES.courses.learningRecords),
   getProgression: () => get(EMPLOYEE_ROUTES.courses.progress),
 
+  addCourseReview: (data: { courseId: string, rating: number, comment: string }) => post(EMPLOYEE_ROUTES.courses.addCourseReview, data),
+  getCourseReviews: (courseId: string) => get(EMPLOYEE_ROUTES.courses.getCourseReviews(courseId)),
+
+  // Teachers
+  getTeacherDetails: (teacherId: string) => get(EMPLOYEE_ROUTES.teacher.getById(teacherId)),
+  getTeacherReviews: (teacherId: string) => get(EMPLOYEE_ROUTES.teacher.getReviews(teacherId)),
+  addTeacherReview: (data: { teacherId: string, rating: number, comment: string, }) => post(EMPLOYEE_ROUTES.teacher.addReview, data),
+
   getAssignedLearningPaths: () => get(EMPLOYEE_ROUTES.LearningPaths.get),
   getLearningPathById: (learningPathId: string) => get(EMPLOYEE_ROUTES.LearningPaths.details(learningPathId)),
 

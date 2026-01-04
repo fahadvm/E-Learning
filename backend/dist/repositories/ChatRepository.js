@@ -63,7 +63,7 @@ let ChatRepository = class ChatRepository {
     getStudentMessages(chatId, limit, before) {
         return __awaiter(this, void 0, void 0, function* () {
             const query = { chatId: new mongoose_1.Types.ObjectId(chatId) };
-            if (before) {
+            if (before && !isNaN(before.getTime())) {
                 query.createdAt = { $lt: before };
             }
             return message_1.Message.find(query)
@@ -75,7 +75,7 @@ let ChatRepository = class ChatRepository {
     getTeacherMessages(chatId, limit, before) {
         return __awaiter(this, void 0, void 0, function* () {
             const query = { chatId: new mongoose_1.Types.ObjectId(chatId) };
-            if (before) {
+            if (before && !isNaN(before.getTime())) {
                 query.createdAt = { $lt: before };
             }
             return message_1.Message.find(query).populate('receiverId', 'name email profilePicture').sort({ createdAt: 1 });

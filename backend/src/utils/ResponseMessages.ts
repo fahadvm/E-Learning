@@ -84,6 +84,7 @@ export enum MESSAGES {
   BOOKING_CANCELLED = 'Booking cancelled successfully.',
   BOOKING_RESCHEDULLED = 'Booking cancelled Reschedulled.',
   BOOKING_APPROVED = 'Booking approved successfully.',
+  BOOKING_RESCHEDULE_REJECT = 'Booking reschedule request rejected.',
   PAYMENT_SUCCESS = 'Payment processed successfully.',
   HISTORY_FETCHED = 'Booking history fetched successfully.',
   TEACHER_AVAILABILITY_FETCHED = 'Teacher availability fetched successfully.',

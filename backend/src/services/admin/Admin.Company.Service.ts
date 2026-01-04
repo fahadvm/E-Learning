@@ -3,7 +3,10 @@ import { TYPES } from '../../core/di/types';
 import { IAdminCompanyService } from '../../core/interfaces/services/admin/IAdminCompanyService';
 import { ICompanyRepository } from '../../core/interfaces/repositories/ICompanyRepository';
 import { IEmployeeRepository } from '../../core/interfaces/repositories/IEmployeeRepository';
+import { ICompanyCoursePurchaseRepository } from '../../core/interfaces/repositories/ICompanyCoursePurchaseRepository';
+import { IEmployeeLearningPathProgressRepository } from '../../core/interfaces/repositories/IEmployeeLearningPathProgressRepository';
 import { throwError } from '../../utils/ResANDError';
+import mongoose from 'mongoose';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
 import { adminCompanyDto, IAdminCompanyDto, IAdminCompanyEmployeeDto, adminCompanyEmployeeDto, IAdminCompanyDetailsDto } from '../../core/dtos/admin/Admin.company.Dto';
@@ -16,7 +19,13 @@ export class AdminCompanyService implements IAdminCompanyService {
     private readonly _companyRepo: ICompanyRepository,
 
     @inject(TYPES.EmployeeRepository)
-    private readonly _employeeRepo: IEmployeeRepository
+    private readonly _employeeRepo: IEmployeeRepository,
+
+    @inject(TYPES.CompanyCoursePurchaseRepository)
+    private readonly _purchasedRepo: ICompanyCoursePurchaseRepository,
+
+    @inject(TYPES.EmployeeLearningPathProgressRepository)
+    private readonly _lpProgressRepo: IEmployeeLearningPathProgressRepository
   ) { }
 
   async getAllCompanies(
@@ -37,9 +46,33 @@ export class AdminCompanyService implements IAdminCompanyService {
 
     const employees = (company.employees as unknown as IEmployee[]) || [];
 
+    // Fetch accurate course usage from the devoted repository
+    const companyIdObj = new mongoose.Types.ObjectId(companyId);
+    const purchases = await this._purchasedRepo.getAllPurchasesByCompany(companyIdObj);
+
+    const courses = await Promise.all(purchases.map(async (p) => {
+      const courseData = p.courseId as any;
+      const courseId = courseData._id?.toString() || p.courseId.toString();
+
+      // Calculate dynamic counts to ensure data integrity
+      const individualCount = employees.filter(emp =>
+        emp.coursesAssigned?.some((id: any) => (id._id?.toString() || id.toString()) === courseId)
+      ).length;
+
+      const lpCount = await this._lpProgressRepo.countAssignedSeats(companyId, courseId);
+
+      return {
+        _id: courseId,
+        title: courseData.title || "Unknown Course",
+        seatsPurchased: p.seatsPurchased,
+        seatsUsed: Math.max(p.seatsUsed, individualCount, lpCount)
+      };
+    }));
+
     return {
       company: adminCompanyDto(company),
-      employees: employees.map(adminCompanyEmployeeDto)
+      employees: employees.map(adminCompanyEmployeeDto),
+      courses
     };
   }
 

@@ -82,6 +82,7 @@ let CompanyEmployeeService = class CompanyEmployeeService {
     }
     updateEmployee(employeeId, data) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("here updating employee profile:", data);
             return yield this._employeeRepo.updateById(employeeId, data);
         });
     }
@@ -139,7 +140,7 @@ let CompanyEmployeeService = class CompanyEmployeeService {
                     (0, ResANDError_1.throwError)('Employee already has a pending request or invitation', HttpStatuscodes_1.STATUS_CODES.CONFLICT);
                 }
                 const updated = yield this._employeeRepo.updateById(employee._id.toString(), {
-                    requestedCompanyId: null, // Clear any previous request
+                    requestedCompanyId: null,
                     status: 'invited',
                     invitedBy: new mongoose_1.default.Types.ObjectId(companyId),
                     invitedAt: new Date()
@@ -162,7 +163,7 @@ let CompanyEmployeeService = class CompanyEmployeeService {
     }
     removeEmployee(companyId, employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
+            var _a, _b;
             const employee = yield this._employeeRepo.findById(employeeId);
             if (!employee)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMPLOYEE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
@@ -181,6 +182,12 @@ let CompanyEmployeeService = class CompanyEmployeeService {
                 }
                 /* 3️ Remove assigned progress */
                 yield this._learningPathAssignRepo.delete(companyId, employeeId, path.learningPathId._id.toString());
+            }
+            /* 3.5 Decrease seat usage for individually assigned courses */
+            const individualCourses = employee.coursesAssigned || [];
+            for (const courseData of individualCourses) {
+                const courseId = ((_b = courseData._id) === null || _b === void 0 ? void 0 : _b.toString()) || courseData.toString();
+                yield this._purchaseRepo.decreaseSeatUsage(new mongoose_1.default.Types.ObjectId(companyId), new mongoose_1.default.Types.ObjectId(courseId));
             }
             /* 4️ Remove employee from company */
             yield this._employeeRepo.updateById(employeeId, {

@@ -120,7 +120,8 @@ let StudentBookingService = class StudentBookingService {
         return __awaiter(this, void 0, void 0, function* () {
             if (!bookingId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            const cancelled = yield this._bookingRepo.updateBookingStatus(bookingId, 'booked', reason);
+            console.log("here booking is cancelling", bookingId, reason);
+            const cancelled = yield this._bookingRepo.updateBookingStatus(bookingId, 'cancelled', reason);
             if (!cancelled)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.BOOKING_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             return (0, student_booking_dto_1.bookingDto)(cancelled);
@@ -134,6 +135,16 @@ let StudentBookingService = class StudentBookingService {
             if (!approved)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.BOOKING_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             return (0, student_booking_dto_1.bookingDto)(approved);
+        });
+    }
+    rejectReschedule(bookingId, reason) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!bookingId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            const rejected = yield this._bookingRepo.rejectReschedule(bookingId, reason);
+            if (!rejected)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.BOOKING_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            return (0, student_booking_dto_1.bookingDto)(rejected);
         });
     }
     initiatePayment(bookingId, amount) {

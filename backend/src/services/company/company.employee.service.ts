@@ -93,7 +93,7 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
 
 
     async updateEmployee(employeeId: string, data: Partial<IEmployee>): Promise<IEmployee | null> {
-        console.log("here updating employee profile:",data)
+        console.log("here updating employee profile:", data)
         return await this._employeeRepo.updateById(employeeId, data);
     }
 
@@ -175,7 +175,7 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
             }
 
             const updated = await this._employeeRepo.updateById(employee._id.toString(), {
-                requestedCompanyId: null, 
+                requestedCompanyId: null,
                 status: 'invited',
                 invitedBy: new mongoose.Types.ObjectId(companyId),
                 invitedAt: new Date()
@@ -231,6 +231,16 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
 
             /* 3️ Remove assigned progress */
             await this._learningPathAssignRepo.delete(companyId, employeeId, path.learningPathId._id.toString());
+        }
+
+        /* 3.5 Decrease seat usage for individually assigned courses */
+        const individualCourses = employee.coursesAssigned || [];
+        for (const courseData of individualCourses) {
+            const courseId = (courseData as any)._id?.toString() || courseData.toString();
+            await this._purchaseRepo.decreaseSeatUsage(
+                new mongoose.Types.ObjectId(companyId),
+                new mongoose.Types.ObjectId(courseId)
+            );
         }
 
         /* 4️ Remove employee from company */

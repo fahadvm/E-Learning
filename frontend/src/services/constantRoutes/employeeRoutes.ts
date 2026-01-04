@@ -54,6 +54,16 @@ export const EMPLOYEE_ROUTES = {
     lessonComplete: (courseId: string, lessonIndex: string) => `${EMPLOYEE_COURSES}/${courseId}/lesson/${lessonIndex}/complete`,
     resources: (courseId: string) => `${EMPLOYEE_COURSES}/resources/${courseId}`,
     comments: (courseId: string) => `${EMPLOYEE_COURSES}/comment/${courseId}`,
+    addCourseReview: `${EMPLOYEE_COURSES}/course-review`,
+    getCourseReviews: (courseId: string) => `${EMPLOYEE_COURSES}/course-reviews/${courseId}`,
+  },
+
+  teacher: {
+    base: `${EMPLOYEE_BASE}/teachers`,
+    getById: (id: string) => `${EMPLOYEE_BASE}/teachers/${id}`,
+    addReview: `${EMPLOYEE_BASE}/teachers/review/add`,
+    getReviews: (teacherId: string) => `${EMPLOYEE_BASE}/teachers/reviews/${teacherId}`,
+    stats: (teacherId: string) => `${EMPLOYEE_BASE}/teachers/teacher/${teacherId}/stats`,
   },
 
   LearningPaths: {

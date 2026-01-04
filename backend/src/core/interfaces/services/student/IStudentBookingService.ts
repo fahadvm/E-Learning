@@ -17,6 +17,7 @@ export interface IStudentBookingService {
   ): Promise<IBookingDTO>;
   cancelBooking(bookingId: string, reason: string): Promise<IBookingDTO>;
   approveReschedule(bookingId: string): Promise<IBookingDTO>;
+  rejectReschedule(bookingId: string, reason: string): Promise<IBookingDTO>;
   initiatePayment(
     bookingId: string,
     amount: number
@@ -27,8 +28,8 @@ export interface IStudentBookingService {
     limit: number,
     status?: string,
     teacher?: string
-  ): Promise<IPaginatedResult<IBooking>>; 
-  getAvailableSlots(teacherId: string): Promise<IAvailableSlot[]| null>;
+  ): Promise<IPaginatedResult<IBooking>>;
+  getAvailableSlots(teacherId: string): Promise<IAvailableSlot[] | null>;
   getBookingDetails(bookingId: string): Promise<IBooking>;
   getBookingDetailsByPaymentId(paymentOrderId: string): Promise<IBooking>;
   getScheduledCalls(studentId: string): Promise<IBooking[]>;

@@ -217,6 +217,8 @@ export interface ICourse {
     totalDuration: number;
     totalStudents?: number;
     reviews?: { rating: number }[];
+    averageRating?: number;
+    reviewCount?: number;
     createdAt?: string;
     updatedAt?: string;
 }

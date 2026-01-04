@@ -66,8 +66,8 @@ let CompanyEmployeeController = class CompanyEmployeeController {
             const employeeId = req.params.employeeId;
             if (!employeeId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            const { name, email, position } = req.body;
-            const updatedEmployee = yield this._employeeService.updateEmployee(employeeId, { name, email, position });
+            const { position, department, location } = req.body;
+            const updatedEmployee = yield this._employeeService.updateEmployee(employeeId, { position, department, location });
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.EMPLOYEE_UPDATED, true, updatedEmployee);
         });
     }

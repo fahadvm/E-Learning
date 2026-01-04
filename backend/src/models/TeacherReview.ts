@@ -2,7 +2,8 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ITeacherReview extends Document {
   teacherId: mongoose.Types.ObjectId;
-  studentId: mongoose.Types.ObjectId;
+  studentId?: mongoose.Types.ObjectId;
+  employeeId?: mongoose.Types.ObjectId;
   rating: number;
   comment: string;
   createdAt: Date;
@@ -11,7 +12,8 @@ export interface ITeacherReview extends Document {
 const TeacherReviewSchema = new Schema(
   {
     teacherId: { type: Schema.Types.ObjectId, ref: 'Teacher', required: true },
-    studentId: { type: Schema.Types.ObjectId, ref: 'Student', required: true },
+    studentId: { type: Schema.Types.ObjectId, ref: 'Student' },
+    employeeId: { type: Schema.Types.ObjectId, ref: 'Employee' },
     rating: { type: Number, required: true, min: 1, max: 5 },
     comment: { type: String, default: '' },
   },

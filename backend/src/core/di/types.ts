@@ -157,6 +157,12 @@ export const TYPES = {
     EmployeeLearningPathService: Symbol.for('EmployeeLearningPathService'),
     EmployeeLeaderboardController: Symbol.for('EmployeeLeaderboardController'),
     EmployeeLeaderboardService: Symbol.for('EmployeeLeaderboardService'),
+    EmployeeCourseReviewService: Symbol.for('EmployeeCourseReviewService'),
+    EmployeeCourseReviewController: Symbol.for('EmployeeCourseReviewController'),
+    EmployeeTeacherReviewService: Symbol.for('EmployeeTeacherReviewService'),
+    EmployeeTeacherReviewController: Symbol.for('EmployeeTeacherReviewController'),
+    EmployeeTeacherService: Symbol.for('EmployeeTeacherService'),
+    EmployeeTeacherController: Symbol.for('EmployeeTeacherController'),
 
 
 

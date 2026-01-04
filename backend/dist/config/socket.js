@@ -50,7 +50,14 @@ function initSocket(server) {
     ];
     const io = new socket_io_1.Server(server, {
         cors: {
-            origin: allowedOrigins,
+            origin: (origin, callback) => {
+                if (!origin || allowedOrigins.includes(origin) || /\.devtunnels\.ms$/.test(origin)) {
+                    callback(null, true);
+                }
+                else {
+                    callback(new Error(`Not allowed by CORS: ${origin}`), false);
+                }
+            },
             methods: ['GET', 'POST'],
             credentials: true,
         },
@@ -159,18 +166,22 @@ function initSocket(server) {
         /** ------------------- DIRECT CALLING (WhatsApp Style) ------------------- **/
         // Caller initiates call
         socket.on('call-user', (data) => {
+            console.log(`Call request from ${data.name} (${data.from}) to ${data.userToCall}`);
             const receiverSocketId = onlineUsers.get(data.userToCall);
             if (receiverSocketId) {
+                console.log(`Routing call to socket: ${receiverSocketId}`);
                 io.to(receiverSocketId).emit('incoming-call', {
                     signal: data.signalData,
                     from: data.from,
                     name: data.name
                 });
             }
+            else {
+                console.log(`Receiver ${data.userToCall} is not online`);
+            }
         });
         // Receiver answers call
         socket.on('answer-call', (data) => {
-            // Robust routing: Try UserID lookup, fallback to direct SocketID
             const targetSocketId = onlineUsers.get(data.to) || data.to;
             if (targetSocketId) {
                 io.to(targetSocketId).emit('call-accepted', data.signal);
@@ -194,7 +205,7 @@ function initSocket(server) {
         socket.on('ice-candidate', (candidate, to) => {
             const targetSocketId = onlineUsers.get(to) || to;
             if (targetSocketId) {
-                io.to(targetSocketId).emit('ice-candidate', candidate, socket.id);
+                io.to(targetSocketId).emit('ice-candidate', { candidate, from: socket.id });
             }
         });
         /** ------------------- ROOM VIDEO CALL (Legacy/Backup) ------------------- **/

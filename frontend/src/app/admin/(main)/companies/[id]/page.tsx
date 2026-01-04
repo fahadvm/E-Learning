@@ -26,6 +26,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ICompanyDetails,
   ICompanyEmployee,
+  ICompanyCourse,
 } from "@/types/admin/company";
 import { adminApiMethods } from "@/services/APIservices/adminApiService";
 
@@ -35,6 +36,7 @@ export default function CompanyDetailsPage() {
 
   const [company, setCompany] = useState<ICompanyDetails | null>(null);
   const [employees, setEmployees] = useState<ICompanyEmployee[]>([]);
+  const [courses, setCourses] = useState<ICompanyCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusLoading, setStatusLoading] = useState(false);
 
@@ -44,6 +46,7 @@ export default function CompanyDetailsPage() {
       console.log("data details", response)
       setCompany(response.data.company);
       setEmployees(response.data.employees);
+      setCourses(response.data.courses || []);
     } catch (error) {
       console.error("Failed to fetch company:", error);
     } finally {
@@ -275,7 +278,7 @@ export default function CompanyDetailsPage() {
                 <div>
                   <p className="text-sm text-slate-500">Enrolled Courses</p>
                   <h3 className="text-2xl font-bold">
-                    0
+                    {courses.length}
                   </h3>
                 </div>
               </CardContent>
@@ -320,16 +323,16 @@ export default function CompanyDetailsPage() {
                 <table className="w-full text-sm">
                   <thead className="bg-slate-50 text-slate-500">
                     <tr>
-                      <th className="px-4 h-10">Name</th>
-                      <th className="px-4 h-10">Status</th>
-                      <th className="px-4 h-10">Courses</th>
+                      <th className="px-4 h-10 text-left">Name</th>
+                      <th className="px-4 h-10 text-left">Status</th>
+                      <th className="px-4 h-10 text-left">Courses</th>
                     </tr>
                   </thead>
 
                   <tbody className="divide-y">
                     {employees.map((emp) => (
                       <tr key={emp._id} className="hover:bg-slate-50">
-                        <td className="p-4">
+                        <td className="p-4 text-left">
                           <div className="flex items-center gap-3">
                             <Avatar className="h-8 w-8">
                               <AvatarImage src={emp.avatar} />
@@ -346,17 +349,17 @@ export default function CompanyDetailsPage() {
                           </div>
                         </td>
 
-                        <td className="p-4">
+                        <td className="p-4 text-left">
                           <Badge
                             variant={
-                              emp.isBlocked ?  "destructive":"success" 
+                              emp.isBlocked ? "destructive" : "success"
                             }
                           >
-                            {emp.isBlocked?"Blocked":"Active"}
+                            {emp.isBlocked ? "Blocked" : "Active"}
                           </Badge>
                         </td>
 
-                        <td className="p-4">
+                        <td className="p-4 text-left">
                           {emp.coursesCompleted} / {emp.coursesAssigned}
                         </td>
                       </tr>
@@ -365,10 +368,65 @@ export default function CompanyDetailsPage() {
                     {employees.length === 0 && (
                       <tr>
                         <td
-                          colSpan={5}
+                          colSpan={3}
                           className="p-6 text-center text-slate-500"
                         >
                           No employees found.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex items-center justify-between">
+              <CardTitle>Purchased Courses</CardTitle>
+            </CardHeader>
+
+            <CardContent>
+              <div className="rounded-lg border">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50 text-slate-500">
+                    <tr>
+                      <th className="px-4 h-10 text-left font-bold">Course Title</th>
+                      <th className="px-4 h-10 text-left font-bold">Seats Purchased</th>
+                      <th className="px-4 h-10 text-left font-bold">Seats Used</th>
+                    </tr>
+                  </thead>
+
+                  <tbody className="divide-y">
+                    {courses.map((course) => (
+                      <tr key={course._id} className="hover:bg-slate-50">
+                        <td className="p-4 text-left font-medium">
+                          {course.title}
+                        </td>
+                        <td className="p-4 text-left">
+                          {course.seatsPurchased}
+                        </td>
+                        <td className="p-4 text-left">
+                          <div className="flex items-center gap-2">
+                            <span>{course.seatsUsed}</span>
+                            <div className="h-1.5 flex-1 max-w-[100px] bg-slate-100 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-blue-600"
+                                style={{ width: `${(course.seatsUsed / (course.seatsPurchased || 1)) * 100}%` }}
+                              />
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+
+                    {courses.length === 0 && (
+                      <tr>
+                        <td
+                          colSpan={3}
+                          className="p-6 text-center text-slate-500"
+                        >
+                          No courses purchased yet.
                         </td>
                       </tr>
                     )}

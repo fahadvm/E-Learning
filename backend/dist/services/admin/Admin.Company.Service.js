@@ -20,18 +20,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminCompanyService = void 0;
 const inversify_1 = require("inversify");
 const types_1 = require("../../core/di/types");
 const ResANDError_1 = require("../../utils/ResANDError");
+const mongoose_1 = __importDefault(require("mongoose"));
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const Admin_company_Dto_1 = require("../../core/dtos/admin/Admin.company.Dto");
 let AdminCompanyService = class AdminCompanyService {
-    constructor(_companyRepo, _employeeRepo) {
+    constructor(_companyRepo, _employeeRepo, _purchasedRepo, _lpProgressRepo) {
         this._companyRepo = _companyRepo;
         this._employeeRepo = _employeeRepo;
+        this._purchasedRepo = _purchasedRepo;
+        this._lpProgressRepo = _lpProgressRepo;
     }
     getAllCompanies(page, limit, search) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -47,9 +53,27 @@ let AdminCompanyService = class AdminCompanyService {
             if (!company)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COMPANY_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             const employees = company.employees || [];
+            // Fetch accurate course usage from the devoted repository
+            const companyIdObj = new mongoose_1.default.Types.ObjectId(companyId);
+            const purchases = yield this._purchasedRepo.getAllPurchasesByCompany(companyIdObj);
+            const courses = yield Promise.all(purchases.map((p) => __awaiter(this, void 0, void 0, function* () {
+                var _a;
+                const courseData = p.courseId;
+                const courseId = ((_a = courseData._id) === null || _a === void 0 ? void 0 : _a.toString()) || p.courseId.toString();
+                // Calculate dynamic counts to ensure data integrity
+                const individualCount = employees.filter(emp => { var _a; return (_a = emp.coursesAssigned) === null || _a === void 0 ? void 0 : _a.some((id) => { var _a; return (((_a = id._id) === null || _a === void 0 ? void 0 : _a.toString()) || id.toString()) === courseId; }); }).length;
+                const lpCount = yield this._lpProgressRepo.countAssignedSeats(companyId, courseId);
+                return {
+                    _id: courseId,
+                    title: courseData.title || "Unknown Course",
+                    seatsPurchased: p.seatsPurchased,
+                    seatsUsed: Math.max(p.seatsUsed, individualCount, lpCount)
+                };
+            })));
             return {
                 company: (0, Admin_company_Dto_1.adminCompanyDto)(company),
-                employees: employees.map(Admin_company_Dto_1.adminCompanyEmployeeDto)
+                employees: employees.map(Admin_company_Dto_1.adminCompanyEmployeeDto),
+                courses
             };
         });
     }
@@ -123,5 +147,7 @@ exports.AdminCompanyService = AdminCompanyService = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(types_1.TYPES.CompanyRepository)),
     __param(1, (0, inversify_1.inject)(types_1.TYPES.EmployeeRepository)),
-    __metadata("design:paramtypes", [Object, Object])
+    __param(2, (0, inversify_1.inject)(types_1.TYPES.CompanyCoursePurchaseRepository)),
+    __param(3, (0, inversify_1.inject)(types_1.TYPES.EmployeeLearningPathProgressRepository)),
+    __metadata("design:paramtypes", [Object, Object, Object, Object])
 ], AdminCompanyService);

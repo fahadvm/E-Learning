@@ -157,9 +157,8 @@ export default function Header() {
                   <div
                     className="
                       fixed lg:absolute
-                      bottom-0 lg:top-12
-                      left-0 lg:right-0
-                      lg:left-auto
+                      bottom-0 lg:bottom-auto lg:top-12
+                      left-0 lg:left-auto lg:right-0
                       w-full lg:w-80
                       max-h-[85vh]
                       bg-white

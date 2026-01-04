@@ -34,27 +34,27 @@ export const studentCourseApi = {
   getCourseComments: (courseId: string) => get(STUDENT_ROUTES.courses.comments(courseId)),
   getPurchasedCourseIds: () => get(STUDENT_ROUTES.purchase.getPurchasedIds),
   addCourseComment: (courseId: string, data: { content: string }) => post(STUDENT_ROUTES.courses.comments(courseId), data),
-  deleteCourseComment: (commentId: string) => del(STUDENT_ROUTES.courses.comments(commentId)), 
+  deleteCourseComment: (commentId: string) => del(STUDENT_ROUTES.courses.comments(commentId)),
 
-  addCourseReview : (data:{courseId: string, rating: number, comment: string}) => post(STUDENT_ROUTES.courses.addCourseReview,data),
-  getCourseReviews : (courseId: string) => get(STUDENT_ROUTES.courses.getCourseReviews(courseId)),
+  addCourseReview: (data: { courseId: string, rating: number, comment: string }) => post(STUDENT_ROUTES.courses.addCourseReview, data),
+  getCourseReviews: (courseId: string) => get(STUDENT_ROUTES.courses.getCourseReviews(courseId)),
 };
 
 export const studentProfileApi = {
   getProfile: () => get(STUDENT_ROUTES.profile.base),
   editProfile: (data: any) => patch(STUDENT_ROUTES.profile.base, data),
-  changePassword: (data:{currentPassword:string , newPassword:string}) => put(STUDENT_ROUTES.profile.changePassword,data),
-  sendEmailOtp: (data:{ newEmail:string}) => post(STUDENT_ROUTES.profile.sendEmailOtp,data),
-  verifyEmailOtp: (data:{ newEmail:string,otp: string}) => post(STUDENT_ROUTES.profile.verifyEmailOtp,data),
-  getContributions: (leetcode:string ,github: string) => get(STUDENT_ROUTES.profile.contribution(leetcode,github)),
+  changePassword: (data: { currentPassword: string, newPassword: string }) => put(STUDENT_ROUTES.profile.changePassword, data),
+  sendEmailOtp: (data: { newEmail: string }) => post(STUDENT_ROUTES.profile.sendEmailOtp, data),
+  verifyEmailOtp: (data: { newEmail: string, otp: string }) => post(STUDENT_ROUTES.profile.verifyEmailOtp, data),
+  getContributions: (leetcode: string, github: string) => get(STUDENT_ROUTES.profile.contribution(leetcode, github)),
 };
 
 export const studentTeacherApi = {
   getTopTeachers: () => get(STUDENT_ROUTES.teacher.base),
   getTeacherDetails: (teacherId: string) => get(STUDENT_ROUTES.teacher.getById(teacherId)),
   getTeacherAvailability: (teacherId: string) => get(STUDENT_ROUTES.teacher.availability(teacherId)),
-  getTeacherReviews:(teacherId:string) => get(STUDENT_ROUTES.teacher.getReviews(teacherId)),
-  addTeacherReview:(data:{teacherId:string,rating:number,comment:string,}) => post(STUDENT_ROUTES.teacher.addReview,data),
+  getTeacherReviews: (teacherId: string) => get(STUDENT_ROUTES.teacher.getReviews(teacherId)),
+  addTeacherReview: (data: { teacherId: string, rating: number, comment: string, }) => post(STUDENT_ROUTES.teacher.addReview, data),
 };
 
 export const studentBookingApi = {
@@ -69,8 +69,8 @@ export const studentBookingApi = {
   getBookingDetails: (bookingId: string) => get(STUDENT_ROUTES.bookings.details(bookingId)),
   getBookingDetailsBypaymentOrderId: (paymentOrderId: string) => get(STUDENT_ROUTES.bookings.paymentOrderIdDetails(paymentOrderId)),
   getScheduledCalls: (params: { page: number; limit: number }) => get(STUDENT_ROUTES.bookings.scheduledCalls, params),
-  approveReschedule: (bookingId : string) => get(STUDENT_ROUTES.bookings.approvescheduledCalls(bookingId)),
-  rejectReschedule: (bookingId : string) => get(STUDENT_ROUTES.bookings.rejectscheduledCalls(bookingId)),
+  approveReschedule: (bookingId: string) => get(STUDENT_ROUTES.bookings.approvescheduledCalls(bookingId)),
+  rejectReschedule: (bookingId: string, reason: string) => patch(STUDENT_ROUTES.bookings.rejectscheduledCalls(bookingId), { reason }),
 };
 
 export const studentWishlistApi = {
@@ -93,8 +93,8 @@ export const paymentApi = {
   bookingPayment: (data: { amount: number; bookingId: string }) => post(STUDENT_ROUTES.bookings.payments(''), data),
   verifyBookingPayment: (data: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) =>
     post(STUDENT_ROUTES.bookings.verify, data),
-  getOrderDetails: (razorpayOrderId : string ) => get(STUDENT_ROUTES.purchase.getOrderDetails(razorpayOrderId)),
-  getPurchaseHistory: (params:{page:number, limit:number} ) => get(STUDENT_ROUTES.purchase.getMyhistory,params)
+  getOrderDetails: (razorpayOrderId: string) => get(STUDENT_ROUTES.purchase.getOrderDetails(razorpayOrderId)),
+  getPurchaseHistory: (params: { page: number, limit: number }) => get(STUDENT_ROUTES.purchase.getMyhistory, params)
 };
 
 export const studentSubscriptionApi = {
@@ -119,8 +119,8 @@ export const studentAiApi = {
 };
 
 
-export const studentCertificateApi ={
-  getMyCertificates: (params:{page :number, limit : number, search : string}) => get(STUDENT_ROUTES.courses.getCertificates,params),
-  generateCertificate: (data:{courseId:string}) => post(STUDENT_ROUTES.courses.generateCertificate,data),
-  getCourseCertificate:(courseId:string)=> get(STUDENT_ROUTES.courses.getCourseCertificate(courseId)),
+export const studentCertificateApi = {
+  getMyCertificates: (params: { page: number, limit: number, search: string }) => get(STUDENT_ROUTES.courses.getCertificates, params),
+  generateCertificate: (data: { courseId: string }) => post(STUDENT_ROUTES.courses.generateCertificate, data),
+  getCourseCertificate: (courseId: string) => get(STUDENT_ROUTES.courses.getCourseCertificate(courseId)),
 }

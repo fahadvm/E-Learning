@@ -42,12 +42,18 @@ let TeacherReviewRepository = class TeacherReviewRepository {
         return __awaiter(this, void 0, void 0, function* () {
             return yield TeacherReview_1.default.find({ teacherId })
                 .populate('studentId', 'name profilePicture')
+                .populate('employeeId', 'name profilePicture')
                 .sort({ createdAt: -1 });
         });
     }
     getReviewByStudent(teacherId, studentId) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield TeacherReview_1.default.findOne({ teacherId, studentId });
+        });
+    }
+    getReviewByEmployee(teacherId, employeeId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield TeacherReview_1.default.findOne({ teacherId, employeeId });
         });
     }
     getTeacherRatingStats(teacherId) {

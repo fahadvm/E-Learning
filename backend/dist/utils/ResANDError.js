@@ -9,14 +9,14 @@ exports.sendResponse = sendResponse;
 exports.handleControllerError = handleControllerError;
 const logger_1 = __importDefault(require("./logger"));
 function throwErrorWithRes(res, message, statusCode = 400) {
-    logger_1.default.error('Throwing error:', message);
+    logger_1.default.error(`Throwing error in : ${message}`);
     res.status(statusCode).json({ message });
     const error = new Error(message);
     error.statusCode = statusCode;
     throw error;
 }
 function throwError(message, statusCode = 400) {
-    logger_1.default.error('Throwing error in :', message);
+    logger_1.default.error(`Throwing error in : ${message}`);
     const error = new Error(message);
     error.statusCode = statusCode;
     throw error;
@@ -28,6 +28,6 @@ function sendResponse(res, status, message, ok, data) {
 function handleControllerError(res, error, defaultStatus = 400) {
     const err = error;
     const statusCode = err.statusCode || defaultStatus;
-    logger_1.default.error(err.message);
+    logger_1.default.error(`${err.message}`);
     sendResponse(res, statusCode, err.message, false);
 }

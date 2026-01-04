@@ -31,6 +31,7 @@ const ResANDError_1 = require("../../utils/ResANDError");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const mongoose_1 = __importDefault(require("mongoose"));
+const Company_course_Dto_1 = require("../../core/dtos/company/Company.course.Dto");
 let CompanyCourseService = class CompanyCourseService {
     constructor(_courseRepository, _companyOrderRepository, _purchasedRepository, _employeeRepo, _resourceRepository) {
         this._courseRepository = _courseRepository;
@@ -41,8 +42,12 @@ let CompanyCourseService = class CompanyCourseService {
     }
     getAllCourses(filters) {
         return __awaiter(this, void 0, void 0, function* () {
-            const courses = yield this._courseRepository.getFilteredCourses(Object.assign(Object.assign({}, filters), { isBlocked: false }));
-            return courses;
+            const { data, totalCount, totalPages } = yield this._courseRepository.getFilteredCourses(Object.assign(Object.assign({}, filters), { isBlocked: false, isPublished: true }));
+            return {
+                data: data.map(Company_course_Dto_1.CompanyCourseDTO),
+                totalCount,
+                totalPages,
+            };
         });
     }
     getCourseDetail(courseId) {
@@ -55,15 +60,24 @@ let CompanyCourseService = class CompanyCourseService {
     }
     assignCourseToEmployee(courseId, employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c, _d;
             const employee = yield this._employeeRepo.findById(employeeId);
             if (!employee)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMPLOYEE_NOT_FOUND);
+            const companyId = ((_b = (_a = employee.companyId) === null || _a === void 0 ? void 0 : _a._id) === null || _b === void 0 ? void 0 : _b.toString()) || ((_c = employee.companyId) === null || _c === void 0 ? void 0 : _c.toString());
+            if (!companyId)
+                (0, ResANDError_1.throwError)("Employee is not associated with any company", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const course = yield this._courseRepository.findById(courseId);
             if (!course)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND);
             if (course.isBlocked) {
                 (0, ResANDError_1.throwError)('This course is blocked by admin and cannot be assigned to employees.', HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
             }
+            const alreadyAssigned = (_d = employee.coursesAssigned) === null || _d === void 0 ? void 0 : _d.some((c) => { var _a; return (((_a = c._id) === null || _a === void 0 ? void 0 : _a.toString()) || c.toString()) === courseId; });
+            if (alreadyAssigned)
+                return;
+            // Increase seat usage in the purchase record
+            yield this._purchasedRepository.increaseSeatUsage(new mongoose_1.default.Types.ObjectId(companyId), new mongoose_1.default.Types.ObjectId(courseId));
             return yield this._employeeRepo.assignCourseToEmployee(courseId, employeeId);
         });
     }

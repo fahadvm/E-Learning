@@ -76,6 +76,7 @@ var MESSAGES;
     MESSAGES["BOOKING_CANCELLED"] = "Booking cancelled successfully.";
     MESSAGES["BOOKING_RESCHEDULLED"] = "Booking cancelled Reschedulled.";
     MESSAGES["BOOKING_APPROVED"] = "Booking approved successfully.";
+    MESSAGES["BOOKING_RESCHEDULE_REJECT"] = "Booking reschedule request rejected.";
     MESSAGES["PAYMENT_SUCCESS"] = "Payment processed successfully.";
     MESSAGES["HISTORY_FETCHED"] = "Booking history fetched successfully.";
     MESSAGES["TEACHER_AVAILABILITY_FETCHED"] = "Teacher availability fetched successfully.";
@@ -333,7 +334,7 @@ var MESSAGES;
     // Employee Fetch
     // Invite
     MESSAGES["INVITATION_SENT"] = "Invitation sent to employee";
-    MESSAGES["INVITE_LINK_CREATED"] = "Employee not found. Invitation link created.";
+    MESSAGES["INVITE_LINK_CREATED"] = "Employee not exist.";
     // Search
     MESSAGES["SEARCH_QUERY_REQUIRED"] = "Search query is required";
     MESSAGES["EMPLOYEES_FOUND"] = "Employees found";

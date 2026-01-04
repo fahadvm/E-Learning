@@ -80,4 +80,5 @@ export interface IStudentBookingRepository {
     endTime: string
   ): Promise<IBooking | null>;
   approveReschedule(bookingId: string): Promise<IBooking>
+  rejectReschedule(bookingId: string, reason: string): Promise<IBooking | null>
 }

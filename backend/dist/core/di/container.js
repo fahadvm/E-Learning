@@ -121,6 +121,12 @@ const company_leaderboard_service_1 = require("../../services/company/company.le
 const company_leaderboard_controller_1 = require("../../controllers/company/company.leaderboard.controller");
 const company_analytics_service_1 = require("../../services/company/company.analytics.service");
 const company_analytics_controller_1 = require("../../controllers/company/company.analytics.controller");
+const employee_courseReview_service_1 = require("../../services/employee/employee.courseReview.service");
+const employee_courseReview_controller_1 = require("../../controllers/employee/employee.courseReview.controller");
+const employee_teacher_service_1 = require("../../services/employee/employee.teacher.service");
+const employee_teacher_controller_1 = require("../../controllers/employee/employee.teacher.controller");
+const employee_teacherReview_service_1 = require("../../services/employee/employee.teacherReview.service");
+const employee_teacherReview_controller_1 = require("../../controllers/employee/employee.teacherReview.controller");
 const Admin_Profile_Service_1 = require("../../services/admin/Admin.Profile.Service");
 const admin_profile_controller_1 = require("../../controllers/admin/admin.profile.controller");
 const transaction_admin_service_1 = require("../../services/admin/transaction.admin.service");
@@ -290,6 +296,12 @@ container.bind(types_1.TYPES.EmployeeLeaderboardService).to(employee_leaderboard
 container.bind(types_1.TYPES.CompanyLeaderboardService).to(company_leaderboard_service_1.CompanyLeaderboardService);
 container.bind(types_1.TYPES.CompanyLeaderboardController).to(company_leaderboard_controller_1.CompanyLeaderboardController);
 container.bind(types_1.TYPES.CompanyAnalyticsService).to(company_analytics_service_1.CompanyAnalyticsService);
+container.bind(types_1.TYPES.EmployeeCourseReviewService).to(employee_courseReview_service_1.EmployeeCourseReviewService);
+container.bind(types_1.TYPES.EmployeeCourseReviewController).to(employee_courseReview_controller_1.EmployeeCourseReviewController);
+container.bind(types_1.TYPES.EmployeeTeacherReviewService).to(employee_teacherReview_service_1.EmployeeTeacherReviewService);
+container.bind(types_1.TYPES.EmployeeTeacherReviewController).to(employee_teacherReview_controller_1.EmployeeTeacherReviewController);
+container.bind(types_1.TYPES.EmployeeTeacherService).to(employee_teacher_service_1.EmployeeTeacherService);
+container.bind(types_1.TYPES.EmployeeTeacherController).to(employee_teacher_controller_1.EmployeeTeacherController);
 container.bind(types_1.TYPES.CompanyAnalyticsController).to(company_analytics_controller_1.CompanyAnalyticsController);
 container.bind(types_1.TYPES.AdminProfileService).to(Admin_Profile_Service_1.AdminProfileService);
 container.bind(types_1.TYPES.CompanyCartRepository).to(CompanyCartRepository_1.CompanyCartRepository);

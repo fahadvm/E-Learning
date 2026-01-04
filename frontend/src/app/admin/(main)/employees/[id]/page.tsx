@@ -269,26 +269,82 @@ export default function EmployeeDetailsPage() {
                         </Card>
                     </div>
 
-                    {/* ACTIVITY / COURSES (Placeholder or Real if available) */}
+                    {/* LEARNING PATHS SECTION */}
                     <Card className="border-none shadow-sm rounded-2xl overflow-hidden">
+                        <CardHeader className="bg-slate-50/50 border-b border-slate-100 p-6 flex flex-row items-center justify-between">
+                            <CardTitle className="text-lg font-bold text-slate-800 tracking-tight">Assigned Learning Paths</CardTitle>
+                            <Badge variant="outline" className="bg-purple-50 text-purple-600 border-purple-100">
+                                {employee.learningPaths?.length || 0} Paths
+                            </Badge>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            {(employee.learningPaths?.length || 0) > 0 ? (
+                                <div className="divide-y divide-slate-100">
+                                    {(employee.learningPaths || []).map((lp) => (
+                                        <div key={lp._id} className="p-6">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="h-12 w-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
+                                                        <BookOpen className="h-6 w-6" />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="font-bold text-slate-900">{lp.title}</h4>
+                                                        <div className="flex items-center gap-2 mt-1">
+                                                            <Badge variant="secondary" className="text-[10px] h-4 px-1.5 uppercase font-bold tracking-wider">
+                                                                {lp.status}
+                                                            </Badge>
+                                                            <span className="text-xs text-slate-400">Progression</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <span className="text-sm font-bold text-slate-900">{lp.percentage}%</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                                                <div
+                                                    className="h-full bg-primary transition-all duration-1000 ease-out"
+                                                    style={{ width: `${lp.percentage}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="p-12 text-center flex flex-col items-center gap-3">
+                                    <div className="p-4 bg-slate-50 rounded-full text-slate-200">
+                                        <Shield className="h-10 w-10" />
+                                    </div>
+                                    <div className="max-w-xs">
+                                        <p className="font-semibold text-slate-900">No Learning Paths assigned</p>
+                                        <p className="text-xs text-slate-500 mt-1">This employee hasn't been assigned to any structured learning paths yet.</p>
+                                    </div>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* ACTIVITY / COURSES (Populated) */}
+                    {/* <Card className="border-none shadow-sm rounded-2xl overflow-hidden">
                         <CardHeader className="bg-slate-50/50 border-b border-slate-100">
                             <CardTitle className="text-lg font-bold text-slate-800 tracking-tight">Assigned Learning Content</CardTitle>
                         </CardHeader>
                         <CardContent className="p-0">
                             {(employee.coursesAssigned?.length || 0) > 0 ? (
                                 <div className="divide-y divide-slate-100">
-                                    {(employee.coursesAssigned || []).map((courseId: string, idx: number) => (
-                                        <div key={idx} className="p-6 hover:bg-slate-50/50 transition-colors flex items-center justify-between">
+                                    {(employee.coursesAssigned || []).map((course, idx) => (
+                                        <div key={course._id} className="p-6 hover:bg-slate-50/50 transition-colors flex items-center justify-between">
                                             <div className="flex items-center gap-4">
-                                                <div className="h-10 w-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 font-bold">
+                                                <div className="h-10 w-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600 font-bold">
                                                     {idx + 1}
                                                 </div>
                                                 <div>
-                                                    <h4 className="font-semibold text-slate-900">Course ID: {courseId}</h4>
+                                                    <h4 className="font-semibold text-slate-900">{course.title}</h4>
                                                     <p className="text-xs text-slate-500">Corporate mandatory training</p>
                                                 </div>
                                             </div>
-                                            <Badge variant="outline" className="text-slate-400 border-slate-200">Enrolled</Badge>
+                                            <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-100">Enrolled</Badge>
                                         </div>
                                     ))}
                                 </div>
@@ -304,7 +360,7 @@ export default function EmployeeDetailsPage() {
                                 </div>
                             )}
                         </CardContent>
-                    </Card>
+                    </Card> */}
                 </div>
 
             </div>

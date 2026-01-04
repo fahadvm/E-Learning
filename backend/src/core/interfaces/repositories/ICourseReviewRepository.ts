@@ -2,21 +2,28 @@ import { ICourseReview } from '../../../models/CourseReview';
 
 export interface ICourseReviewRepository {
   addReview(data: Partial<ICourseReview>): Promise<ICourseReview>;
-  
+
   findStudentReview(
-    studentId: string,
+    userId: string,
+    courseId: string
+  ): Promise<ICourseReview | null>;
+
+  findEmployeeReview(
+    userId: string,
     courseId: string
   ): Promise<ICourseReview | null>;
 
   updateReview(
-    studentId: string,
+    userId: string,
     courseId: string,
-    data: Partial<ICourseReview>
+    data: Partial<ICourseReview>,
+    isEmployee?: boolean
   ): Promise<ICourseReview | null>;
 
   deleteReview(
-    studentId: string,
-    reviewId: string
+    userId: string,
+    reviewId: string,
+    isEmployee?: boolean
   ): Promise<ICourseReview | null>;
 
   getReviews(

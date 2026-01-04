@@ -17,6 +17,7 @@ import {
   UserRound,
   VideoIcon,
   FileText,
+  Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -31,6 +32,9 @@ import { showSuccessToast, showErrorToast } from "@/utils/Toast";
 import React from "react";
 import AiTutorChat from "@/components/student/aiBot/AiTutorChat";
 import { studentCourseApi } from "@/services/APIservices/studentApiservice";
+
+import CourseReviewModal from "@/components/student/course/CourseReviewModal";
+import ReviewListModal from "@/components/student/course/ReviewList";
 
 import {
   ICourse,
@@ -58,6 +62,42 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
   const [resources, setResources] = useState<Resource[]>([]);
   const [watchTime, setWatchTime] = useState<number>(0);
   const [totalTimeSpent, setTotalTimeSpent] = useState<number>(0);
+  const [openReviewModal, setOpenReviewModal] = useState(false);
+  const [openReviewListModal, setOpenReviewListModal] = useState(false);
+  const [reviews, setReviews] = useState([]);
+
+  // === Fetch Reviews ===
+  useEffect(() => {
+    if (!courseId) return;
+    const fetchReviews = async () => {
+      try {
+        const res = await employeeApiMethods.getCourseReviews(courseId);
+        if (res?.ok && res.data) setReviews(res.data);
+        else if (res) showErrorToast(res.message);
+      } catch {
+        showErrorToast("Failed to load Reviews");
+      }
+    };
+    fetchReviews();
+  }, [courseId]);
+
+  const handleSubmitReview = async (rating: number, comment: string) => {
+    try {
+      const res = await employeeApiMethods.addCourseReview({ courseId, rating, comment });
+      if (res?.ok) {
+        showSuccessToast("Review submitted successfully");
+        // Refresh course to get updated average rating
+        fetchCourse();
+        // Refresh reviews list
+        const revRes = await employeeApiMethods.getCourseReviews(courseId);
+        if (revRes?.ok && revRes.data) setReviews(revRes.data);
+      } else if (res) {
+        showErrorToast(res.message);
+      }
+    } catch {
+      showErrorToast("Failed to submit review");
+    }
+  };
 
 
   const watchSessionRef = useRef<{
@@ -151,7 +191,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
           return;
         }
 
-        const updatedModules = courseData.modules?.map((module:Module) => ({
+        const updatedModules = courseData.modules?.map((module: Module) => ({
           ...module,
           completed: progressData.completedModules?.includes(module._id) || false,
           lessons: module.lessons.map((lesson: Lesson) => ({
@@ -167,7 +207,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
         const lastVisitedLessonId = progressData.lastVisitedLesson;
         const firstLesson = updatedModules?.[0]?.lessons?.[0] || null;
         const lastVisitedLesson = lastVisitedLessonId
-          ? updatedModules?.flatMap((m : Module) => m.lessons).find((l:Lesson) => l._id === lastVisitedLessonId) || firstLesson
+          ? updatedModules?.flatMap((m: Module) => m.lessons).find((l: Lesson) => l._id === lastVisitedLessonId) || firstLesson
           : firstLesson;
         setCurrentLesson(lastVisitedLesson);
       } else if (res) {
@@ -487,7 +527,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                             {course.teacherId?.name || "Unknown Instructor"}
                           </Link>
                         </div>
-                        <div className="flex items-center gap-2">
+                        {/* <div className="flex items-center gap-2">
                           {course.teacherId && (
                             <Link href={`/employee/chat/${course.teacherId._id}`}>
                               <Button
@@ -510,7 +550,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                               Call
                             </Button>
                           </Link>
-                        </div>
+                        </div>  */}
                       </div>
                       <p className="text-sm text-gray-600 mt-1 leading-snug max-w-xl">
                         {course.teacherId?.about
@@ -548,7 +588,23 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
                         {Math.floor(watchTime / 60)}m {watchTime % 60}s
                       </span>
                     </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                      <Star className="w-4 h-4 text-yellow-500" />
+                      <span className="text-muted-foreground">Rating:</span>
+                      <span
+                        className="font-medium text-muted-foreground cursor-pointer hover:underline"
+                        onClick={() => setOpenReviewListModal(true)}
+                      >
+                        {course.averageRating ?? 0} ({course.reviewCount ?? 0} reviews)
+                      </span>
+                    </div>
                   </div>
+                  <Button
+                    onClick={() => setOpenReviewModal(true)}
+                    className="mt-6 bg-primary hover:bg-primary/90 text-white"
+                  >
+                    Write a Review
+                  </Button>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -808,6 +864,19 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
       <div className="fixed bottom-6 right-6">
         <AiTutorChat courseId={courseId} />
       </div>
+
+      {/* Modals */}
+      <CourseReviewModal
+        open={openReviewModal}
+        onClose={() => setOpenReviewModal(false)}
+        onSubmit={handleSubmitReview}
+      />
+
+      <ReviewListModal
+        open={openReviewListModal}
+        onClose={() => setOpenReviewListModal(false)}
+        reviews={reviews}
+      />
     </div>
   );
 }

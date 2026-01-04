@@ -29,7 +29,11 @@ export class EmployeeRepository implements IEmployeeRepository {
     }
 
     async findById(employeeId: string): Promise<IEmployee | null> {
-        return await Employee.findById(employeeId).populate('companyId', 'name').lean().exec();
+        return await Employee.findById(employeeId)
+            .populate('companyId', 'name')
+            .populate('coursesAssigned', 'title')
+            .lean()
+            .exec();
     }
 
     async getAssignedCourses(employeeId: string): Promise<IEmployee | null> {

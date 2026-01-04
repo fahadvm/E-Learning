@@ -57,6 +57,7 @@ export class StudentBookingRepository implements IStudentBookingRepository {
     status: 'pending' | 'approved' | 'booked' | 'cancelled' | 'rejected',
     reason?: string
   ): Promise<IBooking | null> {
+    console.log("here updating in repository")
     const updateData =
       status === 'cancelled' && reason
         ? { status, cancellationReason: reason }
@@ -319,7 +320,15 @@ export class StudentBookingRepository implements IStudentBookingRepository {
     return newBooking;
   }
 
-
-
+  async rejectReschedule(bookingId: string, reason: string): Promise<IBooking | null> {
+    return Booking.findByIdAndUpdate(bookingId, {
+      rescheduleStatus: 'rejected',
+      rejectionReason: reason,
+      $unset: {
+        requestedDate: 1,
+        requestedSlot: 1
+      }
+    }, { new: true });
+  }
 
 }

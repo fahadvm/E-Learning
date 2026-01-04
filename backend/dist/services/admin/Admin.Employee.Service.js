@@ -26,8 +26,9 @@ const inversify_1 = require("inversify");
 const types_1 = require("../../core/di/types");
 const Admin_employee_Dto_1 = require("../../core/dtos/admin/Admin.employee.Dto");
 let AdminEmployeeService = class AdminEmployeeService {
-    constructor(_employeeRepo) {
+    constructor(_employeeRepo, _lpProgressRepo) {
         this._employeeRepo = _employeeRepo;
+        this._lpProgressRepo = _lpProgressRepo;
     }
     getEmployeesByCompany(companyId, page, limit, search) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -57,7 +58,21 @@ let AdminEmployeeService = class AdminEmployeeService {
     getEmployeeById(employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
             const employee = yield this._employeeRepo.findById(employeeId);
-            return employee ? (0, Admin_employee_Dto_1.adminEmployeeDto)(employee) : null;
+            if (!employee)
+                return null;
+            const dto = (0, Admin_employee_Dto_1.adminEmployeeDto)(employee);
+            // Fetch learning path progress
+            const lpProgress = yield this._lpProgressRepo.getAssigned(employeeId);
+            dto.learningPaths = lpProgress.map(lp => {
+                var _a, _b, _c;
+                return ({
+                    _id: ((_b = (_a = lp.learningPathId) === null || _a === void 0 ? void 0 : _a._id) === null || _b === void 0 ? void 0 : _b.toString()) || lp.learningPathId.toString(),
+                    title: ((_c = lp.learningPathId) === null || _c === void 0 ? void 0 : _c.title) || "Unknown Learning Path",
+                    percentage: lp.percentage,
+                    status: lp.status
+                });
+            });
+            return dto;
         });
     }
     blockEmployee(employeeId) {
@@ -77,5 +92,6 @@ exports.AdminEmployeeService = AdminEmployeeService;
 exports.AdminEmployeeService = AdminEmployeeService = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(types_1.TYPES.EmployeeRepository)),
-    __metadata("design:paramtypes", [Object])
+    __param(1, (0, inversify_1.inject)(types_1.TYPES.EmployeeLearningPathProgressRepository)),
+    __metadata("design:paramtypes", [Object, Object])
 ], AdminEmployeeService);

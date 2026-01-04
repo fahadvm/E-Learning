@@ -7,9 +7,7 @@ import courseRoutes from './employeeRoute/employee.courses.route';
 import learningPathRoutes from './employeeRoute/employee.learningpath.route';
 import leaderBoardRoutes from './employeeRoute/employee.leaderboard.route';
 import chatRoutes from './employeeRoute/employee.chat.route';
-
-
-
+import teacherRoutes from './employeeRoute/employee.teacher.route';
 
 const employeeRouter = Router();
 
@@ -23,6 +21,7 @@ employeeRouter.use('/progress', courseRoutes);
 employeeRouter.use('/learning-paths', learningPathRoutes);
 employeeRouter.use('/leaderboard', leaderBoardRoutes);
 employeeRouter.use('/chat', chatRoutes);
+employeeRouter.use('/teachers', teacherRoutes);
 
 
 

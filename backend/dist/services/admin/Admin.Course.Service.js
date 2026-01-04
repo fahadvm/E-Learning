@@ -59,7 +59,7 @@ let AdminCourseService = class AdminCourseService {
     verifyCourse(courseId) {
         return __awaiter(this, void 0, void 0, function* () {
             const course = yield this._courseRepo.updateStatus(courseId, {
-                status: Course_1.CourseStatus.APPROVED,
+                status: Course_1.CourseStatus.PUBLISHED,
                 isVerified: true,
                 isPublished: true
             });

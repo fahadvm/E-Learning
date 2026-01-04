@@ -21,11 +21,16 @@ export class TeacherReviewRepository implements ITeacherReviewRepository {
   async getTeacherReviews(teacherId: string): Promise<ITeacherReview[]> {
     return await TeacherReviewModel.find({ teacherId })
       .populate('studentId', 'name profilePicture')
+      .populate('employeeId', 'name profilePicture')
       .sort({ createdAt: -1 });
   }
 
   async getReviewByStudent(teacherId: string, studentId: string): Promise<ITeacherReview | null> {
     return await TeacherReviewModel.findOne({ teacherId, studentId });
+  }
+
+  async getReviewByEmployee(teacherId: string, employeeId: string): Promise<ITeacherReview | null> {
+    return await TeacherReviewModel.findOne({ teacherId, employeeId });
   }
 
   async getTeacherRatingStats(teacherId: string): Promise<ITeacherRatingStats[]> {

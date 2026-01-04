@@ -41,6 +41,7 @@ var CourseStatus;
     CourseStatus["PENDING"] = "pending";
     CourseStatus["APPROVED"] = "approved";
     CourseStatus["REJECTED"] = "rejected";
+    CourseStatus["PUBLISHED"] = "published";
 })(CourseStatus || (exports.CourseStatus = CourseStatus = {}));
 const LessonSchema = new mongoose_1.Schema({
     title: { type: String, required: true },

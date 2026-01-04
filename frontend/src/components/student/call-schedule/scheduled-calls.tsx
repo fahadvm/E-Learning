@@ -14,6 +14,7 @@ import {
   XCircle,
   Copy,
   Check,
+  Trash2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -42,7 +43,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { convertTo12Hour } from "@/utils/timeConverter";
 import { studentBookingApi } from "@/services/APIservices/studentApiservice";
-import { showInfoToast, showSuccessToast } from "@/utils/Toast";
+import { showInfoToast, showSuccessToast, showErrorToast } from "@/utils/Toast";
 import { useRouter } from "next/navigation";
 import { useCall } from "@/context/CallContext";
 import { useStudent } from "@/context/studentContext";
@@ -90,6 +91,10 @@ export function ScheduledCalls() {
   const [callIdModalOpen, setCallIdModalOpen] = useState(false);
   const [modalCall, setModalCall] = useState<Booking | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // Rejection Dialog state
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
 
   const router = useRouter();
   const { startCall } = useCall();
@@ -149,48 +154,41 @@ export function ScheduledCalls() {
 
   // Join call with 5-minute early join logic
   const handleJoinCall = (call: Booking) => {
-    const { date, slot } = call;
-    const now = new Date();
-    const sessionStart = new Date(`${date}T${slot.start}:00`);
-    const sessionEnd = new Date(`${date}T${slot.end}:00`);
-    const joinOpen = new Date(sessionStart.getTime() - 5 * 60 * 1000);
-
     // Direct call integration
     if (call.teacherId && call.teacherId._id) {
       startCall(call.teacherId._id, call.teacherId.name, student?.name, student?._id);
     } else {
       showInfoToast("Teacher details missing");
     }
-
-    // if (now >= joinOpen && now <= sessionEnd) {
-    // } else {
-    //   showInfoToast(
-    //     `You can join at ${convertTo12Hour(slot.start)} on ${date.split("-").reverse().join("-")}`
-    //   );
-    // }
   };
 
   const handleApproveReschedule = async (bookingId: string) => {
     try {
-      const res = await studentBookingApi.approveBooking(bookingId);
+      const res = await studentBookingApi.approveReschedule(bookingId);
       if (res.ok) {
         showSuccessToast("Reschedule approved successfully!");
         fetchScheduledCalls();
       }
     } catch (err) {
       console.error(err);
+      showErrorToast("Failed to approve reschedule.");
     }
   };
 
-  const handleRejectReschedule = async (bookingId: string) => {
+  const handleRejectReschedule = async () => {
+    if (!selectedCall || !rejectReason.trim()) return;
     try {
-      const res = await studentBookingApi.rejectReschedule(bookingId);
+      const res = await studentBookingApi.rejectReschedule(selectedCall._id, rejectReason);
       if (res.ok) {
         showSuccessToast("Reschedule request rejected.");
+        setRejectDialogOpen(false);
+        setRejectReason("");
+        setSelectedCall(null);
         fetchScheduledCalls();
       }
     } catch (err) {
       console.error(err);
+      showErrorToast("Failed to reject reschedule request.");
     }
   };
 
@@ -203,7 +201,7 @@ export function ScheduledCalls() {
       }
     } catch (err) {
       console.error("Error cancelling session:", err);
-      alert("Failed to cancel session.");
+      showErrorToast("Failed to cancel session.");
     } finally {
       setConfirmCancelOpen(false);
       setSelectedCall(null);
@@ -403,7 +401,11 @@ export function ScheduledCalls() {
                           </Button>
                           <Button
                             className="bg-red-600 hover:bg-red-700 text-white text-xs"
-                            onClick={() => handleRejectReschedule(call._id)}
+                            onClick={() => {
+                              setSelectedCall(call);
+                              setRejectReason("");
+                              setRejectDialogOpen(true);
+                            }}
                           >
                             Reject
                           </Button>
@@ -486,6 +488,46 @@ export function ScheduledCalls() {
       {/* Call ID Modal */}
       <CallIdModal />
 
+      {/* Reject Reschedule Dialog */}
+      <AlertDialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reject Reschedule Request</AlertDialogTitle>
+            <AlertDialogDescription>
+              Please provide a reason for rejecting the teacher's rescheduling request.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <div className="mt-4 space-y-2">
+            <label htmlFor="rejectReason" className="text-sm font-medium">
+              Reason for rejection
+            </label>
+            <textarea
+              id="rejectReason"
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="e.g., I am not available at this new time."
+              className="w-full border border-input rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              rows={3}
+            />
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setRejectDialogOpen(false);
+              setSelectedCall(null);
+            }}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive hover:bg-destructive/90"
+              disabled={!rejectReason.trim()}
+              onClick={handleRejectReschedule}
+            >
+              Reject Reschedule
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Cancel Confirmation Dialog */}
       <AlertDialog open={confirmCancelOpen} onOpenChange={setConfirmCancelOpen}>
         <AlertDialogContent>
@@ -514,7 +556,10 @@ export function ScheduledCalls() {
           </div>
 
           <AlertDialogFooter>
-            <AlertDialogCancel>Back</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => {
+              setConfirmCancelOpen(false);
+              setSelectedCall(null);
+            }}>Back</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive hover:bg-destructive/90"
               disabled={!cancelReason.trim()}

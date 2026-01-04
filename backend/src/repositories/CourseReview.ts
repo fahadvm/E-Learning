@@ -5,40 +5,54 @@ import mongoose from 'mongoose';
 
 @injectable()
 export class CourseReviewRepository implements ICourseReviewRepository {
-  
+
   async addReview(data: Partial<ICourseReview>): Promise<ICourseReview> {
     return await CourseReview.create(data);
   }
 
   async findStudentReview(
-    studentId: string,
+    userId: string,
     courseId: string
   ): Promise<ICourseReview | null> {
-    return await CourseReview.findOne({ studentId, courseId });
+    return await CourseReview.findOne({ studentId: userId, courseId });
+  }
+
+  async findEmployeeReview(
+    userId: string,
+    courseId: string
+  ): Promise<ICourseReview | null> {
+    return await CourseReview.findOne({ employeeId: userId, courseId });
   }
 
   async updateReview(
-    studentId: string,
+    userId: string,
     courseId: string,
-    data: Partial<ICourseReview>
+    data: Partial<ICourseReview>,
+    isEmployee: boolean = false
   ): Promise<ICourseReview | null> {
+    const query = isEmployee ? { employeeId: userId, courseId } : { studentId: userId, courseId };
     return await CourseReview.findOneAndUpdate(
-      { studentId, courseId },
+      query,
       data,
       { new: true }
     );
   }
 
   async deleteReview(
-    studentId: string,
-    reviewId: string
+    userId: string,
+    reviewId: string,
+    isEmployee: boolean = false
   ): Promise<ICourseReview | null> {
-    return await CourseReview.findOneAndDelete({ _id: reviewId, studentId });
+    const query = isEmployee
+      ? { _id: reviewId, employeeId: userId }
+      : { _id: reviewId, studentId: userId };
+    return await CourseReview.findOneAndDelete(query);
   }
 
   async getReviews(courseId: string): Promise<ICourseReview[]> {
     return await CourseReview.find({ courseId })
       .populate('studentId', 'name profilePicture')
+      .populate('employeeId', 'name profilePicture')
       .sort({ createdAt: -1 });
   }
 

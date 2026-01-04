@@ -41,7 +41,7 @@ let ChatService = class ChatService {
     }
     getMessages(chatId, limit, before) {
         return __awaiter(this, void 0, void 0, function* () {
-            const beforeDate = new Date(before);
+            const beforeDate = before ? new Date(before) : undefined;
             return this._chatRepository.getStudentMessages(chatId, limit, beforeDate);
         });
     }

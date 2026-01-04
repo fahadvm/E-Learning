@@ -34,7 +34,7 @@ export default function AdminTransactionsPage() {
             }
         } catch (error) {
             console.error(error);
-         showErrorToast('Failed to fetch transactions');
+            showErrorToast('Failed to fetch transactions');
         } finally {
             setLoading(false);
         }
@@ -75,7 +75,15 @@ export default function AdminTransactionsPage() {
     };
 
     const columns = [
-        { key: '_id' as keyof TransactionRow, label: 'Transaction ID' },
+        {
+            key: '_id' as keyof TransactionRow,
+            label: 'Transaction ID',
+            render: (row: TransactionRow) => (
+                <span className="font-mono text-sm">
+                    {row._id.slice(0, 6)}
+                </span>
+            ),
+        },
         {
             key: 'userId' as keyof TransactionRow,
             label: 'User Name',

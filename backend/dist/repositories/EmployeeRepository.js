@@ -82,7 +82,11 @@ let EmployeeRepository = class EmployeeRepository {
     }
     findById(employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield Employee_1.Employee.findById(employeeId).populate('companyId', 'name').lean().exec();
+            return yield Employee_1.Employee.findById(employeeId)
+                .populate('companyId', 'name')
+                .populate('coursesAssigned', 'title')
+                .lean()
+                .exec();
         });
     }
     getAssignedCourses(employeeId) {

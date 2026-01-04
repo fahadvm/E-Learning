@@ -39,14 +39,14 @@ export const STUDENT_ROUTES = {
     getCourseReviews: (courseId: string) => `${STUDENT_COURSES}/course-reviews/${courseId}`,
     addCourseReview: `${STUDENT_COURSES}/course-review`,
     getCertificates: `${STUDENT_COURSES}/my/certificates`,
-    getCourseCertificate:(courseId:string)=> `${STUDENT_COURSES}/certificates/${courseId}`,
+    getCourseCertificate: (courseId: string) => `${STUDENT_COURSES}/certificates/${courseId}`,
     generateCertificate: `${STUDENT_COURSES}/generate/certificate`,
   },
 
   profile: {
     base: STUDENT_PROFILE,
-    contribution:(leetcode:string , github: string) => `${STUDENT_PROFILE}/contributions/${leetcode}/${github}`,
-    changePassword:`${STUDENT_AUTH}/change-password/`,
+    contribution: (leetcode: string, github: string) => `${STUDENT_PROFILE}/contributions/${leetcode}/${github}`,
+    changePassword: `${STUDENT_AUTH}/change-password/`,
     sendEmailOtp: `${STUDENT_AUTH}/change-email/send-otp/`,
     verifyEmailOtp: `${STUDENT_AUTH}/change-email/verify-otp/`,
   },
@@ -54,7 +54,7 @@ export const STUDENT_ROUTES = {
     base: STUDENT_TEACHER,
     getById: (id: string) => `${STUDENT_TEACHER}/${id}`,
     availability: (id: string) => `${STUDENT_TEACHER}/availability/${id}`,
-    getReviews:(id:string) => `${STUDENT_TEACHER}/reviews/${id}`,
+    getReviews: (id: string) => `${STUDENT_TEACHER}/reviews/${id}`,
     addReview: `${STUDENT_TEACHER}/review/add`,
   },
 
@@ -69,8 +69,8 @@ export const STUDENT_ROUTES = {
     details: (bookingId: string) => `${STUDENT_BOOKINGS}/${bookingId}/details`,
     paymentOrderIdDetails: (paymentOrderId: string) => `${STUDENT_BOOKINGS}/${paymentOrderId}/paymentOrderIdDetails`,
     scheduledCalls: `${STUDENT_BOOKINGS}/ScheduledCall`,
-    approvescheduledCalls:(id:string)=> `${STUDENT_BOOKINGS}/ScheduledCall/${id}`,
-    rejectscheduledCalls:(id:string)=> `${STUDENT_BOOKINGS}/ScheduledCall/${id}`,
+    approvescheduledCalls: (id: string) => `${STUDENT_BOOKINGS}/ScheduledCall/${id}`,
+    rejectscheduledCalls: (id: string) => `${STUDENT_BOOKINGS}/${id}/reject`,
   },
 
   wishlist: {
@@ -91,7 +91,7 @@ export const STUDENT_ROUTES = {
     getMyhistory: `${STUDENT_PURCHASE}/history`,
     myCourseDetails: (courseId: string) => `${STUDENT_PURCHASE}/enrolled/${courseId}`,
     getPurchasedIds: `${STUDENT_PURCHASE}/entrolled-ids`,
-    getOrderDetails: (razorpayOrderId: string)=> `${STUDENT_PURCHASE}/orderDetails/${razorpayOrderId}`
+    getOrderDetails: (razorpayOrderId: string) => `${STUDENT_PURCHASE}/orderDetails/${razorpayOrderId}`
 
   },
 

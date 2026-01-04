@@ -67,6 +67,7 @@ let StudentBookingRepository = class StudentBookingRepository {
     }
     updateBookingStatus(bookingId, status, reason) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("here updating in repository");
             const updateData = status === 'cancelled' && reason
                 ? { status, cancellationReason: reason }
                 : { status };
@@ -279,6 +280,18 @@ let StudentBookingRepository = class StudentBookingRepository {
             oldBooking.requestedSlot = undefined;
             yield oldBooking.save();
             return newBooking;
+        });
+    }
+    rejectReschedule(bookingId, reason) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return Booking_1.Booking.findByIdAndUpdate(bookingId, {
+                rescheduleStatus: 'rejected',
+                rejectionReason: reason,
+                $unset: {
+                    requestedDate: 1,
+                    requestedSlot: 1
+                }
+            }, { new: true });
         });
     }
 };

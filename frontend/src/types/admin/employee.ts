@@ -10,7 +10,13 @@ export interface IAdminEmployee {
     isBlocked: boolean;
     profilePicture?: string;
     createdAt: string;
-    coursesAssigned?: string[];
+    coursesAssigned?: { _id: string; title: string }[];
+    learningPaths?: {
+        _id: string;
+        title: string;
+        percentage: number;
+        status: string;
+    }[];
 }
 
 export interface IAdminEmployeeDTO {

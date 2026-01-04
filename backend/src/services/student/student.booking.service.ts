@@ -76,7 +76,8 @@ export class StudentBookingService implements IStudentBookingService {
 
   async cancelBooking(bookingId: string, reason: string): Promise<IBookingDTO> {
     if (!bookingId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
-    const cancelled = await this._bookingRepo.updateBookingStatus(bookingId, 'booked', reason);
+    console.log("here booking is cancelling", bookingId, reason)
+    const cancelled = await this._bookingRepo.updateBookingStatus(bookingId, 'cancelled', reason);
     if (!cancelled) throwError(MESSAGES.BOOKING_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     return bookingDto(cancelled);
   }
@@ -86,6 +87,13 @@ export class StudentBookingService implements IStudentBookingService {
     const approved = await this._bookingRepo.approveReschedule(bookingId);
     if (!approved) throwError(MESSAGES.BOOKING_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     return bookingDto(approved);
+  }
+
+  async rejectReschedule(bookingId: string, reason: string): Promise<IBookingDTO> {
+    if (!bookingId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
+    const rejected = await this._bookingRepo.rejectReschedule(bookingId, reason);
+    if (!rejected) throwError(MESSAGES.BOOKING_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+    return bookingDto(rejected);
   }
 
   async initiatePayment(bookingId: string, amount: number): Promise<{ razorpayOrderId: string, booking: IBooking | null }> {

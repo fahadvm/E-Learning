@@ -25,9 +25,17 @@ export interface IAdminCompanyDto {
   updatedAt: Date;
 }
 
+export interface IAdminCompanyCourseDto {
+  _id: string;
+  title: string;
+  seatsPurchased: number;
+  seatsUsed: number;
+}
+
 export interface IAdminCompanyDetailsDto {
   company: IAdminCompanyDto;
   employees: IAdminCompanyEmployeeDto[];
+  courses: IAdminCompanyCourseDto[];
 }
 
 export const adminCompanyDto = (company: ICompany): IAdminCompanyDto => ({

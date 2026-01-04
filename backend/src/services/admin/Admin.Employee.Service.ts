@@ -2,13 +2,17 @@ import { inject, injectable } from 'inversify';
 import { TYPES } from '../../core/di/types';
 import { IAdminEmployeeService } from '../../core/interfaces/services/admin/IAdminEmployeeService';
 import { IEmployeeRepository } from '../../core/interfaces/repositories/IEmployeeRepository';
+import { IEmployeeLearningPathProgressRepository } from '../../core/interfaces/repositories/IEmployeeLearningPathProgressRepository';
 import { IAdminEmployeeDTO, PaginatedEmployeeDTO, adminEmployeeDto } from '../../core/dtos/admin/Admin.employee.Dto';
 
 @injectable()
 export class AdminEmployeeService implements IAdminEmployeeService {
   constructor(
     @inject(TYPES.EmployeeRepository)
-    private readonly _employeeRepo: IEmployeeRepository
+    private readonly _employeeRepo: IEmployeeRepository,
+
+    @inject(TYPES.EmployeeLearningPathProgressRepository)
+    private readonly _lpProgressRepo: IEmployeeLearningPathProgressRepository
   ) { }
 
   async getEmployeesByCompany(companyId: string, page: number, limit: number, search: string): Promise<PaginatedEmployeeDTO> {
@@ -38,7 +42,20 @@ export class AdminEmployeeService implements IAdminEmployeeService {
 
   async getEmployeeById(employeeId: string): Promise<IAdminEmployeeDTO | null> {
     const employee = await this._employeeRepo.findById(employeeId);
-    return employee ? adminEmployeeDto(employee) : null;
+    if (!employee) return null;
+
+    const dto = adminEmployeeDto(employee);
+
+    // Fetch learning path progress
+    const lpProgress = await this._lpProgressRepo.getAssigned(employeeId);
+    dto.learningPaths = lpProgress.map(lp => ({
+      _id: (lp.learningPathId as any)?._id?.toString() || lp.learningPathId.toString(),
+      title: (lp.learningPathId as any)?.title || "Unknown Learning Path",
+      percentage: lp.percentage,
+      status: lp.status
+    }));
+
+    return dto;
   }
 
   async blockEmployee(employeeId: string): Promise<IAdminEmployeeDTO | null> {
