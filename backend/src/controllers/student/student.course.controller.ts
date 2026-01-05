@@ -18,7 +18,7 @@ export class StudentCourseController implements IStudentCourseController {
 
     @inject(TYPES.StudentSubscriptionService)
     private readonly _subscriptionService: IStudentSubscriptionService
-  ) {}
+  ) { }
 
   getAllCourses = async (req: Request, res: Response) => {
     const { search, category, level, language, sort = 'createdAt', order = 'desc', page = '1', limit = '8' } = req.query;

@@ -1,4 +1,4 @@
-import { ITeacher } from "../../../../models/Teacher";
+import { ITeacher } from '../../../../models/Teacher';
 
 export interface IEmployeeTeacherService {
     getProfile(teacherId: string): Promise<ITeacher | null>;

@@ -12,7 +12,7 @@ export class NotificationRepository implements INotificationRepository {
       message,
       type,
       link,
-      id: (notification as any)._id.toString(),
+      id: (notification as unknown as { _id: string })._id.toString(),
       createdAt: notification.createdAt
     });
   }

@@ -29,7 +29,7 @@ export class StudentProfileService implements IStudentProfileService {
 
     if (subscription) {
       // planId is populated in findActiveSubscription
-      const plan = subscription.planId as any;
+      const plan = subscription.planId as unknown as { name?: string };
       if (plan && plan.name) {
         planName = plan.name;
         planStatus = 'active';

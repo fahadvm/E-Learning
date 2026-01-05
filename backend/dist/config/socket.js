@@ -166,10 +166,10 @@ function initSocket(server) {
         /** ------------------- DIRECT CALLING (WhatsApp Style) ------------------- **/
         // Caller initiates call
         socket.on('call-user', (data) => {
-            console.log(`Call request from ${data.name} (${data.from}) to ${data.userToCall}`);
+            logger_1.default.info(`Call request from ${data.name} (${data.from}) to ${data.userToCall}`);
             const receiverSocketId = onlineUsers.get(data.userToCall);
             if (receiverSocketId) {
-                console.log(`Routing call to socket: ${receiverSocketId}`);
+                logger_1.default.info(`Routing call to socket: ${receiverSocketId}`);
                 io.to(receiverSocketId).emit('incoming-call', {
                     signal: data.signalData,
                     from: data.from,
@@ -177,7 +177,7 @@ function initSocket(server) {
                 });
             }
             else {
-                console.log(`Receiver ${data.userToCall} is not online`);
+                logger_1.default.info(`Receiver ${data.userToCall} is not online`);
             }
         });
         // Receiver answers call

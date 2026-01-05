@@ -1,5 +1,5 @@
-import { Response } from "express";
-import { AuthRequest } from "../../../../types/AuthenticatedRequest";
+import { Response } from 'express';
+import { AuthRequest } from '../../../../types/AuthenticatedRequest';
 
 export interface IEmployeeTeacherController {
     getProfile(req: AuthRequest, res: Response): Promise<void>;

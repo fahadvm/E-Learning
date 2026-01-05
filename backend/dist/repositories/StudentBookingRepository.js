@@ -67,7 +67,6 @@ let StudentBookingRepository = class StudentBookingRepository {
     }
     updateBookingStatus(bookingId, status, reason) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("here updating in repository");
             const updateData = status === 'cancelled' && reason
                 ? { status, cancellationReason: reason }
                 : { status };

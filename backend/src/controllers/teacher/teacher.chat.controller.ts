@@ -4,7 +4,6 @@ import { TYPES } from '../../core/di/types';
 import { sendResponse, throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
-import { Chat } from '../../models/chat';
 import { AuthRequest } from '../../types/AuthenticatedRequest';
 import { ITeacherChatService } from '../../core/interfaces/services/teacher/ITeacherChatService';
 

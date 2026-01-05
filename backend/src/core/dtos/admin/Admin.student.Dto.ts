@@ -105,16 +105,18 @@ export const adminStudentDetailsDto = (data: {
       ? new Date(student.createdAt).toISOString().split('T')[0]
       : '',
 
-    // Corrected coursesProgress mapping
-    coursesProgress: student.coursesProgress ? student.coursesProgress.map((c: ICourseProgress) => ({
-      courseId: (c.courseId as any)._id ? (c.courseId as any)._id.toString() : c.courseId.toString(),
-      courseName: (c.courseId as any).title ? (c.courseId as any).title : 'Unknown Course',
-      completedLessons: c.completedLessons.map((l) => l.toString()),
-      completedModules: c.completedModules.map((m) => m.toString()),
-      percentage: c.percentage,
-      lastVisitedLesson: c.lastVisitedLesson?.toString(),
-      notes: c.notes || '',
-    })) : [],
+    coursesProgress: student.coursesProgress ? student.coursesProgress.map((c: ICourseProgress) => {
+      const courseObj = c.courseId as unknown as { _id: string; title: string };
+      return {
+        courseId: courseObj._id ? courseObj._id.toString() : (c.courseId as unknown as string),
+        courseName: courseObj.title ? courseObj.title : 'Unknown Course',
+        completedLessons: c.completedLessons.map((l) => l.toString()),
+        completedModules: c.completedModules.map((m) => m.toString()),
+        percentage: c.percentage,
+        lastVisitedLesson: c.lastVisitedLesson?.toString(),
+        notes: c.notes || '',
+      };
+    }) : [],
 
     coursesEnrolled: data.courses.length,
     totalSpent: data.purchases.reduce((sum, p) => sum + p.amount, 0),

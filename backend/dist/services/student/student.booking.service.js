@@ -120,7 +120,6 @@ let StudentBookingService = class StudentBookingService {
         return __awaiter(this, void 0, void 0, function* () {
             if (!bookingId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            console.log("here booking is cancelling", bookingId, reason);
             const cancelled = yield this._bookingRepo.updateBookingStatus(bookingId, 'cancelled', reason);
             if (!cancelled)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.BOOKING_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);

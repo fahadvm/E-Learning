@@ -29,7 +29,7 @@ const adminTeacherDetailsDto = (payload) => {
     return {
         teacher: (0, exports.adminTeacherDto)(teacher),
         reviews: reviews ? reviews.map((r) => ({
-            _id: r._id.toString(),
+            _id: r._id,
             rating: r.rating,
             comment: r.comment,
             createdAt: r.createdAt,

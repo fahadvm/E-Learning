@@ -64,13 +64,14 @@ let AdminEmployeeService = class AdminEmployeeService {
             // Fetch learning path progress
             const lpProgress = yield this._lpProgressRepo.getAssigned(employeeId);
             dto.learningPaths = lpProgress.map(lp => {
-                var _a, _b, _c;
-                return ({
-                    _id: ((_b = (_a = lp.learningPathId) === null || _a === void 0 ? void 0 : _a._id) === null || _b === void 0 ? void 0 : _b.toString()) || lp.learningPathId.toString(),
-                    title: ((_c = lp.learningPathId) === null || _c === void 0 ? void 0 : _c.title) || "Unknown Learning Path",
+                var _a;
+                const lpIdRef = lp.learningPathId;
+                return {
+                    _id: ((_a = lpIdRef === null || lpIdRef === void 0 ? void 0 : lpIdRef._id) === null || _a === void 0 ? void 0 : _a.toString()) || lp.learningPathId.toString(),
+                    title: (lpIdRef === null || lpIdRef === void 0 ? void 0 : lpIdRef.title) || 'Unknown Learning Path',
                     percentage: lp.percentage,
                     status: lp.status
-                });
+                };
             });
             return dto;
         });

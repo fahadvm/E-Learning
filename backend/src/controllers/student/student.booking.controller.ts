@@ -77,7 +77,7 @@ export class StudentBookingController implements IStudentBookingController {
     const { bookingId } = req.params;
     const { reason } = req.body;
     if (!bookingId) throwError(MESSAGES.ID_REQUIRED, STATUS_CODES.BAD_REQUEST);
-    const result = await this._bookingService.rejectReschedule(bookingId, reason || "Rejected by student");
+    const result = await this._bookingService.rejectReschedule(bookingId, reason || 'Rejected by student');
     return sendResponse(res, STATUS_CODES.OK, MESSAGES.BOOKING_RESCHEDULE_REJECT, true, result);
   };
 

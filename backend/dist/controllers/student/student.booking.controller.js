@@ -86,7 +86,7 @@ let StudentBookingController = class StudentBookingController {
             const { reason } = req.body;
             if (!bookingId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ID_REQUIRED, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
-            const result = yield this._bookingService.rejectReschedule(bookingId, reason || "Rejected by student");
+            const result = yield this._bookingService.rejectReschedule(bookingId, reason || 'Rejected by student');
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.BOOKING_RESCHEDULE_REJECT, true, result);
         });
         this.payBooking = (req, res) => __awaiter(this, void 0, void 0, function* () {

@@ -172,17 +172,17 @@ export function initSocket(server: HTTPServer) {
 
     // Caller initiates call
     socket.on('call-user', (data: { userToCall: string; signalData: unknown; from: string; name: string }) => {
-      console.log(`Call request from ${data.name} (${data.from}) to ${data.userToCall}`);
+      logger.info(`Call request from ${data.name} (${data.from}) to ${data.userToCall}`);
       const receiverSocketId = onlineUsers.get(data.userToCall);
       if (receiverSocketId) {
-        console.log(`Routing call to socket: ${receiverSocketId}`);
+        logger.info(`Routing call to socket: ${receiverSocketId}`);
         io.to(receiverSocketId).emit('incoming-call', {
           signal: data.signalData,
           from: data.from,
           name: data.name
         });
       } else {
-        console.log(`Receiver ${data.userToCall} is not online`);
+        logger.info(`Receiver ${data.userToCall} is not online`);
       }
     });
 

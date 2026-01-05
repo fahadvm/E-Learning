@@ -13,13 +13,12 @@ export class StudentAiTutorService implements IStudentAiTutorService {
     constructor(
         @inject(TYPES.CourseRepository) private _courseRepo: ICourseRepository
     ) {
-        const apiKey = process.env.GOOGLE_API_KEY || 'AIzaSyBp6N0JKRr2XR0PQgVR6XwfyYrDinr4LdY';
+        const apiKey = process.env.GOOGLE_API_KEY ;
         if (!apiKey) throw new Error('Missing Google API key');
         this.genAI = new GoogleGenerativeAI(apiKey);
     }
 
     async getCourseAnswer( courseId: string, prompt: string) {
-
         const course = await this._courseRepo.findById(courseId);
         if (!course) throw new Error('Course not found');
 

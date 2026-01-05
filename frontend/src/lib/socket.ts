@@ -102,11 +102,11 @@ export const initSocket = (
   });
 
   // ---------------- CALL EVENTS ----------------
-  socket.on("incoming-call", (data: any) => notifyListeners("incoming-call", data));
-  socket.on("call-accepted", (data: any) => notifyListeners("call-accepted", data));
-  socket.on("call-rejected", (data: any) => notifyListeners("call-rejected", data));
-  socket.on("call-ended", (data: any) => notifyListeners("call-ended", data));
-  socket.on("ice-candidate", (data: any) => notifyListeners("ice-candidate", data));
+  socket.on("incoming-call", (data: unknown) => notifyListeners("incoming-call", data));
+  socket.on("call-accepted", (data: unknown) => notifyListeners("call-accepted", data));
+  socket.on("call-rejected", (data: unknown) => notifyListeners("call-rejected", data));
+  socket.on("call-ended", (data: unknown) => notifyListeners("call-ended", data));
+  socket.on("ice-candidate", (data: unknown) => notifyListeners("ice-candidate", data));
 
   socket.on("onlineUsers", (users: string[]) => notifyListeners("onlineUsers", users));
 

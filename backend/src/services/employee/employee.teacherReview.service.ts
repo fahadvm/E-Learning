@@ -34,7 +34,7 @@ export class EmployeeTeacherReviewService implements IEmployeeTeacherReviewServi
         return updated;
     }
 
-    async deleteReview(reviewId: string, employeeId: string): Promise<void> {
+    async deleteReview(reviewId: string, _employeeId: string): Promise<void> {
         const deleted = await this._reviewRepo.delete(reviewId);
         if (!deleted) throwError(MESSAGES.REVIEW_NOT_FOUND);
     }

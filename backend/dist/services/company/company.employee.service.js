@@ -89,7 +89,6 @@ let CompanyEmployeeService = class CompanyEmployeeService {
     }
     updateEmployee(employeeId, data) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("here updating employee profile:", data);
             return yield this._employeeRepo.updateById(employeeId, data);
         });
     }
@@ -190,10 +189,10 @@ let CompanyEmployeeService = class CompanyEmployeeService {
                 /* 3️ Remove assigned progress */
                 yield this._learningPathAssignRepo.delete(companyId, employeeId, path.learningPathId._id.toString());
             }
-            /* 3.5 Decrease seat usage for individually assigned courses */
             const individualCourses = employee.coursesAssigned || [];
             for (const courseData of individualCourses) {
-                const courseId = ((_b = courseData._id) === null || _b === void 0 ? void 0 : _b.toString()) || courseData.toString();
+                const cDataRef = courseData;
+                const courseId = ((_b = cDataRef === null || cDataRef === void 0 ? void 0 : cDataRef._id) === null || _b === void 0 ? void 0 : _b.toString()) || courseData;
                 yield this._purchaseRepo.decreaseSeatUsage(new mongoose_1.default.Types.ObjectId(companyId), new mongoose_1.default.Types.ObjectId(courseId));
             }
             /* 4️ Remove employee from company */

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { employeeProfileSchema ,changePasswordSchema ,changeEmailSchema  } from "@/validator/auth/employee";
+import { employeeProfileSchema, changePasswordSchema, changeEmailSchema } from "@/validator/auth/employee";
 import { ZodError } from "zod";
 
 // External Services/Utilities
@@ -286,8 +286,8 @@ export default function EmployeeProfilePage() {
   const handleChangeEmail = async () => {
     try {
       changeEmailSchema.parse(emailForm);
-    } catch (err: any) {
-      return showErrorToast(err.errors?.[0]?.message || "Invalid input");
+    } catch (err) {
+      return showErrorToast((err as ZodError).issues?.[0]?.message || "Invalid input");
     }
     if (!showOtpField) {
       if (!emailForm.newEmail) return showErrorToast("Enter new email");
@@ -353,8 +353,8 @@ export default function EmployeeProfilePage() {
   const handleChangePassword = async () => {
     try {
       changePasswordSchema.parse(passwordForm);
-    } catch (err: any) {
-      return showErrorToast(err.errors?.[0]?.message || "Invalid password");
+    } catch (err) {
+      return showErrorToast((err as ZodError).issues?.[0]?.message || "Invalid password");
     }
 
     setModalLoading(true);

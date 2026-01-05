@@ -38,18 +38,18 @@ const adminStudentDetailsDto = (data) => {
         joinDate: student.createdAt
             ? new Date(student.createdAt).toISOString().split('T')[0]
             : '',
-        // Corrected coursesProgress mapping
         coursesProgress: student.coursesProgress ? student.coursesProgress.map((c) => {
             var _a;
-            return ({
-                courseId: c.courseId._id ? c.courseId._id.toString() : c.courseId.toString(),
-                courseName: c.courseId.title ? c.courseId.title : 'Unknown Course',
+            const courseObj = c.courseId;
+            return {
+                courseId: courseObj._id ? courseObj._id.toString() : c.courseId,
+                courseName: courseObj.title ? courseObj.title : 'Unknown Course',
                 completedLessons: c.completedLessons.map((l) => l.toString()),
                 completedModules: c.completedModules.map((m) => m.toString()),
                 percentage: c.percentage,
                 lastVisitedLesson: (_a = c.lastVisitedLesson) === null || _a === void 0 ? void 0 : _a.toString(),
                 notes: c.notes || '',
-            });
+            };
         }) : [],
         coursesEnrolled: data.courses.length,
         totalSpent: data.purchases.reduce((sum, p) => sum + p.amount, 0),

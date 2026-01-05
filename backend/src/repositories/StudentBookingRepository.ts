@@ -57,7 +57,6 @@ export class StudentBookingRepository implements IStudentBookingRepository {
     status: 'pending' | 'approved' | 'booked' | 'cancelled' | 'rejected',
     reason?: string
   ): Promise<IBooking | null> {
-    console.log("here updating in repository")
     const updateData =
       status === 'cancelled' && reason
         ? { status, cancellationReason: reason }

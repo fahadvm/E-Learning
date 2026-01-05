@@ -55,7 +55,7 @@ let EmployeeTeacherReviewService = class EmployeeTeacherReviewService {
             return updated;
         });
     }
-    deleteReview(reviewId, employeeId) {
+    deleteReview(reviewId, _employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
             const deleted = yield this._reviewRepo.delete(reviewId);
             if (!deleted)

@@ -61,8 +61,8 @@ export class CompanyCourseService implements ICompanyCourseService {
     const employee = await this._employeeRepo.findById(employeeId);
     if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND);
 
-    const companyId = (employee.companyId as any)?._id?.toString() || employee.companyId?.toString();
-    if (!companyId) throwError("Employee is not associated with any company", STATUS_CODES.BAD_REQUEST);
+    const companyId = (employee.companyId as unknown as { _id?: string })?._id?.toString() || employee.companyId?.toString();
+    if (!companyId) throwError('Employee is not associated with any company', STATUS_CODES.BAD_REQUEST);
 
     const course = await this._courseRepository.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND);
@@ -72,7 +72,10 @@ export class CompanyCourseService implements ICompanyCourseService {
     }
 
     const alreadyAssigned = employee.coursesAssigned?.some(
-      (c: any) => (c._id?.toString() || c.toString()) === courseId
+      (c) => {
+        const cRef = c as unknown as { _id?: string };
+        return (cRef._id?.toString() || (c as unknown as string)) === courseId;
+      }
     );
 
     if (alreadyAssigned) return;

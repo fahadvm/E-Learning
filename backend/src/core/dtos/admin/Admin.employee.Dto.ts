@@ -35,10 +35,13 @@ export const adminEmployeeDto = (employee: IEmployee): IAdminEmployeeDTO => ({
   email: employee.email,
   companyId: (employee.companyId as unknown as ICompany)?._id?.toString() || employee.companyId?.toString(),
   companyName: (employee.companyId as unknown as ICompany)?.name,
-  coursesAssigned: (employee.coursesAssigned || []).map((c: any) => ({
-    _id: c._id?.toString() || c.toString(),
-    title: c.title || "Unknown Course"
-  })),
+  coursesAssigned: (employee.coursesAssigned || []).map((c) => {
+    const course = c as unknown as { _id: string; title: string };
+    return {
+      _id: course._id?.toString() || (c as unknown as string),
+      title: course.title || 'Unknown Course'
+    };
+  }),
   position: employee.position,
   department: employee.department,
   isBlocked: employee.isBlocked,

@@ -69,6 +69,15 @@ interface ICourse {
   totalLessons?: number
 }
 
+ interface IReviews {
+  _id: string
+  rating: number
+  comment: string
+  createdAt: string
+  studentId ?: { name: string; profilePicture?: string }
+  employeeId ?: { name: string; profilePicture?: string }
+}
+
 // === Helpers ===
 const getStatusColor = (status?: string) => {
   switch (status) {
@@ -125,7 +134,7 @@ export default function MyCoursesPage() {
 
   // Review Modal State
   const [reviewsModalOpen, setReviewsModalOpen] = useState(false)
-  const [reviewList, setReviewList] = useState<any[]>([])
+  const [reviewList, setReviewList] = useState<IReviews[]>([])
   const [reviewLoading, setReviewLoading] = useState(false)
 
   const handleViewReviews = async (courseId: string) => {
@@ -383,7 +392,7 @@ export default function MyCoursesPage() {
                           <Eye className="h-4 w-4" />
                         </Link>
                       </Button>
-                     
+
                     </div>
                   </div>
                 </CardContent>

@@ -47,19 +47,22 @@ export class AdminCompanyService implements IAdminCompanyService {
     const companyIdObj = new mongoose.Types.ObjectId(companyId);
     const purchases = await this._purchasedRepo.getAllPurchasesByCompany(companyIdObj);
     const courses = await Promise.all(purchases.map(async (p) => {
-      const courseData = p.courseId as any;
+      const courseData = p.courseId as unknown as { _id: string; title: string };
       const courseId = courseData._id?.toString() || p.courseId.toString();
 
       // Calculate dynamic counts to ensure data integrity
       const individualCount = employees.filter(emp =>
-        emp.coursesAssigned?.some((id: any) => (id._id?.toString() || id.toString()) === courseId)
+        emp.coursesAssigned?.some((id) => {
+          const courseIdRef = id as unknown as { _id: string }; // Assuming object or string
+          return (courseIdRef._id?.toString() || id.toString()) === courseId;
+        })
       ).length;
 
       const lpCount = await this._lpProgressRepo.countAssignedSeats(companyId, courseId);
 
       return {
         _id: courseId,
-        title: courseData.title || "Unknown Course",
+        title: courseData.title || 'Unknown Course',
         seatsPurchased: p.seatsPurchased,
         seatsUsed: Math.max(p.seatsUsed, individualCount, lpCount)
       };

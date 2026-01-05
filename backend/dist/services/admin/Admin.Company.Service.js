@@ -94,11 +94,18 @@ let AdminCompanyService = class AdminCompanyService {
                 const courseData = p.courseId;
                 const courseId = ((_a = courseData._id) === null || _a === void 0 ? void 0 : _a.toString()) || p.courseId.toString();
                 // Calculate dynamic counts to ensure data integrity
-                const individualCount = employees.filter(emp => { var _a; return (_a = emp.coursesAssigned) === null || _a === void 0 ? void 0 : _a.some((id) => { var _a; return (((_a = id._id) === null || _a === void 0 ? void 0 : _a.toString()) || id.toString()) === courseId; }); }).length;
+                const individualCount = employees.filter(emp => {
+                    var _a;
+                    return (_a = emp.coursesAssigned) === null || _a === void 0 ? void 0 : _a.some((id) => {
+                        var _a;
+                        const courseIdRef = id; // Assuming object or string
+                        return (((_a = courseIdRef._id) === null || _a === void 0 ? void 0 : _a.toString()) || id.toString()) === courseId;
+                    });
+                }).length;
                 const lpCount = yield this._lpProgressRepo.countAssignedSeats(companyId, courseId);
                 return {
                     _id: courseId,
-                    title: courseData.title || "Unknown Course",
+                    title: courseData.title || 'Unknown Course',
                     seatsPurchased: p.seatsPurchased,
                     seatsUsed: Math.max(p.seatsUsed, individualCount, lpCount)
                 };

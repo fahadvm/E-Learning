@@ -5,7 +5,7 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
-  { ignores: ['dist'] },
+  { ignores: ['dist',".next/**",] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],
@@ -34,6 +34,9 @@ export default tseslint.config(
 
       // Allow ts-ignore usage
       '@typescript-eslint/ban-ts-comment': 'off',
+
+      "@typescript-eslint/no-empty-object-type": "off",
+
 
       // Allow constant condition in JSX (loading states)
       'no-constant-condition': 'off',

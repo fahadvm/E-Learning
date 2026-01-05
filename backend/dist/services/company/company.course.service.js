@@ -66,14 +66,18 @@ let CompanyCourseService = class CompanyCourseService {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMPLOYEE_NOT_FOUND);
             const companyId = ((_b = (_a = employee.companyId) === null || _a === void 0 ? void 0 : _a._id) === null || _b === void 0 ? void 0 : _b.toString()) || ((_c = employee.companyId) === null || _c === void 0 ? void 0 : _c.toString());
             if (!companyId)
-                (0, ResANDError_1.throwError)("Employee is not associated with any company", HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+                (0, ResANDError_1.throwError)('Employee is not associated with any company', HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
             const course = yield this._courseRepository.findById(courseId);
             if (!course)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND);
             if (course.isBlocked) {
                 (0, ResANDError_1.throwError)('This course is blocked by admin and cannot be assigned to employees.', HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
             }
-            const alreadyAssigned = (_d = employee.coursesAssigned) === null || _d === void 0 ? void 0 : _d.some((c) => { var _a; return (((_a = c._id) === null || _a === void 0 ? void 0 : _a.toString()) || c.toString()) === courseId; });
+            const alreadyAssigned = (_d = employee.coursesAssigned) === null || _d === void 0 ? void 0 : _d.some((c) => {
+                var _a;
+                const cRef = c;
+                return (((_a = cRef._id) === null || _a === void 0 ? void 0 : _a.toString()) || c) === courseId;
+            });
             if (alreadyAssigned)
                 return;
             // Increase seat usage in the purchase record

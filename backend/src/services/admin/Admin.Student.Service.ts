@@ -68,7 +68,7 @@ export class AdminStudentService implements IAdminStudentService {
 
     if (subscription) {
       // planId is populated in findActiveSubscription
-      const plan = subscription.planId as any;
+      const plan = subscription.planId as unknown as { name?: string };
       if (plan && plan.name) {
         activePlan = plan.name;
       }

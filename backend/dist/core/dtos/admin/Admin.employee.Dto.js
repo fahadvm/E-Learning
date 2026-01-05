@@ -11,10 +11,11 @@ const adminEmployeeDto = (employee) => {
         companyName: (_d = employee.companyId) === null || _d === void 0 ? void 0 : _d.name,
         coursesAssigned: (employee.coursesAssigned || []).map((c) => {
             var _a;
-            return ({
-                _id: ((_a = c._id) === null || _a === void 0 ? void 0 : _a.toString()) || c.toString(),
-                title: c.title || "Unknown Course"
-            });
+            const course = c;
+            return {
+                _id: ((_a = course._id) === null || _a === void 0 ? void 0 : _a.toString()) || c,
+                title: course.title || 'Unknown Course'
+            };
         }),
         position: employee.position,
         department: employee.department,

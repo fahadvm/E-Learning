@@ -33,7 +33,7 @@ const logger_1 = __importDefault(require("../../utils/logger"));
 let StudentAiTutorService = class StudentAiTutorService {
     constructor(_courseRepo) {
         this._courseRepo = _courseRepo;
-        const apiKey = process.env.GOOGLE_API_KEY || 'AIzaSyBp6N0JKRr2XR0PQgVR6XwfyYrDinr4LdY';
+        const apiKey = process.env.GOOGLE_API_KEY;
         if (!apiKey)
             throw new Error('Missing Google API key');
         this.genAI = new generative_ai_1.GoogleGenerativeAI(apiKey);

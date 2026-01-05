@@ -48,12 +48,15 @@ export class AdminEmployeeService implements IAdminEmployeeService {
 
     // Fetch learning path progress
     const lpProgress = await this._lpProgressRepo.getAssigned(employeeId);
-    dto.learningPaths = lpProgress.map(lp => ({
-      _id: (lp.learningPathId as any)?._id?.toString() || lp.learningPathId.toString(),
-      title: (lp.learningPathId as any)?.title || "Unknown Learning Path",
-      percentage: lp.percentage,
-      status: lp.status
-    }));
+    dto.learningPaths = lpProgress.map(lp => {
+      const lpIdRef = lp.learningPathId as unknown as { _id?: string; title?: string };
+      return {
+        _id: lpIdRef?._id?.toString() || lp.learningPathId.toString(),
+        title: lpIdRef?.title || 'Unknown Learning Path',
+        percentage: lp.percentage,
+        status: lp.status
+      };
+    });
 
     return dto;
   }

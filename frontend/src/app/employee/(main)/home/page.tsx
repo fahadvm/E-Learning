@@ -37,7 +37,7 @@ export default function EmployeeHome() {
           if (res?.ok && res.data) {
             setLeaderboard(res.data.leaderboard.slice(0, 3));
 
-            const userRank = res.data.leaderboard.findIndex((u:any) => u._id === employee?._id) + 1;
+            const userRank = res.data.leaderboard.findIndex((u: LeaderboardUser) => u._id === employee?._id) + 1;
             setStats({
               coursesCompleted: employee?.coursesProgress?.filter(c => c.percentage === 100).length || 0,
               hoursLearned: Math.floor((employee?.coursesProgress?.reduce((acc, c) => acc + (c.percentage || 0), 0) || 0) / 60),
@@ -57,57 +57,57 @@ export default function EmployeeHome() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center px-6 overflow-hidden">
-  {/* Background Image */}
-  <div
-    className="absolute inset-0 bg-cover bg-center"
-    style={{
-      backgroundImage:
-        "url('https://www.shutterstock.com/image-photo/defocused-background-modern-open-office-600nw-2570629407.jpg')",
-    }}
-  />
+        {/* Background Image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage:
+              "url('https://www.shutterstock.com/image-photo/defocused-background-modern-open-office-600nw-2570629407.jpg')",
+          }}
+        />
 
-  {/* Dark Overlay */}
-  <div className="absolute inset-0 bg-black/50" />
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/50" />
 
-  {/* Content */}
-  <div className="relative max-w-7xl mx-auto text-center text-white">
-    {/* Avatar */}
-    <img
-      src="https://media.istockphoto.com/id/2156807988/vector/simple-gray-avatar-icons-representing-male-and-female-profiles-vector-minimalist-design-with.jpg?s=612x612&w=0&k=20&c=xi7g5_9VBSWgntTZ-OQNS74d0oOvUnDGxjxUL_LdJUM="
-      alt="Employee Avatar"
-      className="w-32 h-32 rounded-full mx-auto mb-8 border-4 border-white shadow-xl"
-    />
+        {/* Content */}
+        <div className="relative max-w-7xl mx-auto text-center text-white">
+          {/* Avatar */}
+          <img
+            src="https://media.istockphoto.com/id/2156807988/vector/simple-gray-avatar-icons-representing-male-and-female-profiles-vector-minimalist-design-with.jpg?s=612x612&w=0&k=20&c=xi7g5_9VBSWgntTZ-OQNS74d0oOvUnDGxjxUL_LdJUM="
+            alt="Employee Avatar"
+            className="w-32 h-32 rounded-full mx-auto mb-8 border-4 border-white shadow-xl"
+          />
 
-    <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight">
-      Unlock Your
-      <br />
-      <span className="bg-blue-500 bg-clip-text text-transparent">
-        Full Potential
-      </span>
-    </h1>
+          <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight">
+            Unlock Your
+            <br />
+            <span className="bg-blue-500 bg-clip-text text-transparent">
+              Full Potential
+            </span>
+          </h1>
 
-    <p className="text-lg md:text-2xl text-gray-200 mb-10 max-w-3xl mx-auto">
-      Transform your career with personalized learning paths, expert courses,
-      and a community that celebrates your growth
-    </p>
+          <p className="text-lg md:text-2xl text-gray-200 mb-10 max-w-3xl mx-auto">
+            Transform your career with personalized learning paths, expert courses,
+            and a community that celebrates your growth
+          </p>
 
-    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-      <button
-        onClick={() => router.push('/employee/courses')}
-        className="group px-8 py-4 bg-blue-500 text-white rounded-xl font-semibold text-lg shadow-xl hover:scale-105 transition"
-      >
-        Start Learning
-      </button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={() => router.push('/employee/courses')}
+              className="group px-8 py-4 bg-blue-500 text-white rounded-xl font-semibold text-lg shadow-xl hover:scale-105 transition"
+            >
+              Start Learning
+            </button>
 
-      <button
-        onClick={() => router.push('/employee/learningpath')}
-        className="px-8 py-4 bg-white/90 text-gray-900 rounded-xl font-semibold text-lg shadow-xl hover:scale-105 transition"
-      >
-        View Learning Paths
-      </button>
-    </div>
-  </div>
-</section>
+            <button
+              onClick={() => router.push('/employee/learningpath')}
+              className="px-8 py-4 bg-white/90 text-gray-900 rounded-xl font-semibold text-lg shadow-xl hover:scale-105 transition"
+            >
+              View Learning Paths
+            </button>
+          </div>
+        </div>
+      </section>
 
 
       {/* Features Section */}
