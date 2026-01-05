@@ -153,6 +153,15 @@ let EmployeeLearningPathProgressRepository = class EmployeeLearningPathProgressR
             return uniqueEmployees.length;
         });
     }
+    findByEmployeeId(employeeId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return EmployeeLearningPathProgress_1.EmployeeLearningPathProgress.findOne({
+                employeeId: new mongoose_1.Types.ObjectId(employeeId)
+            })
+                .lean()
+                .exec();
+        });
+    }
 };
 exports.EmployeeLearningPathProgressRepository = EmployeeLearningPathProgressRepository;
 exports.EmployeeLearningPathProgressRepository = EmployeeLearningPathProgressRepository = __decorate([

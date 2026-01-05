@@ -30,7 +30,12 @@ let TeacherChatService = class TeacherChatService {
     }
     sendMessage(senderId, receiverId, message) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.chatRepository.saveMessage(senderId, receiverId, message, 'group');
+            return this.chatRepository.saveMessage(senderId, message, '', 'Teacher', receiverId, 'Student');
+        });
+    }
+    startChat(studentId, teacherId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.chatRepository.findOrCreateDirectChat(studentId, teacherId);
         });
     }
     getMessages(chatId) {

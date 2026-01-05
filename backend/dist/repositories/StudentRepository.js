@@ -61,6 +61,11 @@ let StudentRepository = class StudentRepository {
             return Student_1.Student.findById(id).lean().exec();
         });
     }
+    findByIdPopulated(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return Student_1.Student.findById(id).populate('coursesProgress.courseId').lean().exec();
+        });
+    }
     update(id, data) {
         return __awaiter(this, void 0, void 0, function* () {
             const updated = yield Student_1.Student.findByIdAndUpdate(id, { $set: data }, { new: true }).lean().exec();

@@ -27,7 +27,6 @@ const types_1 = require("../../core/di/types");
 const ResANDError_1 = require("../../utils/ResANDError");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
-const chat_1 = require("../../models/chat");
 let ChatController = class ChatController {
     constructor(_chatService) {
         this._chatService = _chatService;
@@ -54,17 +53,8 @@ let ChatController = class ChatController {
         });
         this.startChat = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const { studentId, teacherId } = req.body;
-            let chat = yield chat_1.Chat.findOne({
-                participants: { $all: [studentId, teacherId] },
-            });
-            if (!chat) {
-                chat = yield chat_1.Chat.create({
-                    participants: [studentId, teacherId],
-                    studentId,
-                    teacherId
-                });
-            }
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.CHAT_LIST_FETCHED, true, chat);
+            const chat = yield this._chatService.startChat(studentId, teacherId);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.CHAT_STARTED, true, chat);
         });
         this.getTeachers = (req, res) => __awaiter(this, void 0, void 0, function* () {
             var _a;

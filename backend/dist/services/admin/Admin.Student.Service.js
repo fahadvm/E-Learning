@@ -53,16 +53,26 @@ let AdminStudentService = class AdminStudentService {
     }
     getStudentById(studentId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const student = yield this._studentRepo.findById(studentId);
+            const student = yield this._studentRepo.findByIdPopulated(studentId);
             if (!student)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STUDENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             const orders = yield this._orderRepo.getOrdersByStudentId(studentId);
             const courses = orders.flatMap((o) => o.courses || []);
             const purchases = orders;
+            const subscription = yield this._subscriptionRepo.findActiveSubscription(studentId);
+            let activePlan = 'Free Plan';
+            if (subscription) {
+                // planId is populated in findActiveSubscription
+                const plan = subscription.planId;
+                if (plan && plan.name) {
+                    activePlan = plan.name;
+                }
+            }
             return (0, Admin_student_Dto_1.adminStudentDetailsDto)({
                 student,
                 courses,
-                purchases
+                purchases,
+                activePlan
             });
         });
     }

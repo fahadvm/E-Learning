@@ -20,6 +20,9 @@ const adminCompanyDto = (company) => {
             name: emp.name,
             email: emp.email,
             position: emp.position,
+            isBlocked: !!emp.isBlocked,
+            coursesAssigned: 0, // Default value as detailed stats might not be populated here
+            coursesCompleted: 0
         }))) || [],
         createdAt: company.createdAt,
         updatedAt: company.updatedAt,
@@ -31,5 +34,8 @@ const adminCompanyEmployeeDto = (employee) => ({
     name: employee.name,
     email: employee.email,
     position: employee.position,
+    isBlocked: !!employee.isBlocked,
+    coursesAssigned: 0,
+    coursesCompleted: 0
 });
 exports.adminCompanyEmployeeDto = adminCompanyEmployeeDto;

@@ -36,20 +36,16 @@ export class AdminCompanyService implements IAdminCompanyService {
     const companies = await this._companyRepo.getAllCompanies(page, limit, search);
     const total = await this._companyRepo.countCompanies(search);
     const totalPages = Math.ceil(total / limit);
-
     return { companies: companies.map(adminCompanyDto), total, totalPages };
   }
 
   async getCompanyById(companyId: string): Promise<IAdminCompanyDetailsDto> {
     const company = await this._companyRepo.findById(companyId);
     if (!company) throwError(MESSAGES.COMPANY_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-
     const employees = (company.employees as unknown as IEmployee[]) || [];
-
     // Fetch accurate course usage from the devoted repository
     const companyIdObj = new mongoose.Types.ObjectId(companyId);
     const purchases = await this._purchasedRepo.getAllPurchasesByCompany(companyIdObj);
-
     const courses = await Promise.all(purchases.map(async (p) => {
       const courseData = p.courseId as any;
       const courseId = courseData._id?.toString() || p.courseId.toString();
@@ -72,14 +68,10 @@ export class AdminCompanyService implements IAdminCompanyService {
     // Process employees with learning path data
     const employeesWithLPData = await Promise.all(
       employees.map(async (emp) => {
-        // Get learning path progress for this employee
         const lpProgress = await this._lpProgressRepo.findByEmployeeId(emp._id.toString());
-
         let totalCourses = 0;
         let completedCourses = 0;
-
         if (lpProgress && lpProgress.learningPathId) {
-          // Fetch the learning path to get course count
           const EmployeeLearningPath = (await import('../../models/EmployeeLearningPath')).EmployeeLearningPath;
           const learningPath = await EmployeeLearningPath.findById(lpProgress.learningPathId);
 

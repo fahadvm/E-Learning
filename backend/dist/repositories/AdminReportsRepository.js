@@ -116,6 +116,27 @@ let AdminReportsRepository = class AdminReportsRepository {
             ]);
         });
     }
+    getYearlyRevenue() {
+        return __awaiter(this, arguments, void 0, function* (years = 5) {
+            const start = new Date();
+            start.setFullYear(start.getFullYear() - years);
+            return yield Transaction_1.Transaction.aggregate([
+                {
+                    $match: {
+                        paymentStatus: 'SUCCESS',
+                        createdAt: { $gte: start }
+                    }
+                },
+                {
+                    $group: {
+                        _id: { $year: '$createdAt' },
+                        revenue: { $sum: '$amount' }
+                    }
+                },
+                { $sort: { '_id': 1 } }
+            ]);
+        });
+    }
     getUserDistribution() {
         return __awaiter(this, void 0, void 0, function* () {
             const students = yield Student_1.Student.countDocuments();

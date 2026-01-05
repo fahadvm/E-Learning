@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.studentProfileDto = void 0;
-const studentProfileDto = (student) => ({
+const studentProfileDto = (student, planName, planStatus) => ({
     _id: student._id.toString(),
     name: student.name,
     email: student.email,
@@ -14,6 +14,8 @@ const studentProfileDto = (student) => ({
     isBlocked: student.isBlocked,
     googleUser: student.googleUser,
     social_links: student.social_links,
+    planName: planName,
+    planStatus: planStatus,
     coursesProgress: student.coursesProgress
         ? student.coursesProgress.map((progress) => {
             var _a, _b, _c, _d;

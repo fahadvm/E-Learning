@@ -11,10 +11,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationRepository = void 0;
 const Notification_1 = require("../models/Notification");
+const socket_1 = require("../config/socket");
 class NotificationRepository {
     createNotification(userId, title, message, type, userRole, link) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield Notification_1.Notification.create({ userId, title, message, type, userRole, link });
+            const notification = yield Notification_1.Notification.create({ userId, title, message, type, userRole, link });
+            // Emit real-time notification to the user
+            (0, socket_1.emitToUser)(userId, 'receive_notification', {
+                title,
+                message,
+                type,
+                link,
+                id: notification._id.toString(),
+                createdAt: notification.createdAt
+            });
         });
     }
     findByUserId(userId) {

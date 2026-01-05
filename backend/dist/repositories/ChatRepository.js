@@ -24,10 +24,51 @@ let ChatRepository = class ChatRepository {
     findOrCreateChat(participants) {
         return __awaiter(this, void 0, void 0, function* () {
             const participantIds = participants.map(id => new mongoose_1.Types.ObjectId(id));
-            const chat = yield chat_1.Chat.findOne({ participants: { $all: participantIds } });
+            // Check for any direct chat with these participants first
+            let chat = yield chat_1.Chat.findOne({ participants: { $all: participantIds, $size: 2 }, type: 'direct' });
             if (chat)
                 return chat;
-            const newChat = yield chat_1.Chat.create({ participants: participantIds });
+            // Fallback search
+            chat = yield chat_1.Chat.findOne({ participants: { $all: participantIds } });
+            if (chat)
+                return chat;
+            const newChat = yield chat_1.Chat.create({ participants: participantIds, type: 'direct' });
+            return newChat;
+        });
+    }
+    findOrCreateDirectChat(studentId, teacherId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const sId = new mongoose_1.Types.ObjectId(studentId);
+            const tId = new mongoose_1.Types.ObjectId(teacherId);
+            // Try to find by explicit fields first
+            let chat = yield chat_1.Chat.findOne({
+                studentId: sId,
+                teacherId: tId,
+                type: 'direct'
+            });
+            if (!chat) {
+                // Try to find by participants as fallback
+                chat = yield chat_1.Chat.findOne({
+                    participants: { $all: [sId, tId], $size: 2 },
+                    type: 'direct'
+                });
+            }
+            if (chat) {
+                // Ensure fields are set if they were missing
+                if (!chat.studentId || !chat.teacherId) {
+                    chat.studentId = sId;
+                    chat.teacherId = tId;
+                    yield chat.save();
+                }
+                return chat;
+            }
+            // Create new
+            const newChat = yield chat_1.Chat.create({
+                participants: [sId, tId],
+                studentId: sId,
+                teacherId: tId,
+                type: 'direct'
+            });
             return newChat;
         });
     }
@@ -92,6 +133,7 @@ let ChatRepository = class ChatRepository {
         return __awaiter(this, void 0, void 0, function* () {
             const chats = yield chat_1.Chat.find({ studentId: new mongoose_1.Types.ObjectId(userId) })
                 .populate('teacherId', 'name email profilePicture')
+                .sort({ updatedAt: -1 })
                 .lean();
             const chatsWithUnread = yield Promise.all(chats.map((chat) => __awaiter(this, void 0, void 0, function* () {
                 const unread = yield message_1.Message.countDocuments({
@@ -108,6 +150,7 @@ let ChatRepository = class ChatRepository {
         return __awaiter(this, void 0, void 0, function* () {
             const chats = yield chat_1.Chat.find({ teacherId: new mongoose_1.Types.ObjectId(userId) })
                 .populate('studentId', 'name email profilePicture')
+                .sort({ updatedAt: -1 })
                 .lean();
             const chatsWithUnread = yield Promise.all(chats.map((chat) => __awaiter(this, void 0, void 0, function* () {
                 const unread = yield message_1.Message.countDocuments({

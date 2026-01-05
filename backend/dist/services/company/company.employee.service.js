@@ -34,6 +34,7 @@ const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const types_1 = require("../../core/di/types");
 const company_employee_Dto_1 = require("../../core/dtos/company/company.employee.Dto");
 const leaderboard_1 = require("../../utils/redis/leaderboard");
+const socket_1 = require("../../config/socket");
 let CompanyEmployeeService = class CompanyEmployeeService {
     constructor(_employeeRepo, _companyRepo, _learningPathRepo, _purchaseRepo, _learningPathAssignRepo, _companyChatService, _notificationService) {
         this._employeeRepo = _employeeRepo;
@@ -75,6 +76,12 @@ let CompanyEmployeeService = class CompanyEmployeeService {
             // Notify Company
             if (companyId) {
                 yield this._notificationService.createNotification(companyId, `Employee ${action}`, `Employee ${employee.name} has been ${action}.`, 'employee', 'company', `/company/employees/${id}`);
+            }
+            if (status) {
+                // Real-time logout trigger
+                (0, socket_1.emitToUser)(id, 'accountBlocked', {
+                    message: 'Your account has been blocked by the company. You will be logged out shortly.'
+                });
             }
             // Notify Employee
             yield this._notificationService.createNotification(id, `Account ${action}`, `Your account has been ${action} by ${(company === null || company === void 0 ? void 0 : company.name) || 'the company'}.`, 'system', 'employee');

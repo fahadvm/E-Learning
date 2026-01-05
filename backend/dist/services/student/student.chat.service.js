@@ -39,6 +39,13 @@ let ChatService = class ChatService {
             return this._chatRepository.saveMessage(senderId, message, chatId, senderType, receiverId, receiverType, fileUrl, messageType);
         });
     }
+    startChat(studentId, teacherId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!studentId || !teacherId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.REQUIRED_FIELDS_MISSING);
+            return this._chatRepository.findOrCreateDirectChat(studentId, teacherId);
+        });
+    }
     getMessages(chatId, limit, before) {
         return __awaiter(this, void 0, void 0, function* () {
             const beforeDate = before ? new Date(before) : undefined;

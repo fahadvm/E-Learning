@@ -32,6 +32,7 @@ let AdminReportsService = class AdminReportsService {
         return __awaiter(this, void 0, void 0, function* () {
             const stats = yield this._reportsRepo.getDashboardStats();
             const monthlyRevenue = yield this._reportsRepo.getMonthlyRevenue(new Date().getFullYear());
+            const yearlyRevenue = yield this._reportsRepo.getYearlyRevenue();
             const userDistribution = yield this._reportsRepo.getUserDistribution();
             const topCourses = yield this._reportsRepo.getTopCourses(5);
             const companyRevenue = yield this._reportsRepo.getCompanyRevenue();
@@ -41,6 +42,7 @@ let AdminReportsService = class AdminReportsService {
             return {
                 stats,
                 monthlyRevenue,
+                yearlyRevenue,
                 userDistribution,
                 topCourses,
                 companyRevenue,

@@ -30,11 +30,12 @@ const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const Admin_teacher_Dto_1 = require("../../core/dtos/admin/Admin.teacher.Dto");
 let AdminTeacherService = class AdminTeacherService {
-    constructor(_teacherRepo, _courseRepo, _transactionRepo, _notificationService) {
+    constructor(_teacherRepo, _courseRepo, _transactionRepo, _notificationService, _reviewRepo) {
         this._teacherRepo = _teacherRepo;
         this._courseRepo = _courseRepo;
         this._transactionRepo = _transactionRepo;
         this._notificationService = _notificationService;
+        this._reviewRepo = _reviewRepo;
     }
     getAllTeachers(page, limit, search, status) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -73,12 +74,14 @@ let AdminTeacherService = class AdminTeacherService {
             const courses = yield this._courseRepo.findByTeacherId(teacherId);
             const totalStudents = courses.reduce((sum, c) => sum + (c.totalStudents || 0), 0);
             const totalEarnings = yield this._transactionRepo.teacherEarnings(teacherId);
+            const reviews = yield this._reviewRepo.getTeacherReviews(teacherId);
             const teacherObj = (teacher.toObject ? teacher.toObject() : teacher);
             const teacherWithStats = Object.assign(Object.assign({}, teacherObj), { totalStudents,
                 totalEarnings });
             return (0, Admin_teacher_Dto_1.adminTeacherDetailsDto)({
                 teacher: teacherWithStats,
-                courses
+                courses,
+                reviews
             });
         });
     }
@@ -133,5 +136,6 @@ exports.AdminTeacherService = AdminTeacherService = __decorate([
     __param(1, (0, inversify_1.inject)(types_1.TYPES.CourseRepository)),
     __param(2, (0, inversify_1.inject)(types_1.TYPES.TransactionRepository)),
     __param(3, (0, inversify_1.inject)(types_1.TYPES.NotificationService)),
-    __metadata("design:paramtypes", [Object, Object, Object, Object])
+    __param(4, (0, inversify_1.inject)(types_1.TYPES.TeacherReviewRepository)),
+    __metadata("design:paramtypes", [Object, Object, Object, Object, Object])
 ], AdminTeacherService);

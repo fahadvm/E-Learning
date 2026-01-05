@@ -13,6 +13,7 @@ const storage = multer_1.default.memoryStorage();
 const upload = (0, multer_1.default)({ storage });
 const router = (0, express_1.Router)();
 const teacherProfileController = container_1.default.get(types_1.TYPES.TeacherProfileController);
+const employeeTeacherReviewCtrl = container_1.default.get(types_1.TYPES.EmployeeTeacherReviewController);
 // Profile Routes
 router
     .route('/')
@@ -23,4 +24,5 @@ router.post('/verify', upload.single('resume'), (0, authMiddleware_1.authMiddlew
 router.patch('/change-password', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(teacherProfileController.changePassword.bind(teacherProfileController)));
 router.post('/change-email-otp', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(teacherProfileController.requestEmailChange.bind(teacherProfileController)));
 router.post('/verify-change-email', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(teacherProfileController.verifyEmailChangeOtp.bind(teacherProfileController)));
+router.get('/reviews/:teacherId', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(employeeTeacherReviewCtrl.getTeacherReviews.bind(employeeTeacherReviewCtrl)));
 exports.default = router;

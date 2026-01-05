@@ -29,16 +29,28 @@ const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const Student_profile_Dto_1 = require("../../core/dtos/student/Student.profile.Dto");
 let StudentProfileService = class StudentProfileService {
-    constructor(_studentRepo, _PublicApiRepo) {
+    constructor(_studentRepo, _PublicApiRepo, _subscriptionRepo) {
         this._studentRepo = _studentRepo;
         this._PublicApiRepo = _PublicApiRepo;
+        this._subscriptionRepo = _subscriptionRepo;
     }
     getProfile(studentId) {
         return __awaiter(this, void 0, void 0, function* () {
             const student = yield this._studentRepo.findById(studentId);
             if (!student)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.STUDENT_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
-            return (0, Student_profile_Dto_1.studentProfileDto)(student);
+            const subscription = yield this._subscriptionRepo.findActiveSubscription(studentId);
+            let planName = 'Free Plan';
+            let planStatus = 'free';
+            if (subscription) {
+                // planId is populated in findActiveSubscription
+                const plan = subscription.planId;
+                if (plan && plan.name) {
+                    planName = plan.name;
+                    planStatus = 'active';
+                }
+            }
+            return (0, Student_profile_Dto_1.studentProfileDto)(student, planName, planStatus);
         });
     }
     updateStudentProfile(studentId, data) {
@@ -65,5 +77,6 @@ exports.StudentProfileService = StudentProfileService = __decorate([
     (0, inversify_1.injectable)(),
     __param(0, (0, inversify_1.inject)(types_1.TYPES.StudentRepository)),
     __param(1, (0, inversify_1.inject)(types_1.TYPES.PublicApiRepository)),
-    __metadata("design:paramtypes", [Object, Object])
+    __param(2, (0, inversify_1.inject)(types_1.TYPES.SubscriptionPlanRepository)),
+    __metadata("design:paramtypes", [Object, Object, Object])
 ], StudentProfileService);

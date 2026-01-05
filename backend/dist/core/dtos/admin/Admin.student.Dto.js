@@ -32,6 +32,7 @@ const adminStudentDetailsDto = (data) => {
         email: student.email,
         phone: student.phone,
         avatar: student.profilePicture || null,
+        activePlan: data.activePlan,
         status: student.isBlocked ? 'blocked' : 'active',
         verified: student.isVerified,
         joinDate: student.createdAt
@@ -41,7 +42,8 @@ const adminStudentDetailsDto = (data) => {
         coursesProgress: student.coursesProgress ? student.coursesProgress.map((c) => {
             var _a;
             return ({
-                courseId: c.courseId.toString(),
+                courseId: c.courseId._id ? c.courseId._id.toString() : c.courseId.toString(),
+                courseName: c.courseId.title ? c.courseId.title : 'Unknown Course',
                 completedLessons: c.completedLessons.map((l) => l.toString()),
                 completedModules: c.completedModules.map((m) => m.toString()),
                 percentage: c.percentage,

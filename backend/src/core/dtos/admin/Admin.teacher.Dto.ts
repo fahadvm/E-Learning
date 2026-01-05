@@ -79,7 +79,7 @@ export const adminTeacherDetailsDto = (payload: {
   return {
     teacher: adminTeacherDto(teacher as ITeacher & { totalCourses?: number; totalStudents?: number; totalEarnings?: number }),
     reviews: reviews ? reviews.map((r) => ({
-      _id: r._id.toString(),
+      _id: (r as any)._id.toString(),
       rating: r.rating,
       comment: r.comment,
       createdAt: r.createdAt,

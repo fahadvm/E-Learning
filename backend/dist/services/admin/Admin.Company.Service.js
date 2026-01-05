@@ -1,10 +1,43 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
@@ -70,9 +103,39 @@ let AdminCompanyService = class AdminCompanyService {
                     seatsUsed: Math.max(p.seatsUsed, individualCount, lpCount)
                 };
             })));
+            // Process employees with learning path data
+            const employeesWithLPData = yield Promise.all(employees.map((emp) => __awaiter(this, void 0, void 0, function* () {
+                var _a, _b, _c, _d;
+                const lpProgress = yield this._lpProgressRepo.findByEmployeeId(emp._id.toString());
+                let totalCourses = 0;
+                let completedCourses = 0;
+                if (lpProgress && lpProgress.learningPathId) {
+                    const EmployeeLearningPath = (yield Promise.resolve().then(() => __importStar(require('../../models/EmployeeLearningPath')))).EmployeeLearningPath;
+                    const learningPath = yield EmployeeLearningPath.findById(lpProgress.learningPathId);
+                    if (learningPath) {
+                        totalCourses = ((_a = learningPath.courses) === null || _a === void 0 ? void 0 : _a.length) || 0;
+                        completedCourses = ((_b = lpProgress.completedCourses) === null || _b === void 0 ? void 0 : _b.length) || 0;
+                    }
+                }
+                // If no learning path, fall back to directly assigned courses
+                if (totalCourses === 0) {
+                    totalCourses = ((_c = emp.coursesAssigned) === null || _c === void 0 ? void 0 : _c.length) || 0;
+                    completedCourses = ((_d = emp.coursesProgress) === null || _d === void 0 ? void 0 : _d.filter(cp => cp.percentage >= 100).length) || 0;
+                }
+                return {
+                    _id: emp._id.toString(),
+                    name: emp.name,
+                    email: emp.email,
+                    position: emp.position,
+                    avatar: emp.profilePicture,
+                    isBlocked: emp.isBlocked,
+                    coursesAssigned: totalCourses,
+                    coursesCompleted: completedCourses
+                };
+            })));
             return {
                 company: (0, Admin_company_Dto_1.adminCompanyDto)(company),
-                employees: employees.map(Admin_company_Dto_1.adminCompanyEmployeeDto),
+                employees: employeesWithLPData,
                 courses
             };
         });

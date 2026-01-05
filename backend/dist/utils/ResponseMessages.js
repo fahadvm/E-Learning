@@ -199,6 +199,7 @@ var MESSAGES;
     MESSAGES["STUDENTS_FETCHED"] = "Students fetched successfully";
     MESSAGES["CHAT_LIST_FETCHED"] = "Students chats fetched successfully";
     MESSAGES["CHAT_DETAILS_FETCHED"] = "chat details fetched successfully";
+    MESSAGES["CHAT_STARTED"] = "Chat started successfully";
     // -------------------- COMPANY --------------------
     MESSAGES["COMPANIES_FETCHED"] = "Companies fetched successfully";
     MESSAGES["COMPANY_ALREADY_EXISTS"] = "Company already exists";

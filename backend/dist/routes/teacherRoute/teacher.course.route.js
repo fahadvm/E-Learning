@@ -13,6 +13,7 @@ const storage = multer_1.default.memoryStorage();
 const upload = (0, multer_1.default)({ storage });
 const router = (0, express_1.Router)();
 const teacherCourseController = container_1.default.get(types_1.TYPES.TeacherCourseController);
+const employeeCourseReviewCtrl = container_1.default.get(types_1.TYPES.EmployeeCourseReviewController);
 // Course Routes
 router
     .route('/')
@@ -27,4 +28,5 @@ router.route('/:courseId/resources')
 router.delete('/:resourceId/resources', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(teacherCourseController.deleteResource.bind(teacherCourseController)));
 router.put('/:courseId', (0, authMiddleware_1.authMiddleware)('teacher'), upload.any(), (0, asyncHandler_1.asyncHandler)(teacherCourseController.editCourse.bind(teacherCourseController)));
 router.get('/:courseId/analytics', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(teacherCourseController.getCourseAnalytics.bind(teacherCourseController)));
+router.get('/:courseId/reviews', (0, authMiddleware_1.authMiddleware)('teacher'), (0, asyncHandler_1.asyncHandler)(employeeCourseReviewCtrl.getReviews.bind(employeeCourseReviewCtrl)));
 exports.default = router;

@@ -50,6 +50,10 @@ let TeacherCallRequestService = class TeacherCallRequestService {
             const reschedulled = yield this._callRequestRepo.requestReschedule(bookingId, reason, nextSlot);
             if (!reschedulled)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.BOOKING_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            // Send notification to student about reschedule request
+            if (reschedulled.studentId) {
+                yield this._notificationRepo.createNotification(reschedulled.studentId._id.toString(), 'Reschedule Request', `Teacher has requested to reschedule your booking. Reason: ${reason}`, 'booking', 'student');
+            }
             return (0, student_booking_dto_1.bookingDto)(reschedulled);
         });
     }

@@ -25,9 +25,17 @@ const adminTeacherDto = (t) => {
 };
 exports.adminTeacherDto = adminTeacherDto;
 const adminTeacherDetailsDto = (payload) => {
-    const { teacher, courses } = payload;
+    const { teacher, courses, reviews } = payload;
     return {
         teacher: (0, exports.adminTeacherDto)(teacher),
+        reviews: reviews ? reviews.map((r) => ({
+            _id: r._id.toString(),
+            rating: r.rating,
+            comment: r.comment,
+            createdAt: r.createdAt,
+            studentId: r.studentId,
+            employeeId: r.employeeId
+        })) : [],
         courses: courses.map((c) => {
             var _a, _b, _c, _d, _e;
             return ({
