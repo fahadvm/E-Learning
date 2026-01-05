@@ -125,7 +125,7 @@ export const initSocket = (
 
   socket.on("courseBlocked", (data: { courseId: string; reason: string; message: string }) => {
     const currentPath = window.location.pathname;
-    if (currentPath.includes(data.courseId)) {
+    if (currentPath.includes(data.courseId) && !currentPath.startsWith('/admin')) {
       alert(`⚠️ This course has been blocked by the admin. Redirecting you to the course list.\nReason: ${data.reason}`);
       if (currentPath.startsWith('/student')) window.location.href = "/student/courses";
       else if (currentPath.startsWith('/teacher')) window.location.href = "/teacher/courses";

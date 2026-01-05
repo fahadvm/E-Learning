@@ -54,12 +54,24 @@ import { Button } from '@/components/ui/button';
 
 type TabType = 'overview' | 'security' | 'experience';
 
+interface IReview {
+  _id: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  studentId?: {
+    name: string;
+    profilePicture?: string;
+  };
+}
+
 export default function TeacherProfilePage() {
   const { teacher, setTeacher } = useTeacher();
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [reviews, setReviews] = useState<IReview[]>([]);
 
   // Password state
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -95,6 +107,23 @@ export default function TeacherProfilePage() {
     if (teacher) {
       fetchAvailability();
     }
+  }, [teacher]);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (teacher?._id) {
+        try {
+          const res = await teacherProfileApi.getTeacherReviews(teacher._id);
+          if (res.ok) {
+            setReviews(res.data);
+          }
+        } catch (error) {
+          console.error('Failed to fetch reviews:', error);
+        }
+      }
+    };
+
+    fetchReviews();
   }, [teacher]);
 
   useEffect(() => {
@@ -241,6 +270,10 @@ export default function TeacherProfilePage() {
     }
   };
 
+
+
+
+
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 selection:bg-black selection:text-white">
       <Header />
@@ -338,6 +371,8 @@ export default function TeacherProfilePage() {
                   </p>
                 </section>
 
+
+
                 <section className="bg-white border border-gray-200 rounded-[2.5rem] p-8 md:p-10 shadow-sm">
                   <h3 className="text-xl font-black mb-8 flex items-center gap-3 text-gray-900 uppercase tracking-tight">
                     <div className="p-2 bg-black rounded-lg">
@@ -361,6 +396,60 @@ export default function TeacherProfilePage() {
                     ))}
                   </div>
                 </section>
+                <section className="bg-white border border-gray-200 rounded-[2.5rem] p-8 md:p-10 shadow-sm">
+                  <h3 className="text-xl font-black mb-6 flex items-center gap-3 text-gray-900 uppercase tracking-tight">
+                    <div className="p-2 bg-black rounded-lg">
+                      <BadgeCheck className="w-5 h-5 text-white" />
+                    </div>
+                    Student Reviews
+                  </h3>
+
+                  {/* LIMITED HEIGHT */}
+                  <div className="space-y-6 max-h-[320px] overflow-y-auto pr-2">
+                    {reviews.length > 0 ? (
+                      reviews.map((review: IReview) => (
+                        <div
+                          key={review._id}
+                          className="border border-gray-200 rounded-2xl p-6 hover:border-black transition-all"
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <p className="font-black text-gray-900">
+                                {review.studentId?.name || 'Anonymous'}
+                              </p>
+                              <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">
+                                Student · {new Date(review.createdAt).toLocaleDateString(undefined, {
+                                  month: 'short',
+                                  year: 'numeric',
+                                })}
+                              </p>
+                            </div>
+
+                            <div className="flex gap-1">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <span
+                                  key={i}
+                                  className={`text-sm ${i < review.rating ? 'text-black' : 'text-gray-300'}`}
+                                >
+                                  ★
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          <p className="text-gray-600 font-medium leading-relaxed">
+                            “{review.comment}”
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-10 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                        <p className="text-gray-400 font-medium">No reviews yet.</p>
+                      </div>
+                    )}
+                  </div>
+                </section>
+
               </>
             )}
 

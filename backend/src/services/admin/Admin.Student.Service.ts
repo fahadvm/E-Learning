@@ -56,17 +56,29 @@ export class AdminStudentService implements IAdminStudentService {
   }
 
   async getStudentById(studentId: string): Promise<IAdminStudentDetailsDTO> {
-    const student = await this._studentRepo.findById(studentId);
+    const student = await this._studentRepo.findByIdPopulated(studentId);
     if (!student) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
     const orders = await this._orderRepo.getOrdersByStudentId(studentId);
     const courses = orders.flatMap((o) => o.courses || []);
     const purchases = orders;
 
+    const subscription = await this._subscriptionRepo.findActiveSubscription(studentId);
+    let activePlan = 'Free Plan';
+
+    if (subscription) {
+      // planId is populated in findActiveSubscription
+      const plan = subscription.planId as any;
+      if (plan && plan.name) {
+        activePlan = plan.name;
+      }
+    }
+
     return adminStudentDetailsDto({
       student,
       courses,
-      purchases
+      purchases,
+      activePlan
     });
   }
 

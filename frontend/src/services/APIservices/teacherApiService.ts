@@ -29,6 +29,7 @@ export const teacherProfileApi = {
   changePassword: (data: any) => patch(TEACHER_ROUTES.profile.changePassword, data),
   sendChangeEmailOtp: (data: { newEmail: string }) => post(TEACHER_ROUTES.profile.changeEmailOtp, data),
   verifyChangeEmail: (data: { newEmail: string; otp: string }) => post(TEACHER_ROUTES.profile.verifyChangeEmail, data),
+  getTeacherReviews: (teacherId: string) => get(TEACHER_ROUTES.profile.reviews(teacherId)),
 };
 
 export const teacherAvailabilityApi = {
@@ -76,6 +77,7 @@ export const teacherCourseApi = {
   editCourse: (courseId: string, data: FormData) =>
     put(`${TEACHER_ROUTES.courses.update(courseId)}`, data),
   getCourseAnalytics: (courseId: string) => get(TEACHER_ROUTES.courses.analytics(courseId)),
+  getCourseReviews: (courseId: string) => get(TEACHER_ROUTES.courses.reviews(courseId)),
 };
 
 export const teacherEarningsApi = {

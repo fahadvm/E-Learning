@@ -17,6 +17,7 @@ import {
 import { ITransactionRepository } from '../../core/interfaces/repositories/ITransactionRepository';
 import { INotificationService } from '../../core/interfaces/services/shared/INotificationService';
 import { ITeacher } from '../../models/Teacher';
+import { ITeacherReviewRepository } from '../../core/interfaces/repositories/ITeacherReviewRepository';
 
 @injectable()
 export class AdminTeacherService implements IAdminTeacherService {
@@ -25,6 +26,7 @@ export class AdminTeacherService implements IAdminTeacherService {
         @inject(TYPES.CourseRepository) private readonly _courseRepo: ICourseRepository,
         @inject(TYPES.TransactionRepository) private readonly _transactionRepo: ITransactionRepository,
         @inject(TYPES.NotificationService) private readonly _notificationService: INotificationService,
+        @inject(TYPES.TeacherReviewRepository) private readonly _reviewRepo: ITeacherReviewRepository,
     ) { }
 
     async getAllTeachers(
@@ -73,6 +75,8 @@ export class AdminTeacherService implements IAdminTeacherService {
         const totalStudents = courses.reduce((sum, c) => sum + (c.totalStudents || 0), 0);
         const totalEarnings = await this._transactionRepo.teacherEarnings(teacherId);
 
+        const reviews = await this._reviewRepo.getTeacherReviews(teacherId);
+
         const teacherObj = (teacher.toObject ? teacher.toObject() : teacher) as ITeacher;
         const teacherWithStats = {
             ...teacherObj,
@@ -82,7 +86,8 @@ export class AdminTeacherService implements IAdminTeacherService {
 
         return adminTeacherDetailsDto({
             teacher: teacherWithStats as unknown as ITeacher,
-            courses
+            courses,
+            reviews
         });
     }
 

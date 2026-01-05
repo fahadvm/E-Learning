@@ -26,10 +26,12 @@ export interface IStudentProfileDTO {
     twitter?: string;
     instagram?: string;
   };
+  planName?: string;
+  planStatus?: string;
   coursesProgress?: ICourseProgressDTO[];
 }
 
-export const studentProfileDto = (student: IStudent): IStudentProfileDTO => ({
+export const studentProfileDto = (student: IStudent, planName?: string, planStatus?: string): IStudentProfileDTO => ({
   _id: student._id.toString(),
   name: student.name,
   email: student.email,
@@ -42,13 +44,15 @@ export const studentProfileDto = (student: IStudent): IStudentProfileDTO => ({
   isBlocked: student.isBlocked,
   googleUser: student.googleUser,
   social_links: student.social_links,
+  planName: planName,
+  planStatus: planStatus,
   coursesProgress: student.coursesProgress
     ? student.coursesProgress.map((progress: ICourseProgress) => ({
-        courseId: progress.courseId?.toString(),
-        completedLessons: progress.completedLessons?.map((l: string) => l.toString()) || [],
-        completedModules: progress.completedModules?.map((m: string) => m.toString()) || [],
-        percentage: progress.percentage || 0,
-        lastVisitedLesson: progress.lastVisitedLesson?.toString(),
-      }))
+      courseId: progress.courseId?.toString(),
+      completedLessons: progress.completedLessons?.map((l: string) => l.toString()) || [],
+      completedModules: progress.completedModules?.map((m: string) => m.toString()) || [],
+      percentage: progress.percentage || 0,
+      lastVisitedLesson: progress.lastVisitedLesson?.toString(),
+    }))
     : [],
 });

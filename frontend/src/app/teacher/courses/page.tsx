@@ -5,6 +5,8 @@ import Link from 'next/link'
 import Header from '@/components/teacher/header'
 import { useTeacher } from '@/context/teacherContext'
 import { teacherCourseApi } from '@/services/APIservices/teacherApiService'
+import ReviewListModal from '@/components/student/course/ReviewList'
+import { showErrorToast } from '@/utils/Toast'
 
 import {
   BookOpen,
@@ -120,6 +122,29 @@ export default function MyCoursesPage() {
   const [categoryFilter, setCategoryFilter] = useState('')
   const [sort, setSort] = useState<'asc' | 'desc'>('desc')
   const [page, setPage] = useState(1)
+
+  // Review Modal State
+  const [reviewsModalOpen, setReviewsModalOpen] = useState(false)
+  const [reviewList, setReviewList] = useState<any[]>([])
+  const [reviewLoading, setReviewLoading] = useState(false)
+
+  const handleViewReviews = async (courseId: string) => {
+    try {
+      setReviewLoading(true)
+      const res = await teacherCourseApi.getCourseReviews(courseId)
+      if (res.ok) {
+        setReviewList(res.data)
+        setReviewsModalOpen(true)
+      } else {
+        showErrorToast('Failed to load reviews')
+      }
+    } catch (err) {
+      console.error(err)
+      showErrorToast('Something went wrong')
+    } finally {
+      setReviewLoading(false)
+    }
+  }
 
   const fetchCourses = async () => {
     try {
@@ -302,14 +327,24 @@ export default function MyCoursesPage() {
                       </div>
                       <span className="text-xs font-bold text-black">{course.enrolledStudents || 0} Students</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="p-1.5 bg-zinc-50 rounded-lg">
-                        <Star className="h-3.5 w-3.5 text-zinc-600" />
+                    <div
+                      className="flex items-center gap-2 cursor-pointer group"
+                      onClick={() => handleViewReviews(course._id)}
+                    >
+                      <div className="p-1.5 bg-zinc-50 rounded-lg  ">
+                        <Star className="h-3.5 w-3.5 text-zinc-600 " />
                       </div>
-                      <span className="text-xs font-bold text-black">
-                        {course.rating ? `${Number(course.rating).toFixed(1)} (${course.reviewCount || 0})` : 'No rating'}
+
+                      <span
+                        className={`text-xs font-bold ${reviewLoading ? 'text-zinc-400 cursor-not-allowed' : 'text-black'
+                          }`}
+                      >
+                        {course.rating
+                          ? `${Number(course.rating).toFixed(1)} (${course.reviewCount || 0})`
+                          : 'No rating'}
                       </span>
                     </div>
+
                     <div className="flex items-center gap-2">
                       <div className="p-1.5 bg-zinc-50 rounded-lg">
                         <Clock className="h-3.5 w-3.5 text-zinc-600" />
@@ -348,74 +383,86 @@ export default function MyCoursesPage() {
                           <Eye className="h-4 w-4" />
                         </Link>
                       </Button>
+                     
                     </div>
                   </div>
                 </CardContent>
               </Card>
             ))}
-          </section>
-        )}
+          </section >
+        )
+        }
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center items-center mt-12 gap-2">
-            <Button
-              variant="outline"
-              disabled={page === 1}
-              onClick={() => setPage((prev) => prev - 1)}
-              className="rounded-xl border-zinc-200 font-bold"
-            >
-              Previous
-            </Button>
+        {
+          totalPages > 1 && (
+            <div className="flex justify-center items-center mt-12 gap-2">
+              <Button
+                variant="outline"
+                disabled={page === 1}
+                onClick={() => setPage((prev) => prev - 1)}
+                className="rounded-xl border-zinc-200 font-bold"
+              >
+                Previous
+              </Button>
 
-            <div className="flex items-center gap-1 mx-4">
-              <span className="text-sm font-black">Page {page}</span>
-              <span className="text-sm text-zinc-400 font-bold">of {totalPages}</span>
-            </div>
-
-            <Button
-              variant="outline"
-              disabled={page === totalPages}
-              onClick={() => setPage((prev) => prev + 1)}
-              className="rounded-xl border-zinc-200 font-bold"
-            >
-              Next
-            </Button>
-          </div>
-        )}
-
-        {showModal && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[200] p-4">
-            <div className="bg-white rounded-[2.5rem] shadow-2xl p-10 w-full max-w-md text-center border border-zinc-100 animate-in fade-in zoom-in duration-200">
-              <div className="w-20 h-20 bg-zinc-50 text-black rounded-3xl flex items-center justify-center mx-auto mb-6">
-                <Info className="w-10 h-10" />
+              <div className="flex items-center gap-1 mx-4">
+                <span className="text-sm font-black">Page {page}</span>
+                <span className="text-sm text-zinc-400 font-bold">of {totalPages}</span>
               </div>
-              <h2 className="text-2xl font-black text-black mb-4 tracking-tight">
-                Verification Required
-              </h2>
-              <p className="text-zinc-500 font-medium mb-8 leading-relaxed">
-                Your teacher profile is currently under review or not yet verified. To create and publish courses, please complete your identification.
-              </p>
 
-              <div className="flex flex-col gap-3">
-                <Button
-                  onClick={() => (window.location.href = "/teacher/profile")}
-                  className="w-full bg-black text-white hover:bg-zinc-800 h-14 rounded-2xl font-bold text-lg shadow-xl"
-                >
-                  Complete Profile
-                </Button>
-                <Button
-                  variant="ghost"
-                  onClick={() => setShowModal(false)}
-                  className="w-full text-zinc-500 hover:text-black font-bold h-12 rounded-2xl"
-                >
-                  Maybe Later
-                </Button>
+              <Button
+                variant="outline"
+                disabled={page === totalPages}
+                onClick={() => setPage((prev) => prev + 1)}
+                className="rounded-xl border-zinc-200 font-bold"
+              >
+                Next
+              </Button>
+            </div>
+          )
+        }
+
+        {
+          showModal && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[200] p-4">
+              <div className="bg-white rounded-[2.5rem] shadow-2xl p-10 w-full max-w-md text-center border border-zinc-100 animate-in fade-in zoom-in duration-200">
+                <div className="w-20 h-20 bg-zinc-50 text-black rounded-3xl flex items-center justify-center mx-auto mb-6">
+                  <Info className="w-10 h-10" />
+                </div>
+                <h2 className="text-2xl font-black text-black mb-4 tracking-tight">
+                  Verification Required
+                </h2>
+                <p className="text-zinc-500 font-medium mb-8 leading-relaxed">
+                  Your teacher profile is currently under review or not yet verified. To create and publish courses, please complete your identification.
+                </p>
+
+                <div className="flex flex-col gap-3">
+                  <Button
+                    onClick={() => (window.location.href = "/teacher/profile")}
+                    className="w-full bg-black text-white hover:bg-zinc-800 h-14 rounded-2xl font-bold text-lg shadow-xl"
+                  >
+                    Complete Profile
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowModal(false)}
+                    className="w-full text-zinc-500 hover:text-black font-bold h-12 rounded-2xl"
+                  >
+                    Maybe Later
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </main>
+          )
+        }
+
+        <ReviewListModal
+          open={reviewsModalOpen}
+          onClose={() => setReviewsModalOpen(false)}
+          reviews={reviewList}
+        />
+      </main >
     </>
   )
 }

@@ -233,14 +233,14 @@ export default function StudentDetailsPage() {
                       "success"
                     }
                   >
-                    {student.activePlan ?  "active":""}
+                    {student.activePlan ? "active" : ""}
                   </Badge>
                 </div>
 
                 <div className="flex justify-between">
                   <span>Expires</span>
                   <span className="font-medium">
-                    {student.activePlan ?  "Unlimited":""}
+                    {student.activePlan ? "Unlimited" : ""}
                   </span>
                 </div>
 
@@ -333,7 +333,7 @@ export default function StudentDetailsPage() {
                 {student.coursesProgress.map((course) => (
                   <div key={course.courseId} className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="font-medium">{course.courseId}</span>
+                      <span className="font-medium">{course.courseName || course.courseId}</span>
                       <span>{Math.round(course.percentage)}%</span>
                     </div>
 

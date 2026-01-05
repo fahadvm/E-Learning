@@ -17,7 +17,7 @@ export interface IStudentListResponse {
 }
 
 
-export interface ICourseProgress { courseId: string; completedLessons: string[]; completedModules: string[]; percentage: number; lastVisitedLesson?: string; notes: string;updatedAt:string ;}
+export interface ICourseProgress { courseId: string; courseName?: string; completedLessons: string[]; completedModules: string[]; percentage: number; lastVisitedLesson?: string; notes: string; updatedAt: string; }
 
 
 export interface IStudentQuery {

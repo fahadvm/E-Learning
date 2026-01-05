@@ -18,6 +18,7 @@ import { ICompanyChatService } from '../../core/interfaces/services/company/ICom
 import { INotificationService } from '../../core/interfaces/services/shared/INotificationService';
 import { removeFromCompanyLeaderboard } from '../../utils/redis/leaderboard';
 import { ICourseProgress } from '../../models/Student';
+import { emitToUser } from '../../config/socket';
 
 
 @injectable()
@@ -79,6 +80,13 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
                 'company',
                 `/company/employees/${id}`
             );
+        }
+
+        if (status) {
+            // Real-time logout trigger
+            emitToUser(id, 'accountBlocked', {
+                message: 'Your account has been blocked by the company. You will be logged out shortly.'
+            });
         }
 
         // Notify Employee

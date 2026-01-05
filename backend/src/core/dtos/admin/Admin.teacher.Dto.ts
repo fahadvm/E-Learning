@@ -38,6 +38,14 @@ export interface IAdminTeacherDetailsDTO {
     totalStudents: number;
     status: string;
   }[];
+  reviews?: {
+    _id: string;
+    rating: number;
+    comment: string;
+    createdAt: Date;
+    studentId?: { name: string; profilePicture?: string };
+    employeeId?: { name: string; profilePicture?: string };
+  }[];
 }
 
 // simple mapper
@@ -60,10 +68,24 @@ export const adminTeacherDto = (t: ITeacher & { totalCourses?: number; totalStud
   skills: Array.isArray(t.skills) ? t.skills : [],
 });
 
-export const adminTeacherDetailsDto = (payload: { teacher: ITeacher; courses: ICourse[] }): IAdminTeacherDetailsDTO => {
-  const { teacher, courses } = payload;
+import { ITeacherReview } from '../../../models/TeacherReview';
+
+export const adminTeacherDetailsDto = (payload: {
+  teacher: ITeacher;
+  courses: ICourse[];
+  reviews?: ITeacherReview[];
+}): IAdminTeacherDetailsDTO => {
+  const { teacher, courses, reviews } = payload;
   return {
     teacher: adminTeacherDto(teacher as ITeacher & { totalCourses?: number; totalStudents?: number; totalEarnings?: number }),
+    reviews: reviews ? reviews.map((r) => ({
+      _id: r._id.toString(),
+      rating: r.rating,
+      comment: r.comment,
+      createdAt: r.createdAt,
+      studentId: r.studentId as any,
+      employeeId: r.employeeId as any
+    })) : [],
     courses: courses.map((c) => ({
       _id: c._id?.toString() || '',
       title: c.title,

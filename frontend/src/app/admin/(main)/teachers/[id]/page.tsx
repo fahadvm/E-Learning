@@ -15,7 +15,7 @@ import {
     BookOpen,
     Users,
     DollarSign,
-    FileText 
+    FileText
 } from "lucide-react";
 
 import { adminApiMethods } from "@/services/APIservices/adminApiService";
@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import ReviewListModal from "@/components/student/course/ReviewList";
 
 export default function TeacherDetailsPage() {
     const params = useParams();
@@ -33,6 +34,7 @@ export default function TeacherDetailsPage() {
     const [data, setData] = useState<ITeacherDetails | null>(null);
     const [loading, setLoading] = useState(true);
     const [statusLoading, setStatusLoading] = useState(false);
+    const [showReviews, setShowReviews] = useState(false);
 
     const fetchTeacher = async () => {
         try {
@@ -134,6 +136,14 @@ export default function TeacherDetailsPage() {
                                     <Star className="h-4 w-4 fill-current" />
                                     <span>{teacher.rating}</span>
                                     <span className="text-xs text-slate-400">({teacher.reviews} reviews)</span>
+                                    {data.reviews && data.reviews.length > 0 && (
+                                        <button
+                                            onClick={() => setShowReviews(true)}
+                                            className="text-xs text-blue-500 hover:text-blue-700 underline ml-2"
+                                        >
+                                            View
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 
@@ -273,6 +283,14 @@ export default function TeacherDetailsPage() {
 
                 </div>
             </div>
-        </div>
+
+
+            {/* Reviews Modal */}
+            <ReviewListModal
+                open={showReviews}
+                onClose={() => setShowReviews(false)}
+                reviews={data.reviews || []}
+            />
+        </div >
     );
 }

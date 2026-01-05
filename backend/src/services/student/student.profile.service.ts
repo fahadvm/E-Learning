@@ -9,18 +9,34 @@ import { MESSAGES } from '../../utils/ResponseMessages';
 import { studentProfileDto, IStudentProfileDTO } from '../../core/dtos/student/Student.profile.Dto';
 import { IContribution } from '../../types/common/contribution';
 import { IPublicApiRepository } from '../../core/interfaces/repositories/IPublicApiRepository';
+import { ISubscriptionPlanRepository } from '../../core/interfaces/repositories/ISubscriptionPlanRepository';
 
 @injectable()
 export class StudentProfileService implements IStudentProfileService {
   constructor(
     @inject(TYPES.StudentRepository) private readonly _studentRepo: IStudentRepository,
-    @inject(TYPES.PublicApiRepository) private readonly _PublicApiRepo: IPublicApiRepository
+    @inject(TYPES.PublicApiRepository) private readonly _PublicApiRepo: IPublicApiRepository,
+    @inject(TYPES.SubscriptionPlanRepository) private readonly _subscriptionRepo: ISubscriptionPlanRepository
   ) { }
 
   async getProfile(studentId: string): Promise<IStudentProfileDTO> {
     const student = await this._studentRepo.findById(studentId);
     if (!student) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    return studentProfileDto(student);
+
+    const subscription = await this._subscriptionRepo.findActiveSubscription(studentId);
+    let planName = 'Free Plan';
+    let planStatus = 'free';
+
+    if (subscription) {
+      // planId is populated in findActiveSubscription
+      const plan = subscription.planId as any;
+      if (plan && plan.name) {
+        planName = plan.name;
+        planStatus = 'active';
+      }
+    }
+
+    return studentProfileDto(student, planName, planStatus);
 
   }
 
@@ -30,13 +46,13 @@ export class StudentProfileService implements IStudentProfileService {
     return studentProfileDto(updated);
   }
 
-  async getContributions(leetcodeUsername: string , githubUsername:string): Promise<IContribution> {
-      const [github, leetcode] = await Promise.all([
+  async getContributions(leetcodeUsername: string, githubUsername: string): Promise<IContribution> {
+    const [github, leetcode] = await Promise.all([
       this._PublicApiRepo.fetchGitHub(githubUsername),
       this._PublicApiRepo.fetchLeetCodeStats(leetcodeUsername),
     ]);
     const contributions = { github, leetcode };
-    return contributions; 
+    return contributions;
   }
 
 }

@@ -7,7 +7,7 @@ export interface ITeacher {
     isBlocked: boolean;
     verified: boolean;
     joinDate: string;
-    resumeUrl:string
+    resumeUrl: string
 
     totalCourses: number;
     totalStudents: number;
@@ -20,7 +20,7 @@ export interface ITeacher {
 }
 
 export interface ITeacherListResponse {
-    data:{
+    data: {
         data: ITeacher[];
         total: number;
     }
@@ -37,9 +37,19 @@ export interface ITeacherCourse {
     status: "active" | "draft" | "archived";
 }
 
+export interface ITeacherReview {
+    _id: string;
+    rating: number;
+    comment: string;
+    createdAt: string;
+    studentId?: { name: string; profilePicture?: string };
+    employeeId?: { name: string; profilePicture?: string };
+}
+
 export interface ITeacherDetails {
     teacher: ITeacher;
     courses: ITeacherCourse[];
+    reviews?: ITeacherReview[];
 }
 
 export interface ITeacherVerificationRequest {
@@ -48,8 +58,8 @@ export interface ITeacherVerificationRequest {
     name: string;
     email: string;
     avatar?: string;
-    resumeUrl:string
-    isBlocked:boolean
+    resumeUrl: string
+    isBlocked: boolean
 
     submittedAt: string;
     verificationStatus: "pending" | "approved" | "rejected";
@@ -59,7 +69,9 @@ export interface ITeacherVerificationRequest {
 }
 
 export interface ITeacherVerificationListResponse {
-   data:{ data: ITeacherVerificationRequest[];
-    total: number;}
+    data: {
+        data: ITeacherVerificationRequest[];
+        total: number;
+    }
 }
 

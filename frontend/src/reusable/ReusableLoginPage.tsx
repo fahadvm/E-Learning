@@ -105,7 +105,10 @@ export default function ReusableLoginPage({
 
     try {
       const res = await apiEndpoint({ email, password });
-      showSuccessToast(res?.message || "Login successful");
+      if(res?.ok){
+        showSuccessToast(res?.message || "Login successful");
+      }
+      
 
       // Small delay to ensure cookies are set before redirect
       setTimeout(() => {

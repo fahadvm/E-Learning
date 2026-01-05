@@ -44,10 +44,14 @@ export class StudentRepository implements IStudentRepository {
     return Student.findById(id).lean().exec();
   }
 
+  async findByIdPopulated(id: string): Promise<IStudent | null> {
+    return Student.findById(id).populate('coursesProgress.courseId').lean().exec();
+  }
+
 
   async update(id: string, data: Partial<IStudent>): Promise<IStudent> {
     const updated = await Student.findByIdAndUpdate(id, { $set: data }, { new: true }).lean().exec();
-    if (!updated) throwError(MESSAGES.STUDENT_NOT_FOUND,STATUS_CODES.NOT_FOUND);
+    if (!updated) throwError(MESSAGES.STUDENT_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     return updated;
   }
 

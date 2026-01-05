@@ -22,6 +22,7 @@ export interface IStudentCourseProgressDTO {
   percentage: number;
   lastVisitedLesson?: string;
   notes: string;
+  courseName?: string;
 }
 
 export interface IAdminStudentDetailsDTO {
@@ -30,6 +31,7 @@ export interface IAdminStudentDetailsDTO {
   email: string;
   phone?: string;
   avatar: string | null;
+  activePlan?: string;
   status: 'active' | 'blocked';
   verified: boolean;
   joinDate: string;
@@ -86,6 +88,7 @@ export const adminStudentDetailsDto = (data: {
   student: IStudent;
   courses: ICourse[];
   purchases: IOrder[];
+  activePlan?: string;
 }): IAdminStudentDetailsDTO => {
   const student = data.student;
 
@@ -95,6 +98,7 @@ export const adminStudentDetailsDto = (data: {
     email: student.email,
     phone: student.phone,
     avatar: student.profilePicture || null,
+    activePlan: data.activePlan,
     status: student.isBlocked ? 'blocked' : 'active',
     verified: student.isVerified,
     joinDate: student.createdAt
@@ -103,7 +107,8 @@ export const adminStudentDetailsDto = (data: {
 
     // Corrected coursesProgress mapping
     coursesProgress: student.coursesProgress ? student.coursesProgress.map((c: ICourseProgress) => ({
-      courseId: c.courseId.toString(),
+      courseId: (c.courseId as any)._id ? (c.courseId as any)._id.toString() : c.courseId.toString(),
+      courseName: (c.courseId as any).title ? (c.courseId as any).title : 'Unknown Course',
       completedLessons: c.completedLessons.map((l) => l.toString()),
       completedModules: c.completedModules.map((m) => m.toString()),
       percentage: c.percentage,

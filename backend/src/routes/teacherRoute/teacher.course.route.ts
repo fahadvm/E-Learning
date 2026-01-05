@@ -5,6 +5,7 @@ import { asyncHandler } from '../../middleware/asyncHandler';
 import { authMiddleware } from '../../middleware/authMiddleware';
 import multer from 'multer';
 import { TYPES } from '../../core/di/types';
+import { EmployeeCourseReviewController } from '../../controllers/employee/employee.courseReview.controller';
 
 
 const storage = multer.memoryStorage();
@@ -12,6 +13,7 @@ const upload = multer({ storage });
 
 const router = Router();
 const teacherCourseController = container.get<TeacherCourseController>(TYPES.TeacherCourseController);
+const employeeCourseReviewCtrl = container.get<EmployeeCourseReviewController>(TYPES.EmployeeCourseReviewController);
 
 // Course Routes
 
@@ -38,5 +40,11 @@ router.put(
 );
 
 router.get('/:courseId/analytics', authMiddleware('teacher'), asyncHandler(teacherCourseController.getCourseAnalytics.bind(teacherCourseController)));
+
+router.get(
+    '/:courseId/reviews',
+    authMiddleware('teacher'),
+    asyncHandler(employeeCourseReviewCtrl.getReviews.bind(employeeCourseReviewCtrl))
+);
 
 export default router;

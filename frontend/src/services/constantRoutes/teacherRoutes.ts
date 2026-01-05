@@ -29,6 +29,7 @@ export const TEACHER_ROUTES = {
     changePassword: `${TEACHER_PROFILE}/change-password`,
     changeEmailOtp: `${TEACHER_PROFILE}/change-email-otp`,
     verifyChangeEmail: `${TEACHER_PROFILE}/verify-change-email`,
+    reviews: (teacherId: string) => `${TEACHER_PROFILE}/reviews/${teacherId}`,
   },
 
   courses: {
@@ -42,6 +43,7 @@ export const TEACHER_ROUTES = {
     fetchResources: (courseId: string) => `${TEACHER_COURSES}/${courseId}/resources`,
     deleteResource: (resourceId: string) => `${TEACHER_COURSES}/${resourceId}/resources`,
     analytics: (courseId: string) => `${TEACHER_COURSES}/${courseId}/analytics`,
+    reviews: (courseId: string) => `${TEACHER_COURSES}/${courseId}/reviews`,
   },
 
   availability: {

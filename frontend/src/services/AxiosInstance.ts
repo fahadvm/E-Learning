@@ -60,9 +60,12 @@ axiosInstance.interceptors.response.use(
 
     if (error.response?.status === 403) {
       const msg = (error.response.data as { message?: string })?.message || "";
-      if (msg.toLowerCase().includes("blocked")) {
+      // Only redirect to login if the USER is blocked, not if the course is blocked
+      if (msg.toLowerCase().includes("blocked") && !msg.toLowerCase().includes("course")) {
         // Cleanup all auth data
-        localStorage.clear();
+        localStorage.clear(); // Removing this might be safer if we only want to logout on user block, 
+        // but existing logic assumes "blocked" means "account blocked" usually.
+        // We just refined it to exclude "course blocked".
         sessionStorage.clear();
 
         // Specific redirection for each app section
