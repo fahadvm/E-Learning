@@ -17,7 +17,8 @@ import {
   Edit,
   Eye,
   Search,
-  Info
+  Info,
+  Upload
 } from 'lucide-react'
 
 import {
@@ -332,6 +333,11 @@ export default function MyCoursesPage() {
                       </Link>
                     </Button>
                     <div className="flex gap-2">
+                      <Button asChild variant="outline" size="icon" className="h-10 w-10 text-zinc-900 border-zinc-200 hover:bg-black rounded-xl">
+                        <Link href={`/teacher/courses/${course._id}/resources`}>
+                          <Upload className="h-4 w-4" />
+                        </Link>
+                      </Button>
                       <Button asChild variant="outline" size="icon" className="h-10 w-10 text-zinc-900 border-zinc-200 hover:bg-black rounded-xl">
                         <Link href={`/teacher/courses/${course._id}/edit`}>
                           <Edit className="h-4 w-4" />

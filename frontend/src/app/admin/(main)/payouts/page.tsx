@@ -23,7 +23,7 @@ import {
 import { Check, X } from 'lucide-react';
 import RejectPayoutDialog from '@/components/admin/payouts/RejectPayoutDialog';
 import { format } from 'date-fns';
-import { showErrorToast ,showSuccessToast} from '@/utils/Toast';
+import { showErrorToast, showSuccessToast } from '@/utils/Toast';
 
 export default function AdminPayoutsPage() {
     const [payouts, setPayouts] = useState<IPayout[]>([]);
@@ -42,7 +42,7 @@ export default function AdminPayoutsPage() {
             const res = await adminApiMethods.getPayouts(filter);
             if (res.ok) {
                 setPayouts(res.data);
-                console.log("setpayout",res.data)
+                console.log("setpayout", res.data)
             }
         } catch (error) {
             console.error(error);
@@ -60,11 +60,11 @@ export default function AdminPayoutsPage() {
         try {
             if (!confirm('Are you sure you want to approve this payout? This action cannot be undone.')) return;
             await adminApiMethods.approvePayout(id);
-           showSuccessToast('Payout approved successfully');
+            showSuccessToast('Payout approved successfully');
             fetchPayouts();
         } catch (error) {
             console.error(error);
-           showErrorToast('Failed to approve payout');
+            showErrorToast('Failed to approve payout');
         }
     };
 
@@ -132,9 +132,25 @@ export default function AdminPayoutsPage() {
                                     <TableCell className="font-semibold text-green-600">${payout.amount.toFixed(2)}</TableCell>
                                     <TableCell>{format(new Date(payout.createdAt), 'MMM dd, yyyy')}</TableCell>
                                     <TableCell>{payout.method.replace('_', ' ')}</TableCell>
-                                    <TableCell className="max-w-xs truncate text-xs text-gray-500" title={payout.details?.info}>
-                                        {payout.details?.info || '-'}
+                                    <TableCell
+                                        className="max-w-xs truncate text-xs text-gray-500"
+                                        title={
+                                            payout.method === "BANK_TRANSFER"
+                                                ? `${payout.details?.bankName || ""} | ${payout.details?.accountName || ""} | ${payout.details?.ifscCode || ""}`
+                                                : payout.details?.info
+                                        }
+                                    >
+                                        {payout.method === "BANK_TRANSFER" ? (
+                                            <div className="space-y-1">
+                                                <p>Bank: {payout.details?.bankName || "-"}</p>
+                                                <p>Account: {payout.details?.accountName || "-"}</p>
+                                                <p>IFSC: {payout.details?.ifscCode || "-"}</p>
+                                            </div>
+                                        ) : (
+                                            payout.details?.info || "-"
+                                        )}
                                     </TableCell>
+
                                     <TableCell>
                                         {payout.status === PayoutStatus.PENDING && (
                                             <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Pending</Badge>

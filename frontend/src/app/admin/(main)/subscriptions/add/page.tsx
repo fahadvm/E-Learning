@@ -210,7 +210,7 @@ export default function AddSubscriptionPlanPage() {
 
           {/* Plan For */}
           <div className="flex gap-6">
-            {['Student', 'Company'].map((type) => (
+            {['Student'].map((type) => (
               <label key={type} className="flex items-center gap-2">
                 <input
                   type="radio"

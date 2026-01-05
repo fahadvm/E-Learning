@@ -13,6 +13,7 @@ export class AdminReportsService implements IAdminReportsService {
     async getDashboardStats(): Promise<IDashboardData> {
         const stats = await this._reportsRepo.getDashboardStats();
         const monthlyRevenue = await this._reportsRepo.getMonthlyRevenue(new Date().getFullYear());
+        const yearlyRevenue = await this._reportsRepo.getYearlyRevenue();
         const userDistribution = await this._reportsRepo.getUserDistribution();
         const topCourses = await this._reportsRepo.getTopCourses(5);
         const companyRevenue = await this._reportsRepo.getCompanyRevenue();
@@ -23,6 +24,7 @@ export class AdminReportsService implements IAdminReportsService {
         return {
             stats,
             monthlyRevenue,
+            yearlyRevenue,
             userDistribution,
             topCourses,
             companyRevenue,

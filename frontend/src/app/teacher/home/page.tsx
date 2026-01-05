@@ -28,6 +28,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { convertTo12Hour } from "@/utils/timeConverter";
 
 /* ================== HELPERS ================== */
 const getLast6Months = () => {
@@ -259,7 +260,10 @@ export default function TeacherDashboard() {
                         <Badge className="bg-white text-black border-zinc-200 font-bold text-[10px] uppercase">{item.day}</Badge>
                         <div className="flex items-center gap-1 text-[10px] font-bold text-zinc-400">
                           <Clock className="w-3 h-3" />
-                          {item.timeRange}
+                          {item.timeRange
+                            .split("-")
+                            .map((time) => convertTo12Hour(time))
+                            .join(" - ")}
                         </div>
                       </div>
                       <h4 className="font-black text-black mb-1 line-clamp-1">{item.title}</h4>
@@ -279,7 +283,7 @@ export default function TeacherDashboard() {
           </Card>
 
           {/* Quick Actions / Tips Card */}
-       
+
         </div>
       </main>
     </div>

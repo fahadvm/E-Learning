@@ -35,7 +35,12 @@ export default function CourseResourcesPage() {
     const loadResources = async () => {
       try {
         const res = await teacherCourseApi.getResources(courseId);
-        setResources(res.data ?? res);
+        if (res && res.data) {
+          setResources(res.data);
+        } else if (Array.isArray(res)) {
+          setResources(res);
+        }
+
       } catch {
         showInfoToast("Failed to load resources");
       } finally {
@@ -71,10 +76,15 @@ export default function CourseResourcesPage() {
       formData.append("file", file);
 
       const res = await teacherCourseApi.addResources(courseId, formData);
-      showSuccessToast(res.data?.message ?? "Resource added");
+      showSuccessToast(res?.message ?? "Resource added");
 
       const refreshed = await teacherCourseApi.getResources(courseId);
-      setResources(refreshed.data ?? refreshed);
+      if (refreshed && refreshed.data) {
+        setResources(refreshed.data);
+      } else if (Array.isArray(refreshed)) {
+        setResources(refreshed);
+      }
+
 
       setTitle("");
       setDescription("");
@@ -93,7 +103,7 @@ export default function CourseResourcesPage() {
     if (!confirmDelete) return;
 
     try {
-      await teacherCourseApi.deleteResources( resourceId);
+      await teacherCourseApi.deleteResources(resourceId);
       showSuccessToast("Resource deleted");
       setResources((prev) => prev.filter((r) => r._id !== resourceId));
     } catch {

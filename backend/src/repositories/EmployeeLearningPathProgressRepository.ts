@@ -149,4 +149,12 @@ export class EmployeeLearningPathProgressRepository implements IEmployeeLearning
         return uniqueEmployees.length;
     }
 
+    async findByEmployeeId(employeeId: string): Promise<IEmployeeLearningPathProgress | null> {
+        return EmployeeLearningPathProgress.findOne({
+            employeeId: new Types.ObjectId(employeeId)
+        })
+            .lean()
+            .exec();
+    }
+
 }

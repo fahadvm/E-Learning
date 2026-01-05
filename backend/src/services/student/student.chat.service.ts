@@ -23,6 +23,11 @@ export class ChatService implements IChatService {
     return this._chatRepository.saveMessage(senderId, message, chatId, senderType, receiverId, receiverType, fileUrl, messageType);
   }
 
+  async startChat(studentId: string, teacherId: string): Promise<IChat> {
+    if (!studentId || !teacherId) throwError(MESSAGES.REQUIRED_FIELDS_MISSING);
+    return this._chatRepository.findOrCreateDirectChat(studentId, teacherId);
+  }
+
   async getMessages(chatId: string, limit: number, before: string): Promise<IMessage[]> {
     const beforeDate = before ? new Date(before) : undefined;
 

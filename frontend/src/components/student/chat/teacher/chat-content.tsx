@@ -393,16 +393,31 @@ export default function StudentChatContent() {
   const teacherId = params?.teacherId as string;
   const studentId = student?._id;
   const [chatId, setChatId] = useState<string | null>(searchParams.get("chatId"));
+  // Ref to prevent double creation in StrictMode
+  const creationAttemptedRef = useRef(false);
+
   useEffect(() => {
+    // If we have a chatId, no need to create/fetch.
+    // Also if missing IDs, cannot proceed.
     if (!studentId || !teacherId || chatId) return;
+
+    // Prevent double invocation
+    if (creationAttemptedRef.current) return;
+    creationAttemptedRef.current = true;
+
     const createOrFetchChat = async () => {
       try {
         const res = await studentChatApi.createOrGetChat({ studentId, teacherId });
         const newChatId = res.data._id;
-        setChatId(newChatId);
-        router.replace(`/student/chat/${teacherId}?chatId=${newChatId}`);
+
+        // Only update if different
+        if (newChatId !== chatId) {
+          setChatId(newChatId);
+          router.replace(`/student/chat/${teacherId}?chatId=${newChatId}`);
+        }
       } catch (err) {
         console.error("Error creating/fetching chat:", err);
+        creationAttemptedRef.current = false; // Reset on error to allow retry
       }
     };
 
@@ -439,7 +454,7 @@ export default function StudentChatContent() {
   }, [studentId, teacherId, chatId]);
 
   useEffect(() => {
-    if (!studentId) return;
+    if (!studentId || !chatId) return;
 
     const socket = initSocket(
       studentId,
@@ -487,14 +502,15 @@ export default function StudentChatContent() {
     socket.on("onlineUsers", (users: string[]) => {
       setIsOnline(users.includes(teacherId));
     });
-    if (!chatId) return
+
+    // Explicitly join the chat room
     joinChat(chatId);
 
     return () => {
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
       disconnectSocket();
     };
-  }, [studentId, teacherId]);
+  }, [studentId, teacherId, chatId]); // Added chatId to dependencies
 
   const handleSend = () => {
     if (!input || !studentId || !teacherId || !chatId) return;

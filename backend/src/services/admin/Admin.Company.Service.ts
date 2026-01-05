@@ -69,9 +69,48 @@ export class AdminCompanyService implements IAdminCompanyService {
       };
     }));
 
+    // Process employees with learning path data
+    const employeesWithLPData = await Promise.all(
+      employees.map(async (emp) => {
+        // Get learning path progress for this employee
+        const lpProgress = await this._lpProgressRepo.findByEmployeeId(emp._id.toString());
+
+        let totalCourses = 0;
+        let completedCourses = 0;
+
+        if (lpProgress && lpProgress.learningPathId) {
+          // Fetch the learning path to get course count
+          const EmployeeLearningPath = (await import('../../models/EmployeeLearningPath')).EmployeeLearningPath;
+          const learningPath = await EmployeeLearningPath.findById(lpProgress.learningPathId);
+
+          if (learningPath) {
+            totalCourses = learningPath.courses?.length || 0;
+            completedCourses = lpProgress.completedCourses?.length || 0;
+          }
+        }
+
+        // If no learning path, fall back to directly assigned courses
+        if (totalCourses === 0) {
+          totalCourses = emp.coursesAssigned?.length || 0;
+          completedCourses = emp.coursesProgress?.filter(cp => cp.percentage >= 100).length || 0;
+        }
+
+        return {
+          _id: emp._id.toString(),
+          name: emp.name,
+          email: emp.email,
+          position: emp.position,
+          avatar: emp.profilePicture,
+          isBlocked: emp.isBlocked,
+          coursesAssigned: totalCourses,
+          coursesCompleted: completedCourses
+        };
+      })
+    );
+
     return {
       company: adminCompanyDto(company),
-      employees: employees.map(adminCompanyEmployeeDto),
+      employees: employeesWithLPData,
       courses
     };
   }

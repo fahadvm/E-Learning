@@ -126,7 +126,7 @@ export default function TeacherNotificationsPage() {
                     {!n.isRead && (
                       <Button
                         size="sm"
-                        variant="secondary"
+                        variant="dark"
                         onClick={() => markAsRead(n._id)}
                       >
                         Mark as Read

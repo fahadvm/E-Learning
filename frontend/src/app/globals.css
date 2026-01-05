@@ -4,6 +4,9 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  --employeePrimary: #3D63DD;
+  --employeePrimaryDark: #2D4BBE;
+  --employeePrimaryLight: #E9EEFC;
   --background: #ffffff;
   --foreground: #374151;
   --card: #f8fafc;

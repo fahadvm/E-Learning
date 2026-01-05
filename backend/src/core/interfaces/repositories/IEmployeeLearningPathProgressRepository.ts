@@ -38,5 +38,6 @@ export interface IEmployeeLearningPathProgressRepository {
 
   countAssignedSeats(companyId: string, courseId: string): Promise<number>;
   findAllAssignedEmployees(companyId: string, learningPathId: string): Promise<{ employeeId: mongoose.Types.ObjectId }[]>;
+  findByEmployeeId(employeeId: string): Promise<IEmployeeLearningPathProgress | null>;
 
 }

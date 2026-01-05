@@ -106,6 +106,27 @@ export class AdminReportsRepository implements IAdminReportsRepository {
         ]);
     }
 
+    async getYearlyRevenue(years: number = 5): Promise<{ _id: number; revenue: number }[]> {
+        const start = new Date();
+        start.setFullYear(start.getFullYear() - years);
+
+        return await Transaction.aggregate([
+            {
+                $match: {
+                    paymentStatus: 'SUCCESS',
+                    createdAt: { $gte: start }
+                }
+            },
+            {
+                $group: {
+                    _id: { $year: '$createdAt' },
+                    revenue: { $sum: '$amount' }
+                }
+            },
+            { $sort: { '_id': 1 } }
+        ]);
+    }
+
     async getUserDistribution(): Promise<{ name: string; value: number }[]> {
         const students = await Student.countDocuments();
         const teachers = await Teacher.countDocuments();

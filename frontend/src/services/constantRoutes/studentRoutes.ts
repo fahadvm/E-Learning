@@ -111,6 +111,12 @@ export const STUDENT_ROUTES = {
     newChatList: `${STUDENT_CHAT}/new/chat`,
   },
 
+  notification: {
+    base: `${STUDENT_BASE}/notification`,
+    markAsRead: (id: string) => `${STUDENT_BASE}/notification/${id}/read`,
+    delete: (id: string) => `${STUDENT_BASE}/notification/${id}`,
+  },
+
   ai: {
     assistant: (courseId: string) => `${SHARED_AI}/message/${courseId}`,
   },

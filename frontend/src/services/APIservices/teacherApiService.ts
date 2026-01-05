@@ -1,12 +1,14 @@
 // teacherApi.ts
 
-import { getRequest, postRequest, patchRequest, putRequest } from "../api";
+import { getRequest, postRequest, patchRequest, putRequest, deleteRequest } from "../api";
 import { TEACHER_ROUTES } from "../constantRoutes/teacherRoutes";
 
 const get = getRequest,
   post = postRequest,
   patch = patchRequest,
-  put = putRequest
+  put = putRequest,
+  del = deleteRequest
+
 
 export const teacherAuthApi = {
   signup: (data: { name: string; email: string; password: string }) => post(TEACHER_ROUTES.auth.signup, data),
@@ -65,7 +67,7 @@ export const teacherCourseApi = {
   getCourseById: (courseId: string) => get(TEACHER_ROUTES.courses.details(courseId)),
   getResources: (courseId: string) => get(TEACHER_ROUTES.courses.fetchResources(courseId)),
   addResources: (courseId: string, data: any) => post(TEACHER_ROUTES.courses.uploadResource(courseId), data),
-  deleteResources: (resourceId: string) => get(TEACHER_ROUTES.courses.deleteResource(resourceId)),
+  deleteResources: (resourceId: string) => del(TEACHER_ROUTES.courses.deleteResource(resourceId)),
 
   // Note: If you have a separate endpoint for detailed fetching versus basic fetching, use it.
   // Assuming getCourseById or similar is used for editing as well.

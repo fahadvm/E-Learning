@@ -56,69 +56,59 @@ export default function EmployeeHome() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Hero Section */}
-      <section className="relative pt-20 pb-32 px-6 overflow-hidden">
-        {/* Decorative Elements */}
-        <div className="absolute top-0 left-0 w-full h-full opacity-40">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl animate-blob" />
-          <div className="absolute top-40 right-10 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000" />
-          <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000" />
-        </div>
+      <section className="relative min-h-screen flex items-center px-6 overflow-hidden">
+  {/* Background Image */}
+  <div
+    className="absolute inset-0 bg-cover bg-center"
+    style={{
+      backgroundImage:
+        "url('https://www.shutterstock.com/image-photo/defocused-background-modern-open-office-600nw-2570629407.jpg')",
+    }}
+  />
 
-        <div className="relative max-w-7xl mx-auto">
-          <div className="text-center mb-16">
+  {/* Dark Overlay */}
+  <div className="absolute inset-0 bg-black/50" />
 
-            <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-gray-900 mb-6 leading-tight">
-              Unlock Your
-              <br />
-              <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Full Potential
-              </span>
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed">
-              Transform your career with personalized learning paths, expert courses, and a community that celebrates your growth
-            </p>
+  {/* Content */}
+  <div className="relative max-w-7xl mx-auto text-center text-white">
+    {/* Avatar */}
+    <img
+      src="https://media.istockphoto.com/id/2156807988/vector/simple-gray-avatar-icons-representing-male-and-female-profiles-vector-minimalist-design-with.jpg?s=612x612&w=0&k=20&c=xi7g5_9VBSWgntTZ-OQNS74d0oOvUnDGxjxUL_LdJUM="
+      alt="Employee Avatar"
+      className="w-32 h-32 rounded-full mx-auto mb-8 border-4 border-white shadow-xl"
+    />
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={() => router.push('/employee/courses')}
-                className="group px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
-              >
-                <Rocket className="w-5 h-5" />
-                Start Learning
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
+    <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight">
+      Unlock Your
+      <br />
+      <span className="bg-blue-500 bg-clip-text text-transparent">
+        Full Potential
+      </span>
+    </h1>
 
-              <button
-                onClick={() => router.push('/employee/learningpath')}
-                className="px-8 py-4 bg-white text-gray-900 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
-              >
-                <Target className="w-5 h-5" />
-                View Learning Paths
-              </button>
-            </div>
-          </div>
+    <p className="text-lg md:text-2xl text-gray-200 mb-10 max-w-3xl mx-auto">
+      Transform your career with personalized learning paths, expert courses,
+      and a community that celebrates your growth
+    </p>
 
-          {/* Quick Stats */}
-          {employee?.companyId && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
-              {[
-                { icon: Trophy, label: 'Courses Completed', value: stats.coursesCompleted, color: 'from-yellow-400 to-orange-500', bg: 'bg-yellow-50' },
-                { icon: Clock, label: 'Hours Learned', value: stats.hoursLearned, color: 'from-blue-400 to-cyan-500', bg: 'bg-blue-50' },
-                { icon: Flame, label: 'Day Streak', value: stats.currentStreak, color: 'from-orange-400 to-red-500', bg: 'bg-orange-50' },
-                { icon: Medal, label: 'Your Rank', value: stats.rank || '-', color: 'from-purple-400 to-pink-500', bg: 'bg-purple-50' }
-              ].map((stat, i) => (
-                <div key={i} className={`${stat.bg} p-6 rounded-2xl border border-gray-200 hover:shadow-lg transition-all`}>
-                  <div className={`w-12 h-12 bg-gradient-to-br ${stat.color} rounded-xl flex items-center justify-center mb-4`}>
-                    <stat.icon className="w-6 h-6 text-white" />
-                  </div>
-                  <p className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</p>
-                  <p className="text-sm text-gray-600 font-medium">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+      <button
+        onClick={() => router.push('/employee/courses')}
+        className="group px-8 py-4 bg-blue-500 text-white rounded-xl font-semibold text-lg shadow-xl hover:scale-105 transition"
+      >
+        Start Learning
+      </button>
+
+      <button
+        onClick={() => router.push('/employee/learningpath')}
+        className="px-8 py-4 bg-white/90 text-gray-900 rounded-xl font-semibold text-lg shadow-xl hover:scale-105 transition"
+      >
+        View Learning Paths
+      </button>
+    </div>
+  </div>
+</section>
+
 
       {/* Features Section */}
       <section className="py-24 px-6 bg-white">
@@ -138,7 +128,7 @@ export default function EmployeeHome() {
                 icon: BookOpen,
                 title: "Expert Courses",
                 description: "Learn from industry professionals with hands-on projects and real-world applications",
-                gradient: "from-blue-500 to-cyan-500"
+                gradient: "from-blue-900 to-cyan-500"
               },
               {
                 icon: Trophy,
@@ -312,7 +302,7 @@ export default function EmployeeHome() {
       {/* CTA Section */}
       <section className="py-24 px-6 bg-white">
         <div className="max-w-5xl mx-auto">
-          <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl p-16 text-center shadow-2xl">
+          <div className="relative overflow-hidden bg-blue-500 rounded-3xl p-16 text-center shadow-2xl">
             <div className="relative z-10">
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
                 Ready to Level Up Your Career?

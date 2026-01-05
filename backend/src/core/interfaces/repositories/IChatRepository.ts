@@ -3,6 +3,7 @@ import { IChat } from '../../../models/chat';
 
 export interface IChatRepository {
   findOrCreateChat(participants: string[]): Promise<IChat>;
+  findOrCreateDirectChat(studentId: string, teacherId: string): Promise<IChat>;
   saveMessage(senderId: string, content: string, chatId: string, senderType: string, receiverId?: string, receiverType?: string, fileUrl?: string, messageType?: string): Promise<IMessage>;
   getStudentMessages(chatId: string, limit: number, before?: Date): Promise<IMessage[]>;
   getTeacherMessages(chatId: string, limit?: number, before?: Date): Promise<IMessage[]>;

@@ -114,6 +114,12 @@ export const studentChatApi = {
   createOrGetChat: (data: { studentId: string; teacherId: string }) => post(STUDENT_ROUTES.chat.start, data),
 };
 
+export const studentNotificationApi = {
+  getNotifications: () => get(STUDENT_ROUTES.notification.base),
+  markAsRead: (id: string) => patch(STUDENT_ROUTES.notification.markAsRead(id), {}),
+  deleteNotification: (id: string) => del(STUDENT_ROUTES.notification.delete(id)),
+};
+
 export const studentAiApi = {
   aiAssistant: (courseId: string, data: { prompt: string }) => post(STUDENT_ROUTES.ai.assistant(courseId), data),
 };

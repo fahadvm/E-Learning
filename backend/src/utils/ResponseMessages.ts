@@ -234,6 +234,7 @@ export enum MESSAGES {
   STUDENTS_FETCHED = 'Students fetched successfully',
   CHAT_LIST_FETCHED = 'Students chats fetched successfully',
   CHAT_DETAILS_FETCHED = 'chat details fetched successfully',
+  CHAT_STARTED = 'Chat started successfully',
 
   // -------------------- COMPANY --------------------
   COMPANIES_FETCHED = 'Companies fetched successfully',

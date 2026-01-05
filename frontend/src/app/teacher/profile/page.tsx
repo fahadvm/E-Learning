@@ -28,8 +28,19 @@ import {
 } from 'lucide-react';
 import { useTeacher } from '@/context/teacherContext';
 import { showSuccessToast, showErrorToast } from '@/utils/Toast';
-import { teacherProfileApi } from '@/services/APIservices/teacherApiService';
+import { teacherProfileApi, teacherAvailabilityApi } from '@/services/APIservices/teacherApiService';
 import { useState, useEffect } from 'react';
+
+interface ITimeSlot {
+  start: string;
+  end: string;
+}
+
+interface IDayAvailability {
+  day: string;
+  enabled: boolean;
+  slots: ITimeSlot[];
+}
 
 // UI Components from shadcn
 import {
@@ -66,6 +77,25 @@ export default function TeacherProfilePage() {
   });
   const [otpSent, setOtpSent] = useState(false);
   const [timer, setTimer] = useState(0);
+  const [availability, setAvailability] = useState<IDayAvailability[]>([]);
+
+  // Fetch availability data
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      try {
+        const res = await teacherAvailabilityApi.getAvailability();
+        if (res && res.data && res.data.week) {
+          setAvailability(res.data.week);
+        }
+      } catch (error) {
+        console.error('Failed to fetch availability:', error);
+      }
+    };
+
+    if (teacher) {
+      fetchAvailability();
+    }
+  }, [teacher]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -570,17 +600,31 @@ export default function TeacherProfilePage() {
                 Business Hours
               </h3>
               <div className="space-y-6">
-                {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((day) => (
-                  <div key={day} className="flex justify-between items-center text-sm group">
-                    <span className="text-gray-500 font-bold group-hover:text-black transition-colors">{day}</span>
-                    <span className="text-zinc-400 font-black text-[10px] tracking-widest uppercase bg-zinc-50 border border-zinc-100 px-3 py-1.5 rounded-lg group-hover:bg-zinc-100 group-hover:text-zinc-600 transition-all">Closed</span>
-                  </div>
-                ))}
+                {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((day) => {
+                  const dayData = availability.find((d) => d.day === day);
+                  const isEnabled = dayData?.enabled && dayData?.slots?.length > 0;
+                  const slotCount = dayData?.slots?.length || 0;
+
+                  return (
+                    <div key={day} className="flex justify-between items-center text-sm group">
+                      <span className="text-gray-500 font-bold group-hover:text-black transition-colors">{day}</span>
+                      {isEnabled ? (
+                        <span className="text-emerald-600 font-black text-[10px] tracking-widest uppercase bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-lg group-hover:bg-emerald-100 transition-all">
+                          {slotCount} {slotCount === 1 ? 'Slot' : 'Slots'}
+                        </span>
+                      ) : (
+                        <span className="text-zinc-400 font-black text-[10px] tracking-widest uppercase bg-zinc-50 border border-zinc-100 px-3 py-1.5 rounded-lg group-hover:bg-zinc-100 group-hover:text-zinc-600 transition-all">
+                          Closed
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
               <Link href="/teacher/callSchedule">
-              <button className="w-full mt-10 py-4 bg-zinc-950 hover:bg-zinc-800 text-white border border-zinc-900 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-black/10">
-                Manage Availability
-              </button>
+                <button className="w-full mt-10 py-4 bg-zinc-950 hover:bg-zinc-800 text-white border border-zinc-900 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-black/10">
+                  Manage Availability
+                </button>
               </Link>
             </div>
           </aside>

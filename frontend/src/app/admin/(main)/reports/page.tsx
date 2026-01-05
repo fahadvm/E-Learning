@@ -144,7 +144,10 @@ export default function AdminReportsPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
-                    <RevenueChart data={data.monthlyRevenue} />
+                    <RevenueChart
+                        monthlyData={data.monthlyRevenue}
+                        yearlyData={data.yearlyRevenue}
+                    />
                 </div>
                 <div>
                     <UserDistribution data={data.userDistribution || []} />

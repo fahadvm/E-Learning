@@ -55,7 +55,7 @@ export function TopNav() {
 
         {/* Left */}
         <div className="flex items-center gap-10">
-          <Link href="/employee/dashboard" className="font-bold text-xl text-primary">
+          <Link href="/employee/dashboard" className="font-bold text-xl text-blue-500">
             DevNext
           </Link>
 

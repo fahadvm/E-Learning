@@ -42,7 +42,7 @@ export default function Home() {
     { icon: MapPin, title: "Build Custom Learning Paths", desc: "Tailored skill development aligned with business objectives", image: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80" },
     { icon: UserPlus, title: "Assign to Employees", desc: "Role-based training deployment across teams and regions", image: "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?auto=format&fit=crop&w=800&q=80" },
     { icon: TrendingUp, title: "Track Progress & Analytics", desc: "Real-time reporting and compliance dashboards", image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80" },
-    { icon: Trophy, title: "Leaderboard & Recognition", desc: "Celebrate top performers and drive healthy competition", image: "https://images.unsplash.com/photo-1582213782179-8574f5d43e48?auto=format&fit=crop&w=800&q=80" },
+    { icon: Trophy, title: "Leaderboard & Recognition", desc: "Celebrate top performers and drive healthy competition", image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80" },
   ]
 
   return (

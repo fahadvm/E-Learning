@@ -39,22 +39,8 @@ export class ChatController {
 
     startChat = async (req: Request, res: Response) => {
         const { studentId, teacherId } = req.body;
-
-
-        let chat = await Chat.findOne({
-            participants: { $all: [studentId, teacherId] },
-        });
-
-        if (!chat) {
-            chat = await Chat.create({
-                participants: [studentId, teacherId],
-                studentId,
-                teacherId
-            });
-        }
-
-        sendResponse(res, STATUS_CODES.OK, MESSAGES.CHAT_LIST_FETCHED, true, chat);
-
+        const chat = await this._chatService.startChat(studentId, teacherId);
+        sendResponse(res, STATUS_CODES.OK, MESSAGES.CHAT_STARTED, true, chat);
     };
 
     getTeachers = async (req: AuthRequest, res: Response) => {

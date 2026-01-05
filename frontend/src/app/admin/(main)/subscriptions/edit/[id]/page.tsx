@@ -214,7 +214,7 @@ const EditSubscriptionPlan = () => {
             className="w-full border p-2 rounded"
           >
             <option value="Student">Student</option>
-            <option value="Company">Company</option>
+            {/* <option value="Company">Company</option> */}
           </select>
           {errors.planFor && (
             <p className="text-red-500 text-sm">{errors.planFor}</p>

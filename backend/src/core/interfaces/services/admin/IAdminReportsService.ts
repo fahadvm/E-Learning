@@ -9,6 +9,7 @@ export interface IDashboardData {
         totalCourses: number;
     };
     monthlyRevenue: { _id: number; revenue: number }[];
+    yearlyRevenue: { _id: number; revenue: number }[];
     userDistribution: { name: string; value: number }[];
     topCourses: { _id: string; title: string; sales: number; revenue: number }[];
     companyRevenue: { name: string; revenue: number }[];

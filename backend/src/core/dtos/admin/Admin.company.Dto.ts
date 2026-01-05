@@ -6,6 +6,10 @@ export interface IAdminCompanyEmployeeDto {
   name: string;
   email: string;
   position?: string;
+  avatar?: string;
+  isBlocked: boolean;
+  coursesAssigned: number;
+  coursesCompleted: number;
 }
 
 export interface IAdminCompanyDto {

@@ -4,6 +4,7 @@ import { ICourse } from '../../../../models/Course';
 
 export interface IChatService {
   sendMessage(senderId: string, message: string, chatId: string, senderType: string, receiverId?: string, receiverType?: string, fileUrl?: string, messageType?: string): Promise<IMessage>;
+  startChat(studentId: string, teacherId: string): Promise<IChat>;
   getMessages(chatId: string, limit: number, before: string): Promise<IMessage[]>;
   getUserChats(userId: string): Promise<IChat[]>;
   getChatDetails(chatId: string): Promise<IChat | null>;

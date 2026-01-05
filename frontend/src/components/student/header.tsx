@@ -14,10 +14,9 @@ import {
   MessageCircle,
   ChevronDown,
 } from "lucide-react";
-import { studentAuthApi } from "@/services/APIservices/studentApiservice";
+import { studentAuthApi, studentNotificationApi } from "@/services/APIservices/studentApiservice";
 import { useStudent } from "@/context/studentContext";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";
-import { teacherCallRequestApi } from "@/services/APIservices/teacherApiService";
 
 interface Notification {
   id: string;
@@ -44,15 +43,25 @@ export default function Header() {
   const { student, socket } = useStudent();
   const isPremium = student?.isPremium;
 
+  const markAsRead = async (id: string) => {
+    try {
+      await studentNotificationApi.markAsRead(id);
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    } catch {
+      showErrorToast("Failed to mark as read");
+    }
+  };
+
   // Fetch notifications
   const fetchNotifications = useCallback(async () => {
     if (!student?._id) return;
     try {
       setLoading(true);
-      // NOTE: This API path seems incorrect for fetching student notifications,
-      // as it uses `teacherCallRequestApi.tester`. Assuming it works for now.
-      const response = await teacherCallRequestApi.tester(student._id);
-      if (response.ok && Array.isArray(response.data)) {
+      const response = await studentNotificationApi.getNotifications();
+      if (response.data && Array.isArray(response.data)) {
         const formatted = response.data.map((n: { _id: string; message: string; createdAt: string; type?: string; isRead?: boolean }) => ({
           id: n._id,
           message: n.message,
@@ -81,11 +90,11 @@ export default function Header() {
   // Real-time notifications
   useEffect(() => {
     if (!socket) return;
-    socket.on("receive_notification", (data: { message: string, type?: string }) => {
+    socket.on("receive_notification", (data: { message: string, type?: string, id?: string, createdAt?: string }) => {
       const newNotif: Notification = {
-        id: Date.now().toString(),
+        id: data.id || Date.now().toString(),
         message: data.message,
-        createdAt: new Date().toISOString(),
+        createdAt: data.createdAt || new Date().toISOString(),
         time: new Date().toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
@@ -95,6 +104,7 @@ export default function Header() {
       };
       setNotifications((prev) => [newNotif, ...prev]);
       setUnreadCount((prev) => prev + 1);
+      showSuccessToast(`New notification: ${data.message}`);
     });
     return () => { socket.off("receive_notification") }
   }, [socket]);
@@ -119,17 +129,6 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const markAsRead = async (id: string) => {
-    try {
-      await teacherCallRequestApi.testerMark({ notificationId: id });
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-      );
-      setUnreadCount((prev) => Math.max(0, prev - 1));
-    } catch {
-      showErrorToast("Failed to mark as read");
-    }
-  };
 
   const handleLogoutConfirm = async () => {
     try {
@@ -246,78 +245,80 @@ export default function Header() {
               <div ref={notificationRef} className="relative">
                 <button
                   onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                  // Smaller size on mobile (sm:p-2 keeps desktop size)
-                  className="p-1 sm:p-2 text-white/90 hover:text-white transition relative"
+                  className="p-2 text-white/90 hover:text-white transition relative hover:bg-white/10 rounded-full"
                 >
-                  <Bell size={18} className="lg:size-[20px]" />
+                  <Bell size={20} />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-0.5 bg-red-500 text-white text-[9px] font-bold w-3 h-3 rounded-full flex items-center justify-center">
-                      {/* Reduced badge size on mobile */}
+                    <span className="absolute top-1.5 right-1.5 bg-red-500 text-white text-[10px] font-bold min-w-[16px] h-[16px] rounded-full flex items-center justify-center ring-2 ring-indigo-600">
                       {unreadCount > 9 ? "9+" : unreadCount}
                     </span>
                   )}
                 </button>
                 {isNotificationOpen && (
-                  <div className="absolute 
-                      left-1/2 -translate-x-1/2 lg:left-auto lg:translate-x-0
-                      mt-4 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-800 overflow-hidden
-                      ">
-                    <div className="p-4 border-b border-gray-200 dark:border-gray-800">                      <div className="flex justify-between items-center">
-                      <h3 className="font-semibold text-gray-900 dark:text-white">
-                        Notifications
-                      </h3>
+                  <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-gray-900 rounded-xl shadow-xl ring-1 ring-black/5 dark:ring-white/10 overflow-hidden transform origin-top-right transition-all z-50 animate-in fade-in zoom-in-95 duration-200">
+                    <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/80 dark:bg-gray-800/50 backdrop-blur-sm flex justify-between items-center">
+                      <div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white text-sm">Notifications</h3>
+                        {unreadCount > 0 && <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-0.5">{unreadCount} new messages</p>}
+                      </div>
                       {notifications.length > 0 && (
                         <button
                           onClick={() => {
                             setNotifications([]);
                             setUnreadCount(0);
                           }}
-                          className="text-xs text-indigo-600 hover:underline"
+                          className="text-xs font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition"
                         >
                           Clear all
                         </button>
                       )}
                     </div>
-                    </div>
-                    <div className="max-h-96 overflow-y-auto">
+
+                    <div className="max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800">
                       {loading ? (
-                        <p className="p-8 text-center text-gray-500">
-                          Loading...
-                        </p>
+                        <div className="p-8 flex flex-col items-center justify-center text-gray-500">
+                          <div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mb-3"></div>
+                          <span className="text-xs font-medium">Loading updates...</span>
+                        </div>
                       ) : notifications.length === 0 ? (
-                        <p className="p-8 text-center text-gray-500">
-                          No notifications yet
-                        </p>
+                        <div className="p-10 flex flex-col items-center justify-center text-center">
+                          <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-full flex items-center justify-center mb-3">
+                            <Bell className="w-6 h-6 text-indigo-300 dark:text-indigo-400" />
+                          </div>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">All caught up!</p>
+                          <p className="text-xs text-gray-500 mt-1">No new notifications at the moment</p>
+                        </div>
                       ) : (
-                        notifications.map((n) => (
-                          <div
-                            key={n.id}
-                            className={`p-4 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition ${!n.isRead
-                              ? "bg-indigo-50 dark:bg-indigo-900/20"
-                              : ""
-                              }`}
-                          >
-                            <p
-                              className={`text-sm ${!n.isRead ? "font-medium" : ""
+                        <div className="divide-y divide-gray-50 dark:divide-gray-800">
+                          {notifications.map((n) => (
+                            <div
+                              key={n.id}
+                              onClick={() => !n.isRead && markAsRead(n.id)}
+                              className={`group p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer flex gap-4 ${!n.isRead ? "bg-indigo-50/30 dark:bg-indigo-900/5" : ""
                                 }`}
                             >
-                              {n.message}
-                            </p>
-                            <div className="flex justify-between items-center mt-2">
-                              <span className="text-xs text-gray-500">
-                                {n.time}
-                              </span>
+                              <div className={`mt-1 flex-shrink-0 w-2 h-2 rounded-full ${!n.isRead ? "bg-indigo-500" : "bg-transparent"}`} />
+                              <div className="flex-1 min-w-0">
+                                <p className={`text-sm leading-snug mb-1 ${!n.isRead ? "font-semibold text-gray-900 dark:text-white" : "text-gray-600 dark:text-gray-300"}`}>
+                                  {n.message}
+                                </p>
+                                <span className="text-[10px] font-medium text-gray-400">{n.time}</span>
+                              </div>
                               {!n.isRead && (
                                 <button
-                                  onClick={() => markAsRead(n.id)}
-                                  className="text-xs text-indigo-600 hover:underline"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    markAsRead(n.id);
+                                  }}
+                                  title="Mark as read"
+                                  className="self-start opacity-0 group-hover:opacity-100 p-1 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 rounded text-indigo-600 transition-all"
                                 >
-                                  Mark as read
+                                  <div className="w-1.5 h-1.5 rounded-full bg-current" />
                                 </button>
                               )}
                             </div>
-                          </div>
-                        ))
+                          ))}
+                        </div>
                       )}
                     </div>
                   </div>

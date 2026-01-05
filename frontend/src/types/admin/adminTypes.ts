@@ -157,6 +157,11 @@ export interface MonthlyRevenueItem {
     revenue: number;
 }
 
+export interface YearlyRevenueItem {
+    _id: number; // year
+    revenue: number;
+}
+
 export interface RecentActivityItem {
     type: 'purchase' | 'upload' | 'signup' | 'other';
     user: string;
@@ -168,6 +173,7 @@ export interface RecentActivityItem {
 export interface DashboardData {
     stats: DashboardStats;
     monthlyRevenue: MonthlyRevenueItem[];
+    yearlyRevenue?: YearlyRevenueItem[];
     recentActivity: RecentActivityItem[];
     topCourses?: TopCourse[];
     userDistribution?: UserDistributionData[];

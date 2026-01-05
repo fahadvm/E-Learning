@@ -8,10 +8,55 @@ import { Types, FilterQuery } from 'mongoose';
 export class ChatRepository implements IChatRepository {
   async findOrCreateChat(participants: string[]): Promise<IChat> {
     const participantIds = participants.map(id => new Types.ObjectId(id));
-    const chat = await Chat.findOne({ participants: { $all: participantIds } });
+    // Check for any direct chat with these participants first
+    let chat = await Chat.findOne({ participants: { $all: participantIds, $size: 2 }, type: 'direct' });
     if (chat) return chat;
 
-    const newChat = await Chat.create({ participants: participantIds });
+    // Fallback search
+    chat = await Chat.findOne({ participants: { $all: participantIds } });
+    if (chat) return chat;
+
+    const newChat = await Chat.create({ participants: participantIds, type: 'direct' });
+    return newChat;
+  }
+
+  async findOrCreateDirectChat(studentId: string, teacherId: string): Promise<IChat> {
+    const sId = new Types.ObjectId(studentId);
+    const tId = new Types.ObjectId(teacherId);
+
+    // Try to find by explicit fields first
+    let chat = await Chat.findOne({
+      studentId: sId,
+      teacherId: tId,
+      type: 'direct'
+    });
+
+    if (!chat) {
+      // Try to find by participants as fallback
+      chat = await Chat.findOne({
+        participants: { $all: [sId, tId], $size: 2 },
+        type: 'direct'
+      });
+    }
+
+    if (chat) {
+      // Ensure fields are set if they were missing
+      if (!chat.studentId || !chat.teacherId) {
+        chat.studentId = sId;
+        chat.teacherId = tId;
+        await chat.save();
+      }
+      return chat;
+    }
+
+    // Create new
+    const newChat = await Chat.create({
+      participants: [sId, tId],
+      studentId: sId,
+      teacherId: tId,
+      type: 'direct'
+    });
+
     return newChat;
   }
 
@@ -73,6 +118,7 @@ export class ChatRepository implements IChatRepository {
   async getStudentChats(userId: string): Promise<IChat[]> {
     const chats = await Chat.find({ studentId: new Types.ObjectId(userId) })
       .populate('teacherId', 'name email profilePicture')
+      .sort({ updatedAt: -1 })
       .lean();
 
     const chatsWithUnread = await Promise.all(chats.map(async (chat) => {
@@ -90,6 +136,7 @@ export class ChatRepository implements IChatRepository {
   async getTeacherChats(userId: string): Promise<IChat[]> {
     const chats = await Chat.find({ teacherId: new Types.ObjectId(userId) })
       .populate('studentId', 'name email profilePicture')
+      .sort({ updatedAt: -1 })
       .lean();
 
     const chatsWithUnread = await Promise.all(chats.map(async (chat) => {

@@ -12,10 +12,15 @@ import { useEffect, useState } from "react";
 
 
 
+import { attachSocketListener } from "@/lib/socket";
+
+import { useTeacher } from "@/context/teacherContext";
+
 export default function MessagesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
+  const { teacher } = useTeacher();
 
   useEffect(() => {
     const fetchConversations = async () => {
@@ -33,6 +38,74 @@ export default function MessagesPage() {
 
     fetchConversations();
   }, []);
+
+  // Real-time Chat List Update (WhatsApp Style)
+  useEffect(() => {
+    if (!teacher?._id) return;
+
+    const cleanup = attachSocketListener("chat-list-update", async (data: { chatId: string, lastMessage: { message: string, senderId: string } }) => {
+      setConversations(prev => {
+        const index = prev.findIndex(c => c._id === data.chatId);
+        if (index !== -1) {
+          const isMyMessage = data.lastMessage.senderId === teacher._id;
+          const newUnreadCount = isMyMessage ? (prev[index].unread || 0) : (prev[index].unread || 0) + 1;
+
+          const updatedChat = {
+            ...prev[index],
+            lastMessage: data.lastMessage.message || "New message",
+            updatedAt: new Date().toISOString(),
+            unread: newUnreadCount
+          };
+          const newList = [...prev];
+          newList.splice(index, 1);
+          newList.unshift(updatedChat);
+          return newList;
+        }
+        return prev;
+      });
+
+      // Handle new chats (Teacher side)
+      try {
+        const res = await teacherChatApi.getChatInfo(data.chatId);
+        const chatData = res.data;
+        if (chatData) {
+          setConversations(prev => {
+            if (prev.find(c => c._id === data.chatId)) return prev;
+
+            // Map IChat to Conversation (Teacher View)
+            const newConversation: Conversation = {
+              _id: chatData._id,
+              lastMessage: data.lastMessage.message || chatData.lastMessage || "",
+              studentId: chatData.studentId, // Assumes populated
+              unread: 1,
+              online: false,
+              updatedAt: new Date().toISOString()
+            };
+            return [newConversation, ...prev];
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch new chat details", err);
+      }
+    });
+
+    // Listen for message read events
+    const cleanupRead = attachSocketListener("message_read", (data: { chatId: string }) => {
+      setConversations(prev => {
+        return prev.map(c => {
+          if (c._id === data.chatId) {
+            return { ...c, unread: 0 };
+          }
+          return c;
+        });
+      });
+    });
+
+    return () => {
+      cleanup();
+      cleanupRead();
+    };
+  }, [teacher?._id]);
 
   const filteredConversations = conversations.filter((c) =>
     c.studentId.name.toLowerCase().includes(searchTerm.toLowerCase())
