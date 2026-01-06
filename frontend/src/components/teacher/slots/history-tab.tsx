@@ -170,7 +170,7 @@ export default function HistoryTab({
                   {slot.status === "cancelled" &&
                     slot.cancellationReason && (
                       <div className="flex items-start gap-2 p-3 rounded-xl bg-red-50/50 border border-red-100">
-                        <XCircle className="h-3.5 h-3.5 text-red-500 mt-0.5 shrink-0" />
+                        <XCircle className="h-3.5 text-red-500 mt-0.5 shrink-0" />
                         <p className="text-[10px] text-red-600 font-medium leading-relaxed">
                           Reason: {slot.cancellationReason}
                         </p>
