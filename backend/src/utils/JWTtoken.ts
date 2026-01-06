@@ -67,7 +67,7 @@ logger.info('setting into cookie',isProduction);
     secure: isProduction, // true in production, false in development
     sameSite: isProduction ? 'none' as const : 'lax' as const,
     path: '/',
-    // ...(isProduction && { domain: '.devnext.online' }), // Set domain only in production
+    ...(isProduction && { domain: '.devnext.online' }), // Set domain only in production
   };
 
   res.cookie('token', accessToken, {
@@ -89,7 +89,7 @@ export const clearTokens = (res: Response) => {
     secure: isProduction,
     sameSite: isProduction ? 'none' as const : 'lax' as const,
     path: '/',
-    // ...(isProduction && { domain: '.devnext.online' }),
+    ...(isProduction && { domain: '.devnext.online' }),
   };
 
   res.clearCookie('token', cookieOptions);
