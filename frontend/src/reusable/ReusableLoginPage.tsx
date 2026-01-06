@@ -138,9 +138,7 @@ export default function ReusableLoginPage({
         <h1 className="text-4xl font-extrabold text-gray-900 mb-6">
           Sign In to DevNext
         </h1>
-        <h1 className="text-4xl font-extrabold text-gray-900 mb-6">
-          Sign In to DevNext
-        </h1>
+        
 
         {/* Google Signup */}
         {googleSignup && (
