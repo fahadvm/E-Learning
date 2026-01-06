@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { showInfoToast, showSuccessToast } from "@/utils/Toast";
 import { GoogleLoginButton } from "@/components/student/googleLogin";
+import { ArrowLeft } from "lucide-react";
 
 
 interface LoginPageProps<TData = { email: string; password: string }, TResult = { ok: boolean; message?: string; data?: unknown } | null> {
@@ -105,10 +106,10 @@ export default function ReusableLoginPage({
 
     try {
       const res = await apiEndpoint({ email, password });
-      if(res?.ok){
+      if (res?.ok) {
         showSuccessToast(res?.message || "Login successful");
       }
-      
+
 
       // Small delay to ensure cookies are set before redirect
       setTimeout(() => {
@@ -126,6 +127,17 @@ export default function ReusableLoginPage({
     <div className="flex min-h-screen bg-gray-100">
       {/* Left Side */}
       <div className="w-full lg:w-1/2 p-8 sm:p-12 bg-white flex flex-col justify-center items-center shadow-2xl">
+        <button
+          onClick={() => router.push("/")}
+          className="absolute top-6 left-6 flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Home
+        </button>
+
+        <h1 className="text-4xl font-extrabold text-gray-900 mb-6">
+          Sign In to DevNext
+        </h1>
         <h1 className="text-4xl font-extrabold text-gray-900 mb-6">
           Sign In to DevNext
         </h1>

@@ -1,10 +1,13 @@
+middleware
+
+
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export async function middleware(req: NextRequest) {
     const token = req.cookies.get("token")?.value || req.cookies.get("refreshToken")?.value;
     const path = req.nextUrl.pathname;
-    
+
     const publicRoutes = [
         "/student/login",
         "/student/signup",
@@ -51,9 +54,12 @@ export async function middleware(req: NextRequest) {
 
     //  If protected route AND no token → redirect to login
     if (!publicRoutes.includes(path) && !token && matchedRole) {
-        return NextResponse.redirect(new URL(`${matchedRole}/login`, req.url));
+        const res = NextResponse.redirect(
+            new URL(`${matchedRole}/login`, req.url)
+        );
+        res.headers.set("Cache-Control", "no-store");
+        return res;
     }
-
     return NextResponse.next();
 }
 
@@ -61,7 +67,7 @@ export const config = {
     matcher: [
         "/student/:path*",
         "/teacher/:path*",
-        "/company/:path*", 
+        "/company/:path*",
         "/employee/:path*",
     ],
 };
