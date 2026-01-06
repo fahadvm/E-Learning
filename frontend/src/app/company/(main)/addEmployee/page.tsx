@@ -11,6 +11,7 @@ import { Mail, Search, Loader2, UserPlus, ArrowLeft } from "lucide-react";
 import ProfilePreview from "@/components/company/employee/ProfilePreview";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useCompany } from "@/context/companyContext";
 
 interface Employee {
     _id: string;
@@ -28,6 +29,9 @@ export default function AddEmployeePage() {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState("invite");
 
+
+
+
     // Invite tab state
     const [inviteEmail, setInviteEmail] = useState("");
     const [inviteLoading, setInviteLoading] = useState(false);
@@ -38,6 +42,8 @@ export default function AddEmployeePage() {
     const [searchLoading, setSearchLoading] = useState(false);
     const [searchResults, setSearchResults] = useState<Employee[]>([]);
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+    const { company } = useCompany();
+    const companyName = company?.name;
 
     const validateEmail = (email: string) => {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -47,6 +53,14 @@ export default function AddEmployeePage() {
     const handleInviteByEmail = async () => {
         if (!inviteEmail.trim()) {
             showErrorToast("Please enter an email address");
+            return;
+        }
+
+        if (!companyName || !companyName.trim()) {
+            showErrorToast(
+                "Please complete your company profile (add company name) before sending invitations."
+            );
+            router.push("/company/profile");
             return;
         }
 

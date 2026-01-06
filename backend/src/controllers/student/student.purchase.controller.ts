@@ -8,6 +8,7 @@ import { AuthRequest } from '../../types/AuthenticatedRequest';
 import { sendResponse, throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
 import { MESSAGES } from '../../utils/ResponseMessages';
+import { generateInvoicePDF } from '../../utils/pdfGenerator';
 
 
 
@@ -87,4 +88,24 @@ export class StudentPurchaseController implements IStudentPurchaseController {
       result
     );
   };
+
+  downloadReceipt = async (req: AuthRequest, res: Response)=>{
+  const studentId = req.user?.id;
+  if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
+  const { razorpayOrderId } = req.params;
+
+  const order = await this._PurchaseService.getOrderDetails(studentId, razorpayOrderId);
+
+  if (!order) {
+    throwError(MESSAGES.ORDER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+  }
+
+  const pdfBuffer = await generateInvoicePDF(order);
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename=invoice-${order.razorpayOrderId}.pdf`);
+  res.setHeader('Content-Length', pdfBuffer.length);
+
+  res.send(pdfBuffer);
+
+};
 }

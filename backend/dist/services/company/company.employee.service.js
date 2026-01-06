@@ -35,6 +35,7 @@ const types_1 = require("../../core/di/types");
 const company_employee_Dto_1 = require("../../core/dtos/company/company.employee.Dto");
 const leaderboard_1 = require("../../utils/redis/leaderboard");
 const socket_1 = require("../../config/socket");
+const OtpServices_1 = require("../../utils/OtpServices");
 let CompanyEmployeeService = class CompanyEmployeeService {
     constructor(_employeeRepo, _companyRepo, _learningPathRepo, _purchaseRepo, _learningPathAssignRepo, _companyChatService, _notificationService) {
         this._employeeRepo = _employeeRepo;
@@ -137,6 +138,9 @@ let CompanyEmployeeService = class CompanyEmployeeService {
         return __awaiter(this, void 0, void 0, function* () {
             // Check if employee exists
             const employee = yield this._employeeRepo.findByEmail(email);
+            const company = yield this._companyRepo.findById(companyId);
+            if (!company)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COMPANY_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
             if (employee) {
                 // Employee exists, send invitation
                 if (employee.companyId) {
@@ -151,7 +155,6 @@ let CompanyEmployeeService = class CompanyEmployeeService {
                     invitedBy: new mongoose_1.default.Types.ObjectId(companyId),
                     invitedAt: new Date()
                 });
-                const company = yield this._companyRepo.findById(companyId);
                 // Notify Employee
                 if (company) {
                     yield this._notificationService.createNotification(employee._id.toString(), 'New Invitation', `You have been invited to join ${company.name}.`, 'invitation', 'employee', '/employee/requests');
@@ -159,6 +162,8 @@ let CompanyEmployeeService = class CompanyEmployeeService {
                 return updated;
             }
             // Employee doesn't exist - return null to indicate invitation link should be sent
+            const invitationLink = `${process.env.FRONTEND_URL}/employee/signup`;
+            yield (0, OtpServices_1.sendInvitationLinkEmail)(email, company.name, company.companyCode, invitationLink);
             return null;
         });
     }

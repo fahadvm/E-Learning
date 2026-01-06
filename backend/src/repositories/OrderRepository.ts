@@ -78,8 +78,12 @@ export class OrderRepository implements IOrderRepository {
   async getOrderDetailsByrazorpayOrderId(studentId: string, orderId: string): Promise<IOrder | null> {
     const order = await OrderModel.findOne({ studentId, razorpayOrderId: orderId, status: 'paid' })
       .populate({
+        path: 'studentId',
+        select: 'name email',
+      })
+      .populate({
         path: 'courses',
-        select: 'coverImage title totalDuration teacherId',
+        select: 'coverImage title totalDuration teacherId price',
         populate: {
           path: 'teacherId',
           select: 'name',

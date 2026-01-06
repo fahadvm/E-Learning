@@ -91,7 +91,8 @@ export const STUDENT_ROUTES = {
     getMyhistory: `${STUDENT_PURCHASE}/history`,
     myCourseDetails: (courseId: string) => `${STUDENT_PURCHASE}/enrolled/${courseId}`,
     getPurchasedIds: `${STUDENT_PURCHASE}/entrolled-ids`,
-    getOrderDetails: (razorpayOrderId: string) => `${STUDENT_PURCHASE}/orderDetails/${razorpayOrderId}`
+    getOrderDetails: (razorpayOrderId: string) => `${STUDENT_PURCHASE}/orderDetails/${razorpayOrderId}`,
+    getInvoice: (razorpayOrderId: string) => `${STUDENT_PURCHASE}/receipt/${razorpayOrderId}`
 
   },
 
@@ -123,3 +124,4 @@ export const STUDENT_ROUTES = {
 
 
 };
+

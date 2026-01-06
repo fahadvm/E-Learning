@@ -40,12 +40,16 @@ export default function AdminProfilePage() {
 
     const [isEditing, setIsEditing] = useState(false);
 
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<{
+        name: string;
+        email: string; 
+        phone?: string;
+    }>({
         name: "",
         email: "",
         phone: "",
-        avatar: ""
     });
+
 
     /* -------- Image cropper states -------- */
     const [rawImage, setRawImage] = useState<string | null>(null);
@@ -66,7 +70,6 @@ export default function AdminProfilePage() {
                     name: res.data.name,
                     email: res.data.email,
                     phone: res.data.phone || "",
-                    avatar: res.data.avatar || ""
                 });
             }
         } finally {

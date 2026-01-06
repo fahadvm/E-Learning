@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
 import { showErrorToast, showSuccessToast } from "@/utils/Toast";
 import { Loader2 } from "lucide-react";
+import { UpdateEmployeeDTO } from "@/types/company/companyTypes";
 
 interface EditEmployeeModalProps {
     isOpen: boolean;
@@ -28,11 +29,10 @@ export default function EditEmployeeModal({
     onSuccess,
 }: EditEmployeeModalProps) {
     const [loading, setLoading] = useState(false);
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<UpdateEmployeeDTO>({
         position: "",
         department: "",
         location: "",
-
     });
 
     useEffect(() => {

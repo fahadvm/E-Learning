@@ -112,3 +112,29 @@ export interface LeaderboardUser {
 export interface FormErrors {
     [key: string]: string | FormErrors;
 }
+
+export interface UpdateEmployeeDTO {
+    position?: string;
+    department?: string;
+    location?: string;
+}
+
+// ================= PROFILE UPDATE =================
+export interface UpdateCompanyProfileDTO {
+    name: string;
+    phone?: string;
+    website?: string;
+    about?: string;
+    address: string;
+    pincode: string;
+    social_links?: {
+        linkedin?: string;
+        instagram?: string;
+        twitter?: string;
+    };
+    profilePicture?: string; 
+}
+
+export type VerifyCompanyProfilePayload = FormData;
+
+

@@ -1,4 +1,5 @@
 // api/adminApiMethods.ts
+import { CreateSubscriptionPlanDTO, TransactionQuery, UpdateAdminProfilePayload, UpdateSubscriptionPlanDTO } from "@/types/admin/adminTypes";
 import { getRequest, patchRequest, postRequest, putRequest, deleteRequest } from "../api";
 import { ADMIN_ROUTES } from "../constantRoutes/adminRoutes";
 
@@ -9,10 +10,10 @@ const put = putRequest;
 const del = deleteRequest;
 
 export const adminApiMethods = {
-  login: (data: any) => post(ADMIN_ROUTES.auth.login, data),
+  login: (data: { email: string; password: string }) => post(ADMIN_ROUTES.auth.login, data),
   logout: () => post(ADMIN_ROUTES.auth.logout, {}),
   getProfile: () => get(ADMIN_ROUTES.profile.base),
-  updateProfile: (data: any) => put(ADMIN_ROUTES.profile.base, data),
+  updateProfile: (data: UpdateAdminProfilePayload) => put(ADMIN_ROUTES.profile.base, data),
   changePassword: (data: { currentPassword: string; newPassword: string; confirmPassword: string }) => post(ADMIN_ROUTES.profile.changePassword, data),
   requestEmailChange: (data: { newEmail: string }) => post(ADMIN_ROUTES.profile.requestEmailChange, data),
   verifyEmailChange: (data: { newEmail: string; otp: string }) => post(ADMIN_ROUTES.profile.verifyEmailChange, data),
@@ -58,8 +59,8 @@ export const adminApiMethods = {
   // Subscriptions / Plans
   getPlans: () => get(ADMIN_ROUTES.subscriptions.base),
   getPlanById: (id: string) => get(ADMIN_ROUTES.subscriptions.getById(id)),
-  createPlan: (data: any) => post(ADMIN_ROUTES.subscriptions.base, data),
-  updatePlan: (id: string, data: any) => put(ADMIN_ROUTES.subscriptions.getById(id), data),
+  createPlan: (data: CreateSubscriptionPlanDTO) => post(ADMIN_ROUTES.subscriptions.base, data),
+  updatePlan: (id: string, data: UpdateSubscriptionPlanDTO) => put(ADMIN_ROUTES.subscriptions.getById(id), data),
   deletePlan: (id: string) => del(ADMIN_ROUTES.subscriptions.getById(id)),
 
   // Orders
@@ -67,7 +68,7 @@ export const adminApiMethods = {
   getStudentOrders: () => get(ADMIN_ROUTES.orders.studentOrders),
 
   // Transactions
-  getTransactions: (params?: any) => get(ADMIN_ROUTES.transactions.base, params),
+  getTransactions: (params?: TransactionQuery) => get(ADMIN_ROUTES.transactions.base, params),
 
   // Employees
   getEmployees: (params?: { page?: number; limit?: number; search?: string; status?: string }) => get(ADMIN_ROUTES.employees.base, params),

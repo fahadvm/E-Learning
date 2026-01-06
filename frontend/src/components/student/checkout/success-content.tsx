@@ -9,6 +9,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { paymentApi } from "@/services/APIservices/studentApiservice"
 import { formatMinutesToHours } from "@/utils/timeConverter"
 import { ICourse } from "@/types/student/studentTypes"
+import axiosInstance from "@/services/AxiosInstance"
+import { downloadBlobFile } from "@/utils/fileDownload"
 
 interface OrderDetails {
   orderId: string;
@@ -24,6 +26,30 @@ export default function PurchaseSuccessContent() {
 
   const [loading, setLoading] = useState(true)
   const [order, setOrder] = useState<OrderDetails | null>(null)
+  const [downloading, setDownloading] = useState(false)
+
+  const handleDownloadReceipt = async () => {
+    if (!orderId) return
+
+    try {
+      setDownloading(true)
+      const res = await axiosInstance.get(
+        `/student/purchase/receipt/${orderId}`,
+        {
+          responseType: "blob",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+      downloadBlobFile(res.data, `invoice-${orderId}.pdf`);
+    } catch (error) {
+      console.error('Failed to download receipt:', error)
+      alert('Failed to download receipt. Please try again.')
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   useEffect(() => {
     if (!orderId) return
@@ -154,8 +180,10 @@ export default function PurchaseSuccessContent() {
           <Button
             variant="outline"
             className="flex-1 py-3 text-lg font-medium border-gray-300 hover:bg-gray-50 bg-transparent"
+            onClick={handleDownloadReceipt}
+            disabled={downloading}
           >
-            Download Receipt
+            {downloading ? 'Downloading...' : 'Download Receipt'}
             <Download className="ml-2 w-5 h-5" />
           </Button>
         </div>

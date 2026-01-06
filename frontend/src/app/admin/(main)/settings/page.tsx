@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { adminApiMethods } from "@/services/APIservices/adminApiService";
 import { showErrorToast, showSuccessToast } from "@/utils/Toast";
+import { UpdateAdminProfileDTO } from "@/types/admin/adminTypes";
 
 interface AdminProfile {
     _id: string;
@@ -39,10 +40,10 @@ export default function AdminSettingsPage() {
     const [editMode, setEditMode] = useState(false);
 
     // Profile edit state
-    const [profileForm, setProfileForm] = useState({
+    const [profileForm, setProfileForm] = useState<UpdateAdminProfileDTO>({
         name: '',
         phone: '',
-        bio: ''
+        bio: '',
     });
 
     // Change password state

@@ -1,5 +1,6 @@
 // src/api/employeeApiMethods.ts
 
+import { UpdateEmployeeProfileDTO } from "@/types/employee/employeeTypes";
 import { deleteRequest, getRequest, patchRequest, postRequest, putRequest } from "../api";
 import { EMPLOYEE_ROUTES } from "../constantRoutes/employeeRoutes";
 
@@ -26,7 +27,7 @@ export const employeeApiMethods = {
 
   // Profile
   getProfile: () => get(EMPLOYEE_ROUTES.profile.base),
-  editProfile: (data: any) => patch(EMPLOYEE_ROUTES.profile.base, data),
+  editProfile: (data: UpdateEmployeeProfileDTO) => patch(EMPLOYEE_ROUTES.profile.base, data),
 
   // Company
   getMyCompany: () => get(EMPLOYEE_ROUTES.company.getMyCompany),

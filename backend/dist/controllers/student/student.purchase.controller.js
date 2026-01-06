@@ -27,6 +27,7 @@ const types_1 = require("../../core/di/types");
 const ResANDError_1 = require("../../utils/ResANDError");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
+const pdfGenerator_1 = require("../../utils/pdfGenerator");
 let StudentPurchaseController = class StudentPurchaseController {
     constructor(_PurchaseService) {
         this._PurchaseService = _PurchaseService;
@@ -87,6 +88,22 @@ let StudentPurchaseController = class StudentPurchaseController {
             const limit = Number(req.query.limit) || 10;
             const result = yield this._PurchaseService.getPurchaseHistory(studentId, page, limit);
             return (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.PURCHASE_HISTORY_FETCHED, true, result);
+        });
+        this.downloadReceipt = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!studentId)
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.UNAUTHORIZED, HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            const { razorpayOrderId } = req.params;
+            const order = yield this._PurchaseService.getOrderDetails(studentId, razorpayOrderId);
+            if (!order) {
+                (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.ORDER_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            }
+            const pdfBuffer = yield (0, pdfGenerator_1.generateInvoicePDF)(order);
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename=invoice-${order.razorpayOrderId}.pdf`);
+            res.setHeader('Content-Length', pdfBuffer.length);
+            res.send(pdfBuffer);
         });
     }
     getPurchasedCourseIds(req, res) {

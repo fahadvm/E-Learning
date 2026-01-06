@@ -276,3 +276,31 @@ export interface IAdminCourse {
     category: string;
     price?: number;
 }
+export interface UpdateAdminProfileDTO {
+  name?: string;
+  phone?: string;
+  bio?: string;
+}
+
+export type UpdateAdminProfilePayload =
+  | UpdateAdminProfileDTO
+  | FormData;
+
+
+
+  export interface SubscriptionFeatureDTO {
+  name: string;
+  description?: string;
+}
+
+export interface CreateSubscriptionPlanDTO {
+  name: string;
+  price: string; // "Free" | "Custom" | "499"
+  description: string;
+  features: SubscriptionFeatureDTO[];
+  planFor: "Student" | "Company";
+  popular: boolean;
+}
+
+export interface UpdateSubscriptionPlanDTO
+  extends CreateSubscriptionPlanDTO {}

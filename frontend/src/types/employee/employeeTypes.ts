@@ -300,3 +300,17 @@ export interface GoogleCredentialResponse {
     credential: string;
     select_by?: string;
 }
+
+
+export interface UpdateEmployeeProfileDTO {
+  name?: string;
+  phone?: string;
+  location?: string;
+  about?: string;
+  profilePicture?: string;
+  social_links?: {
+    linkedin?: string;
+    github?: string;
+    portfolio?: string;
+  };
+}

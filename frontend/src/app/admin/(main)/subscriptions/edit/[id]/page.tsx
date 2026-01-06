@@ -6,7 +6,7 @@ import { z } from "zod";
 
 import { adminApiMethods } from "@/services/APIservices/adminApiService";
 import { showInfoToast, showSuccessToast } from "@/utils/Toast";
-import { SubscriptionFeatureWithDescription } from "@/types/admin/adminTypes";
+import { SubscriptionFeatureWithDescription, UpdateSubscriptionPlanDTO } from "@/types/admin/adminTypes";
 
 /* ================= CONSTANTS ================= */
 
@@ -138,13 +138,14 @@ const EditSubscriptionPlan = () => {
     }
 
     try {
-      const payload = {
+      const payload: UpdateSubscriptionPlanDTO = {
         ...parsed.data,
         features: parsed.data.features.map((name) => ({
           name,
           description: builtInFeatures[name],
         })),
       };
+
 
       const res = await adminApiMethods.updatePlan(id, payload);
 

@@ -19,6 +19,7 @@ import { INotificationService } from '../../core/interfaces/services/shared/INot
 import { removeFromCompanyLeaderboard } from '../../utils/redis/leaderboard';
 import { ICourseProgress } from '../../models/Student';
 import { emitToUser } from '../../config/socket';
+import { sendInvitationLinkEmail } from '../../utils/OtpServices';
 
 
 @injectable()
@@ -170,6 +171,8 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
     async inviteEmployee(companyId: string, email: string): Promise<IEmployee | null> {
         // Check if employee exists
         const employee = await this._employeeRepo.findByEmail(email);
+        const company = await this._companyRepo.findById(companyId);
+        if(!company)throwError(MESSAGES.COMPANY_NOT_FOUND,STATUS_CODES.UNAUTHORIZED);
 
         if (employee) {
             // Employee exists, send invitation
@@ -188,7 +191,6 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
                 invitedAt: new Date()
             });
 
-            const company = await this._companyRepo.findById(companyId);
 
             // Notify Employee
             if (company) {
@@ -206,6 +208,9 @@ export class CompanyEmployeeService implements ICompanyEmployeeService {
         }
 
         // Employee doesn't exist - return null to indicate invitation link should be sent
+        const invitationLink = `${process.env.FRONTEND_URL}/employee/signup`;
+        await sendInvitationLinkEmail(email, company.name, company.companyCode, invitationLink);
+
         return null;
     }
 

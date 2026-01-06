@@ -335,7 +335,7 @@ var MESSAGES;
     // Employee Fetch
     // Invite
     MESSAGES["INVITATION_SENT"] = "Invitation sent to employee";
-    MESSAGES["INVITE_LINK_CREATED"] = "Employee not exist.";
+    MESSAGES["INVITE_LINK_CREATED"] = "Invitation link sent successfully.";
     // Search
     MESSAGES["SEARCH_QUERY_REQUIRED"] = "Search query is required";
     MESSAGES["EMPLOYEES_FOUND"] = "Employees found";

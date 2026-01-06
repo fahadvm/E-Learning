@@ -122,8 +122,12 @@ let OrderRepository = class OrderRepository {
         return __awaiter(this, void 0, void 0, function* () {
             const order = yield Order_1.OrderModel.findOne({ studentId, razorpayOrderId: orderId, status: 'paid' })
                 .populate({
+                path: 'studentId',
+                select: 'name email',
+            })
+                .populate({
                 path: 'courses',
-                select: 'coverImage title totalDuration teacherId',
+                select: 'coverImage title totalDuration teacherId price',
                 populate: {
                     path: 'teacherId',
                     select: 'name',

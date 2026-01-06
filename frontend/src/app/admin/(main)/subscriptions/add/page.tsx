@@ -7,6 +7,7 @@ import { z } from 'zod'
 
 import { adminApiMethods } from '@/services/APIservices/adminApiService'
 import { showSuccessToast } from '@/utils/Toast'
+import { CreateSubscriptionPlanDTO } from '@/types/admin/adminTypes'
 
 /* ================= ZOD SCHEMA ================= */
 
@@ -102,13 +103,13 @@ export default function AddSubscriptionPlanPage() {
     setSubmitting(true)
 
     try {
-      const payload = {
+      const payload: CreateSubscriptionPlanDTO = {
         ...parsed.data,
         features: parsed.data.features.map((name) => ({
           name,
           description: builtInFeatures[name],
         })),
-      }
+      };
 
       const res = await adminApiMethods.createPlan(payload)
       if (res.ok) {
@@ -239,11 +240,10 @@ export default function AddSubscriptionPlanPage() {
           <button
             type="submit"
             disabled={submitting || isFormInvalid}
-            className={`${
-              submitting || isFormInvalid
+            className={`${submitting || isFormInvalid
                 ? 'bg-gray-400'
                 : 'bg-blue-600 hover:bg-blue-700'
-            } text-white px-6 py-2 rounded-xl`}
+              } text-white px-6 py-2 rounded-xl`}
           >
             {submitting ? 'Saving...' : 'Save Plan'}
           </button>

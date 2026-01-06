@@ -1,5 +1,6 @@
 // src/api/companyApiMethods.ts
 
+import { UpdateCompanyProfileDTO, UpdateEmployeeDTO } from "@/types/company/companyTypes";
 import { getRequest, patchRequest, postRequest, putRequest, deleteRequest } from "../api";
 import { COMPANY_ROUTES } from "../constantRoutes/companyRoutes";
 
@@ -11,15 +12,15 @@ const del = deleteRequest;
 
 export const companyApiMethods = {
   // Auth
-  signup: (data: any) => post(COMPANY_ROUTES.auth.signup, data),
-  verifyOtp: (data: any) => post(COMPANY_ROUTES.auth.verifyOtp, data),
-  login: (data: any) => post(COMPANY_ROUTES.auth.login, data),
+  signup: (data: { name: string; email: string; password: string }) => post(COMPANY_ROUTES.auth.signup, data),
+  verifyOtp: (data: { email: string; otp: string }) => post(COMPANY_ROUTES.auth.verifyOtp, data),
+  login: (data: { email: string; password: string }) => post(COMPANY_ROUTES.auth.login, data),
   logout: () => post(COMPANY_ROUTES.auth.logout, {}),
 
-  forgotPassword: (data: any) => post(COMPANY_ROUTES.auth.forgotPassword, data),
-  resetPassword: (data: any) => post(COMPANY_ROUTES.auth.resetPassword, data),
-  verifyForgotOtp: (data: any) => post(COMPANY_ROUTES.auth.verifyForgotOtp, data),
-  resendOtp: (data: any) => post(COMPANY_ROUTES.auth.resendOtp, data),
+  forgotPassword: (data: { email: string }) => post(COMPANY_ROUTES.auth.forgotPassword, data),
+  resetPassword: (data: { email: string;otp:string; newPassword: string }) => post(COMPANY_ROUTES.auth.resetPassword, data),
+  verifyForgotOtp: (data: { email: string; otp: string }) => post(COMPANY_ROUTES.auth.verifyForgotOtp, data),
+  resendOtp: (data: { email: string }) => post(COMPANY_ROUTES.auth.resendOtp, data),
 
   // Courses
   getAllCourses: (params?: {
@@ -39,14 +40,14 @@ export const companyApiMethods = {
 
 
   // Employees
-  addEmployee: (data: any) => post(COMPANY_ROUTES.employees.base, data),
+  addEmployee: (data: {email:string}) => post(COMPANY_ROUTES.employees.base, data),
   getAllEmployees: (params?: { page?: number; limit?: number; search?: string; department?: string; position?: string }) =>
     get(COMPANY_ROUTES.employees.base, params),
   getRequestedEmployees: () => get(COMPANY_ROUTES.employees.requests),
   getEmployeeById: (employeeId: string) => get(COMPANY_ROUTES.employees.get(employeeId)),
-  blockEmployee: (employeeId: string, data: any) =>
+  blockEmployee: (employeeId: string, data: {status: boolean}) =>
     patch(COMPANY_ROUTES.employees.block(employeeId), data),
-  updateEmployee: (employeeId: string, data: any) =>
+  updateEmployee: (employeeId: string, data: UpdateEmployeeDTO) =>
     put(COMPANY_ROUTES.employees.update(employeeId), data),
   approveEmployeeRequest: (employeeId: string) =>
     patch(COMPANY_ROUTES.employees.approve(employeeId), {}),
@@ -59,8 +60,8 @@ export const companyApiMethods = {
 
   // Profile
   getCompanyProfile: () => get(COMPANY_ROUTES.profile.base),
-  updateCompanyProfile: (data: any) => put(COMPANY_ROUTES.profile.base, data),
-  verifyCompanyProfile: (data: any) => post(COMPANY_ROUTES.profile.verify, data),
+  updateCompanyProfile: (data: UpdateCompanyProfileDTO) => put(COMPANY_ROUTES.profile.base, data),
+  verifyCompanyProfile: (data: FormData) => post(COMPANY_ROUTES.profile.verify, data),
   sendEmailChangeOTP: (newEmail: string) => post(COMPANY_ROUTES.profile.changeEmailSendOTP, { newEmail }),
   verifyEmailChangeOTP: (newEmail: string, otp: string) => post(COMPANY_ROUTES.profile.changeEmailVerifyOTP, { newEmail, otp }),
   changePassword: (currentPassword: string, newPassword: string) => post(COMPANY_ROUTES.profile.changePassword, { currentPassword, newPassword }),

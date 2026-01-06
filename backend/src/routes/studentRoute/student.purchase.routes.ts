@@ -11,10 +11,11 @@ const StudentPurchaseCtrl = container.get<StudentPurchaseController>(TYPES.Stude
 
 router.post('/create-order', authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.createOrder.bind(StudentPurchaseCtrl)));
 router.post('/verify-payment', authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.verifyPayment.bind(StudentPurchaseCtrl)));
-router.get('/enrolled',  authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.getMyCourses.bind(StudentPurchaseCtrl)));
-router.get('/enrolled/:courseId',  authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.getMyCourseDetails.bind(StudentPurchaseCtrl)));
-router.get( '/entrolled-ids', authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.getPurchasedCourseIds.bind(StudentPurchaseCtrl)));
-router.get( '/orderDetails/:razorpayOrderId', authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.getOrderDetails.bind(StudentPurchaseCtrl)));
-router.get( '/history', authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.getPurchaseHistory.bind(StudentPurchaseCtrl)));
+router.get('/enrolled', authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.getMyCourses.bind(StudentPurchaseCtrl)));
+router.get('/enrolled/:courseId', authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.getMyCourseDetails.bind(StudentPurchaseCtrl)));
+router.get('/entrolled-ids', authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.getPurchasedCourseIds.bind(StudentPurchaseCtrl)));
+router.get('/orderDetails/:razorpayOrderId', authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.getOrderDetails.bind(StudentPurchaseCtrl)));
+router.get('/history', authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.getPurchaseHistory.bind(StudentPurchaseCtrl)));
+router.get('/receipt/:razorpayOrderId', authMiddleware('student'), asyncHandler(StudentPurchaseCtrl.downloadReceipt.bind(StudentPurchaseCtrl)));
 
 export default router;
