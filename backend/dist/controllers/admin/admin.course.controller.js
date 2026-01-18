@@ -78,6 +78,12 @@ let AdminCourseController = class AdminCourseController {
             (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSES_FETCHED, true, course);
         });
     }
+    getCourseAnalytics(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const analytics = yield this._adminCourseService.getCourseAnalytics(req.params.courseId);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.SUCCESS, true, analytics);
+        });
+    }
 };
 exports.AdminCourseController = AdminCourseController;
 exports.AdminCourseController = AdminCourseController = __decorate([

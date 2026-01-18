@@ -16,4 +16,5 @@ courseRouter.patch('/verify/:courseId', (0, asyncHandler_1.asyncHandler)(adminCo
 courseRouter.patch('/reject/:courseId', (0, asyncHandler_1.asyncHandler)(adminCourseCtrl.rejectCourse.bind(adminCourseCtrl)));
 courseRouter.patch('/block/:courseId', (0, asyncHandler_1.asyncHandler)(adminCourseCtrl.blockCourse.bind(adminCourseCtrl)));
 courseRouter.patch('/unblock/:courseId', (0, asyncHandler_1.asyncHandler)(adminCourseCtrl.unblockCourse.bind(adminCourseCtrl)));
+courseRouter.get('/analytics/:courseId', (0, asyncHandler_1.asyncHandler)(adminCourseCtrl.getCourseAnalytics.bind(adminCourseCtrl)));
 exports.default = courseRouter;

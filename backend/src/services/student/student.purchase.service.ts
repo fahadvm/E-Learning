@@ -19,7 +19,8 @@ import logger from '../../utils/logger';
 import { ITransactionRepository } from '../../core/interfaces/repositories/ITransactionRepository';
 import { IWalletRepository } from '../../core/interfaces/repositories/IwalletRepository';
 import { ITeacher } from '../../models/Teacher';
-import {  signCourseUrls } from '../../utils/cloudinarySign';
+import { signCourseUrls } from '../../utils/cloudinarySign';
+import { IPurchasedCourseDTO, PurchasedCourseDTO, StudentCourseDTO, IStudentCourseDTO } from '../../core/dtos/student/Student.course.Dto';
 
 @injectable()
 export class StudentPurchaseService implements IStudentPurchaseService {
@@ -231,7 +232,7 @@ export class StudentPurchaseService implements IStudentPurchaseService {
     return courseIds;
   }
 
-  async getPurchasedCourseDetails(courseId: string, studentId: string): Promise<{ course: ICourse; progress: ICourseProgress, recommended: ICourse[] }> {
+  async getPurchasedCourseDetails(courseId: string, studentId: string): Promise<{ course: IPurchasedCourseDTO; progress: ICourseProgress, recommended: IStudentCourseDTO[] }> {
     if (!courseId || !studentId) throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
     const course = await this._courseRepo.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
@@ -256,7 +257,11 @@ export class StudentPurchaseService implements IStudentPurchaseService {
     const signedCourse = signCourseUrls(course);
 
     const recommended = await this._courseRepo.findRecommendedCourses(courseId, course.category, course.level, 6);
-    return { course: signedCourse, progress, recommended };
+    return {
+      course: PurchasedCourseDTO(signedCourse),
+      progress,
+      recommended: recommended.map(StudentCourseDTO)
+    };
   }
 
   async getOrderDetails(studentId: string, orderId: string): Promise<IOrder> {

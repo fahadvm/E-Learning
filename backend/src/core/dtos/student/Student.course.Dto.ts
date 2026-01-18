@@ -65,6 +65,29 @@ export interface PaginatedCourseDTO {
 }
 
 
+// --- Purchased Course DTO (Includes Video URLs) ---
+
+export interface IPurchasedLessonDTO {
+  _id?: string;
+  title: string;
+  content?: string;
+  videoFile?: string;
+  thumbnail?: string;
+  duration?: number;
+}
+
+export interface IPurchasedModuleDTO {
+  _id?: string;
+  title: string;
+  description?: string;
+  lessons: IPurchasedLessonDTO[];
+}
+
+export interface IPurchasedCourseDTO extends Omit<IStudentCourseDTO, 'modules'> {
+  modules: IPurchasedModuleDTO[];
+}
+
+
 export const StudentLessonDTO = (lesson: ILesson): IStudentLessonDTO => ({
   title: lesson.title,
   content: lesson.description,
@@ -108,4 +131,28 @@ export const StudentCourseDTO = (course: ICourse): IStudentCourseDTO => ({
   createdAt: course.createdAt!,
   updatedAt: course.updatedAt!,
 });
+
+export const PurchasedLessonDTO = (lesson: ILesson): IPurchasedLessonDTO => ({
+  _id: lesson._id?.toString(),
+  title: lesson.title,
+  content: lesson.description,
+  videoFile: lesson.videoFile,
+  thumbnail: lesson.thumbnail,
+  duration: lesson.duration
+});
+
+export const PurchasedModuleDTO = (module: IModule): IPurchasedModuleDTO => ({
+  _id: module._id?.toString(),
+  title: module.title,
+  description: module.description,
+  lessons: module.lessons?.map(PurchasedLessonDTO) || [],
+});
+
+export const PurchasedCourseDTO = (course: ICourse): IPurchasedCourseDTO => {
+  const base = StudentCourseDTO(course);
+  return {
+    ...base,
+    modules: course.modules?.map(PurchasedModuleDTO) || [],
+  };
+};
 

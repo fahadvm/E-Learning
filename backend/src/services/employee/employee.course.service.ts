@@ -16,6 +16,7 @@ import { IEmployeeLearningPathProgressRepository } from '../../core/interfaces/r
 import { updateCompanyLeaderboard } from '../../utils/redis/leaderboard';
 import { INotificationService } from '../../core/interfaces/services/shared/INotificationService';
 import { getSignedUrl, signCourseUrls } from '../../utils/cloudinarySign';
+import { EmployeeFullCourseDTO, IEmployeeFullCourseDTO } from '../../core/dtos/employee/Employee.course.Dto';
 
 @injectable()
 export class EmployeeCourseService implements IEmployeeCourseService {
@@ -38,11 +39,17 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     return orders;
   }
 
-  async getMyCourseDetails(employeeId: string, courseId: string): Promise<{ course: ICourse; progress: ICourseProgress }> {
+  async getMyCourseDetails(employeeId: string, courseId: string): Promise<{ course: IEmployeeFullCourseDTO; progress: ICourseProgress }> {
     const employee = await this._employeeRepo.findById(employeeId);
     if (!employee) throwError(MESSAGES.EMPLOYEE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
     if (!employee.companyId) throwError(MESSAGES.NOT_PART_OF_COMPANY, STATUS_CODES.CONFLICT);
     if (!courseId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
+
+    // Strict Role-Based Check: Course must be assigned to employee
+    const isAssigned = employee.coursesAssigned?.some(id => id.toString() === courseId);
+    if (!isAssigned) {
+      throwError('This course is not assigned to your learning path.', STATUS_CODES.FORBIDDEN);
+    }
 
     // Extract companyId properly (handle both populated object and string)
     const companyId = typeof employee.companyId === 'object' && employee.companyId._id
@@ -67,7 +74,7 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     // Sign URLs for course content
     const signedCourse = signCourseUrls(course);
 
-    return { course: signedCourse, progress };
+    return { course: EmployeeFullCourseDTO(signedCourse), progress };
   }
 
   async markLessonComplete(

@@ -29,10 +29,11 @@ const socket_1 = require("../../config/socket");
 const Course_1 = require("../../models/Course");
 const cloudinarySign_1 = require("../../utils/cloudinarySign");
 let AdminCourseService = class AdminCourseService {
-    constructor(_courseRepo, _notificationService, _companyRepository) {
+    constructor(_courseRepo, _notificationService, _companyRepository, _orderRepository) {
         this._courseRepo = _courseRepo;
         this._notificationService = _notificationService;
         this._companyRepository = _companyRepository;
+        this._orderRepository = _orderRepository;
     }
     getAllCourses(page, limit, search) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -118,6 +119,11 @@ let AdminCourseService = class AdminCourseService {
             return course ? (0, Admin_course_Dto_1.AdminCourseDTO)(course) : null;
         });
     }
+    getCourseAnalytics(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this._orderRepository.getEnrolmentAnalytics(courseId);
+        });
+    }
 };
 exports.AdminCourseService = AdminCourseService;
 exports.AdminCourseService = AdminCourseService = __decorate([
@@ -125,5 +131,6 @@ exports.AdminCourseService = AdminCourseService = __decorate([
     __param(0, (0, inversify_1.inject)(types_1.TYPES.CourseRepository)),
     __param(1, (0, inversify_1.inject)(types_1.TYPES.NotificationService)),
     __param(2, (0, inversify_1.inject)(types_1.TYPES.CompanyRepository)),
-    __metadata("design:paramtypes", [Object, Object, Object])
+    __param(3, (0, inversify_1.inject)(types_1.TYPES.OrderRepository)),
+    __metadata("design:paramtypes", [Object, Object, Object, Object])
 ], AdminCourseService);

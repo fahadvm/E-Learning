@@ -13,7 +13,7 @@ import { ICourseResourceRepository } from '../../core/interfaces/repositories/IC
 import { ICompanyCoursePurchaseRepository } from '../../core/interfaces/repositories/ICompanyCoursePurchaseRepository';
 import mongoose from 'mongoose';
 import { ICompanyCoursePurchase } from '../../models/CompanyCoursePurchase';
-import { CompanyCourseDTO, PaginatedCourseDTO } from '../../core/dtos/company/Company.course.Dto';
+import { CompanyCourseDTO, PaginatedCourseDTO, ICompanyCourseDTO } from '../../core/dtos/company/Company.course.Dto';
 import { getSignedUrl, signCourseUrls } from '../../utils/cloudinarySign';
 
 @injectable()
@@ -52,10 +52,10 @@ export class CompanyCourseService implements ICompanyCourseService {
     };
   }
 
-  async getCourseDetail(courseId: string): Promise<ICourse | null> {
+  async getCourseDetail(courseId: string): Promise<ICompanyCourseDTO | null> {
     const course = await this._courseRepository.findById(courseId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    return course;
+    return CompanyCourseDTO(course);
   }
 
   async assignCourseToEmployee(courseId: string, employeeId: string): Promise<void> {
@@ -96,7 +96,7 @@ export class CompanyCourseService implements ICompanyCourseService {
     return orders;
   }
 
-  async getMycourseDetailsById(companyId: string, courseId: string): Promise<ICourse | null> {
+  async getMycourseDetailsById(companyId: string, courseId: string): Promise<ICompanyCourseDTO | null> {
     if (!courseId || !companyId) throwError(MESSAGES.INVALID_ID, STATUS_CODES.BAD_REQUEST);
 
     const orders = await this._companyOrderRepository.getOrdersByCompanyId(companyId);
@@ -110,8 +110,8 @@ export class CompanyCourseService implements ICompanyCourseService {
       throwError('Access to this course has been disabled by admin. Reason: ' + (course.blockReason || 'No reason provided'), STATUS_CODES.FORBIDDEN);
     }
 
-    // Sign URLs for company preview
-    return signCourseUrls(course);
+    // Company should NOT see video URLs. Using CompanyCourseDTO to strip them.
+    return CompanyCourseDTO(course);
   }
 
   async getResources(courseId: string): Promise<ICourseResource[]> {

@@ -76,6 +76,9 @@ export const signCourseUrls = (course: any): any => {
                     if (lesson.videoFile) {
                         lesson.videoFile = getSignedUrl(lesson.videoFile);
                     }
+                    if (lesson.thumbnail) {
+                        lesson.thumbnail = getSignedUrl(lesson.thumbnail);
+                    }
                 });
             }
         });
@@ -88,6 +91,9 @@ export const signCourseUrls = (course: any): any => {
                 module.lessons.forEach((lesson: any) => {
                     if (lesson.videoFile) {
                         lesson.videoFile = getSignedUrl(lesson.videoFile);
+                    }
+                    if (lesson.thumbnail) {
+                        lesson.thumbnail = getSignedUrl(lesson.thumbnail);
                     }
                 });
             }
