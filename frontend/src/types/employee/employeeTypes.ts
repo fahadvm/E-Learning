@@ -233,8 +233,14 @@ export interface ICourseComment {
     _id: string;
     courseId: string;
     userId: { _id: string; name: string; profilePicture?: string };
+    userModel: 'Student' | 'Teacher' | 'Employee' | 'Company';
     content: string;
+    parentId?: string;
+    likes: string[];
+    dislikes: string[];
     createdAt: string;
+    replies?: ICourseComment[];
+    replyCount?: number;
 }
 
 export interface ICourseResource {
@@ -303,14 +309,14 @@ export interface GoogleCredentialResponse {
 
 
 export interface UpdateEmployeeProfileDTO {
-  name?: string;
-  phone?: string;
-  location?: string;
-  about?: string;
-  profilePicture?: string;
-  social_links?: {
-    linkedin?: string;
-    github?: string;
-    portfolio?: string;
-  };
+    name?: string;
+    phone?: string;
+    location?: string;
+    about?: string;
+    profilePicture?: string;
+    social_links?: {
+        linkedin?: string;
+        github?: string;
+        portfolio?: string;
+    };
 }

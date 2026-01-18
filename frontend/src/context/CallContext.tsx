@@ -212,9 +212,26 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
     // ---------------- ACTIONS ----------------
 
     const startCall = async (userId: string, userName: string, callerName: string = "User", callerId?: string) => {
-        const socket = getSocket();
+        let socket = getSocket();
+
+        // If socket exists but is not connected, try to connect it
+        if (socket && !socket.connected) {
+            socket.connect();
+        }
+
+        // Wait for connection if not connected (max 3 seconds)
         if (!socket || !socket.connected) {
-            showErrorToast("Socket not connected. Please wait or refresh.");
+            let attempts = 0;
+            while (attempts < 6 && (!socket || !socket.connected)) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                socket = getSocket();
+                if (socket && !socket.connected) socket.connect();
+                attempts++;
+            }
+        }
+
+        if (!socket || !socket.connected) {
+            showErrorToast("Connection error: Socket not ready. Please refresh the page.");
             return;
         }
 

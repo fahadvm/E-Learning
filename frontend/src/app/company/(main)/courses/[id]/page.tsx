@@ -340,11 +340,9 @@ export default function CourseDetailPage() {
 
                   <div className="space-y-3 mb-6">
                     {alreadyPurchased ? (
-                      <Link href={`/company/course/${id}`}>
                         <Button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3">
-                          <Play className="w-4 h-4 mr-2" /> Go to Course
+                          <Play className="w-4 h-4 mr-2" /> Parchased
                         </Button>
-                      </Link>
                     ) : (
                       <>
                         <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3" onClick={handleAddToCart} disabled={loading}>

@@ -64,6 +64,8 @@ export const initSocket = (
     });
 
     console.log("Global Socket Initialized");
+  } else if (!socket.connected) {
+    socket.connect();
   }
 
   // Remove existing listeners to avoid duplicates if initSocket is called multiple times
@@ -85,7 +87,16 @@ export const initSocket = (
   socket.removeAllListeners("courseBlocked");
 
   // Join with userId
-  socket.emit("join", userId);
+  socket.off("connect");
+  socket.on("connect", () => {
+    socket?.emit("join", userId);
+    console.log("Socket re-joined with ID:", userId);
+  });
+
+  // Emit immediately if already connected
+  if (socket.connected) {
+    socket.emit("join", userId);
+  }
 
   // Re-attach listeners
   socket.on("receive_message", onMessageReceived);

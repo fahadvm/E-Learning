@@ -14,6 +14,11 @@ import {
   Clock2,
   Send,
   Trash2,
+  ThumbsUp,
+  ThumbsDown,
+  Reply,
+  MoreVertical,
+  MessageCircle,
   UserRound,
   VideoIcon,
   FileText,
@@ -46,6 +51,155 @@ import {
   ICourseDetailsResponse as StudentCourseResponse
 } from "@/types/employee/employeeTypes";
 
+const CommentItem = ({
+  comment,
+  depth = 0,
+  currentUser,
+  handleToggleLike,
+  handleToggleDislike,
+  handleDeleteComment,
+  handleAddComment,
+  fetchReplies
+}: {
+  comment: Comment;
+  depth?: number;
+  currentUser: { _id: string, role: string } | null;
+  handleToggleLike: (id: string) => void;
+  handleToggleDislike: (id: string) => void;
+  handleDeleteComment: (id: string) => void;
+  handleAddComment: (parentId?: string, content?: string) => void;
+  fetchReplies: (id: string) => void;
+}) => {
+  const [isReplying, setIsReplying] = useState(false);
+  const [rText, setRText] = useState("");
+  const [expanded, setExpanded] = useState(false);
+
+  const hasL = comment.likes?.includes(currentUser?._id || "");
+  const hasD = comment.dislikes?.includes(currentUser?._id || "");
+
+  const onExpandToggle = () => {
+    if (!expanded && (!comment.replies || comment.replies.length === 0)) {
+      fetchReplies(comment._id);
+    }
+    setExpanded(!expanded);
+  };
+
+  return (
+    <div key={comment._id} className={`flex gap-3 ${depth > 0 ? "ml-8 mt-4 pt-4 border-t border-muted/30" : "animate-in fade-in slide-in-from-bottom-3"}`}>
+      <div className="flex-shrink-0">
+        <img
+          src={comment.userId?.profilePicture || "/gallery/avatar.jpg"}
+          alt={comment.userId?.name}
+          className={`${depth > 0 ? "w-8 h-8" : "w-11 h-11"} rounded-full ring-2 ring-background shadow-sm object-cover`}
+        />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-wrap mb-1">
+          <span className="font-bold text-sm text-foreground/90">{comment.userId?.name || "Anonymous"}</span>
+          <Badge variant="outline" className={`text-[9px] h-4 px-1 font-bold ${comment.userModel === 'Teacher' ? 'bg-orange-500/10 text-orange-600 border-orange-500/20' : 'bg-primary/5 text-primary border-primary/10'}`}>
+            {comment.userModel}
+          </Badge>
+          <span className="text-[10px] text-muted-foreground">
+            {new Date(comment.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
+          </span>
+        </div>
+
+        <p className="text-sm text-foreground/85 whitespace-pre-wrap break-words leading-relaxed">
+          {comment.content}
+        </p>
+
+        <div className="flex items-center gap-4 mt-3">
+          <button
+            onClick={() => handleToggleLike(comment._id)}
+            className={`flex items-center gap-1.5 text-xs transition-all p-1 -ml-1 rounded-md hover:bg-muted ${hasL ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            <ThumbsUp className={`w-3.5 h-3.5 ${hasL ? "fill-primary text-primary" : ""}`} />
+            <span>{comment.likes?.length || 0}</span>
+          </button>
+          <button
+            onClick={() => handleToggleDislike(comment._id)}
+            className={`flex items-center gap-1.5 text-xs transition-all p-1 rounded-md hover:bg-muted ${hasD ? "text-destructive font-bold" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            <ThumbsDown className={`w-3.5 h-3.5 ${hasD ? "fill-destructive text-destructive" : ""}`} />
+            <span>{comment.dislikes?.length || 0}</span>
+          </button>
+
+          {depth === 0 && (
+            <button
+              onClick={() => setIsReplying(!isReplying)}
+              className={`text-xs font-semibold px-2 py-1 rounded-md transition-colors ${isReplying ? "bg-primary text-primary-foreground" : "text-primary hover:bg-primary/5"}`}
+            >
+              Reply
+            </button>
+          )}
+
+          {currentUser?._id === comment.userId?._id && (
+            <button
+              onClick={() => handleDeleteComment(comment._id)}
+              className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1 transition-colors ml-auto"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+
+        {isReplying && (
+          <div className="mt-4 space-y-3 animate-in fade-in zoom-in-95 duration-200">
+            <Textarea
+              autoFocus
+              placeholder="Add a reply..."
+              value={rText}
+              onChange={(e) => setRText(e.target.value)}
+              className="min-h-[80px] text-sm resize-none"
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setIsReplying(false)}>Cancel</Button>
+              <Button size="sm" disabled={!rText.trim()} onClick={() => {
+                handleAddComment(comment._id, rText);
+                setRText("");
+                setIsReplying(false);
+                setExpanded(true);
+              }}>Post Reply</Button>
+            </div>
+          </div>
+        )}
+
+        {((comment.replies && comment.replies.length > 0) || (comment.replyCount && comment.replyCount > 0)) && depth === 0 && (
+          <div className="mt-3">
+            <button
+              onClick={onExpandToggle}
+              className="text-xs text-primary font-bold flex items-center gap-2 hover:underline py-1"
+            >
+              <div className={`transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}>
+                <ArrowLeft className="w-3 h-3 -rotate-90" />
+              </div>
+              {expanded ? "Hide replies" : `Show ${comment.replyCount || comment.replies?.length || 0} ${(comment.replyCount || comment.replies?.length) === 1 ? 'reply' : 'replies'}`}
+            </button>
+
+            {expanded && (
+              <div className="mt-2 pl-2 border-l-2 border-primary/10">
+                {comment.replies?.map((reply) => (
+                  <CommentItem
+                    key={reply._id}
+                    comment={reply}
+                    depth={depth + 1}
+                    currentUser={currentUser}
+                    handleToggleLike={handleToggleLike}
+                    handleToggleDislike={handleToggleDislike}
+                    handleDeleteComment={handleDeleteComment}
+                    handleAddComment={handleAddComment}
+                    fetchReplies={fetchReplies}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export default function CoursePage({ params }: { params: Promise<{ id: string }> }) {
   const [courseId, setCourseId] = useState<string>("");
   const [course, setCourse] = useState<ICourse | null>(null);
@@ -65,6 +219,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
   const [openReviewModal, setOpenReviewModal] = useState(false);
   const [openReviewListModal, setOpenReviewListModal] = useState(false);
   const [reviews, setReviews] = useState([]);
+  const [currentUser, setCurrentUser] = useState<{ _id: string, role: string } | null>(null);
 
   // === Fetch Reviews ===
   useEffect(() => {
@@ -98,6 +253,18 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
       showErrorToast("Failed to submit review");
     }
   };
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await employeeApiMethods.getProfile();
+        if (res.ok) setCurrentUser({ _id: res.data._id, role: res.data.role });
+      } catch (err) {
+        console.error("Failed to fetch profile", err);
+      }
+    };
+    fetchProfile();
+  }, []);
 
 
   const watchSessionRef = useRef<{
@@ -141,16 +308,79 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     fetchComments();
   }, [courseId]);
 
-  // === Add Comment ===
-  const handleAddComment = async () => {
-    if (!newComment.trim()) return;
+  const handleToggleLike = async (commentId: string) => {
     try {
-      const res = await employeeApiMethods.addCourseComment(courseId, { content: newComment });
-      if (res?.ok && res.data) {
-        setComments((prev) => [...prev, res.data]);
-        setNewComment("");
+      const res = await employeeApiMethods.toggleCommentLike(commentId);
+      if (res.ok) {
+        setComments(prev => updateCommentInList(prev, res.data));
+      }
+    } catch {
+      showErrorToast("Failed to update like");
+    }
+  };
+
+  const handleToggleDislike = async (commentId: string) => {
+    try {
+      const res = await employeeApiMethods.toggleCommentDislike(commentId);
+      if (res.ok) {
+        setComments(prev => updateCommentInList(prev, res.data));
+      }
+    } catch {
+      showErrorToast("Failed to update dislike");
+    }
+  };
+
+  const updateCommentInList = (list: Comment[], updated: Comment): Comment[] => {
+    return list.map(c => {
+      if (c._id === updated._id) return { ...c, ...updated, replies: c.replies };
+      if (c.replies) return { ...c, replies: updateCommentInList(c.replies, updated) };
+      return c;
+    });
+  };
+
+  const fetchReplies = async (commentId: string) => {
+    try {
+      const res = await employeeApiMethods.getCommentReplies(commentId);
+      if (res.ok) {
+        const updateRepliesRecursively = (list: Comment[], id: string, replies: Comment[]): Comment[] => {
+          return list.map(c => {
+            if (c._id === id) return { ...c, replies: replies };
+            if (c.replies) return { ...c, replies: updateRepliesRecursively(c.replies, id, replies) };
+            return c;
+          });
+        };
+        setComments(prev => updateRepliesRecursively(prev, commentId, res.data));
+      }
+    } catch {
+      showErrorToast("Failed to load replies");
+    }
+  };
+
+  const handleAddComment = async (parentId?: string, content?: string) => {
+    const text = content !== undefined ? content : newComment;
+    if (!text.trim()) return;
+    try {
+      const res = await employeeApiMethods.addCourseComment(courseId, { content: text, parentId });
+      if (res.ok) {
+        if (parentId) {
+          const addReplyRecursively = (list: Comment[], pId: string, reply: Comment): Comment[] => {
+            return list.map(c => {
+              if (c._id === pId) return {
+                ...c,
+                replies: [...(c.replies || []), reply],
+                replyCount: (c.replyCount || 0) + 1
+              };
+              if (c.replies) return { ...c, replies: addReplyRecursively(c.replies, pId, reply) };
+              return c;
+            });
+          };
+          setComments(prev => addReplyRecursively(prev, parentId, res.data));
+        } else {
+          setComments((prev) => [res.data, ...prev]);
+          setNewComment("");
+        }
         showSuccessToast("Comment added");
-      } else if (res) {
+      } else {
         showErrorToast(res.message);
       }
     } catch {
@@ -158,14 +388,26 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     }
   };
 
-  // === Delete Comment ===
   const handleDeleteComment = async (commentId: string) => {
     try {
       const res = await employeeApiMethods.deleteCourseComment(commentId);
-      if (res?.ok) {
-        setComments((prev) => prev.filter((c) => c._id !== commentId));
+      if (res.ok) {
+        const deleteRecursively = (list: Comment[], id: string): Comment[] => {
+          return list.map(c => {
+            if (c.replies && c.replies.some(r => r._id === id)) {
+              return {
+                ...c,
+                replies: c.replies.filter(r => r._id !== id),
+                replyCount: Math.max(0, (c.replyCount || 0) - 1)
+              };
+            }
+            if (c.replies) return { ...c, replies: deleteRecursively(c.replies, id) };
+            return c;
+          }).filter(c => c._id !== id);
+        };
+        setComments((prev) => deleteRecursively(prev, commentId));
         showSuccessToast("Comment deleted");
-      } else if (res) {
+      } else {
         showErrorToast(res.message);
       }
     } catch {
@@ -706,50 +948,80 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
 
             {/* Community */}
             <TabsContent value="community">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Community Discussion</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 max-h-64 overflow-y-auto">
-                    {comments.length === 0 && (
-                      <p className="text-muted-foreground">No messages yet. Start the conversation!</p>
-                    )}
-                    {comments.map((comment) => (
-                      <div
-                        key={comment._id}
-                        className="flex items-start justify-between bg-muted p-3 rounded"
-                      >
-                        <div className="flex items-start gap-3">
-                          <img
-                            src={comment.userId?.profilePicture || "/gallery/avatar.jpg"}
-                            alt="User"
-                            className="w-8 h-8 rounded-full object-cover"
-                          />
-                          <div>
-                            <p className="font-medium text-sm">{comment.userId?.name || "Anonymous"}</p>
-                            <p className="text-sm text-gray-700">{comment.content}</p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {new Date(comment.createdAt).toLocaleString()}
-                            </p>
-                          </div>
+              <Card className="rounded-2xl shadow-xl border-none overflow-hidden bg-white/80 backdrop-blur-sm">
+                <CardHeader className="bg-gradient-to-r from-primary/10 via-transparent to-transparent border-b border-primary/5 pb-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-2xl font-black text-foreground tracking-tight flex items-center gap-3">
+                        <div className="p-2 bg-primary/10 rounded-xl">
+                          <MessageCircle className="w-6 h-6 text-primary" />
                         </div>
-                        <Trash2
-                          className="w-4 h-4 cursor-pointer text-muted-foreground hover:text-red-500"
-                          onClick={() => handleDeleteComment(comment._id)}
-                        />
-                      </div>
-                    ))}
+                        Community Discussion
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground mt-1 font-medium italic">
+                        {comments.length} thoughts shared by the community
+                      </p>
+                    </div>
                   </div>
-                  <div className="mt-4 flex space-x-2">
-                    <Input
-                      placeholder="Type your message..."
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                    />
-                    <Button onClick={handleAddComment}>
-                      <Send className="w-4 h-4 mr-1" />
-                    </Button>
+                </CardHeader>
+                <CardContent className="p-6">
+                  {/* Quick Post */}
+                  <div className="flex gap-4 mb-10 items-start group">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center border-2 border-primary/10 group-focus-within:border-primary/30 transition-all">
+                        <MessageSquare className="w-6 h-6 text-primary/40 group-focus-within:text-primary transition-all" />
+                      </div>
+                    </div>
+                    <div className="flex-1 space-y-3">
+                      <Textarea
+                        placeholder="What's on your mind? Share a doubt or an insight..."
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        className="min-h-[110px] rounded-2xl border-primary/10 bg-primary/[0.02] focus:bg-white focus:ring-4 focus:ring-primary/5 focus:border-primary/30 transition-all resize-none text-base placeholder:text-muted-foreground/50"
+                      />
+                      <div className="flex justify-end">
+                        <Button
+                          onClick={() => handleAddComment()}
+                          disabled={!newComment.trim()}
+                          className="rounded-xl px-8 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all h-11 font-bold gap-2"
+                        >
+                          Post Thought
+                          <Send className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator className="mb-8 opacity-50" />
+
+                  {/* Comment List */}
+                  <div className="space-y-8 pr-1 custom-scrollbar max-h-[700px] overflow-y-auto">
+                    {comments.length === 0 ? (
+                      <div className="py-20 text-center flex flex-col items-center gap-4 animate-in fade-in zoom-in-95">
+                        <div className="w-20 h-20 rounded-full bg-muted/30 flex items-center justify-center">
+                          <MessageCircle className="w-10 h-10 text-muted-foreground/30" />
+                        </div>
+                        <div className="max-w-[250px]">
+                          <p className="text-xl font-bold text-foreground/40">Quiet here...</p>
+                          <p className="text-sm text-muted-foreground font-medium mt-1 italic">
+                            Be the first to spark a conversation about this course!
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      comments.map((comment) => (
+                        <CommentItem
+                          key={comment._id}
+                          comment={comment}
+                          currentUser={currentUser}
+                          handleToggleLike={handleToggleLike}
+                          handleToggleDislike={handleToggleDislike}
+                          handleDeleteComment={handleDeleteComment}
+                          handleAddComment={handleAddComment}
+                          fetchReplies={fetchReplies}
+                        />
+                      ))
+                    )}
                   </div>
                 </CardContent>
               </Card>
