@@ -15,6 +15,7 @@ export interface IDashboardData {
     companyRevenue: { name: string; revenue: number }[];
     activeTeachers: { name: string; email: string; revenue: number; transactions: number }[];
     dailyTrend: { _id: string; sales: number; revenue: number }[];
+    categoryDistribution: { name: string; value: number }[];
     recentActivity: IActivity[];
 }
 

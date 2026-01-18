@@ -21,5 +21,6 @@ export interface IAdminReportsRepository {
     getCompanyRevenue(): Promise<{ name: string; revenue: number }[]>;
     getMostActiveTeachers(limit: number): Promise<{ name: string; email: string; revenue: number; transactions: number }[]>;
     getDailyTrend(days: number): Promise<{ _id: string; sales: number; revenue: number }[]>;
+    getCategoryDistribution(): Promise<{ name: string; value: number }[]>;
     getRecentActivity(limit: number): Promise<IActivity[]>;
 }

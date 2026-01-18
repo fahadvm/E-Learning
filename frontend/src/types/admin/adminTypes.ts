@@ -178,6 +178,8 @@ export interface DashboardData {
     topCourses?: TopCourse[];
     userDistribution?: UserDistributionData[];
     activeTeachers?: ActiveTeacher[];
+    dailyTrend?: { _id: string; sales: number; revenue: number }[];
+    categoryDistribution?: { name: string; value: number }[];
 }
 
 // Mapped Activity for UI
@@ -277,30 +279,30 @@ export interface IAdminCourse {
     price?: number;
 }
 export interface UpdateAdminProfileDTO {
-  name?: string;
-  phone?: string;
-  bio?: string;
+    name?: string;
+    phone?: string;
+    bio?: string;
 }
 
 export type UpdateAdminProfilePayload =
-  | UpdateAdminProfileDTO
-  | FormData;
+    | UpdateAdminProfileDTO
+    | FormData;
 
 
 
-  export interface SubscriptionFeatureDTO {
-  name: string;
-  description?: string;
+export interface SubscriptionFeatureDTO {
+    name: string;
+    description?: string;
 }
 
 export interface CreateSubscriptionPlanDTO {
-  name: string;
-  price: string; // "Free" | "Custom" | "499"
-  description: string;
-  features: SubscriptionFeatureDTO[];
-  planFor: "Student" | "Company";
-  popular: boolean;
+    name: string;
+    price: string; // "Free" | "Custom" | "499"
+    description: string;
+    features: SubscriptionFeatureDTO[];
+    planFor: "Student" | "Company";
+    popular: boolean;
 }
 
 export interface UpdateSubscriptionPlanDTO
-  extends CreateSubscriptionPlanDTO {}
+    extends CreateSubscriptionPlanDTO { }

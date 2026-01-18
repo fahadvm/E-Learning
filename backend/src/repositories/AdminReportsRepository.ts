@@ -238,4 +238,12 @@ export class AdminReportsRepository implements IAdminReportsRepository {
             { $sort: { '_id': 1 } }
         ]);
     }
+
+    async getCategoryDistribution(): Promise<{ name: string; value: number }[]> {
+        return await Course.aggregate([
+            { $match: { isPublished: true } },
+            { $group: { _id: '$category', value: { $sum: 1 } } },
+            { $project: { _id: 0, name: '$_id', value: 1 } }
+        ]);
+    }
 }
