@@ -83,7 +83,7 @@ export const COMPANY_ROUTES = {
     myCourses: `${COMPANY_PURCHASE}/entrollments`,
     courseDetails: (id: string) => `${COMPANY_PURCHASE}/entrollments/${id}`,
     courseIds: `${COMPANY_PURCHASE}/entrollments-course/ids`,
-    Reciept: (orderId: string) => `${COMPANY_PURCHASE}/receipt/${orderId}`,
+    Receipt: (orderId: string) => `${COMPANY_PURCHASE}/receipt/${orderId}`,
     orders: `${COMPANY_PURCHASE}/orders`,
   },
 

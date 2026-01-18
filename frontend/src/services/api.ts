@@ -11,19 +11,19 @@ const defaultOptions: ApiOptions = {
 
 const handleApiError = (error: any, options: ApiOptions) => {
   console.error("API Error:", error);
-  
+
   if (!options.showToast) return;
 
   const message = error?.response?.data?.message || error.message || "Request failed";
   console.log("error for testing ", error?.response?.data)
-  
+
   if (error.response?.status === 401) {
     showInfoToast("Please login.");
     // Router.push("/student/login");
-  } else if(error.response?.status === 409 ){
+  } else if (error.response?.status === 409) {
     //info message handling
     showInfoToast(message);
-  } else{
+  } else {
     showErrorToast(message);
   }
 };
@@ -40,11 +40,11 @@ export const postRequest = async <T = any>(
     }
     const res = await axiosInstance.post(url, body, { headers });
     console.log("res in api.ts : ", res)
-    
+
     if (!res.data.ok) {
       throw new Error(res.data.message || 'Request failed');
     }
-    
+
     return res.data;
   } catch (error: any) {
     handleApiError(error, options);
@@ -124,6 +124,22 @@ export const deleteRequest = async <T = any>(
     return res.data;
   } catch (error: any) {
     handleApiError(error, options);
+    return null;
+  }
+};
+
+export const downloadRequest = async (
+  url: string,
+  params?: object
+): Promise<Blob | null> => {
+  try {
+    const res = await axiosInstance.get(url, {
+      params,
+      responseType: 'blob'
+    });
+    return res.data;
+  } catch (error: any) {
+    console.error("Download Error:", error);
     return null;
   }
 };

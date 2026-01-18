@@ -1,13 +1,14 @@
 // studentApi.ts
 
-import { getRequest, postRequest, patchRequest, putRequest, deleteRequest } from "../api";
+import { getRequest, postRequest, patchRequest, putRequest, deleteRequest, downloadRequest } from "../api";
 import { STUDENT_ROUTES } from "../constantRoutes/studentRoutes";
 
 const get = getRequest,
   post = postRequest,
   patch = patchRequest,
   put = putRequest,
-  del = deleteRequest;
+  del = deleteRequest,
+  download = downloadRequest;
 
 export const studentAuthApi = {
   login: (data: { email: string; password: string }) => post(STUDENT_ROUTES.auth.login, data),
@@ -98,7 +99,7 @@ export const paymentApi = {
     post(STUDENT_ROUTES.bookings.verify, data),
   getOrderDetails: (razorpayOrderId: string) => get(STUDENT_ROUTES.purchase.getOrderDetails(razorpayOrderId)),
   getPurchaseHistory: (params: { page: number, limit: number }) => get(STUDENT_ROUTES.purchase.getMyhistory, params),
-  downloadReceipt: (razorpayOrderId: string) => get(STUDENT_ROUTES.purchase.getInvoice(razorpayOrderId))
+  downloadReceipt: (razorpayOrderId: string) => download(STUDENT_ROUTES.purchase.getInvoice(razorpayOrderId))
 };
 
 export const studentSubscriptionApi = {

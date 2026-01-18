@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
+import { downloadBlobFile } from "@/utils/fileDownload";
 
 interface OrderCourse {
   title: string;
@@ -59,18 +60,12 @@ export default function PurchaseSuccessContent() {
     if (!orderId) return;
 
     try {
-      const res = await companyApiMethods.downloadReciept(orderId);
-      if (!res) throw new Error("No data");
-      const blob = new Blob([res.data], { type: "application/pdf" });
-      const url = window.URL.createObjectURL(blob);
-
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `receipt_${orderId}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      const blob = await companyApiMethods.downloadReceipt(orderId);
+      if (blob) {
+        downloadBlobFile(blob, `receipt_${orderId}.pdf`);
+      } else {
+        throw new Error("No data");
+      }
     } catch {
       showErrorToast("Unable to download receipt. Try again.");
     }

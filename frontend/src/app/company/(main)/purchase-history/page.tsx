@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
 import { showErrorToast } from "@/utils/Toast";
+import { downloadBlobFile } from "@/utils/fileDownload";
 
 interface IPurchasedCourse {
     courseId: {
@@ -32,6 +33,7 @@ interface IOrder {
 export default function PurchaseHistoryPage() {
     const [orders, setOrders] = useState<IOrder[]>([]);
     const [loading, setLoading] = useState(true);
+    const [downloadingOrderId, setDownloadingOrderId] = useState<string | null>(null);
 
     useEffect(() => {
         fetchOrders();
@@ -64,10 +66,18 @@ export default function PurchaseHistoryPage() {
 
     const downloadReceipt = async (orderId: string) => {
         try {
-            window.open(`/api/company/purchase/receipt/${orderId}`, '_blank');
+            setDownloadingOrderId(orderId);
+            const blob = await companyApiMethods.downloadReceipt(orderId);
+            if (blob) {
+                downloadBlobFile(blob, `receipt_${orderId}.pdf`);
+            } else {
+                showErrorToast("Failed to download receipt");
+            }
         } catch (error) {
             console.error("Failed to download receipt:", error);
             showErrorToast("Failed to download receipt");
+        } finally {
+            setDownloadingOrderId(null);
         }
     };
 
@@ -178,10 +188,11 @@ export default function PurchaseHistoryPage() {
                                                     {order.status === "paid" && (
                                                         <button
                                                             onClick={() => downloadReceipt(order._id)}
-                                                            className="p-2 rounded-lg bg-primary/20 hover:bg-primary/30 border border-primary/40 text-primary transition"
+                                                            disabled={downloadingOrderId === order._id}
+                                                            className={`p-2 rounded-lg bg-primary/20 hover:bg-primary/30 border border-primary/40 text-primary transition ${downloadingOrderId === order._id ? 'opacity-50' : ''}`}
                                                             title="Download Receipt"
                                                         >
-                                                            <Download size={18} />
+                                                            {downloadingOrderId === order._id ? "..." : <Download size={18} />}
                                                         </button>
                                                     )}
                                                 </td>

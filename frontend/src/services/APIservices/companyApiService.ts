@@ -1,7 +1,7 @@
 // src/api/companyApiMethods.ts
 
 import { UpdateCompanyProfileDTO, UpdateEmployeeDTO } from "@/types/company/companyTypes";
-import { getRequest, patchRequest, postRequest, putRequest, deleteRequest } from "../api";
+import { getRequest, patchRequest, postRequest, putRequest, deleteRequest, downloadRequest } from "../api";
 import { COMPANY_ROUTES } from "../constantRoutes/companyRoutes";
 
 const get = getRequest;
@@ -9,6 +9,7 @@ const post = postRequest;
 const patch = patchRequest;
 const put = putRequest;
 const del = deleteRequest;
+const download = downloadRequest;
 
 export const companyApiMethods = {
   // Auth
@@ -18,7 +19,7 @@ export const companyApiMethods = {
   logout: () => post(COMPANY_ROUTES.auth.logout, {}),
 
   forgotPassword: (data: { email: string }) => post(COMPANY_ROUTES.auth.forgotPassword, data),
-  resetPassword: (data: { email: string;otp:string; newPassword: string }) => post(COMPANY_ROUTES.auth.resetPassword, data),
+  resetPassword: (data: { email: string; otp: string; newPassword: string }) => post(COMPANY_ROUTES.auth.resetPassword, data),
   verifyForgotOtp: (data: { email: string; otp: string }) => post(COMPANY_ROUTES.auth.verifyForgotOtp, data),
   resendOtp: (data: { email: string }) => post(COMPANY_ROUTES.auth.resendOtp, data),
 
@@ -40,12 +41,12 @@ export const companyApiMethods = {
 
 
   // Employees
-  addEmployee: (data: {email:string}) => post(COMPANY_ROUTES.employees.base, data),
+  addEmployee: (data: { email: string }) => post(COMPANY_ROUTES.employees.base, data),
   getAllEmployees: (params?: { page?: number; limit?: number; search?: string; department?: string; position?: string }) =>
     get(COMPANY_ROUTES.employees.base, params),
   getRequestedEmployees: () => get(COMPANY_ROUTES.employees.requests),
   getEmployeeById: (employeeId: string) => get(COMPANY_ROUTES.employees.get(employeeId)),
-  blockEmployee: (employeeId: string, data: {status: boolean}) =>
+  blockEmployee: (employeeId: string, data: { status: boolean }) =>
     patch(COMPANY_ROUTES.employees.block(employeeId), data),
   updateEmployee: (employeeId: string, data: UpdateEmployeeDTO) =>
     put(COMPANY_ROUTES.employees.update(employeeId), data),
@@ -87,8 +88,8 @@ export const companyApiMethods = {
 
   verifyPayment: (data: { sessionId: string }) =>
     post(COMPANY_ROUTES.purchase.verifyPayment, data),
-  downloadReciept: (orderId: string) =>
-    get(COMPANY_ROUTES.purchase.Reciept(orderId)),
+  downloadReceipt: (orderId: string) =>
+    download(COMPANY_ROUTES.purchase.Receipt(orderId)),
 
   getmycourses: () => get(COMPANY_ROUTES.purchase.myCourses),
   getmycourseDetails: (courseId: string) =>

@@ -29,27 +29,23 @@ export default function PurchaseSuccessContent() {
   const [downloading, setDownloading] = useState(false)
 
   const handleDownloadReceipt = async () => {
-    if (!orderId) return
+    if (!orderId) return;
 
     try {
-      setDownloading(true)
-      const res = await axiosInstance.get(
-        `/student/purchase/receipt/${orderId}`,
-        {
-          responseType: "blob",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
-      );
-      downloadBlobFile(res.data, `invoice-${orderId}.pdf`);
+      setDownloading(true);
+      const blob = await paymentApi.downloadReceipt(orderId);
+      if (blob) {
+        downloadBlobFile(blob, `invoice-${orderId}.pdf`);
+      } else {
+        throw new Error("Failed to download");
+      }
     } catch (error) {
-      console.error('Failed to download receipt:', error)
-      alert('Failed to download receipt. Please try again.')
+      console.error('Failed to download receipt:', error);
+      alert('Failed to download receipt. Please try again.');
     } finally {
-      setDownloading(false)
+      setDownloading(false);
     }
-  }
+  };
 
   useEffect(() => {
     if (!orderId) return

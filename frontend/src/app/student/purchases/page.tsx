@@ -24,6 +24,8 @@ import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
 import Header from "@/components/student/header";
 import { paymentApi } from "@/services/APIservices/studentApiservice";
+import { downloadBlobFile } from "@/utils/fileDownload";
+import { showErrorToast } from "@/utils/Toast";
 
 interface PurchaseOrder {
   _id: string;
@@ -47,6 +49,7 @@ export default function PurchaseHistoryPage() {
 
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [downloadingOrderId, setDownloadingOrderId] = useState<string | null>(null);
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(5); // items per page; change as needed
@@ -82,6 +85,23 @@ export default function PurchaseHistoryPage() {
       console.error("Failed to fetch purchase history:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownloadReceipt = async (razorpayOrderId: string) => {
+    try {
+      setDownloadingOrderId(razorpayOrderId);
+      const blob = await paymentApi.downloadReceipt(razorpayOrderId);
+      if (blob) {
+        downloadBlobFile(blob, `invoice-${razorpayOrderId}.pdf`);
+      } else {
+        showErrorToast("Failed to download receipt");
+      }
+    } catch (error) {
+      console.error("Download error:", error);
+      showErrorToast("Failed to download receipt");
+    } finally {
+      setDownloadingOrderId(null);
     }
   };
 
@@ -290,16 +310,15 @@ export default function PurchaseHistoryPage() {
                         <div className="flex gap-2">
                           {order.status === "paid" && (
                             <>
-                              <a
-                                href={`/api/student/invoice/${order._id}`} // adapt if you have direct url
-                                target="_blank"
-                                rel="noreferrer"
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleDownloadReceipt(order.razorpayOrderId)}
+                                disabled={downloadingOrderId === order.razorpayOrderId}
                               >
-                                <Button size="sm" variant="outline">
-                                  <Download className="w-4 h-4 mr-2" />
-                                  Invoice
-                                </Button>
-                              </a>
+                                <Download className="w-4 h-4 mr-2" />
+                                {downloadingOrderId === order.razorpayOrderId ? "..." : "Invoice"}
+                              </Button>
 
                               <Button
                                 size="sm"
