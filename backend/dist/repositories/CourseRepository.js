@@ -62,6 +62,12 @@ let CourseRepository = class CourseRepository {
             return yield Course_1.Course.findOne({ _id: courseId, teacherId });
         });
     }
+    alreadyexist(startname, category) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let courses = yield Course_1.Course.find({ title: new RegExp(`^{startname}`), category });
+            return courses;
+        });
+    }
     getPremiumCourses() {
         return __awaiter(this, void 0, void 0, function* () {
             return yield Course_1.Course.find({});

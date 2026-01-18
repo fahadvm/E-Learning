@@ -34,6 +34,7 @@ const ResANDError_1 = require("../../utils/ResANDError");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const logger_1 = __importDefault(require("../../utils/logger"));
+const cloudinarySign_1 = require("../../utils/cloudinarySign");
 let StudentPurchaseService = class StudentPurchaseService {
     constructor(_orderRepo, _courseRepo, _cartRepo, _studentRepo, _subscriptionRepo, _transactionRepo, _walletRepo) {
         this._orderRepo = _orderRepo;
@@ -210,8 +211,10 @@ let StudentPurchaseService = class StudentPurchaseService {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_PURCHASED, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
             }
             const progress = yield this._studentRepo.getOrCreateCourseProgress(studentId, courseId);
+            // Sign URLs for course content
+            const signedCourse = (0, cloudinarySign_1.signCourseUrls)(course);
             const recommended = yield this._courseRepo.findRecommendedCourses(courseId, course.category, course.level, 6);
-            return { course, progress, recommended };
+            return { course: signedCourse, progress, recommended };
         });
     }
     getOrderDetails(studentId, orderId) {

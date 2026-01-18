@@ -15,6 +15,7 @@ import { IEmployeeLearningRecord } from '../../models/EmployeeLearningRecord';
 import { IEmployeeLearningPathProgressRepository } from '../../core/interfaces/repositories/IEmployeeLearningPathProgressRepository';
 import { updateCompanyLeaderboard } from '../../utils/redis/leaderboard';
 import { INotificationService } from '../../core/interfaces/services/shared/INotificationService';
+import { getSignedUrl, signCourseUrls } from '../../utils/cloudinarySign';
 
 @injectable()
 export class EmployeeCourseService implements IEmployeeCourseService {
@@ -62,7 +63,11 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     }
 
     const progress = await this._employeeRepo.getOrCreateCourseProgress(employeeId, courseId);
-    return { course, progress };
+
+    // Sign URLs for course content
+    const signedCourse = signCourseUrls(course);
+
+    return { course: signedCourse, progress };
   }
 
   async markLessonComplete(
@@ -188,7 +193,13 @@ export class EmployeeCourseService implements IEmployeeCourseService {
     if (course.isBlocked) {
       throwError('Course resources are unavailable as the course is blocked by admin.', STATUS_CODES.FORBIDDEN);
     }
-    return this._resourceRepository.getResourcesByCourse(courseId);
+    const resources = await this._resourceRepository.getResourcesByCourse(courseId);
+    return resources.map(resource => {
+      if (resource.fileUrl) {
+        resource.fileUrl = getSignedUrl(resource.fileUrl);
+      }
+      return resource;
+    });
   }
   async getProgress(employeeId: string): Promise<ICourseProgress[] | null> {
     return this._employeeRepo.getProgress(employeeId);

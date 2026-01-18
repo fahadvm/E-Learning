@@ -39,6 +39,7 @@ const Transaction_1 = require("../../models/Transaction");
 const Student_1 = require("../../models/Student");
 const CourseReview_1 = require("../../models/CourseReview");
 const Teacher_1 = require("../../models/Teacher");
+const cloudinarySign_1 = require("../../utils/cloudinarySign");
 let TeacherCourseService = class TeacherCourseService {
     constructor(_courseRepository, _resourceRepository, _notificationService, _companyRepository, _employeeRepository, _teacherRepository) {
         this._courseRepository = _courseRepository;
@@ -50,9 +51,9 @@ let TeacherCourseService = class TeacherCourseService {
     }
     // Helper for Cloudinary upload
     uploadToCloudinary(file_1, folder_1) {
-        return __awaiter(this, arguments, void 0, function* (file, folder, resourceType = 'auto') {
+        return __awaiter(this, arguments, void 0, function* (file, folder, resourceType = 'auto', type = 'upload') {
             return new Promise((resolve, reject) => {
-                cloudinary_1.default.uploader.upload_stream({ resource_type: resourceType, folder }, (error, result) => {
+                cloudinary_1.default.uploader.upload_stream({ resource_type: resourceType, folder, type }, (error, result) => {
                     if (error || !result)
                         reject(error || new Error('Upload failed'));
                     else
@@ -99,7 +100,7 @@ let TeacherCourseService = class TeacherCourseService {
                         let thumbnailUrl = '';
                         const videoFile = filesMap[`modules[${moduleIndex}][lessons][${lessonIndex}][videoFile]`];
                         if (videoFile)
-                            videoFileUrl = yield this.uploadToCloudinary(videoFile, 'course_videos', 'video');
+                            videoFileUrl = yield this.uploadToCloudinary(videoFile, 'course_videos', 'video', 'authenticated');
                         const thumbnail = filesMap[`modules[${moduleIndex}][lessons][${lessonIndex}][thumbnail]`];
                         if (thumbnail)
                             thumbnailUrl = yield this.uploadToCloudinary(thumbnail, 'course_thumbnails', 'image');
@@ -114,6 +115,12 @@ let TeacherCourseService = class TeacherCourseService {
                 }
                 modules.push(newModule);
             }
+            let startname = req.body.title.slice(0, 3);
+            let already2exist = yield this._courseRepository.alreadyexist(startname, req.body.category);
+            console.log("already2exist", already2exist);
+            console.log("startname", startname);
+            if (already2exist.length > 2)
+                (0, ResANDError_1.throwError)("you cant do with this name , change another name");
             // Upload cover image
             let coverImageUrl = '';
             const coverImage = filesMap['coverImage'];
@@ -199,7 +206,8 @@ let TeacherCourseService = class TeacherCourseService {
             const course = yield this._courseRepository.findByIdAndTeacherId(courseId, teacherId);
             if (!course)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
-            return course;
+            // Sign URLs
+            return (0, cloudinarySign_1.signCourseUrls)(course);
         });
     }
     uploadResource(courseId, title, file) {
@@ -215,7 +223,7 @@ let TeacherCourseService = class TeacherCourseService {
             }
             const fileType = (_a = file.originalname.split('.').pop()) !== null && _a !== void 0 ? _a : 'unknown';
             const resourceType = fileType === 'pdf' ? 'raw' : 'auto';
-            const uploadedUrl = yield this.uploadToCloudinary(file, 'course_resources', resourceType);
+            const uploadedUrl = yield this.uploadToCloudinary(file, 'course_resources', resourceType, 'authenticated');
             return this._resourceRepository.uploadResource({
                 courseId: new mongoose_1.Types.ObjectId(courseId),
                 title,
@@ -226,7 +234,12 @@ let TeacherCourseService = class TeacherCourseService {
     }
     getResources(courseId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this._resourceRepository.getResourcesByCourse(courseId);
+            const resources = yield this._resourceRepository.getResourcesByCourse(courseId);
+            return resources.map(resource => {
+                if (resource.fileUrl)
+                    resource.fileUrl = (0, cloudinarySign_1.getSignedUrl)(resource.fileUrl);
+                return resource;
+            });
         });
     }
     deleteResource(resourceId) {
@@ -271,7 +284,7 @@ let TeacherCourseService = class TeacherCourseService {
                         // Check for new uploads
                         const videoFile = filesMap[`modules[${moduleIndex}][lessons][${lessonIndex}][videoFile]`];
                         if (videoFile)
-                            videoFileUrl = yield this.uploadToCloudinary(videoFile, 'course_videos', 'video');
+                            videoFileUrl = yield this.uploadToCloudinary(videoFile, 'course_videos', 'video', 'authenticated');
                         const thumbnail = filesMap[`modules[${moduleIndex}][lessons][${lessonIndex}][thumbnail]`];
                         if (thumbnail)
                             thumbnailUrl = yield this.uploadToCloudinary(thumbnail, 'course_thumbnails', 'image');
@@ -333,7 +346,7 @@ let TeacherCourseService = class TeacherCourseService {
                     yield this._notificationService.createNotification(emp._id.toString(), 'Course Updated', `Content for "${updatedCourse.title}" has been updated.`, 'course', 'employee', '/employee/my-courses');
                 }
             }
-            return updatedCourse;
+            return (0, cloudinarySign_1.signCourseUrls)(updatedCourse);
         });
     }
     getCourseAnalytics(courseId, teacherId) {
@@ -416,7 +429,7 @@ let TeacherCourseService = class TeacherCourseService {
                 },
                 { $sort: { '_id': -1 } }
             ]);
-            return {
+            const analytics = {
                 overview: {
                     title: course.title,
                     totalStudents: (course.totalStudents || 0) + companyEnrollments,
@@ -433,6 +446,7 @@ let TeacherCourseService = class TeacherCourseService {
                 ratingStats: ratingDistribution,
                 courseStructure: course.modules // For matching lesson IDs with titles on frontend
             };
+            return (0, cloudinarySign_1.signCourseUrls)(analytics);
         });
     }
 };

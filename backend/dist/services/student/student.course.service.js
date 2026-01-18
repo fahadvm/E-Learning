@@ -29,6 +29,7 @@ const ResANDError_1 = require("../../utils/ResANDError");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const Student_course_Dto_1 = require("../../core/dtos/student/Student.course.Dto");
+const cloudinarySign_1 = require("../../utils/cloudinarySign");
 let StudentCourseService = class StudentCourseService {
     constructor(_courseRepo, _resourceRepository, _studentRepo, _courseCertificateService) {
         this._courseRepo = _courseRepo;
@@ -122,7 +123,13 @@ let StudentCourseService = class StudentCourseService {
             if (course.isBlocked) {
                 (0, ResANDError_1.throwError)('Course resources are unavailable as the course is blocked by admin.', HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
             }
-            return this._resourceRepository.getResourcesByCourse(courseId);
+            const resources = yield this._resourceRepository.getResourcesByCourse(courseId);
+            return resources.map(resource => {
+                if (resource.fileUrl) {
+                    resource.fileUrl = (0, cloudinarySign_1.getSignedUrl)(resource.fileUrl);
+                }
+                return resource;
+            });
         });
     }
 };

@@ -15,8 +15,8 @@ exports.redis = new ioredis_1.default(process.env.REDIS_URL, {
     maxRetriesPerRequest: null,
 });
 exports.redis.on('connect', () => {
-    logger_1.default.info('✅ Redis connected');
+    logger_1.default.info(' Redis connected');
 });
 exports.redis.on('error', (err) => {
-    logger_1.default.error('❌ Redis error:', err);
+    logger_1.default.error(' Redis error:', err);
 });

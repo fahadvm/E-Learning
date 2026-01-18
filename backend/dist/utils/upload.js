@@ -15,13 +15,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.uploadToCloudinary = void 0;
 const cloudinary_1 = __importDefault(require("../config/cloudinary"));
 const logger_1 = __importDefault(require("./logger"));
-const uploadToCloudinary = (buffer_1, ...args_1) => __awaiter(void 0, [buffer_1, ...args_1], void 0, function* (buffer, folder = 'chat-uploads', resourceType = 'auto') {
+const uploadToCloudinary = (buffer_1, ...args_1) => __awaiter(void 0, [buffer_1, ...args_1], void 0, function* (buffer, folder = 'chat-uploads', resourceType = 'auto', type = 'upload') {
     const publicId = `upload-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
     return new Promise((resolve, reject) => {
         const uploadStream = cloudinary_1.default.uploader.upload_stream({
             folder: folder,
             public_id: publicId,
             resource_type: resourceType,
+            type: type,
             overwrite: false,
         }, (error, result) => {
             if (error) {

@@ -8,6 +8,7 @@ import { CourseStatus } from '../../models/Course';
 
 import { INotificationService } from '../../core/interfaces/services/shared/INotificationService';
 import { ICompanyRepository } from '../../core/interfaces/repositories/ICompanyRepository';
+import { signCourseUrls } from '../../utils/cloudinarySign';
 
 @injectable()
 export class AdminCourseService implements IAdminCourseService {
@@ -34,7 +35,12 @@ export class AdminCourseService implements IAdminCourseService {
 
   async getCourseById(courseId: string): Promise<IAdminCourseDTO | null> {
     const course = await this._courseRepo.findById(courseId);
-    return course ? AdminCourseDTO(course) : null;
+    if (!course) return null;
+
+    // Sign URLs for admin preview
+    const signedCourse = signCourseUrls(course);
+
+    return AdminCourseDTO(signedCourse);
   }
 
   async verifyCourse(courseId: string): Promise<IAdminCourseDTO | null> {

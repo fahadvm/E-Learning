@@ -14,6 +14,7 @@ import { ICompanyCoursePurchaseRepository } from '../../core/interfaces/reposito
 import mongoose from 'mongoose';
 import { ICompanyCoursePurchase } from '../../models/CompanyCoursePurchase';
 import { CompanyCourseDTO, PaginatedCourseDTO } from '../../core/dtos/company/Company.course.Dto';
+import { getSignedUrl, signCourseUrls } from '../../utils/cloudinarySign';
 
 @injectable()
 export class CompanyCourseService implements ICompanyCourseService {
@@ -108,7 +109,9 @@ export class CompanyCourseService implements ICompanyCourseService {
     if (course.isBlocked) {
       throwError('Access to this course has been disabled by admin. Reason: ' + (course.blockReason || 'No reason provided'), STATUS_CODES.FORBIDDEN);
     }
-    return course;
+
+    // Sign URLs for company preview
+    return signCourseUrls(course);
   }
 
   async getResources(courseId: string): Promise<ICourseResource[]> {
@@ -117,6 +120,10 @@ export class CompanyCourseService implements ICompanyCourseService {
     if (course.isBlocked) {
       throwError('Course resources are unavailable as the course is blocked by admin.', STATUS_CODES.FORBIDDEN);
     }
-    return this._resourceRepository.getResourcesByCourse(courseId);
+    const resources = await this._resourceRepository.getResourcesByCourse(courseId);
+    return resources.map(resource => {
+      if (resource.fileUrl) resource.fileUrl = getSignedUrl(resource.fileUrl);
+      return resource;
+    });
   }
 }

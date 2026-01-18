@@ -136,7 +136,7 @@ export const initSocket = (
   });
 
   socket.on("courseUnblocked", (data: { courseId: string }) => {
-    console.log("✅ Course unblocked event received:", data);
+    console.log(" Course unblocked event received:", data);
   });
 
   return socket;

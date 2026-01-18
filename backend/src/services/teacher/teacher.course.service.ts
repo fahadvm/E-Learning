@@ -23,6 +23,7 @@ import { Transaction } from '../../models/Transaction';
 import { Student } from '../../models/Student';
 import { CourseReview } from '../../models/CourseReview';
 import { VerificationStatus } from '../../models/Teacher';
+import { getSignedUrl, signCourseUrls } from '../../utils/cloudinarySign';
 
 @injectable()
 export class TeacherCourseService implements ITeacherCourseService {
@@ -36,9 +37,9 @@ export class TeacherCourseService implements ITeacherCourseService {
   ) { }
 
   // Helper for Cloudinary upload
-  private async uploadToCloudinary(file: Express.Multer.File, folder: string, resourceType: 'video' | 'image' | 'raw' | 'auto' = 'auto'): Promise<string> {
+  private async uploadToCloudinary(file: Express.Multer.File, folder: string, resourceType: 'video' | 'image' | 'raw' | 'auto' = 'auto', type: 'upload' | 'authenticated' = 'upload'): Promise<string> {
     return new Promise((resolve, reject) => {
-      cloudinary.uploader.upload_stream({ resource_type: resourceType, folder }, (error, result) => {
+      cloudinary.uploader.upload_stream({ resource_type: resourceType, folder, type }, (error, result) => {
         if (error || !result) reject(error || new Error('Upload failed'));
         else resolve(result.secure_url);
       }).end(file.buffer);
@@ -87,7 +88,7 @@ export class TeacherCourseService implements ITeacherCourseService {
           let thumbnailUrl = '';
 
           const videoFile = filesMap[`modules[${moduleIndex}][lessons][${lessonIndex}][videoFile]`];
-          if (videoFile) videoFileUrl = await this.uploadToCloudinary(videoFile, 'course_videos', 'video');
+          if (videoFile) videoFileUrl = await this.uploadToCloudinary(videoFile, 'course_videos', 'video', 'authenticated');
 
           const thumbnail = filesMap[`modules[${moduleIndex}][lessons][${lessonIndex}][thumbnail]`];
           if (thumbnail) thumbnailUrl = await this.uploadToCloudinary(thumbnail, 'course_thumbnails', 'image');
@@ -104,6 +105,13 @@ export class TeacherCourseService implements ITeacherCourseService {
 
       modules.push(newModule);
     }
+
+
+    let startname = req.body.title.slice(0, 3)
+    let already2exist = await this._courseRepository.alreadyexist(startname, req.body.category)
+    console.log("already2exist", already2exist)
+    console.log("startname", startname)
+    if (already2exist.length > 2) throwError("you cant do with this name , change another name")
 
     // Upload cover image
     let coverImageUrl = '';
@@ -205,7 +213,9 @@ export class TeacherCourseService implements ITeacherCourseService {
   async getCourseByIdWithTeacherId(courseId: string, teacherId: string): Promise<ICourse> {
     const course = await this._courseRepository.findByIdAndTeacherId(courseId, teacherId);
     if (!course) throwError(MESSAGES.COURSE_NOT_FOUND, STATUS_CODES.NOT_FOUND);
-    return course;
+
+    // Sign URLs
+    return signCourseUrls(course);
   }
 
   async uploadResource(courseId: string, title: string, file: Express.Multer.File): Promise<ICourseResource> {
@@ -219,7 +229,7 @@ export class TeacherCourseService implements ITeacherCourseService {
 
     const fileType = file.originalname.split('.').pop() ?? 'unknown';
     const resourceType: 'raw' | 'auto' = fileType === 'pdf' ? 'raw' : 'auto';
-    const uploadedUrl = await this.uploadToCloudinary(file, 'course_resources', resourceType);
+    const uploadedUrl = await this.uploadToCloudinary(file, 'course_resources', resourceType, 'authenticated');
 
     return this._resourceRepository.uploadResource({
       courseId: new Types.ObjectId(courseId),
@@ -230,7 +240,11 @@ export class TeacherCourseService implements ITeacherCourseService {
   }
 
   async getResources(courseId: string): Promise<ICourseResource[]> {
-    return this._resourceRepository.getResourcesByCourse(courseId);
+    const resources = await this._resourceRepository.getResourcesByCourse(courseId);
+    return resources.map(resource => {
+      if (resource.fileUrl) resource.fileUrl = getSignedUrl(resource.fileUrl);
+      return resource;
+    });
   }
 
   async deleteResource(resourceId: string): Promise<void> {
@@ -277,7 +291,7 @@ export class TeacherCourseService implements ITeacherCourseService {
 
           // Check for new uploads
           const videoFile = filesMap[`modules[${moduleIndex}][lessons][${lessonIndex}][videoFile]`];
-          if (videoFile) videoFileUrl = await this.uploadToCloudinary(videoFile, 'course_videos', 'video');
+          if (videoFile) videoFileUrl = await this.uploadToCloudinary(videoFile, 'course_videos', 'video', 'authenticated');
 
           const thumbnail = filesMap[`modules[${moduleIndex}][lessons][${lessonIndex}][thumbnail]`];
           if (thumbnail) thumbnailUrl = await this.uploadToCloudinary(thumbnail, 'course_thumbnails', 'image');
@@ -363,7 +377,7 @@ export class TeacherCourseService implements ITeacherCourseService {
       }
     }
 
-    return updatedCourse;
+    return signCourseUrls(updatedCourse);
   }
 
   async getCourseAnalytics(courseId: string, teacherId: string): Promise<ICourseAnalytics> {
@@ -453,7 +467,7 @@ export class TeacherCourseService implements ITeacherCourseService {
       { $sort: { '_id': -1 } }
     ]);
 
-    return {
+    const analytics = {
       overview: {
         title: course.title,
         totalStudents: (course.totalStudents || 0) + companyEnrollments,
@@ -470,5 +484,7 @@ export class TeacherCourseService implements ITeacherCourseService {
       ratingStats: ratingDistribution,
       courseStructure: course.modules as IModule[] // For matching lesson IDs with titles on frontend
     };
+
+    return signCourseUrls(analytics);
   }
 }

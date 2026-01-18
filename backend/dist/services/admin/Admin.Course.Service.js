@@ -27,6 +27,7 @@ const types_1 = require("../../core/di/types");
 const Admin_course_Dto_1 = require("../../core/dtos/admin/Admin.course.Dto");
 const socket_1 = require("../../config/socket");
 const Course_1 = require("../../models/Course");
+const cloudinarySign_1 = require("../../utils/cloudinarySign");
 let AdminCourseService = class AdminCourseService {
     constructor(_courseRepo, _notificationService, _companyRepository) {
         this._courseRepo = _courseRepo;
@@ -53,7 +54,11 @@ let AdminCourseService = class AdminCourseService {
     getCourseById(courseId) {
         return __awaiter(this, void 0, void 0, function* () {
             const course = yield this._courseRepo.findById(courseId);
-            return course ? (0, Admin_course_Dto_1.AdminCourseDTO)(course) : null;
+            if (!course)
+                return null;
+            // Sign URLs for admin preview
+            const signedCourse = (0, cloudinarySign_1.signCourseUrls)(course);
+            return (0, Admin_course_Dto_1.AdminCourseDTO)(signedCourse);
         });
     }
     verifyCourse(courseId) {

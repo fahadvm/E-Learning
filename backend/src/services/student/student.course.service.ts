@@ -14,6 +14,7 @@ import { ICourseResourceRepository } from '../../core/interfaces/repositories/IC
 import { CourseQuery } from '../../types/filter/fiterTypes';
 import { SortOrder } from 'mongoose';
 import { IStudentCourseCertificateService } from '../../core/interfaces/services/student/IStudentCourseCertificateService';
+import { getSignedUrl } from '../../utils/cloudinarySign';
 
 @injectable()
 export class StudentCourseService implements IStudentCourseService {
@@ -121,7 +122,13 @@ export class StudentCourseService implements IStudentCourseService {
     if (course.isBlocked) {
       throwError('Course resources are unavailable as the course is blocked by admin.', STATUS_CODES.FORBIDDEN);
     }
-    return this._resourceRepository.getResourcesByCourse(courseId);
+    const resources = await this._resourceRepository.getResourcesByCourse(courseId);
+    return resources.map(resource => {
+      if (resource.fileUrl) {
+        resource.fileUrl = getSignedUrl(resource.fileUrl);
+      }
+      return resource;
+    });
   }
 
 

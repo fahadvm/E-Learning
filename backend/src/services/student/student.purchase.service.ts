@@ -19,6 +19,7 @@ import logger from '../../utils/logger';
 import { ITransactionRepository } from '../../core/interfaces/repositories/ITransactionRepository';
 import { IWalletRepository } from '../../core/interfaces/repositories/IwalletRepository';
 import { ITeacher } from '../../models/Teacher';
+import {  signCourseUrls } from '../../utils/cloudinarySign';
 
 @injectable()
 export class StudentPurchaseService implements IStudentPurchaseService {
@@ -250,8 +251,12 @@ export class StudentPurchaseService implements IStudentPurchaseService {
     }
 
     const progress = await this._studentRepo.getOrCreateCourseProgress(studentId, courseId);
+
+    // Sign URLs for course content
+    const signedCourse = signCourseUrls(course);
+
     const recommended = await this._courseRepo.findRecommendedCourses(courseId, course.category, course.level, 6);
-    return { course, progress, recommended };
+    return { course: signedCourse, progress, recommended };
   }
 
   async getOrderDetails(studentId: string, orderId: string): Promise<IOrder> {

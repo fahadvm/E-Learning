@@ -28,6 +28,7 @@ const ResANDError_1 = require("../../utils/ResANDError");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const leaderboard_1 = require("../../utils/redis/leaderboard");
+const cloudinarySign_1 = require("../../utils/cloudinarySign");
 let EmployeeCourseService = class EmployeeCourseService {
     constructor(_employeeRepo, _companyOrderRepo, _courseRepo, _resourceRepository, _LearnigPathRepo, _notificationService) {
         this._employeeRepo = _employeeRepo;
@@ -74,7 +75,9 @@ let EmployeeCourseService = class EmployeeCourseService {
                 (0, ResANDError_1.throwError)('Course access disabled by admin. Reason: ' + (course.blockReason || 'No reason provided'), HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
             }
             const progress = yield this._employeeRepo.getOrCreateCourseProgress(employeeId, courseId);
-            return { course, progress };
+            // Sign URLs for course content
+            const signedCourse = (0, cloudinarySign_1.signCourseUrls)(course);
+            return { course: signedCourse, progress };
         });
     }
     markLessonComplete(employeeId, courseId, lessonId) {
@@ -165,7 +168,13 @@ let EmployeeCourseService = class EmployeeCourseService {
             if (course.isBlocked) {
                 (0, ResANDError_1.throwError)('Course resources are unavailable as the course is blocked by admin.', HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
             }
-            return this._resourceRepository.getResourcesByCourse(courseId);
+            const resources = yield this._resourceRepository.getResourcesByCourse(courseId);
+            return resources.map(resource => {
+                if (resource.fileUrl) {
+                    resource.fileUrl = (0, cloudinarySign_1.getSignedUrl)(resource.fileUrl);
+                }
+                return resource;
+            });
         });
     }
     getProgress(employeeId) {

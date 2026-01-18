@@ -70,6 +70,12 @@ export class CourseRepository implements ICourseRepository {
     return await Course.findOne({ _id: courseId, teacherId });
   }
 
+  async alreadyexist(startname :string , category:string): Promise<ICourse[]>{
+    let courses = await Course.find({ title : new RegExp(`^{startname}`) ,category })
+    return courses
+    
+  }
+
   async getPremiumCourses(): Promise<ICourse[]> {
     return await Course.find({});
   }

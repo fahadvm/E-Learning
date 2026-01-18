@@ -1,7 +1,12 @@
 import cloudinary from '../config/cloudinary';
 import logger from './logger';
 
-export const uploadToCloudinary = async (buffer: Buffer, folder: string = 'chat-uploads', resourceType: 'auto' | 'image' | 'video' | 'raw' = 'auto'): Promise<string> => {
+export const uploadToCloudinary = async (
+    buffer: Buffer,
+    folder: string = 'chat-uploads',
+    resourceType: 'auto' | 'image' | 'video' | 'raw' = 'auto',
+    type: 'upload' | 'authenticated' | 'private' = 'upload'
+): Promise<string> => {
     const publicId = `upload-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
     return new Promise((resolve, reject) => {
@@ -10,6 +15,7 @@ export const uploadToCloudinary = async (buffer: Buffer, folder: string = 'chat-
                 folder: folder,
                 public_id: publicId,
                 resource_type: resourceType,
+                type: type,
                 overwrite: false,
             },
             (error, result) => {
