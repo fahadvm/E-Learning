@@ -17,5 +17,5 @@ export interface IOrderRepository {
     page: number,
     limit: number
   ): Promise<{ orders: IOrder[]; total: number }>;
-
+  getEnrolmentAnalytics(courseId: string): Promise<{ month: string, count: number }[]>;
 }

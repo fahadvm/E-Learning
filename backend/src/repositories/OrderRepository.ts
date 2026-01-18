@@ -122,7 +122,37 @@ export class OrderRepository implements IOrderRepository {
     return { orders: orders as IOrder[], total };
   }
 
+  async getEnrolmentAnalytics(courseId: string): Promise<{ month: string, count: number }[]> {
+    const courseObjectId = new mongoose.Types.ObjectId(courseId);
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
+    const result = await OrderModel.aggregate([
+      {
+        $match: {
+          courses: { $in: [courseObjectId] },
+          status: 'paid',
+          createdAt: { $gte: sixMonthsAgo }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 }
+      }
+    ]);
 
-
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    return result.map(item => ({
+      month: `${monthNames[item._id.month - 1]} ${item._id.year}`,
+      count: item.count
+    }));
+  }
 }

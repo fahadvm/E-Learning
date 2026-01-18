@@ -9,4 +9,5 @@ export interface IAdminCourseService {
   rejectCourse(courseId: string, remarks: string): Promise<IAdminCourseDTO | null>;
   blockCourse(courseId: string, reason: string): Promise<IAdminCourseDTO | null>;
   unblockCourse(courseId: string): Promise<IAdminCourseDTO | null>;
+  getCourseAnalytics(courseId: string): Promise<{ month: string, count: number }[]>;
 }

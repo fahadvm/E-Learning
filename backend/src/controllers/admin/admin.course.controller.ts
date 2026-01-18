@@ -53,4 +53,9 @@ export class AdminCourseController implements IAdminCourseController {
     const course = await this._adminCourseService.unblockCourse(req.params.courseId);
     sendResponse(res, STATUS_CODES.OK, MESSAGES.COURSES_FETCHED, true, course);
   }
+
+  async getCourseAnalytics(req: Request, res: Response) {
+    const analytics = await this._adminCourseService.getCourseAnalytics(req.params.courseId);
+    sendResponse(res, STATUS_CODES.OK, MESSAGES.SUCCESS, true, analytics);
+  }
 }

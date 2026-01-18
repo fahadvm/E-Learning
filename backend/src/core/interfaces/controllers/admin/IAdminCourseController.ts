@@ -9,4 +9,5 @@ export interface IAdminCourseController {
     rejectCourse(req: Request, res: Response): Promise<void>;
     blockCourse(req: Request, res: Response): Promise<void>;
     unblockCourse(req: Request, res: Response): Promise<void>;
+    getCourseAnalytics(req: Request, res: Response): Promise<void>;
 }

@@ -45,6 +45,7 @@ export const adminApiMethods = {
   rejectCourse: (id: string, remarks: string) => patch(ADMIN_ROUTES.courses.reject(id), { remarks }),
   blockCourse: (id: string, reason?: string) => patch(ADMIN_ROUTES.courses.block(id), { reason }),
   unblockCourse: (id: string) => patch(ADMIN_ROUTES.courses.unblock(id), {}),
+  getCourseAnalytics: (id: string) => get(`/admin/courses/analytics/${id}`),
 
   // Teachers
   getTeachers: (params?: { page?: number; limit?: number; search?: string; status: string }) => get(ADMIN_ROUTES.teachers.base, params),

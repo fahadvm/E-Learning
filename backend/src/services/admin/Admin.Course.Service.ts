@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { IAdminCourseService } from '../../core/interfaces/services/admin/IAdminCourseService';
 import { ICourseRepository } from '../../core/interfaces/repositories/ICourseRepository';
+import { IOrderRepository } from '../../core/interfaces/repositories/IOrderRepository';
 import { TYPES } from '../../core/di/types';
 import { IAdminCourseDTO, AdminCourseDTO, PaginatedCourseDTO } from '../../core/dtos/admin/Admin.course.Dto';
 import { broadcastEvent } from '../../config/socket';
@@ -16,6 +17,7 @@ export class AdminCourseService implements IAdminCourseService {
     @inject(TYPES.CourseRepository) private readonly _courseRepo: ICourseRepository,
     @inject(TYPES.NotificationService) private readonly _notificationService: INotificationService,
     @inject(TYPES.CompanyRepository) private readonly _companyRepository: ICompanyRepository,
+    @inject(TYPES.OrderRepository) private readonly _orderRepository: IOrderRepository,
   ) { }
 
   async getAllCourses(page: number, limit: number, search?: string): Promise<PaginatedCourseDTO> {
@@ -124,5 +126,9 @@ export class AdminCourseService implements IAdminCourseService {
     }
 
     return course ? AdminCourseDTO(course) : null;
+  }
+
+  async getCourseAnalytics(courseId: string) {
+    return await this._orderRepository.getEnrolmentAnalytics(courseId);
   }
 }
