@@ -36,7 +36,10 @@ courseRouter.get('/leaningRecords', authMiddleware('employee'), asyncHandler(emp
 courseRouter.route('/comment/:courseId')
   .get(authMiddleware('employee'), asyncHandler(employeeCommentCtrl.getComments.bind(employeeCommentCtrl)))
   .post(authMiddleware('employee'), asyncHandler(employeeCommentCtrl.addComment.bind(employeeCommentCtrl)));
+courseRouter.get('/comment/replies/:commentId', authMiddleware('employee'), asyncHandler(employeeCommentCtrl.getReplies.bind(employeeCommentCtrl)));
 courseRouter.delete('/comment/:commentId', authMiddleware('employee'), asyncHandler(employeeCommentCtrl.deleteComment.bind(employeeCommentCtrl)));
+courseRouter.post('/comment/like/:commentId', authMiddleware('employee'), asyncHandler(employeeCommentCtrl.toggleLike.bind(employeeCommentCtrl)));
+courseRouter.post('/comment/dislike/:commentId', authMiddleware('employee'), asyncHandler(employeeCommentCtrl.toggleDislike.bind(employeeCommentCtrl)));
 
 courseRouter.post('/course-review', authMiddleware('employee'), asyncHandler(employeeCourseReviewCtrl.addReview.bind(employeeCourseReviewCtrl)));
 courseRouter.get('/course-reviews/:courseId', authMiddleware('employee'), asyncHandler(employeeCourseReviewCtrl.getReviews.bind(employeeCourseReviewCtrl)));

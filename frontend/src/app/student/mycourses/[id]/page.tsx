@@ -20,7 +20,11 @@ import {
   MessageCircle,
   Copy,
   RotateCcw,
-  GraduationCap
+  GraduationCap,
+  ThumbsUp,
+  ThumbsDown,
+  Reply,
+  MoreVertical
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -62,7 +66,13 @@ interface Comment {
     name: string;
     profilePicture?: string;
   };
+  userModel: 'Student' | 'Teacher' | 'Employee' | 'Company';
+  parentId?: string;
+  likes: string[];
+  dislikes: string[];
   createdAt: string;
+  replies?: Comment[];
+  replyCount?: number;
 }
 
 interface CourseProgress {
@@ -109,6 +119,156 @@ interface Resource {
   fileSize?: number;
 }
 
+
+const CommentItem = ({
+  comment,
+  depth = 0,
+  currentUser,
+  handleToggleLike,
+  handleToggleDislike,
+  handleDeleteComment,
+  handleAddComment,
+  fetchReplies
+}: {
+  comment: Comment;
+  depth?: number;
+  currentUser: { _id: string, role: string } | null;
+  handleToggleLike: (id: string) => void;
+  handleToggleDislike: (id: string) => void;
+  handleDeleteComment: (id: string) => void;
+  handleAddComment: (parentId?: string, content?: string) => void;
+  fetchReplies: (id: string) => void;
+}) => {
+  const [isReplying, setIsReplying] = useState(false);
+  const [rText, setRText] = useState("");
+  const [expanded, setExpanded] = useState(false);
+
+  const hasL = comment.likes?.includes(currentUser?._id || "");
+  const hasD = comment.dislikes?.includes(currentUser?._id || "");
+
+  const onExpandToggle = () => {
+    if (!expanded && (!comment.replies || comment.replies.length === 0)) {
+      fetchReplies(comment._id);
+    }
+    setExpanded(!expanded);
+  };
+
+  return (
+    <div key={comment._id} className={`flex gap-3 ${depth > 0 ? "ml-8 mt-4 pt-4 border-t border-muted/30" : "animate-in fade-in slide-in-from-bottom-3"}`}>
+      <div className="flex-shrink-0">
+        <img
+          src={comment.userId?.profilePicture || "/gallery/avatar.jpg"}
+          alt={comment.userId?.name}
+          className={`${depth > 0 ? "w-8 h-8" : "w-11 h-11"} rounded-full ring-2 ring-background shadow-sm object-cover`}
+        />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-wrap mb-1">
+          <span className="font-bold text-sm text-foreground/90">{comment.userId?.name || "Anonymous"}</span>
+          <Badge variant="outline" className={`text-[9px] h-4 px-1 font-bold ${comment.userModel === 'Teacher' ? 'bg-orange-500/10 text-orange-600 border-orange-500/20' : 'bg-primary/5 text-primary border-primary/10'}`}>
+            {comment.userModel}
+          </Badge>
+          <span className="text-[10px] text-muted-foreground">
+            {new Date(comment.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
+          </span>
+        </div>
+
+        <p className="text-sm text-foreground/85 whitespace-pre-wrap break-words leading-relaxed">
+          {comment.content}
+        </p>
+
+        <div className="flex items-center gap-4 mt-3">
+          <button
+            onClick={() => handleToggleLike(comment._id)}
+            className={`flex items-center gap-1.5 text-xs transition-all p-1 -ml-1 rounded-md hover:bg-muted ${hasL ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            <ThumbsUp className={`w-3.5 h-3.5 ${hasL ? "fill-primary text-primary" : ""}`} />
+            <span>{comment.likes?.length || 0}</span>
+          </button>
+          <button
+            onClick={() => handleToggleDislike(comment._id)}
+            className={`flex items-center gap-1.5 text-xs transition-all p-1 rounded-md hover:bg-muted ${hasD ? "text-destructive font-bold" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            <ThumbsDown className={`w-3.5 h-3.5 ${hasD ? "fill-destructive text-destructive" : ""}`} />
+            <span>{comment.dislikes?.length || 0}</span>
+          </button>
+
+          {depth === 0 && (
+            <button
+              onClick={() => setIsReplying(!isReplying)}
+              className={`text-xs font-semibold px-2 py-1 rounded-md transition-colors ${isReplying ? "bg-primary text-primary-foreground" : "text-primary hover:bg-primary/5"}`}
+            >
+              Reply
+            </button>
+          )}
+
+          {currentUser?._id === comment.userId?._id && (
+            <button
+              onClick={() => handleDeleteComment(comment._id)}
+              className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1 transition-colors ml-auto"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+
+        {isReplying && (
+          <div className="mt-4 space-y-3 animate-in fade-in zoom-in-95 duration-200">
+            <Textarea
+              autoFocus
+              placeholder="Add a reply..."
+              value={rText}
+              onChange={(e) => setRText(e.target.value)}
+              className="min-h-[80px] text-sm resize-none"
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setIsReplying(false)}>Cancel</Button>
+              <Button size="sm" disabled={!rText.trim()} onClick={() => {
+                handleAddComment(comment._id, rText);
+                setRText("");
+                setIsReplying(false);
+                setExpanded(true);
+              }}>Post Reply</Button>
+            </div>
+          </div>
+        )}
+
+        {((comment.replies && comment.replies.length > 0) || (comment.replyCount && comment.replyCount > 0)) && depth === 0 && (
+          <div className="mt-3">
+            <button
+              onClick={onExpandToggle}
+              className="text-xs text-primary font-bold flex items-center gap-2 hover:underline py-1"
+            >
+              <div className={`transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}>
+                <ArrowLeft className="w-3 h-3 -rotate-90" />
+              </div>
+              {expanded ? "Hide replies" : `Show ${comment.replyCount || comment.replies?.length || 0} ${(comment.replyCount || comment.replies?.length) === 1 ? 'reply' : 'replies'}`}
+            </button>
+
+            {expanded && (
+              <div className="mt-2 pl-2 border-l-2 border-primary/10">
+                {comment.replies?.map((reply) => (
+                  <CommentItem
+                    key={reply._id}
+                    comment={reply}
+                    depth={depth + 1}
+                    currentUser={currentUser}
+                    handleToggleLike={handleToggleLike}
+                    handleToggleDislike={handleToggleDislike}
+                    handleDeleteComment={handleDeleteComment}
+                    handleAddComment={handleAddComment}
+                    fetchReplies={fetchReplies}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export default function CoursePage({ params }: { params: Promise<{ id: string }> }) {
   const [courseId, setCourseId] = useState<string>("");
   const [course, setCourse] = useState<Course | null>(null);
@@ -126,6 +286,20 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
   const [openReviewModal, setOpenReviewModal] = useState(false);
   const [openReviewListModal, setOpenReviewListModal] = useState(false);
   const [reviews, setReviews] = useState([]);
+  const [currentUser, setCurrentUser] = useState<{ _id: string, role: string } | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const { studentProfileApi } = await import("@/services/APIservices/studentApiservice");
+        const res = await studentProfileApi.getProfile();
+        if (res.ok) setCurrentUser({ _id: res.data._id, role: res.data.role });
+      } catch (err) {
+        console.error("Failed to fetch profile", err);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   useEffect(() => {
     const fetchParams = async () => {
@@ -181,13 +355,78 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     setOutput("")
   }
 
-  const handleAddComment = async () => {
-    if (!newComment.trim()) return;
+
+  const handleToggleLike = async (commentId: string) => {
     try {
-      const res = await studentCourseApi.addCourseComment(courseId, { content: newComment });
+      const res = await studentCourseApi.toggleCommentLike(commentId);
       if (res.ok) {
-        setComments((prev) => [...prev, res.data]);
-        setNewComment("");
+        setComments(prev => updateCommentInList(prev, res.data));
+      }
+    } catch {
+      showErrorToast("Failed to update like");
+    }
+  };
+
+  const handleToggleDislike = async (commentId: string) => {
+    try {
+      const res = await studentCourseApi.toggleCommentDislike(commentId);
+      if (res.ok) {
+        setComments(prev => updateCommentInList(prev, res.data));
+      }
+    } catch {
+      showErrorToast("Failed to update dislike");
+    }
+  };
+
+  const updateCommentInList = (list: Comment[], updated: Comment): Comment[] => {
+    return list.map(c => {
+      if (c._id === updated._id) return { ...c, ...updated, replies: c.replies };
+      if (c.replies) return { ...c, replies: updateCommentInList(c.replies, updated) };
+      return c;
+    });
+  };
+
+  const fetchReplies = async (commentId: string) => {
+    try {
+      const res = await studentCourseApi.getCommentReplies(commentId);
+      if (res.ok) {
+        const updateRepliesRecursively = (list: Comment[], id: string, replies: Comment[]): Comment[] => {
+          return list.map(c => {
+            if (c._id === id) return { ...c, replies: replies };
+            if (c.replies) return { ...c, replies: updateRepliesRecursively(c.replies, id, replies) };
+            return c;
+          });
+        };
+        setComments(prev => updateRepliesRecursively(prev, commentId, res.data));
+      }
+    } catch {
+      showErrorToast("Failed to load replies");
+    }
+  };
+
+  const handleAddComment = async (parentId?: string, content?: string) => {
+    const text = content !== undefined ? content : newComment;
+    if (!text.trim()) return;
+    try {
+      const res = await studentCourseApi.addCourseComment(courseId, { content: text, parentId });
+      if (res.ok) {
+        if (parentId) {
+          const addReplyRecursively = (list: Comment[], pId: string, reply: Comment): Comment[] => {
+            return list.map(c => {
+              if (c._id === pId) return {
+                ...c,
+                replies: [...(c.replies || []), reply],
+                replyCount: (c.replyCount || 0) + 1
+              };
+              if (c.replies) return { ...c, replies: addReplyRecursively(c.replies, pId, reply) };
+              return c;
+            });
+          };
+          setComments(prev => addReplyRecursively(prev, parentId, res.data));
+        } else {
+          setComments((prev) => [res.data, ...prev]);
+          setNewComment("");
+        }
         showSuccessToast("Comment added");
       } else {
         showErrorToast(res.message);
@@ -201,7 +440,20 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     try {
       const res = await studentCourseApi.deleteCourseComment(commentId);
       if (res.ok) {
-        setComments((prev) => prev.filter((c) => c._id !== commentId));
+        const deleteRecursively = (list: Comment[], id: string): Comment[] => {
+          return list.map(c => {
+            if (c.replies && c.replies.some(r => r._id === id)) {
+              return {
+                ...c,
+                replies: c.replies.filter(r => r._id !== id),
+                replyCount: Math.max(0, (c.replyCount || 0) - 1)
+              };
+            }
+            if (c.replies) return { ...c, replies: deleteRecursively(c.replies, id) };
+            return c;
+          }).filter(c => c._id !== id);
+        };
+        setComments((prev) => deleteRecursively(prev, commentId));
         showSuccessToast("Comment deleted");
       } else {
         showErrorToast(res.message);
@@ -469,10 +721,10 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
             </Card>
 
             {/* Tabs */}
-<Tabs defaultValue="overview" className="w-full relative">
+            <Tabs defaultValue="overview" className="w-full relative">
               {/* Responsive Tabs List */}
-      <TabsList
-  className="
+              <TabsList
+                className="
     grid
     grid-cols-2
     sm:grid-cols-3
@@ -482,7 +734,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
     h-auto          
     items-stretch   
   "
->
+              >
                 <TabsTrigger value="overview" className="text-xs  sm:text-sm">
                   <BookOpen className="w-4 h-4 mr-1" /> Overview
                 </TabsTrigger>
@@ -605,55 +857,72 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
 
               {/* Community Tab */}
               <TabsContent value="community">
-                <Card className="border-0 shadow-xl bg-white dark:bg-gray-900 h-full">
-                  <CardContent className="p-0 flex flex-col h-96">
-                    <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                <Card className="border shadow-xl bg-card h-full min-h-[500px] flex flex-col">
+                  <CardHeader className="border-b pb-4 px-6 flex flex-row items-center justify-between">
+                    <div>
+                      <CardTitle className="text-xl flex items-center gap-2">
+                        <MessageSquare className="w-5 h-5 text-primary" />
+                        Community Discussion
+                      </CardTitle>
+                      <p className="text-xs text-muted-foreground mt-1">Interact with students and mentors</p>
+                    </div>
+                    <Badge variant="secondary" className="h-6">
+                      {comments.length} Comments
+                    </Badge>
+                  </CardHeader>
+                  <CardContent className="p-0 flex flex-col h-[600px]">
+                    <div className="flex-1 overflow-y-auto p-6 space-y-6">
                       {comments.length === 0 ? (
-                        <div className="text-center py-10">
-                          <MessageCircle className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                          <p className="text-muted-foreground">No comments yet. Be the first to ask!</p>
+                        <div className="flex flex-col items-center justify-center py-20 text-center">
+                          <div className="bg-primary/5 p-6 rounded-full mb-4">
+                            <MessageCircle className="w-12 h-12 text-primary/40" />
+                          </div>
+                          <h3 className="text-lg font-semibold">No discussions yet</h3>
+                          <p className="text-muted-foreground max-w-[250px] mx-auto mt-2">
+                            Be the first to share your thoughts or ask a question about this course!
+                          </p>
                         </div>
                       ) : (
                         comments.map((comment) => (
-                          <div key={comment._id} className="flex gap-3 group">
-                            <img
-                              src={comment.userId?.profilePicture || "/gallery/avatar.jpg"}
-                              alt={comment.userId?.name}
-                              className="w-10 h-10 rounded-full ring-2 ring-gray-200"
-                            />
-                            <div className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-2xl px-4 py-3">
-                              <div className="flex items-center justify-between">
-                                <p className="font-semibold text-sm">{comment.userId?.name || "Anonymous"}</p>
-                                <span className="text-xs text-muted-foreground">
-                                  {new Date(comment.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </span>
-                              </div>
-                              <p className="text-sm mt-1 text-foreground">{comment.content}</p>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={() => handleDeleteComment(comment._id)}
-                            >
-                              <Trash2 className="w-4 h-4 text-red-500" />
-                            </Button>
-                          </div>
+                          <CommentItem
+                            key={comment._id}
+                            comment={comment}
+                            currentUser={currentUser}
+                            handleToggleLike={handleToggleLike}
+                            handleToggleDislike={handleToggleDislike}
+                            handleDeleteComment={handleDeleteComment}
+                            handleAddComment={handleAddComment}
+                            fetchReplies={fetchReplies}
+                          />
                         ))
                       )}
                     </div>
-                    <div className="p-4 border-t bg-gray-50 dark:bg-gray-800">
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="Ask a question or share a tip..."
-                          value={newComment}
-                          onChange={(e) => setNewComment(e.target.value)}
-                          onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleAddComment()}
-                          className="flex-1"
+                    <div className="p-6 border-t bg-muted/30 backdrop-blur-sm">
+                      <div className="flex gap-4">
+                        <img
+                          src={currentUser?._id ? (currentUser.role === 'teacher' ? course.teacherId?.profilePicture : "/gallery/avatar.jpg") : "/gallery/avatar.jpg"}
+                          className="w-10 h-10 rounded-full object-cover hidden sm:block shadow-sm"
+                          alt="Me"
                         />
-                        <Button onClick={handleAddComment} className="bg-gradient-to-r from-primary to-purple-600 hover:from-purple-700 hover:to-purple-700">
-                          <Send className="w-4 h-4" />
-                        </Button>
+                        <div className="flex-1 space-y-3">
+                          <Textarea
+                            placeholder="Share your thoughts, ask a question, or leave a tip..."
+                            value={newComment}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            className="w-full min-h-[100px] bg-background border-muted shadow-sm focus:border-primary transition-all resize-none p-4 rounded-xl"
+                          />
+                          <div className="flex justify-between items-center">
+                            <p className="text-[10px] text-muted-foreground italic">Press Enter + Shift for new line</p>
+                            <Button
+                              onClick={() => handleAddComment()}
+                              disabled={!newComment.trim()}
+                              className="px-6 rounded-full bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 shadow-lg"
+                            >
+                              <Send className="w-4 h-4 mr-2" />
+                              Comment
+                            </Button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
@@ -913,12 +1182,13 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
         <div className="mt-12">
           <RecommendedCourses courses={recommended} />
         </div>
-      </div>
+      </div >
 
       {/* Modals */}
-      <ReviewListModal
+      < ReviewListModal
         open={openReviewListModal}
-        onClose={() => setOpenReviewListModal(false)}
+        onClose={() => setOpenReviewListModal(false)
+        }
         reviews={reviews}
       />
 
@@ -932,6 +1202,6 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
       <div className="fixed bottom-6 right-6">
         <AiTutorChat courseId={courseId} />
       </div>
-    </div>
+    </div >
   );
 }

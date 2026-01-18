@@ -252,6 +252,15 @@ let AdminReportsRepository = class AdminReportsRepository {
             ]);
         });
     }
+    getCategoryDistribution() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield Course_1.Course.aggregate([
+                { $match: { isPublished: true } },
+                { $group: { _id: '$category', value: { $sum: 1 } } },
+                { $project: { _id: 0, name: '$_id', value: 1 } }
+            ]);
+        });
+    }
 };
 exports.AdminReportsRepository = AdminReportsRepository;
 exports.AdminReportsRepository = AdminReportsRepository = __decorate([

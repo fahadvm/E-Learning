@@ -33,8 +33,11 @@ export const studentCourseApi = {
   getCourseResources: (courseId: string) => get(STUDENT_ROUTES.courses.resources(courseId)),
   getCourseComments: (courseId: string) => get(STUDENT_ROUTES.courses.comments(courseId)),
   getPurchasedCourseIds: () => get(STUDENT_ROUTES.purchase.getPurchasedIds),
-  addCourseComment: (courseId: string, data: { content: string }) => post(STUDENT_ROUTES.courses.comments(courseId), data),
+  addCourseComment: (courseId: string, data: { content: string, parentId?: string }) => post(STUDENT_ROUTES.courses.comments(courseId), data),
+  getCommentReplies: (commentId: string) => get(STUDENT_ROUTES.courses.getReplies(commentId)),
   deleteCourseComment: (commentId: string) => del(STUDENT_ROUTES.courses.comments(commentId)),
+  toggleCommentLike: (commentId: string) => post(STUDENT_ROUTES.courses.toggleLike(commentId), {}),
+  toggleCommentDislike: (commentId: string) => post(STUDENT_ROUTES.courses.toggleDislike(commentId), {}),
 
   addCourseReview: (data: { courseId: string, rating: number, comment: string }) => post(STUDENT_ROUTES.courses.addCourseReview, data),
   getCourseReviews: (courseId: string) => get(STUDENT_ROUTES.courses.getCourseReviews(courseId)),
@@ -95,7 +98,7 @@ export const paymentApi = {
     post(STUDENT_ROUTES.bookings.verify, data),
   getOrderDetails: (razorpayOrderId: string) => get(STUDENT_ROUTES.purchase.getOrderDetails(razorpayOrderId)),
   getPurchaseHistory: (params: { page: number, limit: number }) => get(STUDENT_ROUTES.purchase.getMyhistory, params),
-  downloadReceipt: (razorpayOrderId:string ) => get(STUDENT_ROUTES.purchase.getInvoice(razorpayOrderId))
+  downloadReceipt: (razorpayOrderId: string) => get(STUDENT_ROUTES.purchase.getInvoice(razorpayOrderId))
 };
 
 export const studentSubscriptionApi = {

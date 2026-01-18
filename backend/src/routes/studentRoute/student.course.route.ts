@@ -24,9 +24,12 @@ router.get('/resources/:courseId', authMiddleware('student'), asyncHandler(stude
 
 
 router.route('/comment/:courseId')
-    .get(authMiddleware('student'), asyncHandler(studentCommentCtrl.getComments.bind(studentCourseCtrl)))
-    .post(authMiddleware('student'), asyncHandler(studentCommentCtrl.addComment.bind(studentCourseCtrl)));
-router.delete('/comment/:commentId', authMiddleware('student'), asyncHandler(studentCommentCtrl.deleteComment.bind(studentCourseCtrl)));
+    .get(authMiddleware('student'), asyncHandler(studentCommentCtrl.getComments.bind(studentCommentCtrl)))
+    .post(authMiddleware('student'), asyncHandler(studentCommentCtrl.addComment.bind(studentCommentCtrl)));
+router.get('/comment/replies/:commentId', authMiddleware('student'), asyncHandler(studentCommentCtrl.getReplies.bind(studentCommentCtrl)));
+router.delete('/comment/:commentId', authMiddleware('student'), asyncHandler(studentCommentCtrl.deleteComment.bind(studentCommentCtrl)));
+router.post('/comment/like/:commentId', authMiddleware('student'), asyncHandler(studentCommentCtrl.toggleLike.bind(studentCommentCtrl)));
+router.post('/comment/dislike/:commentId', authMiddleware('student'), asyncHandler(studentCommentCtrl.toggleDislike.bind(studentCommentCtrl)));
 
 
 router.post('/course-review', authMiddleware('student'), asyncHandler(studentCourseReviewCtrl.addReview.bind(studentCourseReviewCtrl)));
@@ -34,9 +37,9 @@ router.get('/course-reviews/:courseId', authMiddleware('student'), asyncHandler(
 router.delete('/course-review/:reviewId', authMiddleware('student'), asyncHandler(studentCourseReviewCtrl.deleteReview.bind(studentCourseReviewCtrl)));
 
 
-router.get( '/my/certificates', authMiddleware('student'), asyncHandler(studentCourseCertCtrl.getMyCourseCertificates.bind(studentCourseCertCtrl)));
-router.get( '/certificates/:courseId', authMiddleware('student'), asyncHandler(studentCourseCertCtrl.getCourseCertificate.bind(studentCourseCertCtrl)));
-router.post( '/generate/certificate', authMiddleware('student'), asyncHandler(studentCourseCertCtrl.generateCourseCertificate.bind(studentCourseCertCtrl)));
+router.get('/my/certificates', authMiddleware('student'), asyncHandler(studentCourseCertCtrl.getMyCourseCertificates.bind(studentCourseCertCtrl)));
+router.get('/certificates/:courseId', authMiddleware('student'), asyncHandler(studentCourseCertCtrl.getCourseCertificate.bind(studentCourseCertCtrl)));
+router.post('/generate/certificate', authMiddleware('student'), asyncHandler(studentCourseCertCtrl.generateCourseCertificate.bind(studentCourseCertCtrl)));
 
 
 export default router;

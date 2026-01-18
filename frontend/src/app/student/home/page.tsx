@@ -451,7 +451,7 @@ export default function HeroSection() {
                             <p className="text-gray-600 mb-6">
                                 The automated process all your website tasks. Discover tools and techniques to engage effectively with vulnerable children and young people.
                             </p>
-                            <Link href="#" className="inline-block px-6 py-3 bg-indigo-900 text-white rounded hover:bg-indigo-700">
+                            <Link href="/student/subscription" className="inline-block px-6 py-3 bg-indigo-900 text-white rounded hover:bg-indigo-700">
                                 Try premium Pack
                             </Link>
                         </div>

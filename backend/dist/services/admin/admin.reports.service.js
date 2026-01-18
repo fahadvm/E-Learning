@@ -39,6 +39,7 @@ let AdminReportsService = class AdminReportsService {
             const activeTeachers = yield this._reportsRepo.getMostActiveTeachers(5);
             const recentActivity = yield this._reportsRepo.getRecentActivity(10);
             const dailyTrend = yield this._reportsRepo.getDailyTrend(7);
+            const categoryDistribution = yield this._reportsRepo.getCategoryDistribution();
             return {
                 stats,
                 monthlyRevenue,
@@ -48,6 +49,7 @@ let AdminReportsService = class AdminReportsService {
                 companyRevenue,
                 activeTeachers,
                 dailyTrend,
+                categoryDistribution,
                 recentActivity
             };
         });
