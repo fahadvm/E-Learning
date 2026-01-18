@@ -20,9 +20,12 @@ router.post('/notes', (0, authMiddleware_1.authMiddleware)('student'), (0, async
 router.get('/:courseId/lesson/:lessonIndex/complete', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCourseCtrl.markLessonComplete.bind(studentCourseCtrl)));
 router.get('/resources/:courseId', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCourseCtrl.getCourseResources.bind(studentCourseCtrl)));
 router.route('/comment/:courseId')
-    .get((0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCommentCtrl.getComments.bind(studentCourseCtrl)))
-    .post((0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCommentCtrl.addComment.bind(studentCourseCtrl)));
-router.delete('/comment/:commentId', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCommentCtrl.deleteComment.bind(studentCourseCtrl)));
+    .get((0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCommentCtrl.getComments.bind(studentCommentCtrl)))
+    .post((0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCommentCtrl.addComment.bind(studentCommentCtrl)));
+router.get('/comment/replies/:commentId', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCommentCtrl.getReplies.bind(studentCommentCtrl)));
+router.delete('/comment/:commentId', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCommentCtrl.deleteComment.bind(studentCommentCtrl)));
+router.post('/comment/like/:commentId', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCommentCtrl.toggleLike.bind(studentCommentCtrl)));
+router.post('/comment/dislike/:commentId', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCommentCtrl.toggleDislike.bind(studentCommentCtrl)));
 router.post('/course-review', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCourseReviewCtrl.addReview.bind(studentCourseReviewCtrl)));
 router.get('/course-reviews/:courseId', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCourseReviewCtrl.getReviews.bind(studentCourseReviewCtrl)));
 router.delete('/course-review/:reviewId', (0, authMiddleware_1.authMiddleware)('student'), (0, asyncHandler_1.asyncHandler)(studentCourseReviewCtrl.deleteReview.bind(studentCourseReviewCtrl)));

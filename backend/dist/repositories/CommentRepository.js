@@ -29,15 +29,79 @@ let CommentRepository = class CommentRepository {
     }
     getCommentsByCourse(courseId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield Comment_1.Comment.find({ courseId: new mongoose_1.Types.ObjectId(courseId) })
+            const topLevelComments = yield Comment_1.Comment.find({
+                courseId: new mongoose_1.Types.ObjectId(courseId),
+                parentId: null
+            })
                 .populate('userId', '_id name profilePicture')
                 .sort({ createdAt: -1 });
+            const commentsWithCounts = yield Promise.all(topLevelComments.map((comment) => __awaiter(this, void 0, void 0, function* () {
+                const count = yield Comment_1.Comment.countDocuments({ parentId: comment._id });
+                return Object.assign(Object.assign({}, comment.toObject()), { replyCount: count });
+            })));
+            return commentsWithCounts;
+        });
+    }
+    getReplies(parentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield Comment_1.Comment.find({ parentId: new mongoose_1.Types.ObjectId(parentId) })
+                .populate('userId', '_id name profilePicture')
+                .sort({ createdAt: 1 });
         });
     }
     deleteComment(commentId) {
         return __awaiter(this, void 0, void 0, function* () {
+            // Delete all replies first
+            yield Comment_1.Comment.deleteMany({ parentId: new mongoose_1.Types.ObjectId(commentId) });
             const deleted = yield Comment_1.Comment.findByIdAndDelete(commentId);
             return deleted;
+        });
+    }
+    toggleLike(commentId, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const comment = yield Comment_1.Comment.findById(commentId);
+            if (!comment)
+                return null;
+            const uId = new mongoose_1.Types.ObjectId(userId);
+            const likedIndex = comment.likes.findIndex(id => id.toString() === userId);
+            if (likedIndex > -1) {
+                comment.likes.splice(likedIndex, 1);
+            }
+            else {
+                comment.likes.push(uId);
+                // Remove from dislikes
+                const dislikedIndex = comment.dislikes.findIndex(id => id.toString() === userId);
+                if (dislikedIndex > -1)
+                    comment.dislikes.splice(dislikedIndex, 1);
+            }
+            const saved = yield comment.save();
+            return yield saved.populate('userId', '_id name profilePicture');
+        });
+    }
+    toggleDislike(commentId, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const comment = yield Comment_1.Comment.findById(commentId);
+            if (!comment)
+                return null;
+            const uId = new mongoose_1.Types.ObjectId(userId);
+            const dislikedIndex = comment.dislikes.findIndex(id => id.toString() === userId);
+            if (dislikedIndex > -1) {
+                comment.dislikes.splice(dislikedIndex, 1);
+            }
+            else {
+                comment.dislikes.push(uId);
+                // Remove from likes
+                const likedIndex = comment.likes.findIndex(id => id.toString() === userId);
+                if (likedIndex > -1)
+                    comment.likes.splice(likedIndex, 1);
+            }
+            const saved = yield comment.save();
+            return yield saved.populate('userId', '_id name profilePicture');
+        });
+    }
+    findById(commentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield Comment_1.Comment.findById(commentId);
         });
     }
 };

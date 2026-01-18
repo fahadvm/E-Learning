@@ -24,6 +24,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.StudentCommentService = void 0;
 const inversify_1 = require("inversify");
 const types_1 = require("../../core/di/types");
+const ResANDError_1 = require("../../utils/ResANDError");
+const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 let StudentCommentService = class StudentCommentService {
     constructor(_commentRepo) {
         this._commentRepo = _commentRepo;
@@ -38,9 +40,31 @@ let StudentCommentService = class StudentCommentService {
             return this._commentRepo.getCommentsByCourse(courseId);
         });
     }
-    deleteComment(commentId) {
+    getReplies(parentId) {
         return __awaiter(this, void 0, void 0, function* () {
+            return this._commentRepo.getReplies(parentId);
+        });
+    }
+    deleteComment(commentId, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const comment = yield this._commentRepo.findById(commentId);
+            if (!comment)
+                (0, ResANDError_1.throwError)('Comment not found', HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
+            // Permission check: only owner can delete
+            if (comment.userId.toString() !== userId) {
+                (0, ResANDError_1.throwError)('Unauthorized to delete this comment', HttpStatuscodes_1.STATUS_CODES.UNAUTHORIZED);
+            }
             return this._commentRepo.deleteComment(commentId);
+        });
+    }
+    toggleLike(commentId, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this._commentRepo.toggleLike(commentId, userId);
+        });
+    }
+    toggleDislike(commentId, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this._commentRepo.toggleDislike(commentId, userId);
         });
     }
 };

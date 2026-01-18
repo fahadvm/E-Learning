@@ -25,29 +25,65 @@ exports.EmployeeCommentController = void 0;
 const inversify_1 = require("inversify");
 const types_1 = require("../../core/di/types");
 const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
-const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const ResANDError_1 = require("../../utils/ResANDError");
 const mongoose_1 = require("mongoose");
 let EmployeeCommentController = class EmployeeCommentController {
     constructor(_commentService) {
         this._commentService = _commentService;
         this.addComment = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            var _a;
-            const { content } = req.body;
+            var _a, _b;
+            const { content, parentId } = req.body;
             const { courseId } = req.params;
             const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
-            const comment = yield this._commentService.addComment({ courseId: new mongoose_1.Types.ObjectId(courseId), userId: new mongoose_1.Types.ObjectId(userId), content });
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_DETAILS_FETCHED, true, comment);
+            const role = (_b = req.user) === null || _b === void 0 ? void 0 : _b.role;
+            let userModel = 'Employee';
+            if (role === 'teacher')
+                userModel = 'Teacher';
+            else if (role === 'student')
+                userModel = 'Student';
+            else if (role === 'company')
+                userModel = 'Company';
+            const comment = yield this._commentService.addComment({
+                courseId: new mongoose_1.Types.ObjectId(courseId),
+                userId: new mongoose_1.Types.ObjectId(userId),
+                userModel,
+                content,
+                likes: [],
+                dislikes: [],
+                parentId: parentId ? new mongoose_1.Types.ObjectId(parentId) : undefined
+            });
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Comment added', true, comment);
         });
         this.getComments = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const { courseId } = req.params;
             const comments = yield this._commentService.getComments(courseId);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_DETAILS_FETCHED, true, comments);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Comments fetched', true, comments);
+        });
+        this.getReplies = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const { commentId } = req.params;
+            const replies = yield this._commentService.getReplies(commentId);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Replies fetched', true, replies);
         });
         this.deleteComment = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
             const { commentId } = req.params;
-            const deleted = yield this._commentService.deleteComment(commentId);
-            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, ResponseMessages_1.MESSAGES.COURSE_DETAILS_FETCHED, true, deleted);
+            const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            const deleted = yield this._commentService.deleteComment(commentId, userId);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Comment deleted', true, deleted);
+        });
+        this.toggleLike = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const { commentId } = req.params;
+            const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            const updated = yield this._commentService.toggleLike(commentId, userId);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Like toggled', true, updated);
+        });
+        this.toggleDislike = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const { commentId } = req.params;
+            const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            const updated = yield this._commentService.toggleDislike(commentId, userId);
+            (0, ResANDError_1.sendResponse)(res, HttpStatuscodes_1.STATUS_CODES.OK, 'Dislike toggled', true, updated);
         });
     }
 };
