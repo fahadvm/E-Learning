@@ -177,17 +177,17 @@ let OrderRepository = class OrderRepository {
                 {
                     $group: {
                         _id: {
-                            year: { $year: "$createdAt" },
-                            month: { $month: "$createdAt" }
+                            year: { $year: '$createdAt' },
+                            month: { $month: '$createdAt' }
                         },
                         count: { $sum: 1 }
                     }
                 },
                 {
-                    $sort: { "_id.year": 1, "_id.month": 1 }
+                    $sort: { '_id.year': 1, '_id.month': 1 }
                 }
             ]);
-            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
             return result.map(item => ({
                 month: `${monthNames[item._id.month - 1]} ${item._id.year}`,
                 count: item.count

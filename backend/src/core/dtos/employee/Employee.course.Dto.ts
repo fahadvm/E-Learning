@@ -1,5 +1,4 @@
 import { ICourse, ILesson, IModule } from '../../../models/Course';
-import { ITeacher } from '../../../models/Teacher';
 
 export interface IEmployeeLessonDTO {
     _id?: string;

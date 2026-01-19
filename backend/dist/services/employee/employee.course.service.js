@@ -29,6 +29,7 @@ const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const leaderboard_1 = require("../../utils/redis/leaderboard");
 const cloudinarySign_1 = require("../../utils/cloudinarySign");
+const Employee_course_Dto_1 = require("../../core/dtos/employee/Employee.course.Dto");
 let EmployeeCourseService = class EmployeeCourseService {
     constructor(_employeeRepo, _companyOrderRepo, _courseRepo, _resourceRepository, _LearnigPathRepo, _notificationService) {
         this._employeeRepo = _employeeRepo;
@@ -53,6 +54,7 @@ let EmployeeCourseService = class EmployeeCourseService {
     }
     getMyCourseDetails(employeeId, courseId) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             const employee = yield this._employeeRepo.findById(employeeId);
             if (!employee)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.EMPLOYEE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
@@ -60,6 +62,11 @@ let EmployeeCourseService = class EmployeeCourseService {
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.NOT_PART_OF_COMPANY, HttpStatuscodes_1.STATUS_CODES.CONFLICT);
             if (!courseId)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.INVALID_ID, HttpStatuscodes_1.STATUS_CODES.BAD_REQUEST);
+            // Strict Role-Based Check: Course must be assigned to employee
+            const isAssigned = (_a = employee.coursesAssigned) === null || _a === void 0 ? void 0 : _a.some(id => id.toString() === courseId);
+            if (!isAssigned) {
+                (0, ResANDError_1.throwError)('This course is not assigned to your learning path.', HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
+            }
             // Extract companyId properly (handle both populated object and string)
             const companyId = typeof employee.companyId === 'object' && employee.companyId._id
                 ? employee.companyId._id.toString()
@@ -77,7 +84,7 @@ let EmployeeCourseService = class EmployeeCourseService {
             const progress = yield this._employeeRepo.getOrCreateCourseProgress(employeeId, courseId);
             // Sign URLs for course content
             const signedCourse = (0, cloudinarySign_1.signCourseUrls)(course);
-            return { course: signedCourse, progress };
+            return { course: (0, Employee_course_Dto_1.EmployeeFullCourseDTO)(signedCourse), progress };
         });
     }
     markLessonComplete(employeeId, courseId, lessonId) {

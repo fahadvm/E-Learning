@@ -132,9 +132,41 @@ export interface UpdateCompanyProfileDTO {
         instagram?: string;
         twitter?: string;
     };
-    profilePicture?: string; 
+    profilePicture?: string;
 }
 
 export type VerifyCompanyProfilePayload = FormData;
+// Learning Path Types
+export type LearningPathDifficulty = "Beginner" | "Intermediate" | "Advanced";
 
+export interface CourseInPath {
+    title: string;
+    courseId: string;
+    description?: string;
+    duration?: number;
+    difficulty: LearningPathDifficulty;
+    icon?: string;
+    order: number;
+    locked?: boolean;
+}
 
+export interface LearningPath {
+    _id: string;
+    title: string;
+    description?: string;
+    category: string;
+    difficulty: LearningPathDifficulty;
+    icon?: string;
+    courses: CourseInPath[];
+}
+
+export interface CreateLearningPathDTO {
+    title: string;
+    description: string;
+    category: string;
+    difficulty: LearningPathDifficulty;
+    icon: string;
+    courses: CourseInPath[];
+}
+
+export interface UpdateLearningPathDTO extends Partial<CreateLearningPathDTO> { }

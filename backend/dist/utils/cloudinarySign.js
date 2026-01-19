@@ -1,7 +1,11 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.signCourseUrls = exports.getSignedUrl = exports.parseCloudinaryUrl = void 0;
 const cloudinary_1 = require("cloudinary");
+const logger_1 = __importDefault(require("./logger"));
 /**
  * Extracts the public_id and resource_type from a Cloudinary URL.
  * Handles both public (upload) and authenticated/private assets.
@@ -51,46 +55,55 @@ const getSignedUrl = (url, expiresIn = 3600) => {
         });
     }
     catch (error) {
-        console.error('Error generating signed Cloudinary URL:', error);
+        logger_1.default.error('Error generating signed Cloudinary URL:', error);
         return url;
     }
 };
 exports.getSignedUrl = getSignedUrl;
 /**
  * Signs all secure URLs within a course object.
- * @param course The course object (ICourse or similar)
+ * @param course The course object (ICourse, DTO, or analytics object)
  */
 const signCourseUrls = (course) => {
     if (!course)
         return course;
-    // Handle Mongoose documents by converting to object if necessary
-    const courseObj = course.toObject ? course.toObject() : course;
-    if (courseObj.coverImage) {
-        courseObj.coverImage = (0, exports.getSignedUrl)(courseObj.coverImage);
+    // Handle Mongoose documents or plain objects
+    const courseObj = course.toObject
+        ? course.toObject()
+        : Object.assign({}, course);
+    const signable = courseObj;
+    if (signable.coverImage) {
+        signable.coverImage = (0, exports.getSignedUrl)(signable.coverImage);
     }
-    if (courseObj.modules) {
-        courseObj.modules.forEach((module) => {
+    if (signable.modules) {
+        signable.modules.forEach((module) => {
             if (module.lessons) {
                 module.lessons.forEach((lesson) => {
                     if (lesson.videoFile) {
                         lesson.videoFile = (0, exports.getSignedUrl)(lesson.videoFile);
+                    }
+                    if (lesson.thumbnail) {
+                        lesson.thumbnail = (0, exports.getSignedUrl)(lesson.thumbnail);
                     }
                 });
             }
         });
     }
     // Handle courseStructure (for analytics)
-    if (courseObj.courseStructure) {
-        courseObj.courseStructure.forEach((module) => {
+    if (signable.courseStructure) {
+        signable.courseStructure.forEach((module) => {
             if (module.lessons) {
                 module.lessons.forEach((lesson) => {
                     if (lesson.videoFile) {
                         lesson.videoFile = (0, exports.getSignedUrl)(lesson.videoFile);
                     }
+                    if (lesson.thumbnail) {
+                        lesson.thumbnail = (0, exports.getSignedUrl)(lesson.thumbnail);
+                    }
                 });
             }
         });
     }
-    return courseObj;
+    return signable;
 };
 exports.signCourseUrls = signCourseUrls;

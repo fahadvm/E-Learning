@@ -2,9 +2,7 @@ import { Request, Response } from 'express';
 import { injectable, inject } from 'inversify';
 import { TYPES } from '../../core/di/types';
 import { AuthRequest } from '../../types/AuthenticatedRequest';
-import { StudentCommentService } from '../../services/student/student.comment.service';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
-import { MESSAGES } from '../../utils/ResponseMessages';
 import { sendResponse } from '../../utils/ResANDError';
 import { Types } from 'mongoose';
 

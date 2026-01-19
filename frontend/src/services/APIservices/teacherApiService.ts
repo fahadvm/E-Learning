@@ -1,5 +1,8 @@
 // teacherApi.ts
 
+import { PayoutRequestDTO } from "@/types/payout";
+import { TeacherProfile, ChangePasswordDTO } from "@/types/teacher/profile";
+import { SaveAvailabilityPayload } from "@/types/teacher/teacherTypes";
 import { getRequest, postRequest, patchRequest, putRequest, deleteRequest } from "../api";
 import { TEACHER_ROUTES } from "../constantRoutes/teacherRoutes";
 
@@ -23,10 +26,10 @@ export const teacherAuthApi = {
 
 export const teacherProfileApi = {
   getProfile: () => get(TEACHER_ROUTES.profile.base),
-  createProfile: (data: any) => post(TEACHER_ROUTES.profile.base, data),
-  editProfile: (data: any) => patch(TEACHER_ROUTES.profile.base, data),
-  sendVerificationRequest: (data: any) => post(TEACHER_ROUTES.profile.verify, data),
-  changePassword: (data: any) => patch(TEACHER_ROUTES.profile.changePassword, data),
+  createProfile: (data: TeacherProfile) => post(TEACHER_ROUTES.profile.base, data),
+  editProfile: (data: TeacherProfile | Partial<TeacherProfile>) => patch(TEACHER_ROUTES.profile.base, data),
+  sendVerificationRequest: (data: FormData) => post(TEACHER_ROUTES.profile.verify, data),
+  changePassword: (data: ChangePasswordDTO) => patch(TEACHER_ROUTES.profile.changePassword, data),
   sendChangeEmailOtp: (data: { newEmail: string }) => post(TEACHER_ROUTES.profile.changeEmailOtp, data),
   verifyChangeEmail: (data: { newEmail: string; otp: string }) => post(TEACHER_ROUTES.profile.verifyChangeEmail, data),
   getTeacherReviews: (teacherId: string) => get(TEACHER_ROUTES.profile.reviews(teacherId)),
@@ -34,7 +37,7 @@ export const teacherProfileApi = {
 
 export const teacherAvailabilityApi = {
   getAvailability: () => get(TEACHER_ROUTES.availability.base),
-  saveAvailability: (data: any) => post(TEACHER_ROUTES.availability.base, data),
+  saveAvailability: (data: SaveAvailabilityPayload) => post(TEACHER_ROUTES.availability.base, data),
 };
 
 export const teacherCallRequestApi = {
@@ -67,7 +70,7 @@ export const teacherCourseApi = {
   getMyCourses: () => get(TEACHER_ROUTES.courses.myCourses),
   getCourseById: (courseId: string) => get(TEACHER_ROUTES.courses.details(courseId)),
   getResources: (courseId: string) => get(TEACHER_ROUTES.courses.fetchResources(courseId)),
-  addResources: (courseId: string, data: any) => post(TEACHER_ROUTES.courses.uploadResource(courseId), data),
+  addResources: (courseId: string, data: FormData) => post(TEACHER_ROUTES.courses.uploadResource(courseId), data),
   deleteResources: (resourceId: string) => del(TEACHER_ROUTES.courses.deleteResource(resourceId)),
 
   // Note: If you have a separate endpoint for detailed fetching versus basic fetching, use it.
@@ -99,5 +102,5 @@ export const teacherDashboardApi = {
 export const teacherPayoutApi = {
   getWalletStats: () => get(TEACHER_ROUTES.payouts.stats),
   getPayoutHistory: () => get(TEACHER_ROUTES.payouts.history),
-  requestPayout: (data: { amount: number; method: string; details: any }) => post(TEACHER_ROUTES.payouts.withdraw, data),
+  requestPayout: (data: PayoutRequestDTO) => post(TEACHER_ROUTES.payouts.withdraw, data),
 };

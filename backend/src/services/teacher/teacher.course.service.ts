@@ -24,6 +24,7 @@ import { Student } from '../../models/Student';
 import { CourseReview } from '../../models/CourseReview';
 import { VerificationStatus } from '../../models/Teacher';
 import { getSignedUrl, signCourseUrls } from '../../utils/cloudinarySign';
+import logger from '../../utils/logger';
 
 @injectable()
 export class TeacherCourseService implements ITeacherCourseService {
@@ -107,11 +108,11 @@ export class TeacherCourseService implements ITeacherCourseService {
     }
 
 
-    let startname = req.body.title.slice(0, 3)
-    let already2exist = await this._courseRepository.alreadyexist(startname, req.body.category)
-    console.log("already2exist", already2exist)
-    console.log("startname", startname)
-    if (already2exist.length > 2) throwError("you cant do with this name , change another name")
+    let startname = req.body.title.slice(0, 3);
+    let already2exist = await this._courseRepository.alreadyexist(startname, req.body.category);
+    logger.info('already2exist', already2exist);
+    logger.info('startname', startname);
+    if (already2exist.length > 2) throwError('you cant do with this name , change another name');
 
     // Upload cover image
     let coverImageUrl = '';

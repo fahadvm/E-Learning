@@ -1,7 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { ICompanyCourseService } from '../../core/interfaces/services/company/ICompanyCourseService';
 import { ICourseRepository } from '../../core/interfaces/repositories/ICourseRepository';
-import { ICourse } from '../../models/Course';
 import { TYPES } from '../../core/di/types';
 import { throwError } from '../../utils/ResANDError';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
@@ -14,7 +13,7 @@ import { ICompanyCoursePurchaseRepository } from '../../core/interfaces/reposito
 import mongoose from 'mongoose';
 import { ICompanyCoursePurchase } from '../../models/CompanyCoursePurchase';
 import { CompanyCourseDTO, PaginatedCourseDTO, ICompanyCourseDTO } from '../../core/dtos/company/Company.course.Dto';
-import { getSignedUrl, signCourseUrls } from '../../utils/cloudinarySign';
+import { getSignedUrl } from '../../utils/cloudinarySign';
 
 @injectable()
 export class CompanyCourseService implements ICompanyCourseService {

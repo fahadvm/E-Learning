@@ -71,8 +71,8 @@ export class CourseRepository implements ICourseRepository {
   }
 
   async alreadyexist(startname :string , category:string): Promise<ICourse[]>{
-    let courses = await Course.find({ title : new RegExp(`^{startname}`) ,category })
-    return courses
+    let courses = await Course.find({ title : new RegExp('^{startname}') ,category });
+    return courses;
     
   }
 

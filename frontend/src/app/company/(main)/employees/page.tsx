@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";
 import ConfirmationDialog from "@/reusable/ConfirmationDialog";
-import { Trash, UserPlus, Loader2, Ban, CheckCircle } from "lucide-react";
+import { Trash, UserPlus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import EmployeeRequestsTab from "@/components/company/employee/EmployeeRequestsTab";
@@ -86,7 +86,7 @@ export default function EmployeesPage() {
         showSuccessToast((res as { message: string }).message || `Employee ${!isBlocked ? "blocked" : "unblocked"}`);
         await fetchEmployees();
       }
-    } catch (err) {
+    } catch {
       showErrorToast("Failed to toggle block status");
     } finally {
       setActionLoading(null);
@@ -101,7 +101,7 @@ export default function EmployeesPage() {
         showSuccessToast("Employee removed from company");
         await fetchEmployees();
       }
-    } catch (err) {
+    } catch {
       showErrorToast("Failed to remove employee");
     } finally {
       setActionLoading(null);

@@ -1,4 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary';
+import logger from './logger';
 
 /**
  * Extracts the public_id and resource_type from a Cloudinary URL.
@@ -50,29 +51,49 @@ export const getSignedUrl = (url: string, expiresIn: number = 3600): string => {
             secure: true,
         });
     } catch (error) {
-        console.error('Error generating signed Cloudinary URL:', error);
+        logger.error('Error generating signed Cloudinary URL:', error);
         return url;
     }
 };
 
+interface SignableLesson {
+    videoFile?: string;
+    thumbnail?: string;
+}
+
+interface SignableModule {
+    lessons?: SignableLesson[];
+}
+
+interface SignableCourse {
+    coverImage?: string;
+    modules?: SignableModule[];
+    courseStructure?: SignableModule[];
+    toObject?: () => object;
+}
+
 /**
  * Signs all secure URLs within a course object.
- * @param course The course object (ICourse or similar)
+ * @param course The course object (ICourse, DTO, or analytics object)
  */
-export const signCourseUrls = (course: any): any => {
+export const signCourseUrls = <T extends object>(course: T): T => {
     if (!course) return course;
 
-    // Handle Mongoose documents by converting to object if necessary
-    const courseObj = course.toObject ? course.toObject() : course;
+    // Handle Mongoose documents or plain objects
+    const courseObj = (course as SignableCourse).toObject
+        ? (course as SignableCourse).toObject!()
+        : { ...(course as SignableCourse) };
 
-    if (courseObj.coverImage) {
-        courseObj.coverImage = getSignedUrl(courseObj.coverImage);
+    const signable = courseObj as SignableCourse;
+
+    if (signable.coverImage) {
+        signable.coverImage = getSignedUrl(signable.coverImage);
     }
 
-    if (courseObj.modules) {
-        courseObj.modules.forEach((module: any) => {
+    if (signable.modules) {
+        signable.modules.forEach((module: SignableModule) => {
             if (module.lessons) {
-                module.lessons.forEach((lesson: any) => {
+                module.lessons.forEach((lesson: SignableLesson) => {
                     if (lesson.videoFile) {
                         lesson.videoFile = getSignedUrl(lesson.videoFile);
                     }
@@ -85,10 +106,10 @@ export const signCourseUrls = (course: any): any => {
     }
 
     // Handle courseStructure (for analytics)
-    if (courseObj.courseStructure) {
-        courseObj.courseStructure.forEach((module: any) => {
+    if (signable.courseStructure) {
+        signable.courseStructure.forEach((module: SignableModule) => {
             if (module.lessons) {
-                module.lessons.forEach((lesson: any) => {
+                module.lessons.forEach((lesson: SignableLesson) => {
                     if (lesson.videoFile) {
                         lesson.videoFile = getSignedUrl(lesson.videoFile);
                     }
@@ -100,5 +121,5 @@ export const signCourseUrls = (course: any): any => {
         });
     }
 
-    return courseObj;
+    return signable as T;
 };

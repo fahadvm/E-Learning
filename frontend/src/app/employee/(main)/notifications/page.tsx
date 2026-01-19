@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
 import { useEmployee } from "@/context/employeeContext";
-import { Loader2, Bell, CheckCircle2, Circle, Clock, ArrowRight, BookOpen, Layers, Info } from "lucide-react";
+import { Loader2, Bell, CheckCircle2, Clock, ArrowRight, BookOpen, Layers, Info } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,7 +25,7 @@ export default function EmployeeNotificationsPage() {
             if (res?.data) {
                 setNotifications(res.data);
             }
-        } catch (err) {
+        } catch {
             showErrorToast("Failed to fetch notifications");
         } finally {
             setLoading(false);
@@ -40,7 +40,7 @@ export default function EmployeeNotificationsPage() {
         try {
             await employeeApiMethods.markNotificationRead(id);
             setNotifications(notifications.map(n => n._id === id ? { ...n, isRead: true } : n));
-        } catch (err) {
+        } catch {
             showErrorToast("Failed to mark as read");
         }
     };

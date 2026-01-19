@@ -17,7 +17,10 @@ export interface IPayout {
     method: PayoutMethod;
     details: {
         info?: string;
-        [key: string]: any;
+        bankName?: string;
+        accountName?: string;
+        ifscCode?: string;
+        upiId?: string;
     };
     adminNote?: string;
     transactionId?: string;
@@ -29,4 +32,15 @@ export interface WalletStats {
     balance: number;
     totalEarned: number;
     totalWithdrawn: number;
+}
+
+export interface PayoutRequestDTO {
+    amount: number;
+    method: PayoutMethod;
+    details: {
+        bankName?: string;
+        accountName?: string;
+        ifscCode?: string;
+        upiId?: string;
+    };
 }

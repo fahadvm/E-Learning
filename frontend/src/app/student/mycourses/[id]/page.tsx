@@ -2,29 +2,18 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import {
-  ArrowLeft,
+import{
+ArrowLeft,
   Play,
   Clock,
-  Star,
   Download,
-  BookOpen,
   CheckCircle,
   MessageSquare,
-  Code2,
-  Clock2,
   Send,
   Trash2,
-  VideoIcon,
-  FileText,
-  MessageCircle,
-  Copy,
   RotateCcw,
-  GraduationCap,
   ThumbsUp,
-  ThumbsDown,
-  Reply,
-  MoreVertical
+  ThumbsDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -33,7 +22,6 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { studentCourseApi } from "@/services/APIservices/studentApiservice";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";
 import React from "react";

@@ -16,11 +16,8 @@ import {
   Trash2,
   ThumbsUp,
   ThumbsDown,
-  Reply,
-  MoreVertical,
   MessageCircle,
   UserRound,
-  VideoIcon,
   FileText,
   Star,
 } from "lucide-react";
@@ -31,7 +28,6 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";
 import React from "react";
@@ -47,8 +43,7 @@ import {
   ILesson as Lesson,
   IModule as Module,
   ICourseComment as Comment,
-  ICourseResource as Resource,
-  ICourseDetailsResponse as StudentCourseResponse
+  ICourseResource as Resource
 } from "@/types/employee/employeeTypes";
 
 const CommentItem = ({
@@ -214,8 +209,7 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
   const [language, setLanguage] = useState("javascript");
   const [output, setOutput] = useState("");
   const [resources, setResources] = useState<Resource[]>([]);
-  const [watchTime, setWatchTime] = useState<number>(0);
-  const [totalTimeSpent, setTotalTimeSpent] = useState<number>(0);
+  const [watchTime] = useState<number>(0);
   const [openReviewModal, setOpenReviewModal] = useState(false);
   const [openReviewListModal, setOpenReviewListModal] = useState(false);
   const [reviews, setReviews] = useState([]);
@@ -267,19 +261,6 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
   }, []);
 
 
-  const watchSessionRef = useRef<{
-    startTime: number;
-    accumulated: number;
-    rafId: number | null;
-    saveTimeout: NodeJS.Timeout | null;
-  }>({
-    startTime: 0,
-    accumulated: 0,
-    rafId: null,
-    saveTimeout: null,
-  });
-
-  const isTrackingRef = useRef(false);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   // === Resolve course ID from params ===
@@ -513,7 +494,6 @@ export default function CoursePage({ params }: { params: Promise<{ id: string }>
 
     const tickTimer = setInterval(() => {
       totalSeconds++;
-      setTotalTimeSpent(totalSeconds);
     }, 1000);
 
     const saveTimer = setInterval(async () => {

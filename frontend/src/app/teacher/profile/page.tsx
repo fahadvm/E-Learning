@@ -48,9 +48,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 
 type TabType = 'overview' | 'security' | 'experience';
 
@@ -172,7 +170,7 @@ export default function TeacherProfilePage() {
       } else {
         showErrorToast(res?.message || 'Failed to submit verification.');
       }
-    } catch (error) {
+    } catch {
       showErrorToast('Something went wrong during upload.');
     } finally {
       setLoading(false);
@@ -193,7 +191,7 @@ export default function TeacherProfilePage() {
         showSuccessToast('Password changed successfully');
         setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
       }
-    } catch (error) {
+    } catch {
       showErrorToast('Failed to change password');
     } finally {
       setLoading(false);
@@ -213,7 +211,7 @@ export default function TeacherProfilePage() {
         setOtpSent(true);
         setTimer(60);
       }
-    } catch (error) {
+    } catch {
       showErrorToast('Failed to send OTP');
     } finally {
       setLoading(false);
@@ -234,7 +232,7 @@ export default function TeacherProfilePage() {
         setOtpSent(false);
         setEmailData({ newEmail: '', otp: '' });
       }
-    } catch (error) {
+    } catch {
       showErrorToast('Invalid OTP or verification failed');
     } finally {
       setLoading(false);
@@ -785,19 +783,5 @@ export default function TeacherProfilePage() {
         </DialogContent>
       </Dialog>
     </div>
-  );
-}
-
-function CalendarIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-    </svg>
   );
 }

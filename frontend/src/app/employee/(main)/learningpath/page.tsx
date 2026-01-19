@@ -14,8 +14,6 @@ import {
   TrendingUp,
   Target,
   Sparkles,
-  Clock,
-  Award,
   ChevronRight,
   GraduationCap,
   BarChart3,
@@ -97,18 +95,6 @@ export default function EmployeeLearningPathsPage() {
     return index > currentIdx;
   };
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty.toLowerCase()) {
-      case "beginner":
-        return "bg-green-100 text-green-700 border-green-200";
-      case "intermediate":
-        return "bg-yellow-100 text-yellow-700 border-yellow-200";
-      case "advanced":
-        return "bg-red-100 text-red-700 border-red-200";
-      default:
-        return "bg-gray-100 text-gray-700 border-gray-200";
-    }
-  };
 
   if (!employee?.companyId) {
     return (
@@ -147,7 +133,6 @@ export default function EmployeeLearningPathsPage() {
           <ListView
             paths={paths}
             onOpenDetail={openDetail}
-            getDifficultyColor={getDifficultyColor}
           />
         )}
 
@@ -157,7 +142,6 @@ export default function EmployeeLearningPathsPage() {
             onBack={backToList}
             getCourseProgress={getCourseProgress}
             isCourseLocked={isCourseLocked}
-            getDifficultyColor={getDifficultyColor}
           />
         )}
       </div>
@@ -172,7 +156,7 @@ interface ListViewProps {
   getDifficultyColor: (difficulty: string) => string;
 }
 
-function ListView({ paths, onOpenDetail, getDifficultyColor }: ListViewProps) {
+function ListView({ paths, onOpenDetail }: Omit<ListViewProps, 'getDifficultyColor'>) {
   return (
     <div>
       {/* Header */}
@@ -258,7 +242,7 @@ function ListView({ paths, onOpenDetail, getDifficultyColor }: ListViewProps) {
         <EmptyState />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {paths.map((p, index) => (
+          {paths.map((p) => (
             <div
               key={p._id}
               onClick={() => onOpenDetail(p)}
@@ -328,7 +312,6 @@ interface DetailViewProps {
   onBack: () => void;
   getCourseProgress: (course: Course, progress: LearningPathProgress) => number;
   isCourseLocked: (index: number, progress: LearningPathProgress) => boolean;
-  getDifficultyColor: (difficulty: string) => string;
 }
 
 function DetailView({
@@ -336,7 +319,6 @@ function DetailView({
   onBack,
   getCourseProgress,
   isCourseLocked,
-  getDifficultyColor,
 }: DetailViewProps) {
   const router = useRouter();
   const totalCourses = path.courses.length;

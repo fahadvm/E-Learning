@@ -15,17 +15,6 @@ import {
   LogOut,
   AlertTriangle,
 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
 
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
 import { showSuccessToast, showErrorToast } from "@/utils/Toast";

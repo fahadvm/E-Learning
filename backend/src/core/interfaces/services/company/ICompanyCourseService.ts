@@ -1,4 +1,3 @@
-import { ICourse } from '../../../../models/Course';
 import { ICourseResource } from '../../../../models/CourseResource';
 import { ICompanyCoursePurchase } from '../../../../models/CompanyCoursePurchase';
 import { PaginatedCourseDTO, ICompanyCourseDTO } from '../../../dtos/company/Company.course.Dto';

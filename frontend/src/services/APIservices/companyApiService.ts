@@ -1,6 +1,6 @@
 // src/api/companyApiMethods.ts
 
-import { UpdateCompanyProfileDTO, UpdateEmployeeDTO } from "@/types/company/companyTypes";
+import { CreateLearningPathDTO, UpdateCompanyProfileDTO, UpdateEmployeeDTO, UpdateLearningPathDTO } from "@/types/company/companyTypes";
 import { getRequest, patchRequest, postRequest, putRequest, deleteRequest, downloadRequest } from "../api";
 import { COMPANY_ROUTES } from "../constantRoutes/companyRoutes";
 
@@ -100,8 +100,8 @@ export const companyApiMethods = {
 
   //learning path
   getLearningPath: () => get(COMPANY_ROUTES.learningPath.list),
-  addLearningPaths: (data: any) => post(COMPANY_ROUTES.learningPath.add, data),
-  updateLearningPath: (LearningPathId: string, payload: any) => put(COMPANY_ROUTES.learningPath.edit(LearningPathId), payload),
+  addLearningPaths: (data: CreateLearningPathDTO) => post(COMPANY_ROUTES.learningPath.add, data),
+  updateLearningPath: (LearningPathId: string, payload: UpdateLearningPathDTO) => put(COMPANY_ROUTES.learningPath.edit(LearningPathId), payload),
   deleteLearningPath: (LearningPathId: string) => del(COMPANY_ROUTES.learningPath.delete(LearningPathId)),
   detailsLearingPaths: (LearningPathId: string) => get(COMPANY_ROUTES.learningPath.details(LearningPathId)),
   getLearningPaths: (params?: { page?: number; limit?: number; search?: string }) => get(COMPANY_ROUTES.learningPath.list, params),

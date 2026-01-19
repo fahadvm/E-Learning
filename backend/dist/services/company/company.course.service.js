@@ -56,7 +56,7 @@ let CompanyCourseService = class CompanyCourseService {
             const course = yield this._courseRepository.findById(courseId);
             if (!course)
                 (0, ResANDError_1.throwError)(ResponseMessages_1.MESSAGES.COURSE_NOT_FOUND, HttpStatuscodes_1.STATUS_CODES.NOT_FOUND);
-            return course;
+            return (0, Company_course_Dto_1.CompanyCourseDTO)(course);
         });
     }
     assignCourseToEmployee(courseId, employeeId) {
@@ -108,8 +108,8 @@ let CompanyCourseService = class CompanyCourseService {
             if (course.isBlocked) {
                 (0, ResANDError_1.throwError)('Access to this course has been disabled by admin. Reason: ' + (course.blockReason || 'No reason provided'), HttpStatuscodes_1.STATUS_CODES.FORBIDDEN);
             }
-            // Sign URLs for company preview
-            return (0, cloudinarySign_1.signCourseUrls)(course);
+            // Company should NOT see video URLs. Using CompanyCourseDTO to strip them.
+            return (0, Company_course_Dto_1.CompanyCourseDTO)(course);
         });
     }
     getResources(courseId) {

@@ -40,6 +40,7 @@ const Student_1 = require("../../models/Student");
 const CourseReview_1 = require("../../models/CourseReview");
 const Teacher_1 = require("../../models/Teacher");
 const cloudinarySign_1 = require("../../utils/cloudinarySign");
+const logger_1 = __importDefault(require("../../utils/logger"));
 let TeacherCourseService = class TeacherCourseService {
     constructor(_courseRepository, _resourceRepository, _notificationService, _companyRepository, _employeeRepository, _teacherRepository) {
         this._courseRepository = _courseRepository;
@@ -117,10 +118,10 @@ let TeacherCourseService = class TeacherCourseService {
             }
             let startname = req.body.title.slice(0, 3);
             let already2exist = yield this._courseRepository.alreadyexist(startname, req.body.category);
-            console.log("already2exist", already2exist);
-            console.log("startname", startname);
+            logger_1.default.info('already2exist', already2exist);
+            logger_1.default.info('startname', startname);
             if (already2exist.length > 2)
-                (0, ResANDError_1.throwError)("you cant do with this name , change another name");
+                (0, ResANDError_1.throwError)('you cant do with this name , change another name');
             // Upload cover image
             let coverImageUrl = '';
             const coverImage = filesMap['coverImage'];

@@ -14,9 +14,9 @@ export interface ICourse {
   totalDuration: number;
   totalStudents: number;
   modules: Module[];
-  reviewCount:number;
-  averageRating :number;
-  teacherName:string;
+  reviewCount: number;
+  averageRating: number;
+  teacherName: string;
   status: "published" | "draft" | "archived" | string;
   isPublished: boolean;
   isBlocked: boolean;
@@ -56,4 +56,20 @@ export interface Review {
   rating: number;
   image?: string;
   date: string;
+}
+
+export interface UpdateStudentProfileDTO {
+  name?: string;
+  phone?: string;
+  about?: string;
+  profilePicture?: string;
+  social_links?: {
+    linkedin?: string;
+    github?: string;
+    portfolio?: string;
+    twitter?: string;
+    instagram?: string;
+  };
+  location?: string;
+  website?: string;
 }

@@ -1,5 +1,6 @@
 // studentApi.ts
 
+import { UpdateStudentProfileDTO } from "@/types/student/studentTypes";
 import { getRequest, postRequest, patchRequest, putRequest, deleteRequest, downloadRequest } from "../api";
 import { STUDENT_ROUTES } from "../constantRoutes/studentRoutes";
 
@@ -23,7 +24,7 @@ export const studentAuthApi = {
 };
 
 export const studentCourseApi = {
-  getAllCourses: (params?: Record<string, any>) => get(STUDENT_ROUTES.courses.base, params),
+  getAllCourses: (params?: Record<string, string | number | boolean | undefined>) => get(STUDENT_ROUTES.courses.base, params),
   getRecommendedCourses: () => get(STUDENT_ROUTES.courses.base),
   getCourseDetailById: (courseId: string) => get(STUDENT_ROUTES.courses.getById(courseId)),
   codeRunner: (data: { language: string; code: string }) => post(STUDENT_ROUTES.courses.compilerRun, data),
@@ -46,7 +47,7 @@ export const studentCourseApi = {
 
 export const studentProfileApi = {
   getProfile: () => get(STUDENT_ROUTES.profile.base),
-  editProfile: (data: any) => patch(STUDENT_ROUTES.profile.base, data),
+  editProfile: (data: FormData | UpdateStudentProfileDTO) => patch(STUDENT_ROUTES.profile.base, data),
   changePassword: (data: { currentPassword: string, newPassword: string }) => put(STUDENT_ROUTES.profile.changePassword, data),
   sendEmailOtp: (data: { newEmail: string }) => post(STUDENT_ROUTES.profile.sendEmailOtp, data),
   verifyEmailOtp: (data: { newEmail: string, otp: string }) => post(STUDENT_ROUTES.profile.verifyEmailOtp, data),

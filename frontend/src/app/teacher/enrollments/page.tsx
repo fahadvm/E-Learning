@@ -20,11 +20,8 @@ interface Enrollment {
     status?: 'Not Started' | 'In Progress' | 'Completed'; // Only for individual
 }
 
-const courses = ['All Courses']; // We might want to populate this dynamically too, but for now specific course filtering is secondary or can be derived from data
-
 export default function TeacherEnrollmentsPage() {
     const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
-    const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [selectedCourse, setSelectedCourse] = useState('All Courses');
     const [sourceFilter, setSourceFilter] = useState<'All' | 'company' | 'individual'>('All');
@@ -36,13 +33,11 @@ export default function TeacherEnrollmentsPage() {
     }, []);
 
     const fetchEnrollments = async () => {
-        setLoading(true);
         const response = await teacherEnrollmentApi.getEnrollments();
         console.log("response", response)
         if (response && response.data) {
             setEnrollments(response.data);
         }
-        setLoading(false);
     };
 
     // Derived courses list from enrollments

@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Flame, Medal, Users, Building2, ArrowRight } from "lucide-react";
-import type { LeaderboardUser, LeaderboardResponse } from "@/types/employee/leaderboard";
+import type { LeaderboardUser } from "@/types/employee/leaderboard";
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
 import { useEmployee } from "@/context/employeeContext";
 import { useRouter } from "next/navigation";

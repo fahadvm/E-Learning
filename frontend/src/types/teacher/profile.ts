@@ -36,3 +36,9 @@ export interface TeacherProfile {
     profilePicture: string;
     isVerified?: boolean;
 }
+
+export interface ChangePasswordDTO {
+    currentPassword?: string;
+    newPassword?: string;
+    confirmPassword?: string;
+}

@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import axios, { AxiosError } from "axios";
+import type { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { employeeApiMethods } from "@/services/APIservices/employeeApiService";
 import { showInfoToast, showSuccessToast } from "@/utils/Toast";
@@ -63,7 +63,7 @@ export default function StudentResetPasswordPage() {
         showSuccessToast(response?.message)
         localStorage.removeItem("tempforgetEmail");
         router.push("/employee/login");
-      }else{
+      } else {
         showInfoToast(response?.message)
       }
     } catch (err) {
@@ -163,7 +163,7 @@ export default function StudentResetPasswordPage() {
           </button>
         </form>
 
-        
+
 
         <p className="mt-6 text-center text-gray-600">
           Already have an account?{" "}

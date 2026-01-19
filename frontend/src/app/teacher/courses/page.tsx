@@ -10,9 +10,7 @@ import { showErrorToast } from '@/utils/Toast'
 
 import {
   BookOpen,
-  MoreHorizontal,
   Users,
-  IndianRupee,
   Clock,
   BarChart3,
   Star,
@@ -27,7 +25,6 @@ import {
   Card,
   CardHeader,
   CardTitle,
-  CardDescription,
   CardContent
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -69,53 +66,14 @@ interface ICourse {
   totalLessons?: number
 }
 
- interface IReviews {
+interface IReviews {
   _id: string
   rating: number
   comment: string
   createdAt: string
-  studentId ?: { name: string; profilePicture?: string }
-  employeeId ?: { name: string; profilePicture?: string }
+  studentId?: { name: string; profilePicture?: string }
+  employeeId?: { name: string; profilePicture?: string }
 }
-
-// === Helpers ===
-const getStatusColor = (status?: string) => {
-  switch (status) {
-    case 'published':
-      return 'bg-green-100 text-green-700'
-    case 'draft':
-      return 'bg-yellow-100 text-yellow-700'
-    case 'archived':
-      return 'bg-gray-200 text-gray-600'
-    default:
-      return 'bg-gray-100 text-gray-500'
-  }
-}
-
-const getStatusIcon = (status?: string) => {
-  switch (status) {
-    case 'published':
-      return <BookOpen className="h-3 w-3 mr-1" />
-    case 'draft':
-      return <Clock className="h-3 w-3 mr-1" />
-    case 'archived':
-      return <BarChart3 className="h-3 w-3 mr-1" />
-    default:
-      return null
-  }
-}
-
-const formatDate = (date?: string) =>
-  date ? new Date(date).toLocaleDateString() : 'N/A'
-
-const formatCurrency = (amount?: number) =>
-  typeof amount === 'number'
-    ? new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(amount)
-    : '₹0'
 
 // === Constants ===
 const ITEMS_PER_PAGE = 6

@@ -35,6 +35,7 @@ const HttpStatuscodes_1 = require("../../utils/HttpStatuscodes");
 const ResponseMessages_1 = require("../../utils/ResponseMessages");
 const logger_1 = __importDefault(require("../../utils/logger"));
 const cloudinarySign_1 = require("../../utils/cloudinarySign");
+const Student_course_Dto_1 = require("../../core/dtos/student/Student.course.Dto");
 let StudentPurchaseService = class StudentPurchaseService {
     constructor(_orderRepo, _courseRepo, _cartRepo, _studentRepo, _subscriptionRepo, _transactionRepo, _walletRepo) {
         this._orderRepo = _orderRepo;
@@ -214,7 +215,11 @@ let StudentPurchaseService = class StudentPurchaseService {
             // Sign URLs for course content
             const signedCourse = (0, cloudinarySign_1.signCourseUrls)(course);
             const recommended = yield this._courseRepo.findRecommendedCourses(courseId, course.category, course.level, 6);
-            return { course: signedCourse, progress, recommended };
+            return {
+                course: (0, Student_course_Dto_1.PurchasedCourseDTO)(signedCourse),
+                progress,
+                recommended: recommended.map(Student_course_Dto_1.StudentCourseDTO)
+            };
         });
     }
     getOrderDetails(studentId, orderId) {

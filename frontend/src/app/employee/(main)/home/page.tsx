@@ -5,26 +5,18 @@ import { useEmployee } from '@/context/employeeContext';
 import { useRouter } from "next/navigation";
 import {
   ChevronRight, Award, TrendingUp, Users, Star, ArrowRight,
-  Target, BarChart3, Trophy, Building2, Sparkles,
-  BookOpen, Clock, Zap, Rocket, Brain, GraduationCap, Medal,
-  Play, CheckCircle2, Flame, TrendingDown, Calendar
+  BarChart3, Trophy, Building2,
+  BookOpen, Rocket
 } from 'lucide-react';
 import { formatMinutesToHours } from '@/utils/timeConverter';
 import { employeeApiMethods } from '@/services/APIservices/employeeApiService';
-import type { LeaderboardUser, LeaderboardResponse } from '@/types/employee/leaderboard';
+import type { LeaderboardUser } from '@/types/employee/leaderboard';
 
 export default function EmployeeHome() {
   const { employee } = useEmployee();
   const router = useRouter();
 
   const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
-  const [stats, setStats] = useState({
-    coursesCompleted: 0,
-    hoursLearned: 0,
-    currentStreak: 0,
-    rank: 0
-  });
-
   useEffect(() => {
     const fetchData = async () => {
       const companyId = typeof employee?.companyId === 'object'
@@ -36,14 +28,6 @@ export default function EmployeeHome() {
           const res = await employeeApiMethods.getAllTimeLeaderBoard({ companyId });
           if (res?.ok && res.data) {
             setLeaderboard(res.data.leaderboard.slice(0, 3));
-
-            const userRank = res.data.leaderboard.findIndex((u: LeaderboardUser) => u._id === employee?._id) + 1;
-            setStats({
-              coursesCompleted: employee?.coursesProgress?.filter(c => c.percentage === 100).length || 0,
-              hoursLearned: Math.floor((employee?.coursesProgress?.reduce((acc, c) => acc + (c.percentage || 0), 0) || 0) / 60),
-              currentStreak: employee?.streakCount || 0,
-              rank: userRank || 0
-            });
           }
         } catch (error) {
           console.error("Error fetching data:", error);

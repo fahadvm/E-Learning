@@ -3,7 +3,6 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from '../../core/di/types';
 import { AuthRequest } from '../../types/AuthenticatedRequest';
 import { STATUS_CODES } from '../../utils/HttpStatuscodes';
-import { MESSAGES } from '../../utils/ResponseMessages';
 import { sendResponse } from '../../utils/ResANDError';
 import { Types } from 'mongoose';
 import { IEmployeeCommentService } from '../../core/interfaces/services/employee/IEmployeeCommentService';

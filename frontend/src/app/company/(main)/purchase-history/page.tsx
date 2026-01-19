@@ -1,7 +1,6 @@
 'use client'
 
 import Header from "@/components/company/Header";
-import { Download } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { companyApiMethods } from "@/services/APIservices/companyApiService";
@@ -192,7 +191,7 @@ export default function PurchaseHistoryPage() {
                                                             className={`p-2 rounded-lg bg-primary/20 hover:bg-primary/30 border border-primary/40 text-primary transition ${downloadingOrderId === order._id ? 'opacity-50' : ''}`}
                                                             title="Download Receipt"
                                                         >
-                                                            {downloadingOrderId === order._id ? "..." : <Download size={18} />}
+                                                            {downloadingOrderId === order._id ? "..." : "Download"}
                                                         </button>
                                                     )}
                                                 </td>
