@@ -5,15 +5,24 @@ import Link from "next/link";
 import{
 ArrowLeft,
   Play,
-  Clock,
   Download,
   CheckCircle,
   MessageSquare,
   Send,
+  BookOpen,
   Trash2,
   RotateCcw,
+  Clock2,
+  VideoIcon,
   ThumbsUp,
-  ThumbsDown
+  ThumbsDown,
+    FileText,
+  Code2,
+  GraduationCap,
+  MessageCircle,
+  Clock,
+  Star,
+  Copy
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";

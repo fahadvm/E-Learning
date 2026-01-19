@@ -15,19 +15,10 @@ import { Plus, Trash2 } from "lucide-react";
 import { teacherAvailabilityApi } from "@/services/APIservices/teacherApiService";
 import { showSuccessToast } from "@/utils/Toast";
 import ConfirmationDialog from "@/reusable/ConfirmationDialog";
+import { DayType, DAYS } from "@/types/teacher/teacherTypes";
 
 type TimeSlot = { id: string; start: string; end: string };
-type DayAvailability = { day: string; enabled: boolean; slots: TimeSlot[] };
-
-const DAYS = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-] as const;
+type DayAvailability = { day: DayType; enabled: boolean; slots: TimeSlot[] };
 
 /* -------------------- Time Utils -------------------- */
 
