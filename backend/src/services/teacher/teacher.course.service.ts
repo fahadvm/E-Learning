@@ -345,37 +345,37 @@ export class TeacherCourseService implements ITeacherCourseService {
 
     const updatedCourse = await this._courseRepository.editCourse(courseId, updates);
 
-    if (updatedCourse) {
-      // Notify Companies (those who have bought seats)
-      // For simplicity, let's notify all companies for now as per requirement "trigger on Company"
-      const companies = await this._companyRepository.findAll();
-      for (const company of companies) {
-        await this._notificationService.createNotification(
-          company._id.toString(),
-          'Course Updated',
-          `The course "${updatedCourse.title}" has been updated by the teacher.`,
-          'course',
-          'company',
-          '/company/courses'
-        );
-      }
+    if (!updatedCourse) return null;
 
-      // Notify Employees who are enrolled in this course
-      // Find all employees who have this course assigned
-      // (This is a bit more complex, I'll do a simple query)
-      const enrolledEmployees = await this._employeeRepository.findAll(); // Optimization: should find by courseId
-      const affectedEmployees = enrolledEmployees.filter(emp => emp.coursesAssigned?.some(id => id.toString() === courseId));
+    // Notify Companies (those who have bought seats)
+    // For simplicity, let's notify all companies for now as per requirement "trigger on Company"
+    const companies = await this._companyRepository.findAll();
+    for (const company of companies) {
+      await this._notificationService.createNotification(
+        company._id.toString(),
+        'Course Updated',
+        `The course "${updatedCourse.title}" has been updated by the teacher.`,
+        'course',
+        'company',
+        '/company/courses'
+      );
+    }
 
-      for (const emp of affectedEmployees) {
-        await this._notificationService.createNotification(
-          emp._id.toString(),
-          'Course Updated',
-          `Content for "${updatedCourse.title}" has been updated.`,
-          'course',
-          'employee',
-          '/employee/my-courses'
-        );
-      }
+    // Notify Employees who are enrolled in this course
+    // Find all employees who have this course assigned
+    // (This is a bit more complex, I'll do a simple query)
+    const enrolledEmployees = await this._employeeRepository.findAll(); // Optimization: should find by courseId
+    const affectedEmployees = enrolledEmployees.filter(emp => emp.coursesAssigned?.some(id => id.toString() === courseId));
+
+    for (const emp of affectedEmployees) {
+      await this._notificationService.createNotification(
+        emp._id.toString(),
+        'Course Updated',
+        `Content for "${updatedCourse.title}" has been updated.`,
+        'course',
+        'employee',
+        '/employee/my-courses'
+      );
     }
 
     return signCourseUrls(updatedCourse);

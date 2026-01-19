@@ -331,21 +331,21 @@ let TeacherCourseService = class TeacherCourseService {
                 modules: modules, // casting to match ICourse module structure
             };
             const updatedCourse = yield this._courseRepository.editCourse(courseId, updates);
-            if (updatedCourse) {
-                // Notify Companies (those who have bought seats)
-                // For simplicity, let's notify all companies for now as per requirement "trigger on Company"
-                const companies = yield this._companyRepository.findAll();
-                for (const company of companies) {
-                    yield this._notificationService.createNotification(company._id.toString(), 'Course Updated', `The course "${updatedCourse.title}" has been updated by the teacher.`, 'course', 'company', '/company/courses');
-                }
-                // Notify Employees who are enrolled in this course
-                // Find all employees who have this course assigned
-                // (This is a bit more complex, I'll do a simple query)
-                const enrolledEmployees = yield this._employeeRepository.findAll(); // Optimization: should find by courseId
-                const affectedEmployees = enrolledEmployees.filter(emp => { var _a; return (_a = emp.coursesAssigned) === null || _a === void 0 ? void 0 : _a.some(id => id.toString() === courseId); });
-                for (const emp of affectedEmployees) {
-                    yield this._notificationService.createNotification(emp._id.toString(), 'Course Updated', `Content for "${updatedCourse.title}" has been updated.`, 'course', 'employee', '/employee/my-courses');
-                }
+            if (!updatedCourse)
+                return null;
+            // Notify Companies (those who have bought seats)
+            // For simplicity, let's notify all companies for now as per requirement "trigger on Company"
+            const companies = yield this._companyRepository.findAll();
+            for (const company of companies) {
+                yield this._notificationService.createNotification(company._id.toString(), 'Course Updated', `The course "${updatedCourse.title}" has been updated by the teacher.`, 'course', 'company', '/company/courses');
+            }
+            // Notify Employees who are enrolled in this course
+            // Find all employees who have this course assigned
+            // (This is a bit more complex, I'll do a simple query)
+            const enrolledEmployees = yield this._employeeRepository.findAll(); // Optimization: should find by courseId
+            const affectedEmployees = enrolledEmployees.filter(emp => { var _a; return (_a = emp.coursesAssigned) === null || _a === void 0 ? void 0 : _a.some(id => id.toString() === courseId); });
+            for (const emp of affectedEmployees) {
+                yield this._notificationService.createNotification(emp._id.toString(), 'Course Updated', `Content for "${updatedCourse.title}" has been updated.`, 'course', 'employee', '/employee/my-courses');
             }
             return (0, cloudinarySign_1.signCourseUrls)(updatedCourse);
         });
