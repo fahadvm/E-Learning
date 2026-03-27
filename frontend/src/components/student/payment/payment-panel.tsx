@@ -125,7 +125,7 @@ export default function PaymentPanel({
               });
 
               // adjust based on your API client's shape
-              if (verifyResponse?.ok || verifyResponse?.data) {
+              if (verifyResponse?.ok || verifyResponse?.data?.success) {
                 showSuccessToast("Payment successful!");
                 router.push(
                   `/student/booking/payment/success?orderId=${response.razorpay_order_id}&paymentId=${response.razorpay_payment_id}&amount=${fee}`
@@ -133,10 +133,16 @@ export default function PaymentPanel({
               } else {
                 console.error("Verification failed", verifyResponse);
                 showErrorToast("Payment verification failed");
+                router.push(
+                  `/student/booking/payment/failure?orderId=${response.razorpay_order_id}&error=${verifyResponse?.message || "Verification failed"}`
+                );
               }
             } catch (err) {
               console.error("Verification error:", err);
               showErrorToast("Payment verification error");
+              router.push(
+                `/student/booking/payment/failure?orderId=${response.razorpay_order_id}&error=Verification error`
+              );
             } finally {
               endPayment();
             }
@@ -152,9 +158,23 @@ export default function PaymentPanel({
         const Razorpay = (window as unknown as { Razorpay: new (options: RazorpayOptions) => RazorpayInstance }).Razorpay;
         const rzp = new Razorpay(options);
 
-        rzp.on("payment.failed", (err: unknown) => {
+        rzp.on("payment.failed", async (err: any) => {
           console.error("Payment failed:", err);
           showErrorToast("Payment failed");
+          
+          try {
+            // Log failure on backend
+            await paymentApi.verifyBookingPayment({
+              razorpay_order_id: razorpayOrderId,
+              failureReason: err.error?.description || "Payment failed",
+            });
+          } catch (logErr) {
+            console.error("Failed to log payment failure:", logErr);
+          }
+
+          router.push(
+            `/student/booking/payment/failure?orderId=${razorpayOrderId}&error=${err.error?.description || "Payment failed"}&code=${err.error?.code}`
+          );
           endPayment();
         });
 

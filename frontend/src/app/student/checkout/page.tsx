@@ -106,75 +106,114 @@ export default function CheckoutPage() {
     script.async = true;
     document.body.appendChild(script);
 
-    script.onload = async () => {
-      try {
-        const checking = cartData.courses.map((c) => c._id)
-        console.log("sending course ids are :", checking)
-        const response = await paymentApi.createOrder({
-          amount: total,
-          courses: cartData.courses.map((c) => c._id),
-        });
+      const safeRemoveScript = () => {
+        try {
+          if (document.body.contains(script)) document.body.removeChild(script);
+        } catch (e) {
+          console.warn("Could not remove razorpay script", e);
+        }
+      };
 
-        const order = response.data;
-        console.log("data pritned", order)
+      script.onload = async () => {
+        try {
+          const checking = cartData.courses.map((c) => c._id)
+          console.log("sending course ids are :", checking)
+          const response = await paymentApi.createOrder({
+            amount: total,
+            courses: cartData.courses.map((c) => c._id),
+          });
 
-        const options = {
-          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
-          amount: order.amount * 100,
-          currency: order.currency,
-          name: "DevNext",
-          description: "Course Purchase",
-          order_id: order.razorpayOrderId,
-          handler: async (response: RazorpayResponse) => {
-            try {
-              const verifyResponse = await paymentApi.verifyPayment({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-              });
+          const order = response.data;
+          console.log("order data:", order)
 
-              if (verifyResponse.ok) {
-                showSuccessToast("Payment successful!");
+          if (!order?.razorpayOrderId) {
+            showErrorToast("Order creation failed on backend");
+            endPayment();
+            safeRemoveScript();
+            return;
+          }
+
+          const options = {
+            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
+            amount: order.amount * 100,
+            currency: order.currency,
+            name: "DevNext",
+            description: "Course Purchase",
+            order_id: order.razorpayOrderId,
+            handler: async (response: RazorpayResponse) => {
+              try {
+                const verifyResponse = await paymentApi.verifyPayment({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                });
+
+                if (verifyResponse?.ok) {
+                  showSuccessToast("Payment successful!");
+                  router.push(
+                    `/student/checkout/success?orderId=${response.razorpay_order_id}&amount=${order.amount}`
+                  );
+                } else {
+                  console.error("Verification failed", verifyResponse);
+                  showErrorToast("Payment verification failed");
+                  router.push(
+                    `/student/checkout/failure?orderId=${response.razorpay_order_id}&error=${verifyResponse?.message || "Verification failed"}`
+                  );
+                }
+              } catch (err) {
+                console.error("Verification error:", err);
+                showErrorToast("Payment verification error");
                 router.push(
-                  `/student/checkout/success?orderId=${response.razorpay_order_id}&amount=${order.amount}`
+                  `/student/checkout/failure?orderId=${response.razorpay_order_id}&error=Verification error`
                 );
-              } else {
-                console.error("Verification failed");
+              } finally {
+                endPayment();
               }
-            } catch (err) {
-              console.error("Verification error:", err);
-            } finally {
-              endPayment();
+            },
+            prefill: {
+              name: student?.name,
+              email: student?.email,
+              contact: student?.phone,
+            },
+            theme: { color: "#176B87" },
+          };
+
+          const Razorpay = (window as unknown as { Razorpay: new (options: RazorpayOptions) => RazorpayInstance }).Razorpay;
+          const rzp = new Razorpay(options);
+          rzp.on("payment.failed", async (err: any) => {
+            console.error("Payment failed", err);
+            showErrorToast("Payment failed");
+
+            try {
+              await paymentApi.verifyPayment({
+                razorpay_order_id: order.razorpayOrderId,
+                failureReason: err.error?.description || "Payment failed",
+              });
+            } catch (logErr) {
+              console.error("Failed to log payment failure:", logErr);
             }
-          },
-          prefill: {
-            name: student?.name,
-            email: student?.email,
-            contact: student?.phone,
-          },
-          theme: { color: "#176B87" },
-        };
 
-        const Razorpay = (window as unknown as { Razorpay: new (options: RazorpayOptions) => RazorpayInstance }).Razorpay;
-        const rzp = new Razorpay(options);
-        rzp.on("payment.failed", () => {
-          console.error("Payment failed");
+            router.push(
+              `/student/checkout/failure?orderId=${order.razorpayOrderId}&error=${err.error?.description || "Payment failed"}&code=${err.error?.code}`
+            );
+            endPayment();
+          });
+          rzp.open();
+        } catch (err) {
+          console.error("Order creation failed:", err);
+          showErrorToast("Order creation failed");
           endPayment();
-        });
-        rzp.open();
-      } catch (err) {
-        console.error("Order creation failed:", err);
-        endPayment();
-      } finally {
-        document.body.removeChild(script);
-      }
-    };
+        } finally {
+          setTimeout(safeRemoveScript, 5000);
+        }
+      };
 
-    script.onerror = () => {
-      console.error("Failed to load Razorpay SDK");
-      endPayment();
-      document.body.removeChild(script);
-    };
+      script.onerror = () => {
+        console.error("Failed to load Razorpay SDK");
+        showErrorToast("Payment SDK failed to load");
+        endPayment();
+        safeRemoveScript();
+      };
   };
 
 

@@ -13,7 +13,8 @@ export interface ICompanyOrder extends Document {
   paymentMethod: 'razorpay' | 'wallet' | 'card';
   amount: number;
   currency: string;
-  status: 'created' | 'paid' | 'failed';
+  status: 'pending' | 'success' | 'failed';
+  failureReason?: string;
   platformFee: number;
   teacherShare: number;
   commissionRate: number;
@@ -34,7 +35,8 @@ const CompanyOrderSchema = new Schema<ICompanyOrder>(
     paymentMethod: { type: String, enum: ['razorpay', 'wallet', 'card'], default: 'razorpay' },
     amount: { type: Number, required: true },
     currency: { type: String, required: true },
-    status: { type: String, enum: ['created', 'paid', 'failed'], default: 'created' },
+    status: { type: String, enum: ['pending', 'success', 'failed'], default: 'pending' },
+    failureReason: { type: String, default: null },
     platformFee: { type: Number, default: 0 },
     teacherShare: { type: Number, default: 0 },
     commissionRate: { type: Number, default: 0.2 }

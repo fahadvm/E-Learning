@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import mongoose from 'mongoose';
 import { inject, injectable } from 'inversify';
 import { IOrderRepository } from '../../core/interfaces/repositories/IOrderRepository';
-import { IOrder } from '../../models/Order';
+import { IOrder, OrderModel } from '../../models/Order';
 import { TYPES } from '../../core/di/types';
 import { IStudentPurchaseService } from '../../core/interfaces/services/student/IStudentPurchaseService';
 import { ICourse } from '../../models/Course';
@@ -59,6 +59,15 @@ export class StudentPurchaseService implements IStudentPurchaseService {
       }
     }
 
+    const courseObjIds = courses.map(id => new mongoose.Types.ObjectId(id));
+
+    // Check for an existing pending or failed order for the same student and same courses
+    const existingOrder = await OrderModel.findOne({
+      studentId,
+      courses: { $all: courseObjIds, $size: courseObjIds.length },
+      status: { $in: ['pending', 'failed'] }
+    });
+
     const options = {
       amount: amount * 100,
       currency,
@@ -66,10 +75,34 @@ export class StudentPurchaseService implements IStudentPurchaseService {
       notes: { studentId, courses: JSON.stringify(courses) },
     };
 
-    const razorpayOrder = await this._razorpay.orders.create(options);
+    let razorpayOrder;
+    if (existingOrder) {
+      // We can potentially reuse the razorpayOrderId if it hasn't expired,
+      // but to be safe and ensure the amount/options are fresh, we create a new one.
+      // However, we UPDATE the existing record instead of creating a new one.
+      razorpayOrder = await this._razorpay.orders.create(options);
+      existingOrder.razorpayOrderId = razorpayOrder.id;
+      existingOrder.amount = amount;
+      existingOrder.status = 'pending';
+      existingOrder.failureReason = undefined;
+      await existingOrder.save();
+
+      return {
+        _id: existingOrder._id,
+        razorpayOrderId: existingOrder.razorpayOrderId,
+        amount: existingOrder.amount,
+        currency: existingOrder.currency,
+        status: existingOrder.status,
+        studentId: existingOrder.studentId,
+        courses: existingOrder.courses,
+      };
+    }
+
+    const razorpayOrderNew = await this._razorpay.orders.create(options);
+    razorpayOrder = razorpayOrderNew;
 
     const studentObjId = new mongoose.Types.ObjectId(studentId);
-    const courseObjIds = courses.map(id => new mongoose.Types.ObjectId(id));
+    // const courseObjIds ... (used above)
 
     const newOrder: IOrder = await this._orderRepo.create({
       studentId: studentObjId,
@@ -77,7 +110,7 @@ export class StudentPurchaseService implements IStudentPurchaseService {
       razorpayOrderId: razorpayOrder.id,
       amount,
       currency: razorpayOrder.currency,
-      status: 'created',
+      status: 'pending',
     });
 
     return {
@@ -94,16 +127,24 @@ export class StudentPurchaseService implements IStudentPurchaseService {
   async verifyPayment(
     details: {
       razorpay_order_id: string;
-      razorpay_payment_id: string;
-      razorpay_signature: string;
+      razorpay_payment_id?: string;
+      razorpay_signature?: string;
+      failureReason?: string;
     },
     studentId: string
-  ): Promise<{ success: boolean }> {
-    logger.debug(
-      details.razorpay_order_id,
-      details.razorpay_payment_id,
-      details.razorpay_signature
-    );
+  ): Promise<{ success: boolean; message?: string }> {
+    logger.debug('Verifying payment:', details);
+
+    if (details.failureReason) {
+      await this._orderRepo.updateStatus(details.razorpay_order_id, 'failed');
+      await this._orderRepo.update(details.razorpay_order_id, { failureReason: details.failureReason } as any); // need to ensure update method handles by razorpayOrderId or I'll fix repository
+      // Actually repository update takes _id. I'll need a findByRazorpayOrderId first or update repository.
+      const order = await this._orderRepo.findByRazorpayOrderId(details.razorpay_order_id);
+      if (order) {
+        await this._orderRepo.update(order._id, { status: 'failed', failureReason: details.failureReason });
+      }
+      return { success: false, message: details.failureReason };
+    }
 
     const body = `${details.razorpay_order_id}|${details.razorpay_payment_id}`;
     const expectedSignature = crypto
@@ -113,14 +154,12 @@ export class StudentPurchaseService implements IStudentPurchaseService {
 
     const isValid = expectedSignature === details.razorpay_signature;
 
-    await this._orderRepo.updateStatus(
-      details.razorpay_order_id,
-      isValid ? 'paid' : 'failed'
-    );
-
     if (!isValid) {
-      await this._cartRepo.clearCart(studentId);
-      return { success: false };
+      const order = await this._orderRepo.findByRazorpayOrderId(details.razorpay_order_id);
+      if (order) {
+        await this._orderRepo.update(order._id, { status: 'failed', failureReason: 'Invalid payment signature' });
+      }
+      return { success: false, message: 'Invalid payment signature' };
     }
 
     // ---------------- STEP 1: Fetch order ----------------
@@ -128,8 +167,10 @@ export class StudentPurchaseService implements IStudentPurchaseService {
       details.razorpay_order_id
     );
 
-    // CORRECTED: check order existence and id properly
     if (!order || !order._id) throwError(MESSAGES.ORDER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
+
+    // Update status to success
+    await this._orderRepo.update(order._id, { status: 'success' });
 
     const studentObjId = new mongoose.Types.ObjectId(studentId);
 

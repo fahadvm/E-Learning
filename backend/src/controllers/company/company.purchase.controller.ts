@@ -32,14 +32,14 @@ export class CompanyPurchaseController implements ICompanyPurchaseController {
     }
 
     async verifyPayment(req: AuthRequest, res: Response) {
-        const { sessionId } = req.body;
+        const { sessionId, failureReason } = req.body;
         const companyId = req.user?.id;
 
         if (!sessionId || !companyId) {
             throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
         }
 
-        const result = await this._purchaseService.verifyPayment(sessionId, companyId);
+        const result = await this._purchaseService.verifyPayment(sessionId, companyId, failureReason);
 
         if (result.success) {
             sendResponse(res, STATUS_CODES.OK, MESSAGES.PAYMENT_VERIFIED_SUCCESSFULLY, true, result);

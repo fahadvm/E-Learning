@@ -9,7 +9,8 @@ export interface IOrder extends Document {
   paymentMethod: string;
   amount: number;
   currency: string;
-  status: 'created' | 'paid' | 'failed';
+  status: 'pending' | 'success' | 'failed';
+  failureReason?: string;
   platformFee: number;
   teacherShare: number;
   commissionRate: number;
@@ -33,8 +34,13 @@ const OrderSchema = new Schema<IOrder>(
 
     status: {
       type: String,
-      enum: ['created', 'paid', 'failed'],
-      default: 'created',
+      enum: ['pending', 'success', 'failed'],
+      default: 'pending',
+    },
+
+    failureReason: {
+      type: String,
+      default: null,
     },
 
     platformFee: {

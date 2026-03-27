@@ -93,10 +93,10 @@ export const studentCartApi = {
 
 export const paymentApi = {
   createOrder: (data: { amount: number; courses: string[] }) => post(STUDENT_ROUTES.purchase.createOrder, data),
-  verifyPayment: (data: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) =>
+  verifyPayment: (data: { razorpay_order_id: string; razorpay_payment_id?: string; razorpay_signature?: string; failureReason?: string }) =>
     post(STUDENT_ROUTES.purchase.verifyPayment, data),
   bookingPayment: (data: { amount: number; bookingId: string }) => post(STUDENT_ROUTES.bookings.payments(''), data),
-  verifyBookingPayment: (data: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) =>
+  verifyBookingPayment: (data: { razorpay_order_id: string; razorpay_payment_id?: string; razorpay_signature?: string; failureReason?: string }) =>
     post(STUDENT_ROUTES.bookings.verify, data),
   getOrderDetails: (razorpayOrderId: string) => get(STUDENT_ROUTES.purchase.getOrderDetails(razorpayOrderId)),
   getPurchaseHistory: (params: { page: number, limit: number }) => get(STUDENT_ROUTES.purchase.getMyhistory, params),

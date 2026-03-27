@@ -40,14 +40,15 @@ export default function PurchaseSuccessContent() {
           showSuccessToast("Payment verified successfully");
           setOrderId(res.data.order._id || sessionId);
           setAmount(res.data.amount || 0);
-          setItems(res.data.order.courses || []);
+          setItems(res.data.order.purchasedCourses || []);
         } else {
           showErrorToast("Payment failed. Try again.");
-          router.push("/company/cart");
+          router.push(`/company/checkout/failure?session_id=${sessionId}&error=${res?.data?.message || "Payment verification failed"}`);
         }
-      } catch {
+      } catch (err) {
+        console.error("Verification error:", err);
         showErrorToast("Something went wrong during verification.");
-        router.push("/company/cart");
+        router.push(`/company/checkout/failure?session_id=${sessionId}&error=Verification error`);
       } finally {
         setIsVerifying(false);
       }

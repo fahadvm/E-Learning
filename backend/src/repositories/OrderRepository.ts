@@ -32,7 +32,7 @@ export class OrderRepository implements IOrderRepository {
   ): Promise<(IOrder & { courses: ICourse[] })[]> {
     return OrderModel.find({
       studentId,
-      status: 'paid',
+      status: 'success',
     })
       .populate({
         path: 'courses',
@@ -48,7 +48,7 @@ export class OrderRepository implements IOrderRepository {
   async getOrderedCourseIds(studentId: string): Promise<string[]> {
     const orders = await OrderModel.find({
       studentId,
-      status: 'paid',
+      status: 'success',
     })
       .select('courses')
       .exec();
@@ -76,7 +76,7 @@ export class OrderRepository implements IOrderRepository {
 
 
   async getOrderDetailsByrazorpayOrderId(studentId: string, orderId: string): Promise<IOrder | null> {
-    const order = await OrderModel.findOne({ studentId, razorpayOrderId: orderId, status: 'paid' })
+    const order = await OrderModel.findOne({ studentId, razorpayOrderId: orderId, status: 'success' })
       .populate({
         path: 'studentId',
         select: 'name email',
@@ -131,7 +131,7 @@ export class OrderRepository implements IOrderRepository {
       {
         $match: {
           courses: { $in: [courseObjectId] },
-          status: 'paid',
+          status: 'success',
           createdAt: { $gte: sixMonthsAgo }
         }
       },

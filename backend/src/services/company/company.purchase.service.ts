@@ -8,7 +8,7 @@ import { ICourseRepository } from '../../core/interfaces/repositories/ICourseRep
 import mongoose from 'mongoose';
 import { ICompanyRepository } from '../../core/interfaces/repositories/ICompanyRepository';
 import { ICompanyOrderRepository } from '../../core/interfaces/repositories/ICompanyOrderRepository';
-import { ICompanyOrder } from '../../models/CompanyOrder';
+import { ICompanyOrder, CompanyOrderModel } from '../../models/CompanyOrder';
 import { ICourse } from '../../models/Course';
 import { throwError } from '../../utils/ResANDError';
 import { MESSAGES } from '../../utils/ResponseMessages';
@@ -75,7 +75,7 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
       ],
       mode: 'payment',
       success_url: `${process.env.FRONTEND_URL}/company/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL}/company/checkout/cancel`,
+      cancel_url: `${process.env.FRONTEND_URL}/company/checkout/failure?session_id={CHECKOUT_SESSION_ID}&error=Payment cancelled`,
     });
 
     const companyIdObj = new mongoose.Types.ObjectId(companyId);
@@ -88,19 +88,36 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
       price: item.price
     }));
 
-    await this._companyOrderRepo.create({
+    // Check for existing pending or failed order
+    const existingOrder = await CompanyOrderModel.findOne({
       companyId: companyIdObj,
-      purchasedCourses,
-      stripeSessionId: session.id,
-      amount,
-      currency: 'inr',
-      status: 'created',
+      status: { $in: ['pending', 'failed'] },
+      // Matching courses might be complex for company since it's an array of objects, 
+      // but we can at least check if the count and first course match or just create a new one.
+      // Re-using for company is less critical but good.
     });
+
+    if (existingOrder) {
+        existingOrder.stripeSessionId = session.id;
+        existingOrder.amount = amount;
+        existingOrder.status = 'pending';
+        existingOrder.failureReason = undefined;
+        await existingOrder.save();
+    } else {
+        await this._companyOrderRepo.create({
+          companyId: companyIdObj,
+          purchasedCourses,
+          stripeSessionId: session.id,
+          amount,
+          currency: 'inr',
+          status: 'pending',
+        });
+    }
 
     return { url: session.url };
   }
 
-  async verifyPayment(sessionId: string, companyId: string) {
+  async verifyPayment(sessionId: string, companyId: string, failureReason?: string) {
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
       expand: ['payment_intent'],
     });
@@ -109,7 +126,7 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
       const order = await this._companyOrderRepo.findByStripeSessionId(sessionId);
       if (!order) throwError(MESSAGES.ORDER_NOT_FOUND, STATUS_CODES.NOT_FOUND);
 
-      await this._companyOrderRepo.updateStatus(sessionId, 'paid');
+      await this._companyOrderRepo.updateStatus(sessionId, 'success');
       await this._cartRepo.clearCart(companyId);
       for (const item of order.purchasedCourses) {
         const courseId = (item.courseId as unknown as ICourse)?._id
@@ -207,8 +224,13 @@ export class CompanyPurchaseService implements ICompanyPurchaseService {
       return { success: true, amount: order.amount, order: order };
     }
 
-    await this._companyOrderRepo.updateStatus(sessionId, 'failed');
-    return { success: false };
+    const order = await this._companyOrderRepo.findByStripeSessionId(sessionId);
+    if (order) {
+        order.status = 'failed';
+        order.failureReason = failureReason || 'Stripe payment failed or was cancelled';
+        await order.save();
+    }
+    return { success: false, message: failureReason || 'Stripe payment failed' };
   }
 
   /**

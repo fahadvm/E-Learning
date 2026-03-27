@@ -26,7 +26,7 @@ export class CompanyOrderRepository implements ICompanyOrderRepository {
   async getOrdersByCompanyId(companyId: string): Promise<ICompanyOrder[]> {
     return CompanyOrderModel.find({
       companyId,
-      status: 'paid',
+      status: 'success',
     })
       .populate('purchasedCourses.courseId')
       .exec();
@@ -35,7 +35,7 @@ export class CompanyOrderRepository implements ICompanyOrderRepository {
   async getOrdersById(companyId: string): Promise<ICompanyOrder[]> {
     return CompanyOrderModel.find({
       companyId,
-      status: 'paid',
+      status: 'success',
     })
       .populate('purchasedCourses.courseId');
   }
@@ -50,7 +50,7 @@ export class CompanyOrderRepository implements ICompanyOrderRepository {
   async getPurchasedCourseIds(companyId: string): Promise<string[]> {
     const orders = await CompanyOrderModel.find({
       companyId,
-      status: 'paid'
+      status: 'success'
     }).select('purchasedCourses');
 
     const purchasedCourseIds = orders.flatMap(order =>
