@@ -114,7 +114,21 @@ export class StudentBookingService implements IStudentBookingService {
   }
 
 
-  async verifyPayment(razorpay_order_id: string, razorpay_payment_id: string, razorpay_signature: string): Promise<IBooking | null> {
+  async verifyPayment(
+    razorpay_order_id: string,
+    razorpay_payment_id?: string,
+    razorpay_signature?: string,
+    failureReason?: string
+  ): Promise<{ success: boolean; booking?: IBooking | null; message?: string }> {
+    if (failureReason) {
+      const updated = await this._bookingRepo.updateBookingStatusByOrderId(razorpay_order_id, 'failed', failureReason);
+      return { success: false, booking: updated, message: failureReason };
+    }
+
+    if (!razorpay_payment_id || !razorpay_signature) {
+      throwError('Missing payment details', STATUS_CODES.BAD_REQUEST);
+    }
+
     const crypto = await import('crypto');
     const body = razorpay_order_id + '|' + razorpay_payment_id;
 
@@ -137,28 +151,16 @@ export class StudentBookingService implements IStudentBookingService {
         'teacher'
       );
 
-      // --- Transaction Logic ---
-      // Hardcoding default booking price/commission for now if not in Booking model
-      // Usually booking amount is determined at initiatePayment. 
-      // Assuming a standard fee or we should have stored amount in Booking.
-      // Booking model DOES NOT have amount. 
-      // `initiatePayment` took `amount`.
-      // We rely on external tracking or assumption here.
-      // Requirement says "₹100 per booking" (assumed from user prompt or logic).
-      // Prompt said: "Video Call Bookings (₹100 per booking)".
-
-      const BOOKING_AMOUNT = 100; // Fixed for now based on prompt
-      const COMMISSION_RATE = 0.2; // 20%
+      const BOOKING_AMOUNT = 100;
+      const COMMISSION_RATE = 0.2;
       const platformFee = BOOKING_AMOUNT * COMMISSION_RATE;
       const teacherShare = BOOKING_AMOUNT - platformFee;
 
-      // 1. Transaction: Student Paid (MEETING_BOOKING)
-      // Transaction model has `meetingId`. Using that for bookingId.
       await this._transactionRepo.create({
         userId: updated.studentId,
         meetingId: updated._id,
         type: 'MEETING_BOOKING',
-        txnNature: 'CREDIT', // Money credited TO SYSTEM (from student)
+        txnNature: 'CREDIT',
         amount: BOOKING_AMOUNT,
         grossAmount: BOOKING_AMOUNT,
         teacherShare,
@@ -168,7 +170,6 @@ export class StudentBookingService implements IStudentBookingService {
         notes: `Booking Payment: ${updated._id}`
       });
 
-      // 2. Transaction: Teacher Earning (TEACHER_EARNING)
       const earningTx = await this._transactionRepo.create({
         teacherId: updated.teacherId,
         meetingId: updated._id,
@@ -183,7 +184,6 @@ export class StudentBookingService implements IStudentBookingService {
         notes: `Earning from Booking: ${updated._id}`
       });
 
-      // Credit Wallet
       await this._walletRepo.creditTeacherWallet({
         teacherId: updated.teacherId,
         amount: teacherShare,
@@ -191,8 +191,7 @@ export class StudentBookingService implements IStudentBookingService {
       });
     }
 
-
-    return updated;
+    return { success: !!updated, booking: updated };
   }
 
   async getHistory(studentId: string, page: number, limit: number, status?: string, teacher?: string): Promise<IPaginatedResult<IBooking>> {

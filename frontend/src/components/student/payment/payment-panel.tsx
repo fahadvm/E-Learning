@@ -40,11 +40,14 @@ interface RazorpayOptions {
   theme: {
     color: string;
   };
+  modal?: {
+    ondismiss?: () => void;
+  };
 }
 
 interface RazorpayInstance {
   open: () => void;
-  on: (event: string, callback: (err?: unknown) => void) => void;
+  on: (event: string, callback: (...args: any[]) => void) => void;
 }
 
 export default function PaymentPanel({
@@ -56,9 +59,9 @@ export default function PaymentPanel({
 }: PaymentPanelProps) {
   const router = useRouter()
   const [selected, setSelected] = React.useState(paymentMethods[0]?.id ?? "")
+  const { isProcessing, startPayment, endPayment } = usePaymentStore();
 
   const handleCompletePurchase = () => {
-    const { isProcessing, startPayment, endPayment } = usePaymentStore.getState();
 
     if (isProcessing) {
       showErrorToast("A payment is already being processed. Please wait...");
@@ -153,6 +156,16 @@ export default function PaymentPanel({
             contact: `${student?.phone ?? ""}`,
           },
           theme: { color: "#176B87" },
+          modal: {
+            ondismiss: () => {
+              console.log("Checkout form closed");
+              showErrorToast("Payment cancelled");
+              router.push(
+                `/student/booking/payment/failure?orderId=${razorpayOrderId}&error=Payment cancelled`
+              );
+              endPayment();
+            },
+          },
         };
 
         const Razorpay = (window as unknown as { Razorpay: new (options: RazorpayOptions) => RazorpayInstance }).Razorpay;
@@ -245,8 +258,12 @@ export default function PaymentPanel({
         {note ? <p className="mt-2 text-xs text-muted-foreground">{note}</p> : null}
       </div>
 
-      <Button onClick={handleCompletePurchase} className="w-full">
-        {`Pay Now ₹${fee}`}
+      <Button 
+        onClick={handleCompletePurchase} 
+        className="w-full"
+        disabled={isProcessing}
+      >
+        {isProcessing ? "Processing..." : `Pay Now ₹${fee}`}
       </Button>
 
       <p className="text-center text-xs text-muted-foreground">

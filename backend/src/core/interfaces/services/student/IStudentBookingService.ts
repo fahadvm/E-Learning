@@ -35,8 +35,9 @@ export interface IStudentBookingService {
   getScheduledCalls(studentId: string): Promise<IBooking[]>;
   verifyPayment(
     razorpay_order_id: string,
-    razorpay_payment_id: string,
-    razorpay_signature: string
-  ): Promise<IBooking | null>;
+    razorpay_payment_id?: string,
+    razorpay_signature?: string,
+    failureReason?: string
+  ): Promise<{ success: boolean; booking?: IBooking | null; message?: string }>;
 }
 

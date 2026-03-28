@@ -9,8 +9,9 @@ export interface IBookingFilter {
 
 export interface RazorpayVerifyPayload {
   razorpay_order_id: string;
-  razorpay_payment_id: string;
-  razorpay_signature: string;
+  razorpay_payment_id?: string;
+  razorpay_signature?: string;
+  failureReason?: string;
 }
 
 export interface CourseQuery {

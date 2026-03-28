@@ -31,10 +31,6 @@ interface RazorpayResponse {
     razorpay_signature: string;
 }
 
-interface RazorpayInstance {
-    open: () => void;
-    on: (event: string, callback: () => void) => void;
-}
 
 interface RazorpayOptions {
     key: string | undefined;
@@ -50,8 +46,16 @@ interface RazorpayOptions {
         contact?: string;
     };
     theme: {
-        color: string;
-    };
+    color: string;
+  };
+  modal?: {
+    ondismiss?: () => void;
+  };
+}
+
+interface RazorpayInstance {
+    open: () => void;
+    on: (event: string, callback: (...args: any[]) => void) => void;
 }
 
 interface Subscription {
@@ -161,7 +165,6 @@ export default function SubscriptionPlansPage() {
                     handler: async (resp: RazorpayResponse) => {
                         try {
                             await studentSubscriptionApi.verifyPayment({
-                                planId: plan._id!,
                                 razorpay_order_id: resp.razorpay_order_id,
                                 razorpay_payment_id: resp.razorpay_payment_id,
                                 razorpay_signature: resp.razorpay_signature,
@@ -179,11 +182,36 @@ export default function SubscriptionPlansPage() {
                         contact: student?.phone,
                     },
                     theme: { color: '#176B87' },
+                    modal: {
+                        ondismiss: () => {
+                            console.log('Checkout form closed');
+                            showErrorToast('Payment cancelled');
+                            router.push(`/student/subscription/failure?orderId=${order.id}&error=Payment cancelled`);
+                            setProcessingPlan(null);
+                        }
+                    }
                 };
 
                 const Razorpay = (window as unknown as { Razorpay: new (options: RazorpayOptions) => RazorpayInstance }).Razorpay;
                 const rzp = new Razorpay(options);
-                rzp.on('payment.failed', () => showErrorToast('Payment failed'));
+                rzp.on('payment.failed', async (err: any) => {
+                    console.error('Payment failed', err);
+                    showErrorToast('Payment failed');
+
+                    try {
+                        await studentSubscriptionApi.verifyPayment({
+                            razorpay_order_id: order.id,
+                            failureReason: err.error?.description || 'Payment failed',
+                        });
+                    } catch (logErr) {
+                        console.error('Failed to log payment failure:', logErr);
+                    }
+
+                    router.push(
+                        `/student/subscription/failure?orderId=${order.id}&error=${err.error?.description || 'Payment failed'}&code=${err.error?.code}`
+                    );
+                    setProcessingPlan(null);
+                });
                 rzp.open();
             } catch (err) {
                 showErrorToast('Failed to create order');

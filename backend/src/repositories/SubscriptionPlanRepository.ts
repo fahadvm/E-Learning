@@ -79,13 +79,13 @@ export class SubscriptionPlanRepository implements ISubscriptionPlanRepository {
   async updatePaymentStatus(
     studentId: string,
     orderId: string,
-    status: 'pending' | 'active' | 'expired' | 'cancelled',
-    paymentId?: string
+    status: 'pending' | 'active' | 'expired' | 'cancelled' | 'failed',
+    paymentId?: string,
+    failureReason?: string
   ): Promise<IStudentSubscription | null> {
-    // const student = await Student.findByIdAndUpdate(studentId,{isPremium:true});
     return await StudentSubscription.findOneAndUpdate(
       { orderId },
-      { status, paymentId },
+      { status, paymentId, failureReason },
       { new: true }
     );
   }

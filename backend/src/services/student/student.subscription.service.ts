@@ -67,7 +67,22 @@ export class StudentSubscriptionService implements IStudentSubscriptionService {
   }
 
   async verifyPayment(studentId: string, payload: RazorpayVerifyPayload): Promise<void> {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = payload;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, failureReason } = payload;
+
+    if (failureReason) {
+      await this._planRepo.updatePaymentStatus(
+        studentId,
+        razorpay_order_id,
+        'failed',
+        undefined,
+        failureReason
+      );
+      return;
+    }
+
+    if (!razorpay_payment_id || !razorpay_signature) {
+      throwError('Missing payment details', 400);
+    }
 
     const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!);
     hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);

@@ -16,7 +16,19 @@ export class OrderRepository implements IOrderRepository {
   }
 
   async update(id: Types.ObjectId | string, update: Partial<IOrder>): Promise<IOrder | null> {
-    return await OrderModel.findByIdAndUpdate(id, update, { new: true });
+    let targetId = id;
+    
+    // Fail-safe: If id is a string but not a valid ObjectId, it might be a Razorpay Order ID
+    if (typeof id === 'string' && !mongoose.Types.ObjectId.isValid(id)) {
+      const order = await OrderModel.findOne({ razorpayOrderId: id });
+      if (order) {
+        targetId = order._id;
+      } else {
+        return null;
+      }
+    }
+    
+    return await OrderModel.findByIdAndUpdate(targetId, update, { new: true });
   }
 
   async updateStatus(orderId: string, status: string): Promise<IOrder | null> {

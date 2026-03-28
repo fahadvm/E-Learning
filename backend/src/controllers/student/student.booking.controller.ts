@@ -97,18 +97,18 @@ export class StudentBookingController implements IStudentBookingController {
     const studentId = req.user?.id;
     if (!studentId) throwError(MESSAGES.UNAUTHORIZED, STATUS_CODES.UNAUTHORIZED);
 
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature)
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, failureReason } = req.body;
+    if (!razorpay_order_id)
       throwError(MESSAGES.REQUIRED_FIELDS_MISSING, STATUS_CODES.BAD_REQUEST);
 
-    const verified = await this._bookingService.verifyPayment(
-      razorpay_order_id, razorpay_payment_id, razorpay_signature
+    const result = await this._bookingService.verifyPayment(
+      razorpay_order_id, razorpay_payment_id, razorpay_signature, failureReason
     );
 
-    if (verified)
-      return sendResponse(res, STATUS_CODES.OK, MESSAGES.PAYMENT_VERIFIED_SUCCESSFULLY, true, verified);
+    if (result.success)
+      return sendResponse(res, STATUS_CODES.OK, MESSAGES.PAYMENT_VERIFIED_SUCCESSFULLY, true, result);
 
-    return sendResponse(res, STATUS_CODES.BAD_REQUEST, MESSAGES.PAYMENT_VERIFICATION_FAILED, false, verified);
+    return sendResponse(res, STATUS_CODES.BAD_REQUEST, MESSAGES.PAYMENT_VERIFICATION_FAILED, false, result);
   };
 
   getHistory = async (req: AuthRequest, res: Response) => {

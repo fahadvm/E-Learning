@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import { IStudentBookingRepository, IPaginatedResult, IPendingResult } from '../core/interfaces/repositories/IStudentBookingRepository';
 import { Booking, IBooking } from '../models/Booking';
-import { Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import { IBookingFilter } from '../types/filter/fiterTypes';
 import { throwError } from '../utils/ResANDError';
 import { MESSAGES } from '../utils/ResponseMessages';
@@ -54,7 +54,7 @@ export class StudentBookingRepository implements IStudentBookingRepository {
 
   async updateBookingStatus(
     bookingId: string,
-    status: 'pending' | 'approved' | 'booked' | 'cancelled' | 'rejected',
+    status: 'pending' | 'approved' | 'booked' | 'cancelled' | 'rejected' | 'rescheduled' | 'failed',
     reason?: string
   ): Promise<IBooking | null> {
     const updateData =
@@ -62,7 +62,19 @@ export class StudentBookingRepository implements IStudentBookingRepository {
         ? { status, cancellationReason: reason }
         : { status };
 
-    return await Booking.findByIdAndUpdate(bookingId, updateData, { new: true })
+    let targetId = bookingId;
+    
+    // Fail-safe: If bookingId is a string but not a valid ObjectId, it might be a Razorpay Order ID
+    if (typeof bookingId === 'string' && !mongoose.Types.ObjectId.isValid(bookingId)) {
+      const booking = await Booking.findOne({ paymentOrderId: bookingId });
+      if (booking) {
+        targetId = booking._id.toString();
+      } else {
+        return null;
+      }
+    }
+
+    return await Booking.findByIdAndUpdate(targetId, updateData, { new: true })
       .populate('studentId teacherId courseId');
   }
 
@@ -164,6 +176,23 @@ export class StudentBookingRepository implements IStudentBookingRepository {
 
   async findByOrderId(orderId: string): Promise<IBooking | null> {
     return await Booking.findOne({ paymentOrderId: orderId });
+  }
+
+  async updateBookingStatusByOrderId(
+    orderId: string,
+    status: 'pending' | 'booked' | 'cancelled' | 'rescheduled' | 'failed',
+    reason?: string
+  ): Promise<IBooking | null> {
+    const updateData =
+      status === 'failed' && reason
+        ? { status, rejectionReason: reason }
+        : { status };
+
+    return await Booking.findOneAndUpdate(
+      { paymentOrderId: orderId },
+      updateData,
+      { new: true }
+    );
   }
 
   async verifyAndMarkPaid(orderId: string, callId: string): Promise<IBooking | null> {

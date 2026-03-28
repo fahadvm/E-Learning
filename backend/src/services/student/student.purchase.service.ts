@@ -136,12 +136,12 @@ export class StudentPurchaseService implements IStudentPurchaseService {
     logger.debug('Verifying payment:', details);
 
     if (details.failureReason) {
-      await this._orderRepo.updateStatus(details.razorpay_order_id, 'failed');
-      await this._orderRepo.update(details.razorpay_order_id, { failureReason: details.failureReason } as any); // need to ensure update method handles by razorpayOrderId or I'll fix repository
-      // Actually repository update takes _id. I'll need a findByRazorpayOrderId first or update repository.
       const order = await this._orderRepo.findByRazorpayOrderId(details.razorpay_order_id);
       if (order) {
-        await this._orderRepo.update(order._id, { status: 'failed', failureReason: details.failureReason });
+        await this._orderRepo.update(order._id as mongoose.Types.ObjectId, {
+          status: 'failed',
+          failureReason: details.failureReason
+        });
       }
       return { success: false, message: details.failureReason };
     }

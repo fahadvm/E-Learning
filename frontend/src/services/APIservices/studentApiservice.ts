@@ -106,7 +106,7 @@ export const paymentApi = {
 export const studentSubscriptionApi = {
   getAllPlans: () => get(STUDENT_ROUTES.subscriptions.base),
   createOrder: (planId: string) => post(STUDENT_ROUTES.subscriptions.createOrder, { planId }),
-  verifyPayment: (payload: { planId: string; razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) =>
+  verifyPayment: (payload: { razorpay_order_id: string; razorpay_payment_id?: string; razorpay_signature?: string; failureReason?: string }) =>
     post(STUDENT_ROUTES.subscriptions.verifyPayment, payload),
   activateFreePlan: (planId: string) => post(STUDENT_ROUTES.subscriptions.activateFree, { planId }),
   getMySubscription: () => get(STUDENT_ROUTES.subscriptions.myPlan,),

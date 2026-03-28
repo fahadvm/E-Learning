@@ -23,7 +23,7 @@ interface RazorpayResponse {
 
 interface RazorpayInstance {
   open: () => void;
-  on: (event: string, callback: () => void) => void;
+  on: (event: string, callback: (...args: any[]) => void) => void;
 }
 
 interface RazorpayOptions {
@@ -42,6 +42,9 @@ interface RazorpayOptions {
   theme: {
     color: string;
   };
+  modal?: {
+    ondismiss?: () => void;
+  };
 }
 
 
@@ -50,6 +53,7 @@ export default function CheckoutPage() {
   const [cartData, setCartData] = useState<CartData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const { student } = useStudent();
+  const { isProcessing, startPayment, endPayment } = usePaymentStore();
   const router = useRouter()
 
   useEffect(() => {
@@ -83,12 +87,12 @@ export default function CheckoutPage() {
     )
   }
 
+
   const subtotal = cartData.total
   const discount = 0
   const total = subtotal - discount
 
   const handleCompletePurchase = () => {
-    const { isProcessing, startPayment, endPayment } = usePaymentStore.getState();
 
     if (isProcessing) {
       showErrorToast("A payment is already being processed. Please wait...");
@@ -166,6 +170,12 @@ export default function CheckoutPage() {
                 router.push(
                   `/student/checkout/failure?orderId=${response.razorpay_order_id}&error=Verification error`
                 );
+                // Fallback for extreme cases
+                setTimeout(() => {
+                  if (window.location.pathname === "/student/checkout") {
+                    window.location.href = `/student/checkout/failure?orderId=${response.razorpay_order_id}&error=Verification error`;
+                  }
+                }, 1000);
               } finally {
                 endPayment();
               }
@@ -176,6 +186,16 @@ export default function CheckoutPage() {
               contact: student?.phone,
             },
             theme: { color: "#176B87" },
+            modal: {
+              ondismiss: () => {
+                console.log("Checkout form closed");
+                showErrorToast("Payment cancelled");
+                router.push(
+                  `/student/checkout/failure?orderId=${order.razorpayOrderId}&error=Payment cancelled`
+                );
+                endPayment();
+              },
+            },
           };
 
           const Razorpay = (window as unknown as { Razorpay: new (options: RazorpayOptions) => RazorpayInstance }).Razorpay;
@@ -196,6 +216,12 @@ export default function CheckoutPage() {
             router.push(
               `/student/checkout/failure?orderId=${order.razorpayOrderId}&error=${err.error?.description || "Payment failed"}&code=${err.error?.code}`
             );
+            // Fallback
+            setTimeout(() => {
+              if (window.location.pathname === "/student/checkout") {
+                window.location.href = `/student/checkout/failure?orderId=${order.razorpayOrderId}&error=${err.error?.description || "Payment failed"}&code=${err.error?.code}`;
+              }
+            }, 1000);
             endPayment();
           });
           rzp.open();
@@ -360,7 +386,7 @@ export default function CheckoutPage() {
                   className="w-full h-12 text-base font-medium"
                   size="lg"
                   onClick={handleCompletePurchase}
-                  disabled={usePaymentStore.getState().isProcessing}
+                  disabled={isProcessing}
                 >
                   <Lock className="h-4 w-4 mr-2" />
                   Complete Purchase

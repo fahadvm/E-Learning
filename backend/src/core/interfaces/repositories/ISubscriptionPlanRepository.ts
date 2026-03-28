@@ -21,8 +21,9 @@ export interface ISubscriptionPlanRepository {
   updatePaymentStatus(
     studentId: string,
     orderId: string,
-    status: 'pending' | 'active' | 'expired' | 'cancelled',
-    paymentId?: string
+    status: 'pending' | 'active' | 'expired' | 'cancelled' | 'failed',
+    paymentId?: string,
+    failureReason?: string
   ): Promise<IStudentSubscription | null>;
   findActiveSubscription(studentId: string): Promise<IStudentSubscription | null>;
   findActiveSubscriptions(studentId: string): Promise<IStudentSubscription[] | null>;

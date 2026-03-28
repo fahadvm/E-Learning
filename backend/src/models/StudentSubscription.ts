@@ -5,7 +5,8 @@ export interface IStudentSubscription extends Document {
   planId: mongoose.Types.ObjectId;
   orderId: string;
   paymentId?: string;
-  status: 'pending' | 'active' | 'expired' | 'cancelled' | 'free';
+  status: 'pending' | 'active' | 'expired' | 'cancelled' | 'free' | 'failed';
+  failureReason?: string;
   startDate: Date;
   endDate: Date;
   createdAt: Date;
@@ -20,9 +21,10 @@ const StudentSubscriptionSchema = new Schema<IStudentSubscription>(
     paymentId: { type: String },
     status: {
       type: String,
-      enum: ['pending', 'active', 'expired', 'cancelled', 'free'],
+      enum: ['pending', 'active', 'expired', 'cancelled', 'free', 'failed'],
       default: 'pending'
     },
+    failureReason: { type: String },
     startDate: { type: Date, default: Date.now },
     endDate: { type: Date, default: function () {
         const now = new Date();

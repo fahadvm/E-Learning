@@ -23,7 +23,12 @@ export interface IStudentBookingRepository {
   createBooking(booking: Partial<IBooking>): Promise<IBooking>;
   updateBookingStatus(
     bookingId: string,
-    status: 'pending' | 'approved' | 'booked' | 'cancelled' | 'rejected' | 'reschedulled',
+    status: 'pending' | 'approved' | 'booked' | 'cancelled' | 'rejected' | 'rescheduled' | 'failed',
+    reason?: string
+  ): Promise<IBooking | null>;
+  updateBookingStatusByOrderId(
+    orderId: string,
+    status: 'pending' | 'booked' | 'cancelled' | 'rescheduled' | 'failed',
     reason?: string
   ): Promise<IBooking | null>;
   getBookingsByStudent(
