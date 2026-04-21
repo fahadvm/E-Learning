@@ -1,9 +1,6 @@
+# DevNext - Advanced E-Learning Platform
 
-# DevNext - Advanced E-Learning Platform 
-
-DevNext is a state-of-the-art, multi-role E-learning & Corporate Training ecosystem designed to provide a seamless educational
-experience for students, teachers, companies, and employees. Built with a focus on modern UI/UX, real-time interactivity, 
-and AI-driven features, it represents the next generation of online learning.
+DevNext is a state-of-the-art, multi-role E-learning & Corporate Training Ecosystem designed to provide a seamless educational experience for students, teachers, companies, and employees. Built with a focus on modern UI/UX, real-time interactivity, and AI-driven features, it represents the next generation of online learning.
 
 ---
 
@@ -19,6 +16,22 @@ and AI-driven features, it represents the next generation of online learning.
 - **Dual Gateway Support**: Integrated with **Stripe** and **Razorpay** for global and local transactions.
 - **Tiered Subscriptions**: Flexible Standard and Premium plans for students and corporate entities.
 - **Automated Invoicing**: Dynamic PDF generation for all financial transactions.
+
+### 💬 Real-Time Communication
+- **Instant Messaging**: Full-featured chat system with typing indicators, read receipts, message reactions, and edit/delete capabilities.
+- **1-on-1 Direct Calling**: WhatsApp-style peer-to-peer audio and video calling with real-time signaling.
+- **Structured Video Rooms**: Dedicated room-based video conferencing for teacher-student consultations.
+- **Real-Time Notifications**: Instant push notifications for messages, calls, and important updates.
+
+### 🏆 Gamification & Progression
+- **Daily Streaks**: Encourages consistent learning with daily streak tracking and longest-streak records.
+- **Dynamic Leaderboards**: Competition-driven rankings based on student and employee performance.
+- **Achievement System**: Gamified progression markers to keep learners engaged and motivated.
+
+### 🗺️ Structured Learning Paths
+- **Custom Curriculums**: Tailored learning journeys designed for specific career goals or corporate requirements.
+- **Progressive Unlocking**: Course-by-course advancement with prerequisite tracking.
+- **Corporate Training**: Companies can design and assign specific paths to their employee teams.
 
 ### 🤖 AI-Powered Learning
 - **Smart Assistance**: Leveraging **OpenAI** and **Google Gemini** for course generation and student support.
@@ -40,7 +53,7 @@ and AI-driven features, it represents the next generation of online learning.
 ### Frontend
 - **Framework**: Next.js 15 (App Router), React 19
 - **Styling**: Tailwind CSS, Shadcn UI, Ant Design
-- **State Management**: Zustand, context API, TanStack Query (React Query)
+- **State Management**: Zustand, TanStack Query (React Query)
 - **Animations**: Framer Motion, GSAP, Three.js, Vanta.js
 - **Icons**: Lucide React, FontAwesome
 
@@ -49,7 +62,7 @@ and AI-driven features, it represents the next generation of online learning.
 - **Framework**: Express with TypeScript
 - **Database**: MongoDB (Mongoose), Redis (Caching)
 - **Architecture**: Clean/Layered Architecture with Inversify (Dependency Injection)
-- **Communication**: Socket.io
+- **Communication**: Socket.io, WebRTC (Real-time Signaling)
 
 ### Third-Party Services
 - **Payments**: Stripe, Razorpay
@@ -162,7 +175,7 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_public_key
 ## 🛣️ API Endpoints (Highlights)
 
 | Method | Endpoint | Description |
-| :---   | :---     | :---        |
+| :--- | :--- | :--- |
 | `POST` | `/api/auth/student/login` | Student Login |
 | `GET` | `/api/student/courses` | Fetch all courses for student |
 | `POST` | `/api/teacher/course/create` | Create a new course |
@@ -173,9 +186,7 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_public_key
 
 ## 📸 Screenshots
 
-<img width="1866" height="946" alt="image" src="https://github.com/user-attachments/assets/fdf8c0fe-d254-44b1-acf4-e8b8ffe42247" />
-
----
+<img width="1866" height="946" alt="image" src="https://github.com/user-attachments/assets/ff9c11be-b2c2-4cbe-82ae-9ed354a3be72" />
 
 ## 💡 Key Learnings & Highlights
 
