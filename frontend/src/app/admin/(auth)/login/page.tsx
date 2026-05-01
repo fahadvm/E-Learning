@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { adminApiMethods } from "@/services/APIservices/adminApiService";
 import { showSuccessToast } from "@/utils/Toast";
+import DemoAccounts, { DEMO_ACCOUNTS } from "@/reusable/DemoAccounts";
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -11,6 +12,24 @@ export default function AdminLogin() {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("demo") === "true") {
+        const account = DEMO_ACCOUNTS.find(acc => acc.role === "Admin");
+        if (account) {
+          setEmail(account.email);
+          setPassword(account.password);
+          showSuccessToast("Demo credentials added");
+          // Remove from URL
+          const url = new URL(window.location.href);
+          url.searchParams.delete("demo");
+          window.history.replaceState({}, "", url);
+        }
+      }
+    }
+  }, []);
 
   const validateEmail = (email: string): string => {
     if (!email) return "Email is required";
@@ -49,6 +68,17 @@ export default function AdminLogin() {
       {/* Left Side - Login Form */}
       <div className="w-full lg:w-1/2 p-8 sm:p-12 bg-white flex flex-col justify-center items-center shadow-2xl">
         <h1 className="text-4xl font-extrabold text-gray-900 mb-6">Admin Login</h1>
+
+        <div className="block lg:hidden w-full max-w-sm mb-6">
+          <DemoAccounts 
+            currentRole="admin"
+            theme="light"
+            onFillCredentials={(e, p) => {
+              setEmail(e);
+              setPassword(p);
+            }}
+          />
+        </div>
 
         <form onSubmit={handleSubmit} className="w-full max-w-md space-y-4">
           <div>
@@ -157,7 +187,18 @@ export default function AdminLogin() {
       <div className="hidden lg:flex w-1/2 p-12 bg-gradient-to-br from-gray-800 to-gray-900 text-white flex-col justify-center items-center">
         <h2 className="text-3xl font-bold mb-6 tracking-wide">ADMIN PANEL</h2>
 
-        <p className="text-lg text-gray-200 text-center max-w-lg leading-relaxed">
+        <div className="w-full flex justify-center">
+          <DemoAccounts 
+            currentRole="admin"
+            theme="dark"
+            onFillCredentials={(e, p) => {
+              setEmail(e);
+              setPassword(p);
+            }}
+          />
+        </div>
+
+        <p className="mt-6 text-lg text-gray-200 text-center max-w-lg leading-relaxed">
           Manage companies, monitor users, and keep DevNext running smoothly from
           one central admin hub.
         </p>

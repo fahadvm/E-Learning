@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { showInfoToast, showSuccessToast } from "@/utils/Toast";
 import { GoogleLoginButton } from "@/components/student/googleLogin";
 import { ArrowLeft } from "lucide-react";
+import DemoAccounts, { DEMO_ACCOUNTS } from "@/reusable/DemoAccounts";
 
 
 interface LoginPageProps<TData = { email: string; password: string }, TResult = { ok: boolean; message?: string; data?: unknown } | null> {
@@ -35,6 +36,24 @@ export default function ReusableLoginPage({
   const [errors, setErrors] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("demo") === "true") {
+        const account = DEMO_ACCOUNTS.find(acc => acc.role.toLowerCase() === role);
+        if (account) {
+          setEmail(account.email);
+          setPassword(account.password);
+          showSuccessToast("Demo credentials added");
+          // Remove from URL
+          const url = new URL(window.location.href);
+          url.searchParams.delete("demo");
+          window.history.replaceState({}, "", url);
+        }
+      }
+    }
+  }, [role]);
 
   // Check if user is already authenticated
   useEffect(() => {
@@ -138,6 +157,17 @@ export default function ReusableLoginPage({
         <h1 className="text-4xl font-extrabold text-gray-900 mb-6">
           Sign In to DevNext
         </h1>
+
+        <div className="block lg:hidden w-full max-w-sm mb-6">
+          <DemoAccounts 
+            currentRole={role}
+            theme="light"
+            onFillCredentials={(e, p) => {
+              setEmail(e);
+              setPassword(p);
+            }}
+          />
+        </div>
         
 
         {/* Google Signup */}
@@ -263,9 +293,22 @@ export default function ReusableLoginPage({
           alt="Banner"
           className="mb-6 rounded-lg shadow-lg w-full h-auto object-cover"
         />
-        <p className="text-lg text-gray-200 text-center max-w-lg leading-relaxed">
+
+        <div className="w-full flex justify-center">
+          <DemoAccounts 
+            currentRole={role}
+            theme="dark"
+            onFillCredentials={(e, p) => {
+              setEmail(e);
+              setPassword(p);
+            }}
+          />
+        </div>
+
+        <p className="mt-4 text-lg text-gray-200 text-center max-w-lg leading-relaxed">
           DevNext is your ultimate platform to master coding, connect with expert mentors, and elevate your tech career to new heights!
         </p>
+
         <p className="mt-10 text-center text-gray-400 text-xs">
           © 2025 DevNext. All rights reserved.
         </p>
