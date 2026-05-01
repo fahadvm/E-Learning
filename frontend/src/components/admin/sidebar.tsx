@@ -19,7 +19,8 @@ import {
   Layers,
   BarChart3,
   Coins,
-  CreditCardIcon
+  CreditCardIcon,
+  UserPlus
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -39,6 +40,7 @@ const navItems = [
   { icon: Coins, label: "Transactions", href: "/admin/transactions" },
   { icon: BarChart3, label: "Reports", href: "/admin/reports" },
   { icon: CreditCardIcon, label: "Payouts", href: "/admin/payouts" },
+  { icon: UserPlus, label: "Add Admin", href: "/admin/add-admin" },
   { icon: Settings, label: "Settings", href: "/admin/settings" },
 ];
 
