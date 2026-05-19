@@ -62,7 +62,8 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center text-white">
 
         {/* Brand */}
-        <Link href="/company/home" className="text-2xl font-bold tracking-tight">
+        <Link href="/company/home" className="flex items-center gap-2 text-2xl font-bold tracking-tight">
+          <img src="/logo.png" alt="DevNext Logo" className="w-8 h-8 object-contain" />
           DevNext <span className="text-primary text-sm font-normal">Enterprise</span>
         </Link>
 

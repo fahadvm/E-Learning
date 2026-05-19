@@ -20,8 +20,8 @@ export default function Navigation() {
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 backdrop-blur-md bg-black/30 border-b border-white/10">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="relative">
-            <Code className="w-8 h-8 text-blue-400" />
+          <div className="relative flex items-center justify-center">
+            <img src="/logo.png" alt="DevNext Logo" className="w-10 h-10 object-contain z-10" />
             <div className="absolute inset-0 blur-xl bg-blue-400/30 animate-pulse" />
           </div>
           <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">

@@ -159,7 +159,7 @@ export default function ReusableLoginPage({
         </h1>
 
         <div className="block lg:hidden w-full max-w-sm mb-6">
-          <DemoAccounts 
+          <DemoAccounts
             currentRole={role}
             theme="light"
             onFillCredentials={(e, p) => {
@@ -168,7 +168,7 @@ export default function ReusableLoginPage({
             }}
           />
         </div>
-        
+
 
         {/* Google Signup */}
         {googleSignup && (
@@ -295,7 +295,7 @@ export default function ReusableLoginPage({
         />
 
         <div className="w-full flex justify-center">
-          <DemoAccounts 
+          <DemoAccounts
             currentRole={role}
             theme="dark"
             onFillCredentials={(e, p) => {

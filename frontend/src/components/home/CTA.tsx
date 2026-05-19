@@ -49,7 +49,7 @@ export default function CTA() {
       <footer className="mt-32 pt-12 border-t border-white/10">
         <div className="max-w-7xl mx-auto text-center">
           <div className="flex items-center justify-center space-x-3 mb-6">
-             <Code className="w-8 h-8 text-blue-400" />
+             <img src="/logo.png" alt="DevNext Logo" className="w-10 h-10 object-contain" />
             <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
               DevNext
             </span>

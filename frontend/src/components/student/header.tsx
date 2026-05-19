@@ -201,8 +201,9 @@ export default function Header() {
               {/* LOGO */}
               <div
                 onClick={() => router.push("/student/home")}
-                className="cursor-pointer flex items-center"
+                className="cursor-pointer flex items-center gap-2"
               >
+                <img src="/logo.png" alt="DevNext Logo" className="w-8 h-8 object-contain" />
                 <h1 className="text-2xl lg:text-3xl font-black tracking-tighter text-white">
                   DevNext
                 </h1>

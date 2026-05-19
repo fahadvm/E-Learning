@@ -101,9 +101,7 @@ export default function Header() {
         <div className="container mx-auto px-4 md:px-6 max-w-7xl flex items-center justify-between">
           {/* Logo */}
           <Link href="/teacher/home" className="flex items-center gap-2 font-black text-xl">
-            <div className="w-10 h-10 bg-black text-white rounded-xl flex items-center justify-center">
-              D
-            </div>
+            <img src="/logo.png" alt="DevNext Logo" className="w-10 h-10 object-contain" />
             <span className="hidden sm:block">DevNext</span>
           </Link>
 

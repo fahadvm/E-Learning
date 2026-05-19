@@ -19,9 +19,7 @@ export default function Sidebar() {
     <aside className="w-64 bg-white border-r border-border shadow-sm">
       <div className="p-6">
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">D</span>
-          </div>
+          <img src="/logo.png" alt="DevNext Logo" className="w-10 h-10 object-contain" />
           <h1 className="text-xl font-bold text-foreground">DevNext</h1>
         </div>
 

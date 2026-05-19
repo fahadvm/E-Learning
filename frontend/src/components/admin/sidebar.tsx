@@ -83,9 +83,7 @@ export function Sidebar() {
           {/* Logo */}
           <div className="flex h-16 items-center border-b border-slate-100 px-6">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white font-bold">
-                D
-              </div>
+              <img src="/logo.png" alt="DevNext Logo" className="w-8 h-8 object-contain" />
               <span className="text-xl font-bold text-slate-900">DevNext</span>
             </div>
           </div>
